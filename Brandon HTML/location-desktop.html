@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>First Medical | Location Finder</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#0a4c69",
+                        "surface-tint": "#4157b6",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#f7fafd",
+                        "surface-container": "#ebeef1",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#dde1ff",
+                        "on-surface": "#181c1e",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f1f4f7",
+                        "on-secondary-fixed": "#001e2f",
+                        "primary-fixed-dim": "#b9c3ff",
+                        "on-surface-variant": "#444652",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#76c7fd",
+                        "inverse-on-surface": "#eef1f4",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b9c3ff",
+                        "on-secondary-fixed-variant": "#004c6e",
+                        "on-tertiary-container": "#71a5c6",
+                        "on-background": "#181c1e",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#0e2a8b",
+                        "surface-variant": "#e0e3e6",
+                        "on-primary": "#ffffff",
+                        "background": "#f7fafd",
+                        "outline": "#757683",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#003a53",
+                        "surface-dim": "#d7dadd",
+                        "secondary-fixed-dim": "#89ceff",
+                        "surface-container-highest": "#e0e3e6",
+                        "surface-container-high": "#e5e8eb",
+                        "on-primary-container": "#8398fc",
+                        "tertiary-fixed-dim": "#99cdf0",
+                        "tertiary-fixed": "#c6e7ff",
+                        "outline-variant": "#c5c5d4",
+                        "on-tertiary-fixed": "#001e2d",
+                        "on-secondary-container": "#005277",
+                        "on-primary-fixed-variant": "#263e9d",
+                        "tertiary": "#002334",
+                        "secondary-fixed": "#c9e6ff",
+                        "inverse-surface": "#2d3133",
+                        "surface": "#f7fafd",
+                        "on-primary-fixed": "#001256",
+                        "secondary": "#006591",
+                        "primary": "#001662"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafd; color: #181c1e; }
+        .headline-font { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="overflow-hidden">
+<nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-950/70 backdrop-blur-xl">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<span class="text-2xl font-bold tracking-tight text-blue-950 dark:text-white headline-font">First Medical</span>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-blue-700 dark:text-blue-400 font-semibold border-b-2 border-blue-700 dark:border-blue-400 pb-1 transition-all duration-300 ease-in-out" href="#">Find Care</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-blue-800 dark:hover:text-blue-200 transition-colors" href="#">Our Services</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-blue-800 dark:hover:text-blue-200 transition-colors" href="#">Locations</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-blue-800 dark:hover:text-blue-200 transition-colors" href="#">Patients</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full ring-1 ring-outline-variant/15">
+<span class="material-symbols-outlined text-on-surface-variant mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-64 placeholder:text-on-surface-variant/60" placeholder="Search providers or specialty..." type="text"/>
+</div>
+<button class="bg-gradient-to-r from-primary to-primary-container text-white px-6 py-2.5 rounded-full font-semibold text-sm hover:surface-tint transition-all duration-300">Book Appointment</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
+<img class="w-full h-full object-cover" data-alt="professional medical staff profile portrait with clean clinical background and soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIehZnIq3iwrvZVh-wt-sw_rB7L83UIpvSuNUMnT1Cup4CivxnuaZ91c-dYO7as0oJzwGQefdKWdlOJZqmtpWht2kZWd5XF9jxF-pw-3rlNl3mE1akpoKQeyIRwmnJAtdaJB96DR_k2akJgUG_K38eW7ajOtN7r9afob77rfBgg3Vtl-LRyJ3RoArlCChOEKUuiO9tcIYnVqztDZLxhpgXVw6XVBVGLpRMPk_xMKVQ8HXaqQ05Nw6EARYVzBb5KiXvxLelUHzlvJU"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="relative h-screen w-full pt-20 flex overflow-hidden">
+<section class="flex-1 relative">
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-surface-container" data-location="Manhattan, New York" style="">
+<img class="w-full h-full object-cover mix-blend-multiply opacity-60" data-alt="stylized architectural map of a metropolitan area with clean medical blue aesthetic and minimal street detailing" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrTcO64Q3mxV6n_2j9eNJ5g1rnYXg7rh8tGaOyLI3RGindyipwslKFLuCStZhkTbC1H4-0OWFtleFN4e_kj88oFhSJY-Xgfis5fc2LfxSdv_aoQmNNEQVR8ID8yyyX2kNlEKtuUlhK-GoahMGRorqX5TEk19BA9IIQxGvaI2Yfw2kF9pu_28g1s-hzPS3wDb3i4c5dfV1pVLsX0GRB1yL9aEEjCybkP-lfywcaODZZMGy87D3o67QA7_HXv0Yl5PBY5Yo66qdvT54"/>
+</div>
+<div class="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+<div class="relative">
+<div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-2xl animate-bounce">
+<span class="material-symbols-outlined text-white" data-icon="medical_services" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+</div>
+<div class="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-white px-4 py-2 rounded-xl shadow-xl border border-outline-variant/10 whitespace-nowrap">
+<p class="text-sm font-bold text-primary headline-font">Downtown Medical Center</p>
+<div class="flex items-center gap-1 text-[10px] text-on-surface-variant font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                            Currently Open
+                        </div>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute top-8 left-0 right-[416px] z-10 flex justify-center px-4">
+<div class="bg-white/70 backdrop-blur-md px-8 py-3 rounded-full shadow-2xl border border-white/40 flex items-center justify-between gap-4 gap-2">
+<!-- State Section -->
+<div class="flex flex-col cursor-pointer flex-initial px-4">
+<span class="text-blue-900 font-extrabold text-sm">State</span>
+<span class="text-blue-900/60 text-xs whitespace-nowrap">Search by state</span>
+</div>
+<div class="w-px h-8 bg-blue-900/20"></div>
+<!-- City Section -->
+<div class="flex flex-col cursor-pointer flex-initial px-4">
+<span class="text-blue-900 font-extrabold text-sm">City</span>
+<span class="text-blue-900/60 text-xs whitespace-nowrap">Search by city</span>
+</div>
+<div class="w-px h-8 bg-blue-900/20"></div>
+<!-- Zip Code Section -->
+<div class="flex flex-col cursor-pointer flex-initial px-4">
+<span class="text-blue-900 font-extrabold text-sm">Zip Code</span>
+<span class="text-blue-900/60 text-xs">Search by zip code</span>
+</div>
+<!-- Search Button -->
+<button class="flex-shrink-0 w-12 h-12 bg-[#002080] rounded-full flex items-center justify-center text-white shadow-lg hover:bg-blue-900 transition-colors">
+<span class="material-symbols-outlined font-bold" style="font-variation-settings: 'wght' 700;">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="absolute right-8 top-8 bottom-8 z-20 w-96 flex flex-col">
+<div class="flex-1 bg-surface-container-lowest/95 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,22,98,0.12)] border border-white/40 flex flex-col overflow-hidden">
+<div class="relative h-48">
+<img class="w-full h-full object-cover" data-alt="ultra modern hospital lobby with high ceilings glass walls and minimalist white furniture bathed in soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQujLZ_dl_7jUExdQyFJY3z7JbYtlEU4EZ-sMwxJ6V1qTOtSrYgGPQKwq7oV_j4SSciOfZz4QuG_rxDrPlD-dTbE1YSXmSkBB8y-GqB3YV2psKqfqXlQ8dfL2aPreCnk_Pyuag2GbNjrOWdx-GcJjr9t5Z5Biw3B7yz8H-xRlYPgpZwWhjgS27K6N5in9Zm6HsYVGmKelMUWlsifFuBAw_PUEgNWuPngYqVF9PVdcLp73bw1tew6cqz7FSg9pB3B6FnNjIEFX4HeA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent"></div>
+<button class="absolute top-4 right-4 w-10 h-10 bg-white/50 backdrop-blur-sm rounded-full flex items-center justify-center text-on-surface-variant hover:bg-white transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<div class="px-8 -mt-8 relative z-10 flex-1 overflow-y-auto no-scrollbar pb-8">
+<div class="mb-8">
+<h3 class="text-2xl font-extrabold text-primary headline-font leading-tight">Downtown Medical Center</h3>
+<p class="text-on-surface-variant text-sm mt-1">1200 Plaza Way, Suite 400, NY 10001</p>
+<div class="flex items-center gap-3 mt-4">
+<span class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-sm" data-icon="schedule" style="font-variation-settings: 'FILL' 1;">schedule</span>
+                                Open until 8:00 PM
+                            </span>
+<span class="text-xs text-on-surface-variant font-medium">4.8 • 1.2k Reviews</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-10">
+<button class="flex flex-col items-center justify-center gap-2 p-4 bg-primary text-white rounded-2xl hover:surface-tint transition-all">
+<span class="material-symbols-outlined" data-icon="call" style="font-variation-settings: 'FILL' 1;">call</span>
+<span class="text-xs font-bold">Call Clinic</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-4 bg-surface-container text-primary rounded-2xl hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined" data-icon="directions" style="font-variation-settings: 'FILL' 1;">directions</span>
+<span class="text-xs font-bold">Directions</span>
+</button>
+</div>
+<div class="mb-10">
+<h4 class="text-xs font-bold uppercase tracking-widest text-secondary mb-4">Office Hours</h4>
+<div class="space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant font-medium">Mon — Fri</span>
+<span class="text-primary font-bold">08:00 AM — 08:00 PM</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant font-medium">Saturday</span>
+<span class="text-primary font-bold">09:00 AM — 05:00 PM</span>
+</div>
+<div class="flex justify-between text-sm opacity-50">
+<span class="text-on-surface-variant font-medium">Sunday</span>
+<span class="text-primary font-bold">Closed</span>
+</div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between mb-6">
+<h4 class="text-xs font-bold uppercase tracking-widest text-secondary">Our Providers</h4>
+<button class="text-xs font-bold text-primary flex items-center gap-1 hover:underline">
+                                View All
+                                <span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="space-y-4">
+<div class="group flex items-center gap-4 p-3 rounded-2xl hover:bg-surface-container transition-all cursor-pointer border border-transparent hover:border-outline-variant/10">
+<img class="w-14 h-14 rounded-xl object-cover" data-alt="confident male doctor in a white lab coat with a friendly expression in a modern clinic setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAq4QALqCx5xqPk6vJzUo_R1A8B-L051_mGuKx2vd6eSFj0TNRlLz1znq-bPQDfzuq51GhbySWwX34vxj87PLuuDKET8gUkWwXT9rTOhryywrM3CEllyE5P6lp8w8QrIvTqB96PG42DSkVnjOLdN57TCEkN2ykt_UDg5Ut_UFDtHs1UCb4G67QPn11Yxs1CKRfbcuGnaEWE11Zu8QIqrqxO-AkprNX67gSbLLK7mB0ZIFNWx9mGvZoXous3KT8OX-YMZs8avaar0yI"/>
+<div>
+<p class="text-sm font-extrabold text-primary headline-font">Dr. Julian Sterling</p>
+<p class="text-[11px] text-on-surface-variant font-medium">Chief of Cardiology</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-yellow-500 text-[10px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[10px] font-bold">4.9</span>
+</div>
+</div>
+<span class="material-symbols-outlined ml-auto text-primary opacity-0 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="group flex items-center gap-4 p-3 rounded-2xl hover:bg-surface-container transition-all cursor-pointer border border-transparent hover:border-outline-variant/10">
+<img class="w-14 h-14 rounded-xl object-cover" data-alt="professional female physician smiling warmly in a bright modern medical office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpOyYzJ-y7s24PjT65LQlfnD_szAgPLcpP-BXHAVPfhGYrXvaAaTSMt8WVJ4fGY6gEFiR6Vb7vamBY5eywxobLPEd8m66nThPAzi0DAjnek2imLGCM8_W5ENPCiT8rPdp9zdsi-M5Ps30vTzZ7zr_32Tj7hOLcpNGXFcJlzkBqK7ldVn1KRI-W1vE8V-81h2om6-40BuqGkqN4AiZdXKK_uP8lv5D2fkH6eBqpI95gySFP0T__CsQ1VwIWlxzUuwFKHcwDDLenZdM"/>
+<div>
+<p class="text-sm font-extrabold text-primary headline-font">Dr. Sarah Chen</p>
+<p class="text-[11px] text-on-surface-variant font-medium">Internal Medicine</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-yellow-500 text-[10px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[10px] font-bold">5.0</span>
+</div>
+</div>
+<span class="material-symbols-outlined ml-auto text-primary opacity-0 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6 bg-surface-container-low/50 backdrop-blur-sm">
+<button class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-white rounded-2xl font-bold headline-font shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform">Book at this Location</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>
