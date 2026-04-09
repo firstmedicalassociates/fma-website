@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Service Finder Dashboard | First Medical Associates</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#003a53",
+                        "tertiary-fixed": "#c6e7ff",
+                        "inverse-primary": "#b9c3ff",
+                        "inverse-on-surface": "#eef1f4",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-highest": "#e0e3e6",
+                        "primary": "#001662",
+                        "surface-container": "#ebeef1",
+                        "surface-variant": "#e0e3e6",
+                        "surface-container-high": "#e5e8eb",
+                        "primary-container": "#0e2a8b",
+                        "on-tertiary-container": "#71a5c6",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#001e2d",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#8398fc",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#002334",
+                        "secondary": "#006591",
+                        "on-surface-variant": "#444652",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#f7fafd",
+                        "background": "#f7fafd",
+                        "on-tertiary-fixed-variant": "#0a4c69",
+                        "surface-dim": "#d7dadd",
+                        "primary-fixed": "#dde1ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#f7fafd",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#181c1e",
+                        "tertiary-fixed-dim": "#99cdf0",
+                        "on-secondary-fixed": "#001e2f",
+                        "secondary-fixed": "#c9e6ff",
+                        "on-primary-fixed-variant": "#263e9d",
+                        "on-secondary-container": "#005277",
+                        "secondary-fixed-dim": "#89ceff",
+                        "primary-fixed-dim": "#b9c3ff",
+                        "surface-tint": "#4157b6",
+                        "outline": "#757683",
+                        "on-primary-fixed": "#001256",
+                        "outline-variant": "#c5c5d4",
+                        "surface-container-low": "#f1f4f7",
+                        "on-secondary-fixed-variant": "#004c6e",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "on-background": "#181c1e",
+                        "secondary-container": "#76c7fd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scale-98-on-click:active { transform: scale(0.98); }
+        .tonal-shift { transition: background-color 0.3s ease; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<main class="pt-32 pb-20">
+<section class="max-w-screen-2xl mx-auto px-8 mb-16">
+<div class="flex flex-col md:flex-row gap-12 items-end">
+<div class="md:w-2/3">
+<span class="inline-block px-4 py-1.5 rounded-full bg-tertiary-container text-on-tertiary-container text-xs font-bold tracking-widest uppercase mb-6">Interactive Portal</span>
+<h1 class="text-6xl md:text-8xl font-headline font-extrabold tracking-tighter text-primary leading-[0.9] mb-8">Service Finder <br/>Dashboard.</h1>
+</div>
+<div class="md:w-1/3 pb-4">
+<p class="text-xl text-on-surface-variant font-body leading-relaxed mb-6">
+                        Seamlessly navigate our clinical offerings. Use the dashboard below to search, filter, and discover the exact care you need.
+                    </p>
+<div class="flex gap-4">
+<div class="h-1 w-24 bg-secondary rounded-full"></div>
+<div class="h-1 w-8 bg-outline-variant/30 rounded-full"></div>
+</div>
+</div>
+</div>
+</section>
+<div class="sticky top-[10px] z-40 bg-surface/90 backdrop-blur-md border-y border-outline-variant/20 py-6 mb-12">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="flex flex-col lg:flex-row lg:items-center gap-8">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-outline-variant/40 bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body text-on-surface" placeholder="Search services (e.g., 'Diabetes', 'Telemedicine')..." type="text"/>
+</div>
+<div class="flex items-center gap-3 overflow-x-auto hide-scrollbar pb-2 lg:pb-0">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mr-2 whitespace-nowrap">Filter By:</span>
+<button class="px-5 py-2.5 rounded-full bg-primary text-white font-bold text-sm whitespace-nowrap transition-all shadow-md shadow-primary/10">All Services</button>
+<button class="px-5 py-2.5 rounded-full bg-white border border-outline-variant/40 hover:border-primary hover:text-primary text-on-surface-variant font-bold text-sm whitespace-nowrap transition-all">Primary Care</button>
+<button class="px-5 py-2.5 rounded-full bg-white border border-outline-variant/40 hover:border-primary hover:text-primary text-on-surface-variant font-bold text-sm whitespace-nowrap transition-all">Chronic Conditions</button>
+<button class="px-5 py-2.5 rounded-full bg-white border border-outline-variant/40 hover:border-primary hover:text-primary text-on-surface-variant font-bold text-sm whitespace-nowrap transition-all">Specialized Care</button>
+<button class="px-5 py-2.5 rounded-full bg-white border border-outline-variant/40 hover:border-primary hover:text-primary text-on-surface-variant font-bold text-sm whitespace-nowrap transition-all">General Services</button>
+</div>
+</div>
+</div>
+</div>
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="stethoscope">stethoscope</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">Primary Care</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">Annual Physicals</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Comprehensive yearly evaluations tailored to your age, gender, and personal risk factors.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="medical_services">medical_services</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">Primary Care</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">Urgent Needs</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Same-day appointments for non-life-threatening illnesses and immediate health concerns.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="air">air</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">Chronic</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">Asthma</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Long-term management and respiratory therapeutic solutions for optimal lung health.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="psychology">psychology</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">Chronic</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">Depression</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Holistic mental health support and clinical intervention tailored to your well-being.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="monitoring">monitoring</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">Chronic</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">Diabetes</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Glycemic monitoring, nutritional guidance, and advanced metabolic health protocols.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="stomach">gastroenterology</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">Chronic</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">Gastrointestinal Issues</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Specialized care for digestive wellness, IBS, and chronic abdominal discomfort.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="elderly">elderly</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">Chronic</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">Geriatric Care</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Compassionate health management and specialized support for our senior populations.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="female">female</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">Specialized</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">Women's Health</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Comprehensive OB/GYN services, screenings, and reproductive health expertise.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="male">male</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">Specialized</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">Men's Health</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Targeted wellness, preventative screening, and hormonal health optimization.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="dermatology">dermatology</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">Specialized</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">Skin Rash &amp; Eczema</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Dermatological interventions and management for chronic skin conditions.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="lab_research">lab_research</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">Specialized</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">STD Testing</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Confidential screenings and rapid results processing with expert follow-up care.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="science">science</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">General</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">UTI Test and Treatment</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Quick diagnostics and effective treatment plans for urinary tract infections.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-white p-6 rounded-2xl border border-outline-variant/20 hover:border-secondary hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="clinical_notes">clinical_notes</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded">General</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-primary mb-2">Sore Throat</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Evaluation and treatment for bacterial and viral infections causing throat pain.</p>
+</div>
+<div class="mt-6 flex items-center text-secondary font-bold text-xs uppercase tracking-widest">
+                        Learn More <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="group bg-primary p-6 rounded-2xl border border-transparent hover:shadow-xl hover:shadow-primary/20 transition-all cursor-pointer flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-white text-3xl" data-icon="videocam">videocam</span>
+<span class="text-[10px] font-bold text-white uppercase tracking-widest bg-white/10 px-2 py-1 rounded">Telehealth</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-white mb-2">Telemedicine</h4>
+<p class="text-on-primary-container text-sm leading-relaxed">Connect with our clinicians from the comfort of your home for various health needs.</p>
+</div>
+<div class="mt-6 flex items-center text-white font-bold text-xs uppercase tracking-widest">
+                        Launch Visit <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+<section class="max-w-screen-2xl mx-auto px-8 mt-24">
+<div class="relative bg-primary-container rounded-[2rem] overflow-hidden p-12 md:p-24 text-center">
+<div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 32px 32px;"></div>
+<div class="relative z-10 max-w-2xl mx-auto">
+<h2 class="text-4xl md:text-5xl font-headline font-black text-white mb-8 tracking-tight">Need immediate clinical assistance?</h2>
+<p class="text-on-primary-container text-lg mb-12">Our medical team is available for urgent consultations and chronic disease management. Your health curated by the best.</p>
+<div class="flex flex-col sm:flex-row justify-center gap-4">
+<button class="bg-white text-primary px-10 py-5 rounded-full font-headline font-bold text-lg scale-98-on-click transition-all">Find a Clinician</button>
+<button class="bg-transparent border border-white/20 text-white px-10 py-5 rounded-full font-headline font-bold text-lg hover:bg-white/10 transition-all">Emergency Portal</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+
+</body></html>
