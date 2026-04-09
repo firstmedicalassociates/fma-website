@@ -32,3 +32,19 @@ model BlogPost {
 
   @@index([status, publishedAt])
 }
+
+model Provider {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  title     String
+  bio       String
+  imageUrl  String
+  linkUrl   String?
+  locations String[] @default([])
+  languages String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+}

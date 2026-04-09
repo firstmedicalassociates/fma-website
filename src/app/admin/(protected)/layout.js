@@ -26,7 +26,7 @@ export default async function AdminLayout({ children }) {
         <div className="admin-logo">CMS Admin</div>
         <Link href="/admin">Dashboard</Link>
         <Link href="/admin/posts">Posts</Link>
-        <Link href="/admin/users">Users</Link>
+        <Link href="/admin/providers">Providers</Link>
         <span className="admin-pill">{session.email}</span>
       </aside>
       <main className="admin-main">{children}</main>

@@ -11,11 +11,17 @@ function getSiteUrl() {
 export default async function sitemap() {
   const siteUrl = getSiteUrl();
 
-  const posts = await prisma.blogPost.findMany({
-    where: { status: "PUBLISHED" },
-    select: { slug: true, updatedAt: true, publishedAt: true },
-    orderBy: { publishedAt: "desc" },
-  });
+  const [posts, providers] = await Promise.all([
+    prisma.blogPost.findMany({
+      where: { status: "PUBLISHED" },
+      select: { slug: true, updatedAt: true, publishedAt: true },
+      orderBy: { publishedAt: "desc" },
+    }),
+    prisma.provider.findMany({
+      select: { slug: true, updatedAt: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   const staticRoutes = [
     {
@@ -30,6 +36,12 @@ export default async function sitemap() {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    {
+      url: `${siteUrl}/providers`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
   ];
 
   const postRoutes = posts.map((post) => ({
@@ -39,5 +51,12 @@ export default async function sitemap() {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...postRoutes];
+  const providerRoutes = providers.map((provider) => ({
+    url: `${siteUrl}/providers/${provider.slug}`,
+    lastModified: provider.updatedAt || new Date(),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
+  return [...staticRoutes, ...postRoutes, ...providerRoutes];
 }
