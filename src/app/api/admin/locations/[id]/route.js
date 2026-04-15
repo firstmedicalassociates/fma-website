@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import { requireAdminRequest } from "../../../../lib/admin-auth";
-import { normalizeProviderPayload } from "../../../../lib/providers";
+import { validateLocationPayload } from "../../../../lib/location-cms";
 
 export const runtime = "nodejs";
 
@@ -15,43 +15,26 @@ export async function PUT(request, { params }) {
   }
 
   let body;
+
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ ok: false, error: "Invalid JSON." }, { status: 400 });
   }
 
-  const payload = normalizeProviderPayload(body);
-
-  if (!payload.name || !payload.title || !payload.bio || !payload.slug || !payload.imageUrl) {
-    return NextResponse.json(
-      { ok: false, error: "Name, title, bio, slug, and image are required." },
-      { status: 400 }
-    );
-  }
-
-  if (payload.locations.length === 0) {
-    return NextResponse.json(
-      { ok: false, error: "Assign the provider to at least one location." },
-      { status: 400 }
-    );
-  }
-
-  if (payload.languages.length === 0) {
-    return NextResponse.json(
-      { ok: false, error: "Add at least one language." },
-      { status: 400 }
-    );
+  const validation = validateLocationPayload(body);
+  if (!validation.ok) {
+    return NextResponse.json({ ok: false, error: validation.error }, { status: 400 });
   }
 
   try {
-    const provider = await prisma.provider.update({
+    const location = await prisma.location.update({
       where: { id },
-      data: payload,
+      data: validation.data,
       select: { id: true, slug: true },
     });
 
-    return NextResponse.json({ ok: true, id: provider.id, slug: provider.slug });
+    return NextResponse.json({ ok: true, id: location.id, slug: location.slug });
   } catch (error) {
     const errorMessage = String(error?.message || "");
 
@@ -63,10 +46,10 @@ export async function PUT(request, { params }) {
     }
 
     if (errorMessage.toLowerCase().includes("record to update not found")) {
-      return NextResponse.json({ ok: false, error: "Provider not found." }, { status: 404 });
+      return NextResponse.json({ ok: false, error: "Location not found." }, { status: 404 });
     }
 
-    return NextResponse.json({ ok: false, error: "Failed to update provider." }, { status: 500 });
+    return NextResponse.json({ ok: false, error: "Failed to update location." }, { status: 500 });
   }
 }
 
@@ -80,9 +63,13 @@ export async function DELETE(request, { params }) {
   }
 
   try {
-    await prisma.provider.delete({ where: { id } });
+    await prisma.location.delete({ where: { id } });
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ ok: false, error: "Failed to delete provider." }, { status: 500 });
+  } catch (error) {
+    if (String(error?.message || "").toLowerCase().includes("record to delete does not exist")) {
+      return NextResponse.json({ ok: false, error: "Location not found." }, { status: 404 });
+    }
+
+    return NextResponse.json({ ok: false, error: "Failed to delete location." }, { status: 500 });
   }
 }

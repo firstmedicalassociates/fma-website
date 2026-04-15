@@ -2,12 +2,13 @@
 
 /* eslint-disable @next/next/no-img-element */
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
-  PROVIDER_LOCATION_OPTIONS,
   formatProviderList,
   normalizeProviderSlug,
   normalizeStringList,
+  resolveLocationTitles,
 } from "../../../lib/providers";
 
 function getImageDimensions(file) {
@@ -41,13 +42,16 @@ function getInitialValues(initialProvider) {
     slug: initialProvider?.slug || "",
     bio: initialProvider?.bio || "",
     imageUrl: initialProvider?.imageUrl || "",
+    imageAlt: initialProvider?.imageAlt || "",
     linkUrl: initialProvider?.linkUrl || "",
     locations: Array.isArray(initialProvider?.locations) ? initialProvider.locations : [],
     languages: Array.isArray(initialProvider?.languages) ? initialProvider.languages : [],
+    sortOrder: String(initialProvider?.sortOrder ?? 0),
+    isActive: initialProvider?.isActive ?? true,
   };
 }
 
-export default function ProviderForm({ mode = "create", initialProvider }) {
+export default function ProviderForm({ mode = "create", initialProvider, locationOptions = [] }) {
   const initialValues = getInitialValues(initialProvider);
   const isEditMode = mode === "edit";
 
@@ -57,18 +61,27 @@ export default function ProviderForm({ mode = "create", initialProvider }) {
   const [slugTouched, setSlugTouched] = useState(isEditMode || Boolean(initialValues.slug));
   const [bio, setBio] = useState(initialValues.bio);
   const [imageUrl, setImageUrl] = useState(initialValues.imageUrl);
+  const [imageAlt, setImageAlt] = useState(initialValues.imageAlt);
   const [linkUrl, setLinkUrl] = useState(initialValues.linkUrl);
   const [imageStatus, setImageStatus] = useState("idle");
   const [selectedLocations, setSelectedLocations] = useState(initialValues.locations);
   const [languagesInput, setLanguagesInput] = useState(formatProviderList(initialValues.languages));
+  const [sortOrder, setSortOrder] = useState(initialValues.sortOrder);
+  const [isActive, setIsActive] = useState(initialValues.isActive);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
 
-  const languages = useMemo(() => normalizeStringList(languagesInput), [languagesInput]);
+  const locationTitleBySlug = useMemo(
+    () => Object.fromEntries(locationOptions.map((location) => [location.slug, location.title])),
+    [locationOptions]
+  );
+
   const selectedLocationLabel = useMemo(() => {
-    if (selectedLocations.length === 0) return "Select locations";
-    return formatProviderList(selectedLocations);
-  }, [selectedLocations]);
+    if (selectedLocations.length === 0) return "Select one or more locations";
+    return formatProviderList(resolveLocationTitles(selectedLocations, locationTitleBySlug));
+  }, [locationTitleBySlug, selectedLocations]);
+
+  const languages = useMemo(() => normalizeStringList(languagesInput), [languagesInput]);
 
   function handleNameChange(event) {
     const value = event.target.value;
@@ -84,11 +97,11 @@ export default function ProviderForm({ mode = "create", initialProvider }) {
     setSlug(normalizeProviderSlug(event.target.value));
   }
 
-  function toggleLocation(location) {
+  function toggleLocation(locationSlug) {
     setSelectedLocations((current) =>
-      current.includes(location)
-        ? current.filter((item) => item !== location)
-        : [...current, location]
+      current.includes(locationSlug)
+        ? current.filter((value) => value !== locationSlug)
+        : [...current, locationSlug]
     );
   }
 
@@ -131,28 +144,32 @@ export default function ProviderForm({ mode = "create", initialProvider }) {
     }
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(event) {
+    event.preventDefault();
     setStatus("saving");
     setMessage("");
 
     try {
-      const response = await fetch(
-        isEditMode ? `/api/admin/providers/${initialValues.id}` : "/api/admin/providers",
-        {
-          method: isEditMode ? "PATCH" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            title,
-            slug,
-            bio,
-            imageUrl,
-            linkUrl,
-            locations: selectedLocations,
-            languages,
-          }),
-        }
-      );
+      const endpoint = isEditMode ? `/api/admin/providers/${initialValues.id}` : "/api/admin/providers";
+      const method = isEditMode ? "PUT" : "POST";
+
+      const response = await fetch(endpoint, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          title,
+          slug,
+          bio,
+          imageUrl,
+          imageAlt,
+          linkUrl,
+          locations: selectedLocations,
+          languages,
+          sortOrder,
+          isActive,
+        }),
+      });
 
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.ok) {
@@ -161,7 +178,7 @@ export default function ProviderForm({ mode = "create", initialProvider }) {
         return;
       }
 
-      window.location.href = `/providers/${data.slug}`;
+      window.location.href = `/admin/providers/${data.id || initialValues.id}`;
     } catch {
       setStatus("error");
       setMessage(`Failed to ${isEditMode ? "update" : "create"} provider.`);
@@ -172,19 +189,18 @@ export default function ProviderForm({ mode = "create", initialProvider }) {
     <>
       <header className="admin-top">
         <div>
-          <h1 className="admin-title">{isEditMode ? "Edit Provider" : "New Provider"}</h1>
+          <span className="admin-kicker">Provider editor</span>
+          <h1 className="admin-title">{isEditMode ? "Edit Provider" : "Add Provider"}</h1>
           <p className="admin-subtitle">
-            {isEditMode
-              ? "Update the provider profile, locations, languages, or replace the image."
-              : "Add a directory profile with a 600x600 image and all connected locations."}
+            Use location assignments to control which doctors appear on each location page.
           </p>
         </div>
         <div className="builder-row">
-          <span className="admin-pill">Builder</span>
+          <span className="admin-pill">{isActive ? "Visible" : "Hidden"}</span>
           <button
-            className="builder-button"
-            type="button"
-            onClick={handleSubmit}
+            className="builder-button admin-primary-cta"
+            type="submit"
+            form="provider-form"
             disabled={status === "saving" || imageStatus === "uploading"}
           >
             {status === "saving"
@@ -192,7 +208,7 @@ export default function ProviderForm({ mode = "create", initialProvider }) {
                 ? "Saving..."
                 : "Creating..."
               : isEditMode
-                ? "Save changes"
+                ? "Save provider"
                 : "Create provider"}
           </button>
         </div>
@@ -200,193 +216,264 @@ export default function ProviderForm({ mode = "create", initialProvider }) {
 
       <section className="builder-shell">
         <div className="builder-card">
-          <h2>Provider details</h2>
-
-          <div className="builder-field">
-            <label>Name (required)</label>
-            <input
-              className="builder-input"
-              type="text"
-              value={name}
-              onChange={handleNameChange}
-              placeholder="Example name"
-            />
-          </div>
-
-          <div className="builder-field">
-            <label>Title (required)</label>
-            <input
-              className="builder-input"
-              type="text"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="M.D., PA-C, FNP-BC"
-            />
-          </div>
-
-          <div className="builder-field">
-            <label>Slug (required)</label>
-            <input
-              className="builder-input"
-              type="text"
-              value={slug}
-              onChange={handleSlugChange}
-              placeholder="example-name"
-            />
-          </div>
-
-          <div className="builder-field">
-            <label>Bio (required)</label>
-            <textarea
-              className="builder-textarea"
-              rows={8}
-              value={bio}
-              onChange={(event) => setBio(event.target.value)}
-              placeholder="Short provider bio"
-            />
-          </div>
-
-          <div className="builder-field">
-            <label>
-              {isEditMode
-                ? "Replace provider image (600x600)"
-                : "Provider image (required, 600x600)"}
-            </label>
-            <input
-              className="builder-input"
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              onChange={handleImageUpload}
-            />
-            <p className="admin-subtitle" style={{ marginTop: 6 }}>
-              The upload is rejected unless the image is exactly 600 by 600 pixels.
-            </p>
-            {imageUrl ? (
-              <p className="admin-subtitle" style={{ marginTop: 6 }}>
-                Current image: {imageUrl}
-              </p>
-            ) : null}
-          </div>
-
-          <div className="builder-field">
-            <label>Button link (optional)</label>
-            <input
-              className="builder-input"
-              type="url"
-              value={linkUrl}
-              onChange={(event) => setLinkUrl(event.target.value)}
-              placeholder="https://example.com/provider-page"
-            />
-            <p className="admin-subtitle" style={{ marginTop: 6 }}>
-              If set, a button will appear on the provider page.
+          <div className="builder-card-header">
+            <h2>Profile setup</h2>
+            <p className="builder-card-copy">
+              Add the provider profile, upload the square headshot, and assign the provider to the
+              correct locations.
             </p>
           </div>
 
-          <div className="builder-field">
-            <label>Locations (required)</label>
-            <details className="builder-multiselect">
-              <summary className="builder-multiselect-trigger">
-                <span>{selectedLocationLabel}</span>
-                <span>{selectedLocations.length} selected</span>
-              </summary>
-              <div className="builder-multiselect-menu">
-                {PROVIDER_LOCATION_OPTIONS.map((location) => (
-                  <label className="builder-option" key={location}>
-                    <input
-                      type="checkbox"
-                      checked={selectedLocations.includes(location)}
-                      onChange={() => toggleLocation(location)}
-                    />
-                    <span>{location}</span>
-                  </label>
-                ))}
+          <form className="builder-form" id="provider-form" onSubmit={handleSubmit}>
+            <div className="builder-grid-two">
+              <div className="builder-field">
+                <label>Name (required)</label>
+                <input
+                  className="builder-input"
+                  type="text"
+                  value={name}
+                  onChange={handleNameChange}
+                  placeholder="Provider full name"
+                  required
+                />
               </div>
-            </details>
-            {selectedLocations.length > 0 ? (
-              <div className="builder-chip-row">
-                {selectedLocations.map((location) => (
-                  <span className="builder-chip" key={location}>
-                    {location}
-                  </span>
-                ))}
+
+              <div className="builder-field">
+                <label>Title (required)</label>
+                <input
+                  className="builder-input"
+                  type="text"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  placeholder="M.D., FNP-BC, PA-C"
+                  required
+                />
               </div>
-            ) : null}
-          </div>
+            </div>
 
-          <div className="builder-field">
-            <label>Languages (required)</label>
-            <textarea
-              className="builder-textarea"
-              rows={4}
-              value={languagesInput}
-              onChange={(event) => setLanguagesInput(event.target.value)}
-              placeholder="English, Spanish"
-            />
-            <p className="admin-subtitle" style={{ marginTop: 6 }}>
-              Separate languages with commas or one per line.
-            </p>
-            {languages.length > 0 ? (
-              <div className="builder-chip-row">
-                {languages.map((language) => (
-                  <span className="builder-chip" key={language}>
-                    {language}
-                  </span>
-                ))}
+            <div className="builder-grid-two">
+              <div className="builder-field">
+                <label>Slug (required)</label>
+                <input
+                  className="builder-input"
+                  type="text"
+                  value={slug}
+                  onChange={handleSlugChange}
+                  placeholder="jane-doe"
+                  required
+                />
               </div>
-            ) : null}
-          </div>
 
-          {message ? (
-            <p
-              className="admin-subtitle"
-              style={{ color: status === "error" || imageStatus === "error" ? "#b42318" : "" }}
-            >
-              {message}
-            </p>
-          ) : null}
-        </div>
+              <div className="builder-field">
+                <label>Sort order</label>
+                <input
+                  className="builder-input"
+                  type="number"
+                  value={sortOrder}
+                  onChange={(event) => setSortOrder(event.target.value)}
+                  placeholder="0"
+                />
+              </div>
+            </div>
 
-        <div className="builder-preview">
-          <h2>Preview</h2>
-          <article className="provider-preview-card">
-            {imageUrl ? (
-              <img src={imageUrl} alt={name || "Provider image"} />
-            ) : (
-              <div className="provider-preview-placeholder">600x600 image</div>
-            )}
+            <div className="builder-field">
+              <label>Bio (required)</label>
+              <textarea
+                className="builder-textarea"
+                rows={8}
+                value={bio}
+                onChange={(event) => setBio(event.target.value)}
+                placeholder="Short provider biography"
+                required
+              />
+            </div>
 
-            <div style={{ textAlign: "center" }}>
-              <h3 style={{ marginBottom: 6 }}>{name || "Example name"}</h3>
-              <p className="admin-subtitle" style={{ fontWeight: 700 }}>
-                {title || "Example title"}
+            <div className="builder-grid-two">
+              <div className="builder-field">
+                <label>Provider image (required, 600x600)</label>
+                <input
+                  className="builder-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleImageUpload}
+                />
+                <p className="builder-helper-text">
+                  Uploads are validated to exactly 600 by 600 pixels.
+                </p>
+                {imageUrl ? <p className="builder-helper-text">Current image: {imageUrl}</p> : null}
+              </div>
+
+              <div className="builder-field">
+                <label>Image alt text</label>
+                <input
+                  className="builder-input"
+                  type="text"
+                  value={imageAlt}
+                  onChange={(event) => setImageAlt(event.target.value)}
+                  placeholder="Describe the provider image"
+                />
+              </div>
+            </div>
+
+            <div className="builder-field">
+              <label>Booking link (optional)</label>
+              <input
+                className="builder-input"
+                type="url"
+                value={linkUrl}
+                onChange={(event) => setLinkUrl(event.target.value)}
+                placeholder="https://example.com/provider-booking"
+              />
+              <p className="builder-helper-text">
+                If present, location cards can use this as the provider call-to-action.
               </p>
             </div>
 
-            <div style={{ display: "grid", gap: 10 }}>
+            <div className="builder-field">
+              <label>Locations (required)</label>
+              {locationOptions.length === 0 ? (
+                <div className="builder-list-block">
+                  <p className="builder-helper-text">
+                    No locations exist yet. Create a location first, then come back to assign this
+                    provider.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <details className="builder-multiselect">
+                    <summary className="builder-multiselect-trigger">
+                      <span>{selectedLocationLabel}</span>
+                      <span>{selectedLocations.length} selected</span>
+                    </summary>
+                    <div className="builder-multiselect-menu">
+                      {locationOptions.map((location) => (
+                        <label className="builder-option" key={location.slug}>
+                          <input
+                            type="checkbox"
+                            checked={selectedLocations.includes(location.slug)}
+                            onChange={() => toggleLocation(location.slug)}
+                          />
+                          <span>{location.title}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </details>
+
+                  {selectedLocations.length > 0 ? (
+                    <div className="location-preview-chip-row">
+                      {resolveLocationTitles(selectedLocations, locationTitleBySlug).map((title) => (
+                        <span className="admin-pill" key={title}>
+                          {title}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </>
+              )}
+            </div>
+
+            <div className="builder-field">
+              <label>Languages (required)</label>
+              <textarea
+                className="builder-textarea"
+                rows={4}
+                value={languagesInput}
+                onChange={(event) => setLanguagesInput(event.target.value)}
+                placeholder="English, Spanish"
+                required
+              />
+              <p className="builder-helper-text">
+                Separate languages with commas or one per line.
+              </p>
+            </div>
+
+            <label className="builder-checkbox">
+              <input
+                type="checkbox"
+                checked={isActive}
+                onChange={(event) => setIsActive(event.target.checked)}
+              />
+              <span>Show this provider on the public site</span>
+            </label>
+
+            <div className="builder-row">
+              <button
+                className="builder-button admin-primary-cta"
+                type="submit"
+                disabled={status === "saving" || imageStatus === "uploading"}
+              >
+                {status === "saving"
+                  ? isEditMode
+                    ? "Saving..."
+                    : "Creating..."
+                  : isEditMode
+                    ? "Save provider"
+                    : "Create provider"}
+              </button>
+              <Link className="builder-button secondary" href="/admin/providers">
+                Cancel
+              </Link>
+            </div>
+
+            {message ? (
+              <p
+                className={`status-message ${
+                  status === "error" || imageStatus === "error" ? "is-error" : ""
+                }`}
+              >
+                {message}
+              </p>
+            ) : null}
+          </form>
+        </div>
+
+        <div className="builder-preview">
+          <p className="builder-preview-kicker">Live preview</p>
+          <h2>Provider card</h2>
+          <article className="location-preview-card">
+            {imageUrl ? (
+              <img
+                className="builder-preview-image"
+                src={imageUrl}
+                alt={imageAlt || name || "Provider image"}
+              />
+            ) : (
+              <div className="builder-preview-placeholder">600x600 provider image</div>
+            )}
+
+            <div className="location-preview-body">
               <div>
-                <strong>Locations</strong>
-                <p className="admin-subtitle" style={{ marginTop: 6 }}>
-                  {formatProviderList(selectedLocations) || "Select one or more locations"}
-                </p>
+                <p className="location-preview-slug">/providers/{slug || "provider-slug"}</p>
+                <h2>{name || "Provider name"}</h2>
+                <p className="location-preview-intro">{title || "Provider title"}</p>
               </div>
-              <div>
-                <strong>Languages</strong>
-                <p className="admin-subtitle" style={{ marginTop: 6 }}>
-                  {formatProviderList(languages) || "Add one or more languages"}
-                </p>
+
+              <div className="location-preview-meta-grid">
+                <div className="location-preview-meta-item">
+                  <span>Status</span>
+                  <strong>{isActive ? "Visible on the site" : "Hidden from public pages"}</strong>
+                </div>
+                <div className="location-preview-meta-item">
+                  <span>Locations</span>
+                  <strong>
+                    {selectedLocations.length > 0
+                      ? formatProviderList(resolveLocationTitles(selectedLocations, locationTitleBySlug))
+                      : "Assign one or more locations"}
+                  </strong>
+                </div>
+                <div className="location-preview-meta-item">
+                  <span>Languages</span>
+                  <strong>{formatProviderList(languages) || "Add one or more languages"}</strong>
+                </div>
+                <div className="location-preview-meta-item">
+                  <span>Booking CTA</span>
+                  <strong>{linkUrl || "Uses provider detail page"}</strong>
+                </div>
               </div>
-              <div>
-                <strong>Bio</strong>
-                <p className="admin-subtitle" style={{ marginTop: 6, whiteSpace: "pre-wrap" }}>
-                  {bio || "Provider bio preview"}
-                </p>
-              </div>
-              <div>
-                <strong>Button link</strong>
-                <p className="admin-subtitle" style={{ marginTop: 6, wordBreak: "break-all" }}>
-                  {linkUrl || "No button link set"}
-                </p>
-              </div>
+
+              <p className="location-preview-intro">
+                {bio || "Provider bio preview will render here as you type."}
+              </p>
             </div>
           </article>
         </div>

@@ -2,26 +2,17 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { absoluteUrl } from "../../lib/config/site";
+import { splitLocationSlug } from "../../lib/locations";
 import { prisma } from "../../lib/prisma";
-import { formatProviderList } from "../../lib/providers";
+import {
+  buildLocationTitleMap,
+  formatProviderList,
+  resolveLocationTitles,
+} from "../../lib/providers";
 
 export const runtime = "nodejs";
-export const revalidate = 60;
-export const dynamicParams = true;
-
-function getSiteUrl() {
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL;
-  const normalized = envUrl ? envUrl.trim().replace(/\/+$/, "") : "";
-  return normalized || "http://localhost:3000";
-}
-
-export async function generateStaticParams() {
-  const providers = await prisma.provider.findMany({
-    select: { slug: true },
-  });
-
-  return providers.map((provider) => ({ slug: provider.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -34,19 +25,18 @@ export async function generateMetadata({ params }) {
       title: true,
       bio: true,
       imageUrl: true,
-      linkUrl: true,
-      locations: true,
+      imageAlt: true,
+      isActive: true,
     },
   });
 
-  if (!provider) return {};
+  if (!provider || !provider.isActive) return {};
 
-  const siteUrl = getSiteUrl();
-  const canonicalUrl = `${siteUrl}/providers/${slug}`;
+  const canonicalUrl = absoluteUrl(`/providers/${slug}`);
   const description = provider.bio.length > 160 ? `${provider.bio.slice(0, 157)}...` : provider.bio;
   const imageUrl = provider.imageUrl.startsWith("http")
     ? provider.imageUrl
-    : `${siteUrl}${provider.imageUrl}`;
+    : absoluteUrl(provider.imageUrl);
 
   return {
     title: `${provider.name} | Providers`,
@@ -59,13 +49,13 @@ export async function generateMetadata({ params }) {
       url: canonicalUrl,
       title: `${provider.name} | Providers`,
       description,
-      images: imageUrl ? [{ url: imageUrl, alt: provider.name }] : undefined,
+      images: imageUrl ? [{ url: imageUrl, alt: provider.imageAlt || provider.name }] : undefined,
     },
     twitter: {
       card: imageUrl ? "summary_large_image" : "summary",
       title: `${provider.name} | Providers`,
       description,
-      images: imageUrl ? [{ url: imageUrl, alt: provider.name }] : undefined,
+      images: imageUrl ? [{ url: imageUrl, alt: provider.imageAlt || provider.name }] : undefined,
     },
   };
 }
@@ -81,22 +71,42 @@ export default async function ProviderDetailPage({ params }) {
       title: true,
       bio: true,
       imageUrl: true,
+      imageAlt: true,
       linkUrl: true,
       locations: true,
       languages: true,
       updatedAt: true,
+      isActive: true,
     },
   });
 
-  if (!provider) {
+  if (!provider || !provider.isActive) {
     notFound();
   }
 
-  const siteUrl = getSiteUrl();
-  const canonicalUrl = `${siteUrl}/providers/${slug}`;
+  const locations = await prisma.location.findMany({
+    orderBy: { title: "asc" },
+    select: {
+      slug: true,
+      title: true,
+    },
+  });
+
+  const locationTitleBySlug = buildLocationTitleMap(locations);
+  const locationTitles = resolveLocationTitles(provider.locations, locationTitleBySlug);
+  const locationLinks = provider.locations.map((locationSlug) => ({
+    href: locationSlug,
+    label:
+      locationTitleBySlug[locationSlug] ||
+      splitLocationSlug(locationSlug)
+        .join(" / ")
+        .replace(/\b\w/g, (letter) => letter.toUpperCase()),
+  }));
+
+  const canonicalUrl = absoluteUrl(`/providers/${slug}`);
   const imageUrl = provider.imageUrl.startsWith("http")
     ? provider.imageUrl
-    : `${siteUrl}${provider.imageUrl}`;
+    : absoluteUrl(provider.imageUrl);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -104,7 +114,7 @@ export default async function ProviderDetailPage({ params }) {
     jobTitle: provider.title,
     image: imageUrl,
     knowsLanguage: provider.languages,
-    workLocation: provider.locations.map((location) => ({
+    workLocation: locationTitles.map((location) => ({
       "@type": "Place",
       name: location,
     })),
@@ -117,7 +127,7 @@ export default async function ProviderDetailPage({ params }) {
         minHeight: "100vh",
         background: "#f8fafc",
         padding: "56px 16px 88px",
-        fontFamily: "ui-sans-serif, system-ui, Segoe UI, Roboto, Arial, sans-serif",
+        fontFamily: "var(--font-geist-sans), Arial, sans-serif",
       }}
     >
       <script
@@ -143,7 +153,7 @@ export default async function ProviderDetailPage({ params }) {
           <div style={{ display: "grid", gap: 16, justifyItems: "center" }}>
             <img
               src={provider.imageUrl}
-              alt={provider.name}
+              alt={provider.imageAlt || provider.name}
               style={{
                 width: "100%",
                 maxWidth: 280,
@@ -156,9 +166,29 @@ export default async function ProviderDetailPage({ params }) {
             <div style={{ display: "grid", gap: 8, width: "100%" }}>
               <div>
                 <strong>Locations</strong>
-                <p style={{ marginTop: 6, color: "#6b7280" }}>
-                  {formatProviderList(provider.locations)}
-                </p>
+                <div style={{ marginTop: 6, display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {locationLinks.length > 0 ? (
+                    locationLinks.map((location) => (
+                      <Link
+                        key={location.href}
+                        href={location.href}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          padding: "6px 12px",
+                          borderRadius: 999,
+                          background: "#eef2ff",
+                          color: "#1d4ed8",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {location.label}
+                      </Link>
+                    ))
+                  ) : (
+                    <p style={{ color: "#6b7280" }}>No location assignments</p>
+                  )}
+                </div>
               </div>
               <div>
                 <strong>Languages</strong>
@@ -222,7 +252,7 @@ export default async function ProviderDetailPage({ params }) {
                   boxShadow: "0 14px 30px rgba(37, 99, 235, 0.24)",
                 }}
               >
-                Visit Provider Link
+                Book appointment
               </a>
             ) : null}
 

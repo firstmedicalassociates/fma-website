@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import PostForm from "../post-form";
 import { useMemo, useState } from "react";
 
 const ELEMENT_TYPES = [
@@ -23,7 +24,7 @@ function createSection() {
   };
 }
 
-export default function NewPostBuilderPage() {
+export function LegacyNewPostBuilderPage() {
   const [pageTitle, setPageTitle] = useState("");
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
@@ -168,6 +169,7 @@ export default function NewPostBuilderPage() {
     <>
       <header className="admin-top">
         <div>
+          <span className="admin-kicker">Post builder</span>
           <h1 className="admin-title">New Blog Post</h1>
           <p className="admin-subtitle">
             Header and footer are required. Add sections and place elements inside them.
@@ -188,7 +190,13 @@ export default function NewPostBuilderPage() {
 
       <section className="builder-shell">
         <div className="builder-card">
-          <h2>Structure</h2>
+          <div className="builder-card-header">
+            <h2>Structure</h2>
+            <p className="builder-card-copy">
+              Build the article structure, upload a featured image, and preview the final
+              content as you go.
+            </p>
+          </div>
 
           <div className="builder-field">
             <label>Page title (required)</label>
@@ -245,11 +253,7 @@ export default function NewPostBuilderPage() {
               onChange={handleFeaturedImageUpload}
               required
             />
-            {featuredImageUrl ? (
-              <p className="admin-subtitle" style={{ marginTop: 6 }}>
-                Uploaded: {featuredImageUrl}
-              </p>
-            ) : null}
+            {featuredImageUrl ? <p className="builder-helper-text">Uploaded: {featuredImageUrl}</p> : null}
           </div>
 
           <div className="builder-field">
@@ -283,7 +287,7 @@ export default function NewPostBuilderPage() {
 
           <div className="admin-section">
             {sections.length === 0 ? (
-              <p className="admin-subtitle">
+              <p className="builder-helper-text">
                 No sections yet. Add a section, then add elements inside it.
               </p>
             ) : (
@@ -300,7 +304,7 @@ export default function NewPostBuilderPage() {
                     </button>
                   </div>
 
-                  <div className="builder-row" style={{ marginBottom: 12 }}>
+                  <div className="builder-row">
                     <select
                       className="builder-select"
                       value={nextType}
@@ -322,7 +326,7 @@ export default function NewPostBuilderPage() {
                   </div>
 
                   {section.elements.length === 0 ? (
-                    <p className="admin-subtitle">No elements in this section yet.</p>
+                    <p className="builder-helper-text">No elements in this section yet.</p>
                   ) : (
                     section.elements.map((element, index) => (
                       <div className="builder-element" key={element.id}>
@@ -379,48 +383,35 @@ export default function NewPostBuilderPage() {
             />
           </div>
 
+          {featuredImageStatus === "uploading" ? (
+            <p className="status-message">Uploading featured image...</p>
+          ) : null}
           {message ? (
-            <p className="admin-subtitle" style={{ color: status === "error" ? "#b42318" : "" }}>
-              {message}
-            </p>
+            <p className={`status-message ${status === "error" ? "is-error" : ""}`}>{message}</p>
           ) : null}
         </div>
 
         <div className="builder-preview">
+          <p className="builder-preview-kicker">Preview</p>
           <h2>Preview</h2>
           <article>
             <div>
-              <p className="admin-subtitle" style={{ marginBottom: 8 }}>
-                {pageTitle || "Page title"}
-              </p>
+              <p className="builder-helper-text">{pageTitle || "Page title"}</p>
             </div>
             {featuredImageUrl ? (
               <img
+                className="builder-preview-image"
                 src={featuredImageUrl}
                 alt={featuredImageAlt || pageTitle || "Featured image"}
-                style={{ width: "100%", borderRadius: 16, marginBottom: 16 }}
               />
             ) : (
-              <div
-                style={{
-                  width: "100%",
-                  height: 180,
-                  borderRadius: 16,
-                  background: "#f0ebe2",
-                  display: "grid",
-                  placeItems: "center",
-                  color: "#8b8174",
-                  marginBottom: 16,
-                }}
-              >
-                Featured image
-              </div>
+              <div className="builder-preview-placeholder">Featured image</div>
             )}
             <header>
               <h1>{header || "Post header (H1)"}</h1>
             </header>
             {previewSections.length === 0 ? (
-              <p className="admin-subtitle">Your sections will appear here.</p>
+              <p className="builder-helper-text">Your sections will appear here.</p>
             ) : (
               previewSections.map((section) => (
                 <section key={section.id}>
@@ -449,4 +440,8 @@ export default function NewPostBuilderPage() {
       </section>
     </>
   );
+}
+
+export default function NewPostBuilderPage() {
+  return <PostForm mode="create" />;
 }

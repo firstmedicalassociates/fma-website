@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { NextResponse } from "next/server";
 
 export const SESSION_COOKIE = "admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
@@ -76,4 +77,21 @@ export function verifyAdminSession(token) {
   }
 
   return payload;
+}
+
+export function getAdminSessionFromRequest(request) {
+  return verifyAdminSession(request?.cookies?.get(SESSION_COOKIE)?.value);
+}
+
+export function requireAdminRequest(request) {
+  const session = getAdminSessionFromRequest(request);
+
+  if (!session) {
+    return {
+      ok: false,
+      response: NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 }),
+    };
+  }
+
+  return { ok: true, session };
 }
