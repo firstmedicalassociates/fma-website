@@ -1,6 +1,12 @@
 import { notFound } from "next/navigation";
 import { SITE_NAME, absoluteUrl } from "../lib/config/site";
-import { groupLocationServices, joinLocationSegments } from "../lib/locations";
+import {
+  buildPostalAddressSchema,
+  buildOpeningHoursSpecification,
+  formatOfficeHoursForDisplay,
+  groupLocationServices,
+  joinLocationSegments,
+} from "../lib/locations";
 import { prisma } from "../lib/prisma";
 import LocationPageShell from "./location-page-shell";
 
@@ -14,8 +20,16 @@ const LOCATION_PAGE_SELECT = {
   accent: true,
   intro: true,
   address: true,
+  streetAddress: true,
+  addressCity: true,
+  addressState: true,
+  postalCode: true,
+  addressCountry: true,
   displayAddress: true,
   phone: true,
+  directPhone: true,
+  callTextPhone: true,
+  hideOfficePhone: true,
   directionsUrl: true,
   bookingUrl: true,
   mapImageUrl: true,
@@ -23,6 +37,7 @@ const LOCATION_PAGE_SELECT = {
   parkingTitle: true,
   parkingDescription: true,
   officeHours: true,
+  serviceIds: true,
   services: true,
   updatedAt: true,
 };
@@ -34,6 +49,29 @@ function resolveLocationPath(params) {
 function resolveImageUrl(value) {
   if (!value) return undefined;
   return value.startsWith("http") ? value : absoluteUrl(value);
+}
+
+function buildServiceOfferCatalog(services = [], locationTitle = "Location") {
+  const itemListElement = services
+    .filter((service) => service?.title && service?.description)
+    .map((service, index) => ({
+      "@type": "Offer",
+      position: index + 1,
+      itemOffered: {
+        "@type": "Service",
+        name: service.title,
+        description: service.description,
+        serviceType: service.category || undefined,
+      },
+    }));
+
+  if (itemListElement.length === 0) return undefined;
+
+  return {
+    "@type": "OfferCatalog",
+    name: `${locationTitle} services`,
+    itemListElement,
+  };
 }
 
 export async function generateMetadata({ params }) {
@@ -83,11 +121,17 @@ export default async function LocationLandingPage({ params }) {
     notFound();
   }
 
-  const [location, providers] = await Promise.all([
-    prisma.location.findUnique({
-      where: { slug: locationPath },
-      select: LOCATION_PAGE_SELECT,
-    }),
+  const location = await prisma.location.findUnique({
+    where: { slug: locationPath },
+    select: LOCATION_PAGE_SELECT,
+  });
+
+  if (!location) {
+    notFound();
+  }
+
+  const selectedServiceIds = Array.isArray(location.serviceIds) ? location.serviceIds : [];
+  const [providers, serviceRecords] = await Promise.all([
     prisma.provider.findMany({
       where: {
         isActive: true,
@@ -105,23 +149,52 @@ export default async function LocationLandingPage({ params }) {
         linkUrl: true,
       },
     }),
+    selectedServiceIds.length > 0
+      ? prisma.service.findMany({
+          where: {
+            id: {
+              in: selectedServiceIds,
+            },
+            isActive: true,
+          },
+          orderBy: [{ sortOrder: "asc" }, { category: "asc" }, { title: "asc" }],
+          select: {
+            id: true,
+            category: true,
+            title: true,
+            description: true,
+          },
+        })
+      : [],
   ]);
-
-  if (!location) {
-    notFound();
-  }
 
   const imageUrl = resolveImageUrl(location.mapImageUrl);
   const locationUrl = absoluteUrl(location.slug);
+  const openingHours = formatOfficeHoursForDisplay(location.officeHours);
+  const openingHoursSpecification = buildOpeningHoursSpecification(location.officeHours);
+  const locationServices =
+    selectedServiceIds.length > 0
+      ? serviceRecords
+      : Array.isArray(location.services)
+        ? location.services
+        : [];
+  const publicPhone = location.hideOfficePhone
+    ? location.callTextPhone || location.directPhone || ""
+    : location.phone || location.callTextPhone || location.directPhone || "";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "MedicalClinic",
     name: `${SITE_NAME} - ${location.title}`,
+    description: location.intro || location.accent || undefined,
     image: imageUrl,
     url: locationUrl,
-    telephone: location.phone || undefined,
-    address: location.address || undefined,
+    telephone: publicPhone || undefined,
+    address: buildPostalAddressSchema(location),
     hasMap: location.directionsUrl || undefined,
+    openingHours: openingHours.length > 0 ? openingHours : undefined,
+    openingHoursSpecification:
+      openingHoursSpecification.length > 0 ? openingHoursSpecification : undefined,
+    hasOfferCatalog: buildServiceOfferCatalog(locationServices, location.title),
   };
 
   return (
@@ -139,7 +212,8 @@ export default async function LocationLandingPage({ params }) {
           parkingDescription:
             location.parkingDescription || "Parking and arrival instructions will appear here.",
           officeHours: Array.isArray(location.officeHours) ? location.officeHours : [],
-          services: Array.isArray(location.services) ? location.services : [],
+          publicPhone,
+          services: locationServices,
           imageUrl: imageUrl || "",
         }}
         providers={providers.map((provider) => ({
@@ -149,7 +223,7 @@ export default async function LocationLandingPage({ params }) {
           ctaHref: provider.linkUrl || `/providers/${provider.slug}`,
           ctaLabel: provider.linkUrl ? "Book Appointment" : "View Profile",
         }))}
-        serviceGroups={groupLocationServices(location.services)}
+        serviceGroups={groupLocationServices(locationServices)}
       />
     </>
   );

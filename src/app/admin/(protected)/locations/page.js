@@ -23,6 +23,7 @@ export default async function AdminLocationsPage() {
         title: true,
         displayAddress: true,
         phone: true,
+        serviceIds: true,
         updatedAt: true,
       },
     }),
@@ -108,7 +109,7 @@ export default async function AdminLocationsPage() {
                       </span>
                       <span>
                         <Layers3 />
-                        {location.phone || "No phone configured"}
+                        {(location.serviceIds || []).length} assigned services
                       </span>
                       <span>
                         <Clock3 />
@@ -144,7 +145,7 @@ export default async function AdminLocationsPage() {
             <div className="admin-side-list">
               <p>Save the location route first.</p>
               <p>Assign providers to the same route inside the provider editor.</p>
-              <p>Add services to complete the three-tab landing page.</p>
+              <p>Assign shared services to complete the three-tab landing page.</p>
             </div>
           </article>
         </aside>

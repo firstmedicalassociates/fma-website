@@ -10,6 +10,7 @@ import {
   MapPin,
   Menu,
   PenSquare,
+  Layers3,
   UserPlus,
   X,
 } from "./admin-icons";
@@ -19,9 +20,11 @@ const ICONS_BY_KEY = {
   dashboard: LayoutDashboard,
   posts: FileText,
   locations: MapPin,
+  services: Layers3,
   providers: UserPlus,
   "new-post": PenSquare,
   "new-location": MapPin,
+  "new-service": Layers3,
   "new-provider": UserPlus,
 };
 

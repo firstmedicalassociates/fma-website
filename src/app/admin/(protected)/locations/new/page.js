@@ -1,5 +1,21 @@
+import { prisma } from "../../../../lib/prisma";
 import LocationForm from "../location-form";
 
-export default function NewLocationPage() {
-  return <LocationForm mode="create" />;
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export default async function NewLocationPage() {
+  const serviceOptions = await prisma.service.findMany({
+    orderBy: [{ sortOrder: "asc" }, { category: "asc" }, { title: "asc" }],
+    select: {
+      id: true,
+      category: true,
+      title: true,
+      description: true,
+      sortOrder: true,
+      isActive: true,
+    },
+  });
+
+  return <LocationForm mode="create" serviceOptions={serviceOptions} />;
 }

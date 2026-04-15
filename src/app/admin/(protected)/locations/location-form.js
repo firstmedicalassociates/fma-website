@@ -8,10 +8,19 @@ import {
   ImageIcon,
   Info,
   Layers3,
-  MapPin,
   PhoneCall,
 } from "../admin-icons";
-import { normalizeLocationSlug } from "../../../lib/locations";
+import {
+  OFFICE_HOUR_DAYS,
+  OFFICE_HOUR_TIME_OPTIONS,
+  buildDisplayAddress,
+  buildStructuredAddress,
+  formatOfficeHourRange,
+  normalizeLocationSlug,
+  normalizeOfficeHours,
+  resolveLocationAddressParts,
+} from "../../../lib/locations";
+import { formatServiceLabel, resolveServiceTitles } from "../../../lib/services";
 const STAGES = [
   {
     id: "overview",
@@ -40,23 +49,60 @@ const STAGES = [
   {
     id: "services",
     label: "Services",
-    description: "Service groups and cards for the public services tab.",
+    description: "Assign existing shared services to this location.",
     Icon: Layers3,
     kicker: "Stage 04",
-    title: "Service builder",
+    title: "Service assignments",
   },
 ];
 
-function createService() {
+function createOfficeHourRow(overrides = {}) {
   return {
-    id: `service-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    category: "",
-    title: "",
-    description: "",
+    id: overrides.id || `hours-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    day: overrides.day || "",
+    startTime: overrides.startTime || "",
+    endTime: overrides.endTime || "",
+    closed: Boolean(overrides.closed),
+    label: overrides.label || "",
   };
 }
 
+function getInitialOfficeHourRows(value) {
+  const officeHours = normalizeOfficeHours(Array.isArray(value) ? value : []);
+
+  if (officeHours.length === 0) {
+    return OFFICE_HOUR_DAYS.map((day) =>
+      createOfficeHourRow({
+        id: `hours-${day.value}`,
+        day: day.value,
+        startTime: day.value === "Sunday" || day.value === "Saturday" ? "" : "08:00",
+        endTime: day.value === "Sunday" || day.value === "Saturday" ? "" : "17:00",
+        closed: day.value === "Sunday" || day.value === "Saturday",
+      })
+    );
+  }
+
+  const rows = officeHours.map((hours, index) =>
+    createOfficeHourRow({
+      ...hours,
+      id: `hours-${index}`,
+    })
+  );
+  const existingDays = new Set(rows.map((row) => row.day).filter(Boolean));
+  const missingDayRows = OFFICE_HOUR_DAYS.filter((day) => !existingDays.has(day.value)).map((day) =>
+    createOfficeHourRow({
+      id: `hours-${day.value}`,
+      day: day.value,
+      closed: true,
+    })
+  );
+
+  return [...rows, ...missingDayRows];
+}
+
 function getInitialValues(initialLocation) {
+  const addressParts = resolveLocationAddressParts(initialLocation || {});
+
   return {
     id: initialLocation?.id || "",
     slug: initialLocation?.slug || "",
@@ -65,30 +111,78 @@ function getInitialValues(initialLocation) {
     accent: initialLocation?.accent || "",
     intro: initialLocation?.intro || "",
     address: initialLocation?.address || "",
-    displayAddress: initialLocation?.displayAddress || "",
+    streetAddress: addressParts.streetAddress,
+    addressCity: addressParts.addressCity,
+    addressState: addressParts.addressState,
+    postalCode: addressParts.postalCode,
+    addressCountry: addressParts.addressCountry,
     phone: initialLocation?.phone || "",
+    directPhone: initialLocation?.directPhone || "",
+    callTextPhone: initialLocation?.callTextPhone || "",
+    hideOfficePhone: Boolean(initialLocation?.hideOfficePhone),
     directionsUrl: initialLocation?.directionsUrl || "",
     bookingUrl: initialLocation?.bookingUrl || "",
     mapImageUrl: initialLocation?.mapImageUrl || "",
     mapImageAlt: initialLocation?.mapImageAlt || "",
     parkingTitle: initialLocation?.parkingTitle || "",
     parkingDescription: initialLocation?.parkingDescription || "",
-    officeHours: Array.isArray(initialLocation?.officeHours) ? initialLocation.officeHours : [],
-    services: Array.isArray(initialLocation?.services) ? initialLocation.services : [],
+    officeHours: normalizeOfficeHours(
+      Array.isArray(initialLocation?.officeHours) ? initialLocation.officeHours : []
+    ),
+    serviceIds: Array.isArray(initialLocation?.serviceIds) ? initialLocation.serviceIds : [],
   };
 }
 
-function normalizeLineItems(value) {
-  return String(value || "")
-    .split(/\n+/)
-    .map((item) => item.trim())
+function hasOfficeHourInput(row) {
+  return Boolean(row?.day || row?.startTime || row?.endTime || row?.closed);
+}
+
+function hasCompleteOfficeHourInput(row) {
+  return Boolean(row?.day && (row?.closed || (row?.startTime && row?.endTime)));
+}
+
+function serializeOfficeHourRows(rows) {
+  return rows
+    .map((row) => {
+      if (row.label && !hasOfficeHourInput(row)) {
+        return { label: row.label };
+      }
+
+      if (!hasCompleteOfficeHourInput(row)) {
+        return null;
+      }
+
+      if (row.closed) {
+        return {
+          day: row.day,
+          closed: true,
+        };
+      }
+
+      return {
+        day: row.day,
+        startTime: row.startTime,
+        endTime: row.endTime,
+      };
+    })
     .filter(Boolean);
+}
+
+function sortOfficeHourRows(rows) {
+  return [...rows].sort((first, second) => {
+    const firstDayIndex = OFFICE_HOUR_DAYS.findIndex((day) => day.value === first.day);
+    const secondDayIndex = OFFICE_HOUR_DAYS.findIndex((day) => day.value === second.day);
+
+    if (firstDayIndex !== secondDayIndex) return firstDayIndex - secondDayIndex;
+    return 0;
+  });
 }
 
 export default function LocationForm({
   mode = "create",
   initialLocation,
   assignedProviderCount = 0,
+  serviceOptions = [],
 }) {
   const initialValues = getInitialValues(initialLocation);
   const isEditMode = mode === "edit";
@@ -100,28 +194,65 @@ export default function LocationForm({
   const [eyebrow, setEyebrow] = useState(initialValues.eyebrow);
   const [accent, setAccent] = useState(initialValues.accent);
   const [intro, setIntro] = useState(initialValues.intro);
-  const [address, setAddress] = useState(initialValues.address);
-  const [displayAddress, setDisplayAddress] = useState(initialValues.displayAddress);
+  const [streetAddress, setStreetAddress] = useState(initialValues.streetAddress);
+  const [addressCity, setAddressCity] = useState(initialValues.addressCity);
+  const [addressState, setAddressState] = useState(initialValues.addressState);
+  const [postalCode, setPostalCode] = useState(initialValues.postalCode);
+  const [addressCountry, setAddressCountry] = useState(initialValues.addressCountry);
   const [phone, setPhone] = useState(initialValues.phone);
+  const [directPhone, setDirectPhone] = useState(initialValues.directPhone);
+  const [callTextPhone, setCallTextPhone] = useState(initialValues.callTextPhone);
+  const [hideOfficePhone, setHideOfficePhone] = useState(initialValues.hideOfficePhone);
   const [directionsUrl, setDirectionsUrl] = useState(initialValues.directionsUrl);
   const [bookingUrl, setBookingUrl] = useState(initialValues.bookingUrl);
   const [mapImageUrl, setMapImageUrl] = useState(initialValues.mapImageUrl);
   const [mapImageAlt, setMapImageAlt] = useState(initialValues.mapImageAlt);
   const [parkingTitle, setParkingTitle] = useState(initialValues.parkingTitle);
   const [parkingDescription, setParkingDescription] = useState(initialValues.parkingDescription);
-  const [officeHoursInput, setOfficeHoursInput] = useState(initialValues.officeHours.join("\n"));
-  const [services, setServices] = useState(() =>
-    initialValues.services.map((service, index) => ({
-      id: service.id || `service-${index}`,
-      category: service.category || "",
-      title: service.title || "",
-      description: service.description || "",
-    }))
+  const [officeHourRows, setOfficeHourRows] = useState(() =>
+    getInitialOfficeHourRows(initialValues.officeHours)
   );
+  const [selectedServiceIds, setSelectedServiceIds] = useState(initialValues.serviceIds);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
 
-  const officeHours = useMemo(() => normalizeLineItems(officeHoursInput), [officeHoursInput]);
+  const officeHours = useMemo(() => serializeOfficeHourRows(officeHourRows), [officeHourRows]);
+  const officeHourPreviewRows = useMemo(
+    () => officeHours.map((hours) => formatOfficeHourRange(hours)).filter(Boolean),
+    [officeHours]
+  );
+  const addressParts = useMemo(
+    () => ({
+      streetAddress,
+      addressCity,
+      addressState,
+      postalCode,
+      addressCountry,
+    }),
+    [addressCity, addressCountry, addressState, postalCode, streetAddress]
+  );
+  const address = useMemo(() => buildStructuredAddress(addressParts), [addressParts]);
+  const displayAddress = useMemo(() => buildDisplayAddress(addressParts), [addressParts]);
+  const serviceOptionById = useMemo(
+    () => Object.fromEntries(serviceOptions.map((service) => [service.id, service])),
+    [serviceOptions]
+  );
+  const serviceTitleById = useMemo(
+    () =>
+      Object.fromEntries(
+        serviceOptions.map((service) => [service.id, formatServiceLabel(service)])
+      ),
+    [serviceOptions]
+  );
+  const selectedServiceLabel = useMemo(() => {
+    if (selectedServiceIds.length === 0) return "Select one or more services";
+    return resolveServiceTitles(selectedServiceIds, serviceTitleById).join(", ");
+  }, [selectedServiceIds, serviceTitleById]);
+  const selectedServices = useMemo(
+    () =>
+      selectedServiceIds.map((serviceId) => serviceOptionById[serviceId]).filter(Boolean),
+    [selectedServiceIds, serviceOptionById]
+  );
   const activeStageConfig = STAGES.find((stage) => stage.id === activeStage) || STAGES[0];
 
   function handleTitleChange(event) {
@@ -138,26 +269,78 @@ export default function LocationForm({
     setSlug(normalizeLocationSlug(event.target.value));
   }
 
-  function updateService(serviceId, field, value) {
-    setServices((current) =>
-      current.map((service) =>
-        service.id === serviceId ? { ...service, [field]: value } : service
+  function toggleService(serviceId) {
+    setSelectedServiceIds((current) =>
+      current.includes(serviceId)
+        ? current.filter((value) => value !== serviceId)
+        : [...current, serviceId]
+    );
+  }
+
+  function updateOfficeHourRow(rowId, field, value) {
+    setOfficeHourRows((current) =>
+      current.map((row) =>
+        row.id === rowId
+          ? {
+              ...row,
+              [field]: value,
+              ...(field === "closed" && value
+                ? { startTime: "", endTime: "" }
+                : field === "closed" && !value
+                  ? {
+                      startTime: row.startTime || "08:00",
+                      endTime: row.endTime || "17:00",
+                    }
+                  : {}),
+              label: "",
+            }
+          : row
       )
     );
   }
 
-  function addService() {
-    setServices((current) => [...current, createService()]);
+  function addOfficeHourRow(day) {
+    setOfficeHourRows((current) =>
+      sortOfficeHourRows([
+        ...current,
+        createOfficeHourRow({
+          day,
+          startTime: "08:00",
+          endTime: "17:00",
+        }),
+      ])
+    );
   }
 
-  function removeService(serviceId) {
-    setServices((current) => current.filter((service) => service.id !== serviceId));
+  function removeOfficeHourRow(rowId) {
+    setOfficeHourRows((current) => {
+      const nextRows = current.filter((row) => row.id !== rowId);
+      return nextRows.length > 0 ? nextRows : getInitialOfficeHourRows([]);
+    });
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
     setStatus("saving");
     setMessage("");
+
+    const hasIncompleteOfficeHour = officeHourRows.some(
+      (row) => !row.label && hasOfficeHourInput(row) && !hasCompleteOfficeHourInput(row)
+    );
+    if (hasIncompleteOfficeHour) {
+      setStatus("error");
+      setMessage("Each office-hours row needs a day, start time, and end time.");
+      return;
+    }
+
+    const hasInvalidOfficeHourRange = officeHours.some(
+      (row) => !row.label && row.startTime >= row.endTime
+    );
+    if (hasInvalidOfficeHourRange) {
+      setStatus("error");
+      setMessage("Each office-hours row needs an end time after its start time.");
+      return;
+    }
 
     try {
       const endpoint = isEditMode ? `/api/admin/locations/${initialValues.id}` : "/api/admin/locations";
@@ -173,8 +356,16 @@ export default function LocationForm({
           accent,
           intro,
           address,
+          streetAddress,
+          addressCity,
+          addressState,
+          postalCode,
+          addressCountry,
           displayAddress,
           phone,
+          directPhone,
+          callTextPhone,
+          hideOfficePhone,
           directionsUrl,
           bookingUrl,
           mapImageUrl,
@@ -182,7 +373,8 @@ export default function LocationForm({
           parkingTitle,
           parkingDescription,
           officeHours,
-          services,
+          serviceIds: selectedServiceIds,
+          services: [],
         }),
       });
 
@@ -376,43 +568,116 @@ export default function LocationForm({
               {activeStage === "contact" ? (
                 <div className="location-editor-panel-grid builder-grid-two">
                   <div className="builder-element">
-                    <div className="builder-grid-two">
-                      <div className="builder-field">
-                        <label>Display address</label>
-                        <textarea
-                          className="builder-textarea"
-                          rows={4}
-                          value={displayAddress}
-                          onChange={(event) => setDisplayAddress(event.target.value)}
-                          placeholder={"7201 Wisconsin Ave, Suite 300\nBethesda, MD 20814"}
-                        />
+                    <div className="builder-section-heading contact-section-heading">
+                      <div>
+                        <h3>Contact & display</h3>
+                        <p>Public-facing location details, phones, and office hours.</p>
                       </div>
+                    </div>
 
-                      <div className="builder-field">
-                        <label>Structured address (required)</label>
-                        <textarea
-                          className="builder-textarea"
-                          rows={4}
-                          value={address}
-                          onChange={(event) => setAddress(event.target.value)}
-                          placeholder="7201 Wisconsin Ave, Suite 300, Bethesda, MD 20814"
-                          required
-                        />
-                      </div>
+                    <div className="builder-field">
+                      <label>Street address</label>
+                      <input
+                        className="builder-input"
+                        type="text"
+                        value={streetAddress}
+                        onChange={(event) => setStreetAddress(event.target.value)}
+                        placeholder="2775 Tapo St, Suite 102"
+                        required
+                      />
                     </div>
 
                     <div className="builder-grid-three">
                       <div className="builder-field">
-                        <label>Phone</label>
+                        <label>City</label>
+                        <input
+                          className="builder-input"
+                          type="text"
+                          value={addressCity}
+                          onChange={(event) => setAddressCity(event.target.value)}
+                          placeholder="Simi Valley"
+                        />
+                      </div>
+
+                      <div className="builder-field">
+                        <label>State</label>
+                        <input
+                          className="builder-input"
+                          type="text"
+                          value={addressState}
+                          onChange={(event) => setAddressState(event.target.value)}
+                          placeholder="CA"
+                        />
+                      </div>
+
+                      <div className="builder-field">
+                        <label>ZIP / Postal Code</label>
+                        <input
+                          className="builder-input"
+                          type="text"
+                          value={postalCode}
+                          onChange={(event) => setPostalCode(event.target.value)}
+                          placeholder="93063"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="builder-field">
+                      <label>Region</label>
+                      <input
+                        className="builder-input"
+                        type="text"
+                        value={addressCountry}
+                        onChange={(event) => setAddressCountry(event.target.value)}
+                        placeholder="US"
+                      />
+                    </div>
+
+                    <div className="builder-grid-three">
+                      <div className="builder-field">
+                        <label>Main phone</label>
                         <input
                           className="builder-input"
                           type="text"
                           value={phone}
                           onChange={(event) => setPhone(event.target.value)}
-                          placeholder="(301) 555-0123"
+                          placeholder="(888) 585-7373"
                         />
                       </div>
 
+                      <div className="builder-field">
+                        <label>Direct phone</label>
+                        <input
+                          className="builder-input"
+                          type="text"
+                          value={directPhone}
+                          onChange={(event) => setDirectPhone(event.target.value)}
+                          placeholder="(805) 329-5180"
+                        />
+                      </div>
+
+                      <div className="builder-field">
+                        <label>Call / text phone</label>
+                        <input
+                          className="builder-input"
+                          type="text"
+                          value={callTextPhone}
+                          onChange={(event) => setCallTextPhone(event.target.value)}
+                          placeholder="888-585-7373"
+                        />
+                      </div>
+                    </div>
+
+                    <label className="builder-checkbox contact-hide-phone">
+                      <input
+                        type="checkbox"
+                        checked={hideOfficePhone}
+                        onChange={(event) => setHideOfficePhone(event.target.checked)}
+                      />
+                      Hide the office phone in the public phone card
+                    </label>
+
+                    <div className="builder-grid-two">
                       <div className="builder-field">
                         <label>Directions URL</label>
                         <input
@@ -437,15 +702,107 @@ export default function LocationForm({
                     </div>
 
                     <div className="builder-field">
-                      <label>Office hours</label>
-                      <textarea
-                        className="builder-textarea"
-                        rows={7}
-                        value={officeHoursInput}
-                        onChange={(event) => setOfficeHoursInput(event.target.value)}
-                        placeholder={"Mon - Fri: 8:00 AM - 6:00 PM\nSaturday: 9:00 AM - 1:00 PM"}
-                      />
-                      <p className="builder-helper-text">Use one line per row.</p>
+                      <div className="builder-section-heading">
+                        <div>
+                          <label>Office hours</label>
+                          <p>Set each day separately for the public card and JSON-LD schema.</p>
+                        </div>
+                      </div>
+
+                      <div className="office-hours-builder">
+                        {officeHourRows.map((row) =>
+                          row.label && !hasOfficeHourInput(row) ? (
+                            <div className="office-hour-legacy-row" key={row.id}>
+                              <div>
+                                <span>Legacy hours row</span>
+                                <strong>{row.label}</strong>
+                              </div>
+                              <button
+                                className="builder-button secondary danger"
+                                type="button"
+                                onClick={() => removeOfficeHourRow(row.id)}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ) : (
+                            <div className={`office-hour-row ${row.closed ? "is-closed" : ""}`} key={row.id}>
+                              <div className="office-hour-day-cell">
+                                <strong>{row.day || "Day"}</strong>
+                                <label className="office-hour-closed-checkbox">
+                                  <input
+                                    type="checkbox"
+                                    checked={row.closed}
+                                    onChange={(event) =>
+                                      updateOfficeHourRow(row.id, "closed", event.target.checked)
+                                    }
+                                  />
+                                  Closed
+                                </label>
+                              </div>
+
+                              {!row.closed ? (
+                                <>
+                                  <div className="builder-field">
+                                    <label>Opens at</label>
+                                    <select
+                                      className="builder-select"
+                                      value={row.startTime}
+                                      onChange={(event) =>
+                                        updateOfficeHourRow(row.id, "startTime", event.target.value)
+                                      }
+                                    >
+                                      <option value="">Select time</option>
+                                      {OFFICE_HOUR_TIME_OPTIONS.map((time) => (
+                                        <option key={`start-${row.id}-${time.value}`} value={time.value}>
+                                          {time.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  <div className="builder-field">
+                                    <label>Closes at</label>
+                                    <select
+                                      className="builder-select"
+                                      value={row.endTime}
+                                      onChange={(event) =>
+                                        updateOfficeHourRow(row.id, "endTime", event.target.value)
+                                      }
+                                    >
+                                      <option value="">Select time</option>
+                                      {OFFICE_HOUR_TIME_OPTIONS.map((time) => (
+                                        <option key={`end-${row.id}-${time.value}`} value={time.value}>
+                                          {time.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  <button
+                                    className="builder-button secondary office-hour-add"
+                                    type="button"
+                                    aria-label={`Add another ${row.day} hours row`}
+                                    onClick={() => addOfficeHourRow(row.day)}
+                                  >
+                                    +
+                                  </button>
+                                </>
+                              ) : null}
+
+                              {officeHourRows.filter((hours) => hours.day === row.day).length > 1 ? (
+                                <button
+                                  className="builder-button secondary danger office-hour-remove"
+                                  type="button"
+                                  onClick={() => removeOfficeHourRow(row.id)}
+                                >
+                                  Remove
+                                </button>
+                              ) : null}
+                            </div>
+                          )
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -454,23 +811,33 @@ export default function LocationForm({
                       <h2>Contact preview</h2>
                       <div className="location-preview-meta-grid">
                         <div className="location-preview-meta-item">
-                          <span>Address</span>
-                          <strong>{displayAddress || address || "Add the office address"}</strong>
+                          <span>Generated display address</span>
+                          <strong className="contact-generated-address">
+                            {displayAddress || address || "Add the office address"}
+                          </strong>
                         </div>
                         <div className="location-preview-meta-item">
-                          <span>Phone</span>
+                          <span>Main phone</span>
                           <strong>{phone || "Add the main phone line"}</strong>
+                        </div>
+                        <div className="location-preview-meta-item">
+                          <span>Direct phone</span>
+                          <strong>{directPhone || "Add the direct line"}</strong>
+                        </div>
+                        <div className="location-preview-meta-item">
+                          <span>Call / text phone</span>
+                          <strong>{callTextPhone || "Add the call/text line"}</strong>
                         </div>
                       </div>
                       <div className="builder-list-block">
                         <div className="builder-list-header">
                           <h4>Office hours</h4>
-                          <p>{officeHours.length} row(s)</p>
+                          <p>{officeHourPreviewRows.length} row(s)</p>
                         </div>
-                        {officeHours.length === 0 ? (
+                        {officeHourPreviewRows.length === 0 ? (
                           <p className="builder-helper-text">Hours will appear here line by line.</p>
                         ) : (
-                          officeHours.map((hours) => <p key={hours}>{hours}</p>)
+                          officeHourPreviewRows.map((hours) => <p key={hours}>{hours}</p>)
                         )}
                       </div>
                     </div>
@@ -558,94 +925,73 @@ export default function LocationForm({
                   <div className="builder-element">
                     <div className="builder-section-heading">
                       <div>
-                        <h3>Services</h3>
-                        <p>Each card appears in the services tab on the public location page.</p>
+                        <h3>Assign services</h3>
+                        <p>Select existing shared services for this location page.</p>
                       </div>
-                      <button className="builder-button" type="button" onClick={addService}>
-                        Add service
-                      </button>
+                      <Link className="builder-button secondary" href="/admin/services/new">
+                        Create service
+                      </Link>
                     </div>
 
-                    {services.length === 0 ? (
+                    {serviceOptions.length === 0 ? (
                       <div className="builder-list-block">
                         <p className="builder-helper-text">
-                          No services yet. Add cards to build the services tab.
+                          No shared services exist yet. Create services in the Services tab first,
+                          then return here to assign them to this location.
                         </p>
                       </div>
                     ) : (
-                      <div className="builder-inline-group">
-                        {services.map((service, index) => (
-                          <div className="builder-list-block" key={service.id}>
-                            <div className="builder-list-header">
-                              <div>
-                                <h4>Service {index + 1}</h4>
-                                <p>{service.category || "General Care"}</p>
-                              </div>
-                              <button
-                                className="builder-button secondary danger"
-                                type="button"
-                                onClick={() => removeService(service.id)}
-                              >
-                                Remove
-                              </button>
-                            </div>
-
-                            <div className="builder-grid-three">
-                              <div className="builder-field">
-                                <label>Category</label>
+                      <>
+                        <details className="builder-multiselect">
+                          <summary className="builder-multiselect-trigger">
+                            <span>{selectedServiceLabel}</span>
+                            <span>{selectedServiceIds.length} selected</span>
+                          </summary>
+                          <div className="builder-multiselect-menu">
+                            {serviceOptions.map((service) => (
+                              <label className="builder-option" key={service.id}>
                                 <input
-                                  className="builder-input"
-                                  type="text"
-                                  value={service.category}
-                                  onChange={(event) =>
-                                    updateService(service.id, "category", event.target.value)
-                                  }
-                                  placeholder="Primary Care"
+                                  type="checkbox"
+                                  checked={selectedServiceIds.includes(service.id)}
+                                  onChange={() => toggleService(service.id)}
                                 />
-                              </div>
-
-                              <div className="builder-field">
-                                <label>Title</label>
-                                <input
-                                  className="builder-input"
-                                  type="text"
-                                  value={service.title}
-                                  onChange={(event) =>
-                                    updateService(service.id, "title", event.target.value)
-                                  }
-                                  placeholder="Annual Physicals"
-                                />
-                              </div>
-
-                              <div className="builder-field">
-                                <label>Description</label>
-                                <textarea
-                                  className="builder-textarea"
-                                  rows={4}
-                                  value={service.description}
-                                  onChange={(event) =>
-                                    updateService(service.id, "description", event.target.value)
-                                  }
-                                  placeholder="Short description shown on the card."
-                                />
-                              </div>
-                            </div>
+                                <span>
+                                  <strong>{service.title}</strong>
+                                  <small>
+                                    {service.category || "General Care"}
+                                    {service.isActive ? "" : " - hidden"}
+                                  </small>
+                                </span>
+                              </label>
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        </details>
+
+                        {selectedServiceIds.length > 0 ? (
+                          <div className="location-preview-chip-row">
+                            {selectedServiceIds.map(
+                              (serviceId) => (
+                                <span className="admin-pill" key={serviceId}>
+                                  {serviceTitleById[serviceId] || serviceId}
+                                </span>
+                              )
+                            )}
+                          </div>
+                        ) : null}
+                      </>
                     )}
                   </div>
 
                   <div className="builder-element location-preview-card">
                     <div className="location-preview-body">
                       <h2>Services preview</h2>
-                      {services.length === 0 ? (
+                      {selectedServices.length === 0 ? (
                         <p className="builder-helper-text">
-                          Service cards will appear here once you start adding them.
+                          Selected service cards will appear here and on the public services tab.
                         </p>
                       ) : (
                         <div className="builder-inline-group">
-                          {services.map((service) => (
+                          {selectedServices.map((service) => (
                             <div className="location-preview-meta-item" key={`preview-${service.id}`}>
                               <span>{service.category || "General Care"}</span>
                               <strong>{service.title || "Service title"}</strong>

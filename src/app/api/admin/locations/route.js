@@ -37,6 +37,7 @@ export async function POST(request) {
       );
     }
 
+    console.error("Failed to create location", error);
     return NextResponse.json({ ok: false, error: "Failed to create location." }, { status: 500 });
   }
 }

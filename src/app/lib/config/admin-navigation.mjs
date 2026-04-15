@@ -21,6 +21,13 @@ export const ADMIN_PRIMARY_LINKS = [
     smokeText: "Locations",
   },
   {
+    key: "services",
+    href: "/admin/services",
+    label: "Services",
+    icon: "services",
+    smokeText: "Services",
+  },
+  {
     key: "providers",
     href: "/admin/providers",
     label: "Providers",
@@ -43,6 +50,13 @@ export const ADMIN_QUICK_LINKS = [
     label: "New Location",
     icon: "new-location",
     smokeText: "Add Location",
+  },
+  {
+    key: "new-service",
+    href: "/admin/services/new",
+    label: "Add Service",
+    icon: "new-service",
+    smokeText: "Add Service",
   },
   {
     key: "new-provider",

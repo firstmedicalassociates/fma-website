@@ -49,6 +49,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ ok: false, error: "Location not found." }, { status: 404 });
     }
 
+    console.error("Failed to update location", error);
     return NextResponse.json({ ok: false, error: "Failed to update location." }, { status: 500 });
   }
 }

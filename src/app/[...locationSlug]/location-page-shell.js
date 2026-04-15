@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { buildDisplayAddress, formatOfficeHoursForDisplay, resolveLocationAddressParts } from "../lib/locations";
 import styles from "./location-page.module.css";
 
 const TABS = [
@@ -18,6 +19,11 @@ function formatAddressLines(location) {
     return displayAddress.split(/\n+/).filter(Boolean);
   }
 
+  const generatedDisplayAddress = buildDisplayAddress(resolveLocationAddressParts(location));
+  if (generatedDisplayAddress) {
+    return generatedDisplayAddress.split(/\n+/).filter(Boolean);
+  }
+
   return String(location.address || "")
     .split(/,\s*/)
     .map((line) => line.trim())
@@ -28,6 +34,11 @@ export default function LocationPageShell({ location, providers, serviceGroups }
   const [activeTab, setActiveTab] = useState("location");
 
   const addressLines = useMemo(() => formatAddressLines(location), [location]);
+  const officeHourRows = useMemo(
+    () => formatOfficeHoursForDisplay(location.officeHours),
+    [location.officeHours]
+  );
+  const publicPhone = location.publicPhone || "";
 
   return (
     <div className={styles.page}>
@@ -47,9 +58,9 @@ export default function LocationPageShell({ location, providers, serviceGroups }
           </nav>
 
           <div className={styles.headerActions}>
-            {location.phone ? (
-              <a className={styles.secondaryCta} href={`tel:${location.phone.replace(/[^\d+]/g, "")}`}>
-                Call {location.phone}
+            {publicPhone ? (
+              <a className={styles.secondaryCta} href={`tel:${publicPhone.replace(/[^\d+]/g, "")}`}>
+                Call {publicPhone}
               </a>
             ) : null}
             {location.bookingUrl ? (
@@ -116,8 +127,8 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                     <div>
                       <h2>Patient Hours</h2>
                       <div className={styles.hoursList}>
-                        {location.officeHours.length > 0 ? (
-                          location.officeHours.map((hours) => <p key={hours}>{hours}</p>)
+                        {officeHourRows.length > 0 ? (
+                          officeHourRows.map((hours) => <p key={hours}>{hours}</p>)
                         ) : (
                           <p>Office hours are currently unavailable.</p>
                         )}
@@ -244,8 +255,8 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                       Book Your Visit
                     </a>
                   ) : null}
-                  {location.phone ? (
-                    <a href={`tel:${location.phone.replace(/[^\d+]/g, "")}`}>Call {location.phone}</a>
+                  {publicPhone ? (
+                    <a href={`tel:${publicPhone.replace(/[^\d+]/g, "")}`}>Call {publicPhone}</a>
                   ) : null}
                 </div>
               </div>

@@ -12,10 +12,23 @@ export default async function EditLocationPage({ params }) {
     notFound();
   }
 
-  const location = await prisma.location.findUnique({
-    where: { id },
-    select: LOCATION_FORM_SELECT,
-  });
+  const [location, serviceOptions] = await Promise.all([
+    prisma.location.findUnique({
+      where: { id },
+      select: LOCATION_FORM_SELECT,
+    }),
+    prisma.service.findMany({
+      orderBy: [{ sortOrder: "asc" }, { category: "asc" }, { title: "asc" }],
+      select: {
+        id: true,
+        category: true,
+        title: true,
+        description: true,
+        sortOrder: true,
+        isActive: true,
+      },
+    }),
+  ]);
 
   if (!location) {
     notFound();
@@ -34,6 +47,7 @@ export default async function EditLocationPage({ params }) {
       mode="edit"
       initialLocation={location}
       assignedProviderCount={assignedProviderCount}
+      serviceOptions={serviceOptions}
     />
   );
 }

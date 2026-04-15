@@ -18,6 +18,9 @@ export default async function Home() {
         intro: true,
         displayAddress: true,
         phone: true,
+        directPhone: true,
+        callTextPhone: true,
+        hideOfficePhone: true,
       },
     }),
     prisma.provider.findMany({
@@ -60,6 +63,11 @@ export default async function Home() {
   }, {});
 
   const featuredLocation = locations[0] || null;
+  const featuredLocationPhone = featuredLocation
+    ? featuredLocation.hideOfficePhone
+      ? featuredLocation.callTextPhone || featuredLocation.directPhone || ""
+      : featuredLocation.phone || featuredLocation.callTextPhone || featuredLocation.directPhone || ""
+    : "";
 
   return (
     <div className="home-page">
@@ -115,7 +123,7 @@ export default async function Home() {
                 </div>
                 <div>
                   <span>Phone</span>
-                  <strong>{featuredLocation?.phone || "No phone saved yet"}</strong>
+                  <strong>{featuredLocationPhone || "No phone saved yet"}</strong>
                 </div>
                 <div>
                   <span>Assigned providers</span>

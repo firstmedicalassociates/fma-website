@@ -931,6 +931,7 @@
   display: grid;
   gap: 10px;
   margin-bottom: 14px;
+  min-width: 0;
 }
 
 .builder-field label,
@@ -1014,6 +1015,8 @@
 .builder-select,
 .builder-textarea {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 52px;
   border-radius: 15px;
   border: 1px solid rgba(var(--admin-accent-rgb), 0.42);
@@ -1438,6 +1441,7 @@
 .location-preview-meta-grid {
   display: grid;
   gap: 14px;
+  min-width: 0;
 }
 
 .builder-grid-two {
@@ -1451,9 +1455,11 @@
 .builder-section-heading,
 .builder-list-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
+  min-width: 0;
 }
 
 .builder-section-heading h3,
@@ -1490,6 +1496,97 @@
   align-items: center;
 }
 
+.builder-multiselect {
+  width: 100%;
+  min-width: 0;
+}
+
+.builder-multiselect-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  border-radius: 15px;
+  border: 1px solid rgba(var(--admin-accent-rgb), 0.28);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--admin-text);
+  cursor: pointer;
+  list-style: none;
+}
+
+.builder-multiselect-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.builder-multiselect-trigger span {
+  min-width: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.builder-multiselect-trigger span:last-child {
+  flex: 0 0 auto;
+  color: var(--admin-muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.builder-multiselect-menu {
+  display: grid;
+  gap: 10px;
+  max-height: 340px;
+  margin-top: 10px;
+  padding: 10px;
+  overflow: auto;
+  border-radius: 18px;
+  border: 1px solid rgba(var(--admin-accent-rgb), 0.18);
+  background: rgba(17, 23, 18, 0.94);
+}
+
+.builder-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--admin-text);
+  cursor: pointer;
+}
+
+.builder-option input {
+  margin-top: 3px;
+  accent-color: var(--admin-accent);
+}
+
+.builder-option span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.builder-option strong,
+.builder-option small {
+  min-width: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.builder-option strong {
+  color: inherit;
+}
+
+.builder-option small {
+  color: var(--admin-muted);
+  font-size: 0.8rem;
+}
+
 .location-preview-card,
 .location-preview-body {
   display: grid;
@@ -1507,11 +1604,13 @@
 
 .location-preview-meta-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
 }
 
 .location-preview-meta-item {
   display: grid;
   gap: 6px;
+  min-width: 0;
   padding: 14px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1522,6 +1621,7 @@
   font-size: 0.96rem;
   line-height: 1.5;
   color: #f7faf3;
+  overflow-wrap: anywhere;
 }
 
 .location-preview-chip-row {
@@ -1889,6 +1989,7 @@
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 22px;
+  min-width: 0;
 }
 
 .location-editor-stage {
@@ -1946,10 +2047,137 @@
 .location-editor-panel-grid {
   display: grid;
   gap: 18px;
+  min-width: 0;
 }
 
 .location-editor-panel-grid .builder-element {
   margin-bottom: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.office-hours-builder {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.contact-section-heading {
+  margin-bottom: 6px;
+}
+
+.contact-hide-phone {
+  width: 100%;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  min-width: 0;
+  height: auto;
+  padding-block: 10px;
+  line-height: 1.35;
+}
+
+.contact-generated-address {
+  white-space: pre-line;
+}
+
+.office-hour-row {
+  display: grid;
+  grid-template-columns: minmax(76px, 0.8fr) minmax(0, 1fr) minmax(0, 1fr) 40px;
+  gap: 10px;
+  align-items: end;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 22, 98, 0.08);
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.office-hour-row.is-closed {
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+
+.office-hour-row .builder-field {
+  margin-bottom: 0;
+}
+
+.office-hour-day-cell {
+  display: grid;
+  gap: 7px;
+  align-self: center;
+  min-width: 0;
+}
+
+.office-hour-day-cell strong {
+  color: #0e2a8b;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.office-hour-closed-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--admin-muted-strong);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.office-hour-closed-checkbox input {
+  accent-color: #001662;
+}
+
+.office-hour-add,
+.office-hour-remove {
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+.office-hour-add {
+  width: 40px;
+  padding: 0;
+  border-radius: 14px;
+  font-size: 1.05rem;
+}
+
+.office-hour-remove {
+  grid-column: 1 / -1;
+  justify-self: end;
+  min-height: 38px;
+}
+
+.office-hour-legacy-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 22, 98, 0.08);
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.office-hour-legacy-row div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.office-hour-legacy-row span {
+  color: var(--admin-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.office-hour-legacy-row strong {
+  color: #0e2a8b;
+  font-size: 0.98rem;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 1180px) {
@@ -1984,6 +2212,16 @@
   .location-editor-toolbar {
     position: static;
     flex-direction: column;
+  }
+
+  .office-hour-row,
+  .office-hour-legacy-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .office-hour-legacy-row {
+    align-items: stretch;
   }
 }
 
@@ -2398,6 +2636,20 @@
 .location-preview-meta-item {
   border-color: rgba(0, 22, 98, 0.08);
   background: rgba(255, 255, 255, 0.84);
+}
+
+.builder-multiselect-trigger,
+.builder-multiselect-menu,
+.builder-option {
+  border-color: rgba(0, 22, 98, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+  color: #18223a;
+}
+
+.builder-option {
+  background:
+    linear-gradient(180deg, rgba(247, 250, 253, 0.96), rgba(235, 238, 241, 0.92)),
+    #ffffff;
 }
 
 .location-preview-meta-item strong,
