@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>First Medical Associates - Excellence in Clinical Care</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "inverse-surface": "#2d3133",
+                  "on-error": "#ffffff",
+                  "surface-tint": "#4157b6",
+                  "outline-variant": "#c5c5d4",
+                  "error": "#ba1a1a",
+                  "outline": "#757683",
+                  "background": "#f7fafd",
+                  "surface-container-high": "#e5e8eb",
+                  "secondary-container": "#76c7fd",
+                  "on-surface-variant": "#444652",
+                  "on-secondary-container": "#005277",
+                  "primary": "#001662",
+                  "on-error-container": "#93000a",
+                  "primary-container": "#0e2a8b",
+                  "on-primary": "#ffffff",
+                  "surface-bright": "#f7fafd",
+                  "primary-fixed-dim": "#b9c3ff",
+                  "tertiary-fixed-dim": "#99cdf0",
+                  "on-secondary-fixed": "#001e2f",
+                  "tertiary-fixed": "#c6e7ff",
+                  "on-tertiary-container": "#71a5c6",
+                  "on-secondary": "#ffffff",
+                  "on-tertiary-fixed": "#001e2d",
+                  "on-tertiary": "#ffffff",
+                  "surface-container-low": "#f1f4f7",
+                  "surface": "#f7fafd",
+                  "primary-fixed": "#dde1ff",
+                  "secondary-fixed-dim": "#89ceff",
+                  "on-secondary-fixed-variant": "#004c6e",
+                  "inverse-on-surface": "#eef1f4",
+                  "surface-container": "#ebeef1",
+                  "on-tertiary-fixed-variant": "#0a4c69",
+                  "on-surface": "#181c1e",
+                  "surface-variant": "#e0e3e6",
+                  "error-container": "#ffdad6",
+                  "surface-container-highest": "#e0e3e6",
+                  "secondary-fixed": "#c9e6ff",
+                  "on-background": "#181c1e",
+                  "on-primary-container": "#8398fc",
+                  "inverse-primary": "#b9c3ff",
+                  "on-primary-fixed-variant": "#263e9d",
+                  "secondary": "#006591",
+                  "tertiary": "#002334",
+                  "surface-dim": "#d7dadd",
+                  "on-primary-fixed": "#001256",
+                  "tertiary-container": "#003a53",
+                  "surface-container-lowest": "#ffffff"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {},
+          "fontFamily": {
+                  "headline": [
+                          "Manrope", "sans-serif"
+                  ],
+                  "display": [
+                          "Manrope", "sans-serif"
+                  ],
+                  "body": [
+                          "Inter", "sans-serif"
+                  ],
+                  "label": [
+                          "Inter", "sans-serif"
+                  ]
+          },
+          "fontSize": {}
+  },
+      },
+    }
+  </script>
+</head>
+<body class="bg-background text-on-surface font-body antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar (from JSON) -->
+<header class="backdrop-blur-xl fixed top-0 w-full z-50 shadow-sm transition-all duration-300 bg-white">
+<div class="flex justify-between items-center w-full py-4 max-w-screen-2xl mx-auto px-12"><div class="flex justify-between items-center w-full">
+<div class="text-xl font-extrabold tracking-tight text-primary font-display">
+    First Medical Associates
+  </div>
+<nav class="hidden md:flex items-center space-x-10">
+<a class="text-on-surface-variant font-semibold hover:text-primary transition-colors text-sm" href="#">Services</a>
+<a class="text-on-surface-variant font-semibold hover:text-primary transition-colors text-sm" href="#">Providers</a>
+<a class="text-on-surface-variant font-semibold hover:text-primary transition-colors text-sm" href="#">Locations</a>
+<a class="text-on-surface-variant font-semibold hover:text-primary transition-colors text-sm" href="#">Patient Portal</a>
+<a class="text-on-surface-variant font-semibold hover:text-primary transition-colors text-sm" href="#">About</a>
+</nav>
+<div class="flex items-center space-x-6">
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-label font-bold text-sm hover:bg-primary-container transition-all active:scale-95 duration-200 shadow-sm">
+      Book Appointment
+    </button>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">account_circle</span>
+</button>
+</div>
+</div></div>
+</header>
+<main class="pt-24">
+<!-- Hero Section -->
+<section class="relative w-full min-h-[870px] flex items-center bg-surface-container-low overflow-hidden">
+<!-- Background Image -->
+<div class="absolute inset-0 w-full h-full">
+<img alt="Hero background" class="w-full h-full object-cover object-center opacity-80 mix-blend-multiply" data-alt="Modern hospital atrium with natural light, high-end architectural clinical setting, clean lines, calm atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrlL3jn-5sOL5_iSyKzvYZFTLmycyQRLwzY8hxa0a_oV6DRZ8lzAnxeVJ25300ZDYojOD8SqrKpvc5XMAmI7EADuTa9M9gchev8Dw5uy8Hyh8H6DjWNdBlXRGzzTrw5n5qkfCwPMW60goLmKjY0X9oUQqyANRsoafP6Ac12o2Amjkl-EtCdqDfk4oWmh8msJTL4z8FiUASI_AUHxDPg8FcmxX_oUb8mNh09np_rH7ykbychwQjGMJdb1vU5K_UD3qg2A53YjtiJ40"/>
+<div class="absolute inset-0 bg-gradient-to-r from-surface via-surface/90 to-transparent"></div>
+</div>
+<div class="relative z-10 max-w-7xl mx-auto px-8 w-full flex flex-col md:flex-row items-center">
+<div class="w-full md:w-1/2 space-y-8 py-20">
+<div class="inline-flex items-center px-4 py-1.5 rounded-full bg-tertiary-container/30 border border-tertiary-container backdrop-blur-sm">
+<span class="w-2 h-2 rounded-full bg-secondary-container mr-2 animate-pulse"></span>
+<span class="text-on-tertiary-container text-xs font-bold uppercase tracking-wider">Accepting New Patients</span>
+</div>
+<h1 class="font-display text-5xl md:text-7xl font-extrabold text-primary leading-[1.1] tracking-tight">
+            Expert Care,<br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Close to Home.</span>
+</h1>
+<p class="font-body text-lg md:text-xl text-on-surface-variant max-w-lg leading-relaxed">
+            A premier clinical experience designed around your life. Combining sophisticated medical expertise with a deeply personal touch.
+          </p>
+<div class="flex flex-col sm:flex-row gap-4 pt-4">
+<button class="bg-gradient-to-r from-primary to-primary-container text-on-primary px-8 py-4 rounded-full font-label font-semibold text-lg hover:shadow-[0_0_20px_rgba(65,87,182,0.4)] transition-all">
+              Book Online
+            </button>
+<button class="bg-surface-container-lowest text-primary border border-outline-variant/30 px-8 py-4 rounded-full font-label font-semibold text-lg hover:bg-surface-container-low transition-all">
+              Find a Doctor
+            </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Services Highlight (Bento-style) -->
+<section class="py-24 bg-surface relative">
+<div class="max-w-7xl mx-auto px-8">
+<div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+<div class="max-w-2xl">
+<h2 class="font-headline text-sm font-bold text-secondary uppercase tracking-widest mb-3">Clinical Offerings</h2>
+<h3 class="font-display text-4xl md:text-5xl font-extrabold text-primary tracking-tight">Comprehensive care for every stage of life.</h3>
+</div>
+<a class="font-label font-bold text-secondary hover:text-primary transition-colors flex items-center group" href="#">
+            View All Services 
+            <span class="material-symbols-outlined ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_10px_40px_-10px_rgba(24,28,30,0.05)] hover:-translate-y-1 transition-transform duration-300 group cursor-pointer border border-outline-variant/10">
+<div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">stethoscope</span>
+</div>
+<h4 class="font-display text-2xl font-bold text-primary mb-3">Primary Care</h4>
+<p class="font-body text-on-surface-variant leading-relaxed mb-6">Routine check-ups, preventive care, and comprehensive health management for adults and children.</p>
+<div class="mt-auto">
+<span class="text-sm font-bold text-secondary flex items-center">Learn More <span class="material-symbols-outlined text-sm ml-1">chevron_right</span></span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_10px_40px_-10px_rgba(24,28,30,0.05)] hover:-translate-y-1 transition-transform duration-300 group cursor-pointer border border-outline-variant/10 relative overflow-hidden">
+<div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">vital_signs</span>
+</div>
+<h4 class="font-display text-2xl font-bold text-primary mb-3">Specialized Care</h4>
+<p class="font-body text-on-surface-variant leading-relaxed mb-6">Access to top-tier specialists across cardiology, orthopedics, dermatology, and more.</p>
+<div class="mt-auto">
+<span class="text-sm font-bold text-secondary flex items-center">Learn More <span class="material-symbols-outlined text-sm ml-1">chevron_right</span></span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_10px_40px_-10px_rgba(24,28,30,0.05)] hover:-translate-y-1 transition-transform duration-300 group cursor-pointer border border-outline-variant/10">
+<div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+</div>
+<h4 class="font-display text-2xl font-bold text-primary mb-3">Chronic Conditions</h4>
+<p class="font-body text-on-surface-variant leading-relaxed mb-6">Ongoing support and advanced management strategies for diabetes, hypertension, and asthma.</p>
+<div class="mt-auto">
+<span class="text-sm font-bold text-secondary flex items-center">Learn More <span class="material-symbols-outlined text-sm ml-1">chevron_right</span></span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Trust & Philosophy -->
+<section class="py-24 bg-surface-container-low relative">
+<div class="max-w-7xl mx-auto px-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="relative rounded-2xl overflow-hidden aspect-[4/5] md:aspect-square">
+<img alt="Doctor consulting patient" class="w-full h-full object-cover" data-alt="Professional female doctor in white coat calmly explaining medical details to an attentive patient in a modern, bright clinical office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBztTZzuaRNaUlvoWrqrQB3ParUTcO5UTQiLkceMyXb00FxAAZKNtxSRKlqzygVYklbHJXFoXjBBC8Lma7Ikeqe8ySHGvYtn2U_4w5-VmNmBSRG65j454SOcsaY6F0wfsLnf6-NMLnUOBrR_sUmBV99uGB1lhDa9JUXWuD4WqBgZ1PN8BWESE1AdT--4R8glaOcGmrtxiXNLygV2YJ3Lwgj7eNMJOpkZ2XZjsRppUFB8aDIqaVHM6aXwqPuAayFAjnP4T6mg64X6Yg"/>
+<!-- Stats Overlay -->
+<div class="absolute bottom-6 left-6 right-6 bg-surface-container-lowest/90 backdrop-blur-md rounded-xl p-6 shadow-lg border border-white/20 flex justify-around">
+<div class="text-center">
+<p class="font-display text-3xl font-extrabold text-primary">75+</p>
+<p class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wide mt-1">Providers</p>
+</div>
+<div class="w-px bg-outline-variant/30"></div>
+<div class="text-center">
+<p class="font-display text-3xl font-extrabold text-primary">14</p>
+<p class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wide mt-1">Locations</p>
+</div>
+<div class="w-px bg-outline-variant/30"></div>
+<div class="text-center">
+<p class="font-display text-3xl font-extrabold text-primary">4.9</p>
+<p class="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-wide mt-1">Patient Rating</p>
+</div>
+</div>
+</div>
+<div class="space-y-10">
+<div>
+<h2 class="font-headline text-sm font-bold text-secondary uppercase tracking-widest mb-3">Our Philosophy</h2>
+<h3 class="font-display text-4xl md:text-5xl font-extrabold text-primary tracking-tight leading-tight">Elevating the standard of clinical excellence.</h3>
+<p class="font-body text-lg text-on-surface-variant mt-6 leading-relaxed">
+                We believe that premium healthcare should be accessible, transparent, and built entirely around the patient. Our modern facilities and sophisticated medical teams are dedicated to providing clarity and comfort in every interaction.
+              </p>
+</div>
+<div class="space-y-6">
+<div class="flex items-start">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary mr-4 shrink-0 mt-1">
+<span class="material-symbols-outlined">event_available</span>
+</div>
+<div>
+<h4 class="font-label font-bold text-on-surface text-lg">Same-Day Appointments</h4>
+<p class="font-body text-on-surface-variant text-sm mt-1">When you need care quickly, we ensure you are seen without delay.</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary mr-4 shrink-0 mt-1">
+<span class="material-symbols-outlined">devices</span>
+</div>
+<div>
+<h4 class="font-label font-bold text-on-surface text-lg">Sophisticated EMR</h4>
+<p class="font-body text-on-surface-variant text-sm mt-1">Seamless digital health records accessible via our intuitive patient portal.</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary mr-4 shrink-0 mt-1">
+<span class="material-symbols-outlined">spa</span>
+</div>
+<div>
+<h4 class="font-label font-bold text-on-surface text-lg">Patient-Centered Environment</h4>
+<p class="font-body text-on-surface-variant text-sm mt-1">Clinics designed to reduce anxiety, featuring natural light and comfortable waiting areas.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Video Section -->
+<section class="py-24 bg-surface relative">
+<div class="max-w-7xl mx-auto px-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<!-- Left: Video Placeholder -->
+<div class="relative rounded-2xl overflow-hidden aspect-video shadow-lg group cursor-pointer border border-outline-variant/10">
+<img alt="Promotional video thumbnail" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Modern clinic interior video thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVqdZbqtdR_D3K80F0zcWvXlfVUJ9IlpZGMQt-vNiNWOMrfXXQyxcVbn7-6eGGql5ijogiiQG7xg45p5PTQS3CC_Ok-_3279a5WWoi3kUMXskCLpicTDesH9muobDEGhmsRQ_bwBnG7SJfDkUaW9YF6u5z4p__-7_FkmIrNyDYcstrmJqNHvPbE6i896TF0xLBkI5y0DBriZwLslqpQxDRjxcpzRwh0FOVoMK-C4kF-lE3LEbObWfDy42ZGdY9gSCYMasLm-RKjBU"/>
+<div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+<div class="w-20 h-20 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-primary group-hover:scale-110 transition-transform shadow-xl">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+<!-- Right: Content -->
+<div class="space-y-6">
+<h2 class="font-headline text-sm font-bold text-secondary uppercase tracking-widest mb-3">Welcome Video</h2>
+<h3 class="font-display text-4xl md:text-5xl font-extrabold text-primary tracking-tight leading-tight">Experience Excellence in Care.</h3>
+<p class="font-body text-lg text-on-surface-variant mt-6 leading-relaxed">
+          Take a brief tour of our state-of-the-art facilities and meet the dedicated team behind your healthcare journey. Discover how our patient-first approach, sophisticated technology, and comforting environment work together to redefine the standard of clinical excellence.
+        </p>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-full font-label font-bold text-base hover:bg-primary-container transition-all active:scale-95 duration-200 mt-4 flex items-center shadow-sm w-fit">
+          Watch Now
+          <span class="material-symbols-outlined ml-2 text-xl">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Patient Stories -->
+<section class="py-24 bg-background-light relative border-y border-outline-variant/10">
+<div class="max-w-7xl mx-auto px-8">
+<div class="mb-16 text-center">
+<h2 class="font-headline text-sm font-bold text-secondary uppercase tracking-widest mb-3">Patient Stories</h2>
+<h3 class="font-display text-4xl md:text-5xl font-extrabold text-primary tracking-tight">What Our Patients Say</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"><!-- Card 1 -->
+<div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow">
+<div class="flex text-primary mb-4 space-x-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body text-on-surface-variant text-base leading-relaxed mb-8">"The level of care I received was exceptional. From the moment I walked in, the staff made me feel comfortable and heard. Dr. Smith took the time to explain everything clearly."</p>
+<div class="flex items-center">
+<div>
+<h4 class="font-label font-bold text-primary">Sarah Jenkins</h4>
+<p class="font-body text-xs text-on-surface-variant">Primary Care Patient</p>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow">
+<div class="flex text-primary mb-4 space-x-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body text-on-surface-variant text-base leading-relaxed mb-8">"Getting a same-day appointment was a lifesaver. The modern facilities and seamless digital records made the entire process so efficient and stress-free. Highly recommend."</p>
+<div class="flex items-center">
+<div>
+<h4 class="font-label font-bold text-primary">Michael Rodriguez</h4>
+<p class="font-body text-xs text-on-surface-variant">Urgent Care Patient</p>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow">
+<div class="flex text-primary mb-4 space-x-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body text-on-surface-variant text-base leading-relaxed mb-8">"I've been managing a chronic condition for years, and this is the first clinic where I feel truly supported. The integrated care team approach makes all the difference."</p>
+<div class="flex items-center">
+<div>
+<h4 class="font-label font-bold text-primary">Emily Chen</h4>
+<p class="font-body text-xs text-on-surface-variant">Chronic Care Patient</p>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow">
+<div class="flex text-primary mb-4 space-x-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body text-on-surface-variant text-base leading-relaxed mb-8">"The telehealth option is fantastic. I was able to consult with my doctor quickly from home, and the video quality and platform were completely seamless."</p>
+<div class="flex items-center">
+<div>
+<h4 class="font-label font-bold text-primary">David Thompson</h4>
+<p class="font-body text-xs text-on-surface-variant">Telehealth Patient</p>
+</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow">
+<div class="flex text-primary mb-4 space-x-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body text-on-surface-variant text-base leading-relaxed mb-8">"Beautiful clinic, friendly staff, and top-notch medical professionals. The patient portal is incredibly easy to use for checking lab results and messaging the team."</p>
+<div class="flex items-center">
+<div>
+<h4 class="font-label font-bold text-primary">Amanda Williams</h4>
+<p class="font-body text-xs text-on-surface-variant">Preventive Care</p>
+</div>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow">
+<div class="flex text-primary mb-4 space-x-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body text-on-surface-variant text-base leading-relaxed mb-8">"Transitioning to this practice was the best healthcare decision I've made. The coordination between my primary doctor and the specialists here is flawless."</p>
+<div class="flex items-center">
+<div>
+<h4 class="font-label font-bold text-primary">Robert Brooks</h4>
+<p class="font-body text-xs text-on-surface-variant">Specialized Care</p>
+</div>
+</div>
+</div></div>
+</div>
+</section>
+<!-- FAQ Section -->
+<section class="py-24 bg-surface relative">
+<div class="max-w-7xl mx-auto px-8">
+<div class="mb-12 text-center">
+<h2 class="font-headline text-sm font-bold text-secondary uppercase tracking-widest mb-3">FAQ</h2>
+<h3 class="font-display text-4xl md:text-5xl font-extrabold text-primary tracking-tight">Frequently Asked Questions</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+<!-- Column 1 -->
+<div class="space-y-4">
+<!-- FAQ Item 1 -->
+<div class="border-b border-outline-variant/30 pb-4">
+<button class="w-full flex justify-between items-center text-left py-4 focus:outline-none group">
+<span class="font-display text-xl font-bold text-primary group-hover:text-secondary transition-colors">How does preventive care work?</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-secondary transition-colors">expand_more</span>
+</button>
+<div class="hidden text-on-surface-variant font-body leading-relaxed pb-4">
+<p>Preventive care focuses on maintaining health and detecting potential issues early, before they become serious problems. This includes regular check-ups, screenings, immunizations, and lifestyle counseling tailored to your age, gender, and personal health history.</p>
+</div>
+</div>
+<!-- FAQ Item 2 -->
+<div class="border-b border-outline-variant/30 pb-4">
+<button class="w-full flex justify-between items-center text-left py-4 focus:outline-none group">
+<span class="font-display text-xl font-bold text-primary group-hover:text-secondary transition-colors">What if your primary care doctor can't help?</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-secondary transition-colors">expand_more</span>
+</button>
+<div class="hidden text-on-surface-variant font-body leading-relaxed pb-4">
+<p>If your condition requires specialized treatment, your primary care physician will seamlessly refer you to one of our top-tier specialists within our network. Our integrated electronic medical records ensure your specialist has complete context of your health history.</p>
+</div>
+</div>
+<!-- FAQ Item 3 -->
+<div class="border-b border-outline-variant/30 pb-4">
+<button class="w-full flex justify-between items-center text-left py-4 focus:outline-none group">
+<span class="font-display text-xl font-bold text-primary group-hover:text-secondary transition-colors">Which primary care services are available?</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-secondary transition-colors">expand_more</span>
+</button>
+<div class="hidden text-on-surface-variant font-body leading-relaxed pb-4">
+<p>Our primary care services cover a wide spectrum, including routine physicals, chronic disease management (like diabetes or hypertension), acute care for minor illnesses and injuries, vaccinations, mental health screenings, and comprehensive wellness planning.</p>
+</div>
+</div>
+</div>
+<!-- Column 2 -->
+<div class="space-y-4">
+<!-- FAQ Item 4 (Duplicate for 3x3 layout) -->
+<div class="border-b border-outline-variant/30 pb-4">
+<button class="w-full flex justify-between items-center text-left py-4 focus:outline-none group">
+<span class="font-display text-xl font-bold text-primary group-hover:text-secondary transition-colors">Do you offer telehealth appointments?</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-secondary transition-colors">expand_more</span>
+</button>
+<div class="hidden text-on-surface-variant font-body leading-relaxed pb-4">
+<p>Yes, we offer secure, convenient telehealth appointments for many types of consultations. You can consult with our providers from the comfort of your home using your smartphone, tablet, or computer.</p>
+</div>
+</div>
+<!-- FAQ Item 5 (Duplicate for 3x3 layout) -->
+<div class="border-b border-outline-variant/30 pb-4">
+<button class="w-full flex justify-between items-center text-left py-4 focus:outline-none group">
+<span class="font-display text-xl font-bold text-primary group-hover:text-secondary transition-colors">What insurance plans do you accept?</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-secondary transition-colors">expand_more</span>
+</button>
+<div class="hidden text-on-surface-variant font-body leading-relaxed pb-4">
+<p>We accept most major insurance plans, including Medicare and Medicaid. For a complete and up-to-date list of accepted insurance providers, please visit our Insurance page or contact our billing department directly.</p>
+</div>
+</div>
+<!-- FAQ Item 6 (Duplicate for 3x3 layout) -->
+<div class="border-b border-outline-variant/30 pb-4">
+<button class="w-full flex justify-between items-center text-left py-4 focus:outline-none group">
+<span class="font-display text-xl font-bold text-primary group-hover:text-secondary transition-colors">How can I access my medical records?</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-secondary transition-colors">expand_more</span>
+</button>
+<div class="hidden text-on-surface-variant font-body leading-relaxed pb-4">
+<p>You can access your medical records securely through our patient portal. Our intuitive portal allows you to view lab results, appointment history, medication lists, and communicate securely with your care team.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA Section -->
+<section class="py-24 bg-surface-container-low relative border-t border-outline-variant/10">
+<div class="max-w-7xl mx-auto px-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<!-- Left: Contact Info -->
+<div class="flex flex-col justify-center space-y-10">
+<div>
+<h2 class="font-headline text-sm font-bold text-secondary uppercase tracking-widest mb-3">Get in Touch</h2>
+<h3 class="font-display text-4xl md:text-5xl font-extrabold text-primary tracking-tight leading-tight mb-6">Begin Your Health Journey.</h3>
+<p class="font-body text-lg text-on-surface-variant leading-relaxed">
+            Our dedicated team is ready to assist you with scheduling your first consultation, billing inquiries, or general questions about our clinical offerings. We're here to help you thrive.
+          </p>
+</div>
+<div class="space-y-6">
+<div class="flex items-start">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary mr-5 shrink-0">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+<div>
+<h4 class="font-label font-bold text-on-surface text-lg">Main Office</h4>
+<p class="font-body text-on-surface-variant mt-1">100 Medical Plaza<br/>Suite 200, City, ST 12345</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary mr-5 shrink-0">
+<span class="material-symbols-outlined">call</span>
+</div>
+<div>
+<h4 class="font-label font-bold text-on-surface text-lg">Phone</h4>
+<p class="font-body text-on-surface-variant mt-1">(555) 123-4567<br/><span class="text-sm">Mon-Fri, 8am-5pm</span></p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary mr-5 shrink-0">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<div>
+<h4 class="font-label font-bold text-on-surface text-lg">Email</h4>
+<p class="font-body text-on-surface-variant mt-1">care@firstmedical.com<br/><span class="text-sm">We aim to reply within 24 hours</span></p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Contact Form -->
+<div class="bg-surface-container-lowest rounded-2xl p-10 shadow-sm border border-outline-variant/10">
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="font-label font-bold text-sm text-on-surface" for="name">Full Name</label>
+<input class="w-full bg-surface border border-outline-variant/30 rounded-lg px-4 py-3 font-body text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors" id="name" placeholder="John Doe" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="font-label font-bold text-sm text-on-surface" for="email">Email Address</label>
+<input class="w-full bg-surface border border-outline-variant/30 rounded-lg px-4 py-3 font-body text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors" id="email" placeholder="john@example.com" type="email"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label font-bold text-sm text-on-surface" for="phone">Phone Number</label>
+<input class="w-full bg-surface border border-outline-variant/30 rounded-lg px-4 py-3 font-body text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors" id="phone" placeholder="(555) 123-4567" type="tel"/>
+</div>
+<div class="space-y-2">
+<label class="font-label font-bold text-sm text-on-surface" for="message">Message</label>
+<textarea class="w-full bg-surface border border-outline-variant/30 rounded-lg px-4 py-3 font-body text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors resize-none" id="message" placeholder="How can we help you?" rows="4"></textarea>
+</div>
+<button class="bg-primary text-on-primary px-8 py-3.5 rounded-lg font-label font-bold text-base hover:bg-primary-container hover:shadow-md transition-all active:scale-95 duration-200 w-full" type="button">
+            Send Message
+          </button>
+</form>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer (from JSON) -->
+<footer class="w-full py-16 px-8 mt-20 bg-[#f1f4f7]">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-7xl mx-auto">
+<div class="col-span-1 md:col-span-1">
+<div class="font-['Manrope'] font-bold text-lg text-[#001662] mb-4">
+          First Medical Associates
+        </div>
+<p class="font-['Inter'] text-sm tracking-wide text-slate-500 max-w-xs">
+          Excellence in Clinical Care. Dedicated to providing sophisticated, patient-centered health services.
+        </p>
+</div>
+<div class="col-span-1">
+<h4 class="font-bold text-[#001662] mb-4">Legal</h4>
+<ul class="space-y-3 font-['Inter'] text-sm tracking-wide">
+<li><a class="text-slate-500 hover:text-blue-700 hover:translate-x-1 transition-transform duration-200 block" href="#">Privacy Policy</a></li>
+<li><a class="text-slate-500 hover:text-blue-700 hover:translate-x-1 transition-transform duration-200 block" href="#">Terms of Service</a></li>
+<li><a class="text-slate-500 hover:text-blue-700 hover:translate-x-1 transition-transform duration-200 block" href="#">HIPAA Compliance</a></li>
+<li><a class="text-slate-500 hover:text-blue-700 hover:translate-x-1 transition-transform duration-200 block" href="#">Accessibility</a></li>
+</ul>
+</div>
+<div class="col-span-1">
+<h4 class="font-bold text-[#001662] mb-4">Contact</h4>
+<ul class="space-y-3 font-['Inter'] text-sm tracking-wide text-slate-500">
+<li class="flex items-center"><span class="material-symbols-outlined text-[18px] mr-2">call</span> (555) 123-4567</li>
+<li class="flex items-center"><span class="material-symbols-outlined text-[18px] mr-2">mail</span> care@firstmedical.com</li>
+<li class="flex items-start"><span class="material-symbols-outlined text-[18px] mr-2 mt-0.5">location_on</span> 100 Medical Plaza<br/>Suite 200</li>
+</ul>
+</div>
+<div class="col-span-1">
+<p class="font-['Inter'] text-xs tracking-wide text-slate-400 mt-auto pt-8">
+          © 2024 First Medical Associates. Excellence in Clinical Care.
+        </p>
+</div>
+</div>
+</footer>
+</body></html>

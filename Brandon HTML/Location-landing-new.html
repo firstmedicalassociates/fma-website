@@ -1,0 +1,391 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>First Medical Associates | Progressive Exploration Journey</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-dim": "#d7dadd",
+              "surface-container": "#ebeef1",
+              "outline-variant": "#c5c5d4",
+              "tertiary-fixed-dim": "#99cdf0",
+              "surface-variant": "#e0e3e6",
+              "on-background": "#181c1e",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "tertiary-fixed": "#c6e7ff",
+              "background": "#f7fafd",
+              "surface-container-highest": "#e0e3e6",
+              "surface-tint": "#4157b6",
+              "on-error-container": "#93000a",
+              "on-secondary-fixed-variant": "#004c6e",
+              "on-tertiary-fixed": "#001e2d",
+              "on-tertiary-fixed-variant": "#0a4c69",
+              "on-primary-fixed-variant": "#263e9d",
+              "tertiary-container": "#003a53",
+              "outline": "#757683",
+              "secondary-container": "#76c7fd",
+              "inverse-on-surface": "#eef1f4",
+              "primary-container": "#0e2a8b",
+              "primary": "#001662",
+              "on-secondary-fixed": "#001e2f",
+              "error": "#ba1a1a",
+              "surface": "#f7fafd",
+              "on-primary-container": "#8398fc",
+              "on-surface": "#181c1e",
+              "on-secondary": "#ffffff",
+              "on-error": "#ffffff",
+              "secondary-fixed": "#c9e6ff",
+              "secondary-fixed-dim": "#89ceff",
+              "inverse-primary": "#b9c3ff",
+              "surface-container-high": "#e5e8eb",
+              "inverse-surface": "#2d3133",
+              "tertiary": "#002334",
+              "on-primary-fixed": "#001256",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#f1f4f7",
+              "surface-bright": "#f7fafd",
+              "primary-fixed-dim": "#b9c3ff",
+              "on-tertiary-container": "#71a5c6",
+              "secondary": "#006591",
+              "on-surface-variant": "#444652",
+              "primary-fixed": "#dde1ff",
+              "on-secondary-container": "#005277",
+              "error-container": "#ffdad6"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style type="text/tailwindcss">
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .bg-primary-gradient {
+        background: linear-gradient(135deg, #001662 0%, #0e2a8b 100%);
+      }
+      .journey-container {
+        height: calc(100vh - 80px);
+        overflow: hidden;
+      }
+      .tab-content {
+        display: none;
+        height: 100%;
+        overflow-y: auto;
+      }
+      #tab-1:checked ~ .content-area #content-location,
+      #tab-2:checked ~ .content-area #content-doctors,
+      #tab-3:checked ~ .content-area #content-services {
+        display: block;
+      }
+      #tab-1:checked ~ nav label[for="tab-1"],
+      #tab-2:checked ~ nav label[for="tab-2"],
+      #tab-3:checked ~ nav label[for="tab-3"] {
+        @apply bg-primary text-white border-primary shadow-lg scale-105;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #001662;
+        border-radius: 10px;
+      }
+      
+      .faq-details[open] .faq-summary .expand-icon {
+        transform: rotate(180deg);
+      }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 w-full border-b border-surface-variant">
+<nav class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+<div class="text-xl font-bold tracking-tight text-blue-900 flex items-center gap-2" style="">
+<span class="material-symbols-outlined text-primary" data-icon="medical_services" style="">medical_services</span>
+            First Medical Associates
+        </div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-slate-600 font-medium text-sm font-semibold hover:text-blue-600 transition-colors" href="#" style="">Insurance</a>
+<a class="text-slate-600 font-medium text-sm font-semibold hover:text-blue-600 transition-colors" href="#" style="">Patient Portal</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary-gradient text-white px-6 py-2.5 rounded-full font-semibold" style="">Book Appointment</button>
+</div>
+</nav>
+</header>
+<main class="journey-container relative">
+<input checked="" class="hidden" id="tab-1" name="journey" type="radio">
+<input class="hidden" id="tab-2" name="journey" type="radio">
+<input class="hidden" id="tab-3" name="journey" type="radio">
+<nav class="absolute top-0 left-0 right-0 z-40 bg-white/50 backdrop-blur-sm border-b border-surface-variant flex justify-center py-4 px-6 pointer-events-none">
+<div class="flex gap-4 p-1 bg-surface-container-high rounded-full shadow-inner pointer-events-auto">
+<label class="cursor-pointer px-8 py-3 rounded-full font-bold text-sm transition-all duration-300 flex items-center gap-2 text-primary border border-transparent" for="tab-1" style="">
+<span class="material-symbols-outlined text-xl" data-icon="explore" style="">explore</span> 01. Location
+            </label>
+<label class="cursor-pointer px-8 py-3 rounded-full font-bold text-sm transition-all duration-300 flex items-center gap-2 text-primary border border-transparent" for="tab-2" style="">
+<span class="material-symbols-outlined text-xl" data-icon="groups" style="">groups</span> 02. Doctors
+            </label>
+<label class="cursor-pointer px-8 py-3 rounded-full font-bold text-sm transition-all duration-300 flex items-center gap-2 text-primary border border-transparent" for="tab-3" style="">
+<span class="material-symbols-outlined text-xl" data-icon="health_and_safety" style="">health_and_safety</span> 03. Services
+            </label>
+</div>
+</nav>
+<div class="content-area h-full pt-20">
+<div class="tab-content custom-scrollbar" id="content-location">
+<div class="flex flex-col h-full bg-surface-bright">
+<div class="w-full h-[614px] relative shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Bethesda location architectural exterior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMhk9y2Naqg7TuD1T4trVxz9vMf0gGTBLIffqwLwdSBhle2_gO4QHejwb3z7gSTySiuRo9eLjFDGZzXHdxhX4Kg3PpwNcQCxeR9bPuzFV9j52Y4UAQ5W-hQXrLkRqWgfjwQ7b27ai_w5toPsxMmxJZyufJ_p5mq2cWwnFy5AftKPalTkHtsJ6wWbgYQaeb8WDKvGu1SD9uHuEzADeb1l9GYUSEn_uFXhYDJRgBzPMt7QWGtt9UgqwuewrOdAmLf9-0pjUUrytB8_0" style="">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex items-end">
+<div class="max-w-7xl mx-auto w-full px-8 pb-16">
+<span class="text-secondary-container font-bold uppercase tracking-widest text-sm mb-4 block" style="">Stage 01: Visit Our Hub</span>
+<h2 class="font-headline text-5xl lg:text-7xl font-extrabold text-white leading-tight" style="">Bethesda Practice</h2>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto w-full px-8 py-20">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-16 lg:gap-24">
+<div class="space-y-12">
+<div class="flex gap-8 items-start">
+<div class="w-16 h-16 bg-primary/5 rounded-2xl flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-3xl" data-icon="map" style="">map</span>
+</div>
+<div>
+<h4 class="font-bold text-primary text-2xl mb-3" style="">Clinic Address</h4>
+<p class="text-on-surface-variant text-lg leading-relaxed" style="">7201 Wisconsin Ave, Suite 300<br>Bethesda, MD 20814</p>
+<a class="text-secondary text-base font-bold mt-4 inline-flex items-center gap-2 hover:underline" href="#" style="">Get Directions <span class="material-symbols-outlined text-sm" data-icon="open_in_new" style="">open_in_new</span></a>
+</div>
+</div>
+<div class="flex gap-8 items-start">
+<div class="w-16 h-16 bg-primary/5 rounded-2xl flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-3xl" data-icon="schedule" style="">schedule</span>
+</div>
+<div class="w-full">
+<h4 class="font-bold text-primary text-2xl mb-4" style="">Patient Hours</h4>
+<div class="space-y-3 overflow-hidden rounded-xl border border-surface-variant">
+<div class="flex justify-between items-center bg-white px-6 py-4 border-b border-surface-variant">
+<span class="text-on-surface-variant font-medium" style="">Monday – Friday</span>
+<span class="font-bold text-primary" style="">8:00 AM – 6:00 PM&nbsp;&nbsp;</span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-lowest px-6 py-4 border-b border-surface-variant">
+<span class="text-on-surface-variant font-medium" style="">Saturday</span>
+<span class="font-bold text-primary" style="">9:00 AM – 1:00 PM</span>
+</div>
+<div class="flex justify-between items-center bg-white px-6 py-4">
+<span class="text-on-surface-variant font-medium" style="">Sunday</span>
+<span class="font-bold text-error" style="">Closed</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col">
+<div class="bg-primary-container/10 border border-primary-container/20 rounded-[2.5rem] p-10 h-full flex flex-col justify-between">
+<div>
+<div class="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center mb-8">
+<span class="material-symbols-outlined text-3xl" data-icon="local_parking" style="">local_parking</span>
+</div>
+<p class="text-secondary font-bold text-xs uppercase tracking-widest mb-3" style="">Visitor Parking</p>
+<h3 class="text-2xl font-bold text-primary mb-4" style="">Validated Parking Available</h3>
+<p class="text-on-surface-variant text-lg leading-relaxed mb-4" style="">We offer complimentary parking for all patients. Enter the garage via Wisconsin Avenue or Woodmont Avenue.</p>
+<ul class="space-y-2 mb-8">
+<li class="flex items-center gap-3 text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-xl" data-icon="check_circle" style="">check_circle</span>
+Dedicated spaces on Level P2
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-xl" data-icon="check_circle" style="">check_circle</span>
+Handicap accessible elevators
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant" style="">
+<span class="material-symbols-outlined text-secondary text-xl" data-icon="check_circle" style="">check_circle</span>
+Validated for up to 3 hours
+</li>
+</ul>
+</div>
+<label class="cursor-pointer inline-flex items-center justify-center gap-3 bg-primary text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-on-primary-container transition-all" for="tab-2" style="">
+                        Next Step: Meet Doctors <span class="material-symbols-outlined" data-icon="arrow_forward" style="">arrow_forward</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="tab-content custom-scrollbar bg-surface" id="content-doctors">
+<div class="max-w-7xl mx-auto px-6 py-12 lg:py-24">
+<div class="grid lg:grid-cols-12 gap-16 items-center">
+<div class="lg:col-span-6 order-2 lg:order-1">
+<div class="grid grid-cols-2 gap-4">
+<img class="w-full h-[450px] object-cover rounded-[2rem] mt-12 shadow-2xl border-8 border-white" data-alt="Portrait of a professional doctor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPdf7VUoGSB-sWthN-YLpY5X-XEMzy0_QSEhbgGmxeZ5DFDTtL0IdYQb17SLbT62Bs3COoxzdGtYFsMpA7oxmwGRCEWC749TwUQYHZkiPWIO7QZPhRCx33owojSBxoWFM1dD0k-lW6nS4hyjis6EhzNwMap9gGN5HyM2kE4aIY3jQl7AX0fcoqKkBsfnEPFLm58pIIJgpBC4leNMtHNBkuueqn_xfd6-iMSRlc9gC1MzADyrjF7Y_tSRKSwR2Fb_8GZPX9SCtNmGc" style="">
+<img class="w-full h-[350px] object-cover rounded-[2rem] shadow-xl border-4 border-white" data-alt="Medical professionals team" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBe5mkdZmckRPgy22xZZSLuKB4f3NZCBgzEa_zoWf7WYZBBfKTtqDwAQ9U-o3C_BYnXD7NGD7P2KdN4SnMeYjFs7LAHbDMBhq3d_Iw2x1AP1pESTFgTcgPy9Ebj-6Q1AKJQIANsp9ka9gQZ4HlpHRw8Cqy5pu7byYp7-F6Jnwf2pUZ6FPXpkbprWhlq4patcmlLFXC8EFiu7OuUUbx-jsF-29ieWwHLsKBXxQ7uaIbKnDRDR-qDh0Mm-KHqzQ-0bLpBLaIBsWovEsE" style="">
+</div>
+</div>
+<div class="lg:col-span-6 order-1 lg:order-2">
+<span class="text-secondary font-bold uppercase tracking-widest text-xs mb-4 block" style="">Stage 02: Our Specialists</span>
+<h2 class="font-headline text-4xl lg:text-5xl font-extrabold text-primary mb-6 leading-tight" style="">Personalized Care Built Around You</h2>
+<p class="text-on-surface-variant text-lg mb-8 leading-relaxed" style="">Our board-certified physicians specialize in primary care that focuses on long-term health, not just symptoms.</p>
+<div class="space-y-4 mb-10">
+<div class="flex gap-5 p-6 bg-white rounded-2xl shadow-sm border border-outline-variant/10">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="clinical_notes" style="">clinical_notes</span>
+<div>
+<h4 class="font-bold text-primary text-lg" style="">Evidence-Based Treatment</h4>
+<p class="text-on-surface-variant text-sm" style="">Advanced clinical protocols tailored to your unique health profile.</p>
+</div>
+</div>
+<div class="flex gap-5 p-6 bg-white rounded-2xl shadow-sm border border-outline-variant/10">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="biotech" style="">biotech</span>
+<div>
+<h4 class="font-bold text-primary text-lg" style="">Comprehensive Diagnostics</h4>
+<p class="text-on-surface-variant text-sm" style="">Full-service laboratory and testing facilities available on-site.</p>
+</div>
+</div>
+</div>
+<label class="cursor-pointer inline-flex items-center gap-3 bg-primary text-white px-10 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-primary/20 transition-all" for="tab-3" style="">
+                            Next Step: Explore Services <span class="material-symbols-outlined" data-icon="arrow_forward" style="">arrow_forward</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<div class="tab-content custom-scrollbar bg-surface-container-low pb-20" id="content-services">
+<div class="max-w-7xl mx-auto px-6 py-12 lg:py-24">
+<div class="text-center mb-16">
+<span class="text-secondary font-bold uppercase tracking-widest text-xs mb-3 block" style="">Stage 03: Expert Medical Solutions</span>
+<h2 class="font-headline text-4xl lg:text-5xl font-extrabold text-primary" style="">Specialized Services</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
+<div class="md:col-span-2 bg-white p-10 rounded-[2.5rem] group hover:bg-primary transition-all duration-500 flex flex-col justify-between min-h-[400px] shadow-sm border border-outline-variant/10">
+<div>
+<div class="w-16 h-16 bg-[#4298CC] rounded-2xl flex items-center justify-center text-white mb-8 group-hover:bg-white group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-4xl" data-icon="family_restroom" style="">family_restroom</span>
+</div>
+<h3 class="font-headline text-4xl font-bold text-primary mb-6 group-hover:text-white" style="">Primary Care &amp; Wellness</h3>
+<p class="text-on-surface-variant text-xl max-w-xl group-hover:text-on-primary-container leading-relaxed" style="">Comprehensive checkups, preventative screenings, and long-term health management for your entire family.</p>
+</div>
+<button class="mt-10 text-primary font-bold flex items-center gap-2 group-hover:text-white group-hover:translate-x-2 transition-all" style="">Learn More <span class="material-symbols-outlined" data-icon="chevron_right" style="">chevron_right</span></button>
+</div>
+<div class="flex flex-col gap-8">
+<div class="bg-white p-8 rounded-[2rem] border border-outline-variant/10 flex flex-col h-full hover:shadow-xl transition-all">
+<div class="w-14 h-14 bg-[#7FB3D5] rounded-2xl flex items-center justify-center text-white mb-6">
+<span class="material-symbols-outlined text-2xl" data-icon="vaccines" style="">vaccines</span>
+</div>
+<h3 class="font-headline text-xl font-bold text-primary mb-3" style="">Vaccinations</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed" style="">Seasonal flu shots, travel immunizations, and standard vaccines.</p>
+</div>
+<div class="bg-white p-8 rounded-[2rem] border border-outline-variant/10 flex flex-col h-full hover:shadow-xl transition-all">
+<div class="w-14 h-14 bg-[#4298CC] rounded-2xl flex items-center justify-center text-white mb-6">
+<span class="material-symbols-outlined text-2xl" data-icon="stethoscope" style="">stethoscope</span>
+</div>
+<h3 class="font-headline text-xl font-bold text-primary mb-3" style="">Annual Physicals</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed" style="">In-depth reviews of your health and metabolic markers.</p>
+</div>
+</div>
+<div class="md:col-span-3 bg-white p-10 rounded-[2.5rem] group border border-outline-variant/10 hover:border-secondary transition-all flex flex-col lg:flex-row gap-12 items-center">
+<div class="w-full lg:w-5/12 h-64 overflow-hidden rounded-3xl">
+<img class="w-full h-full object-cover" data-alt="Laboratory monitor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdVKGI1UkURVyjpj6hMf0QOPKw12yXbJpCeFBcxYD3KXkv88rPWKaSFGhaHzSRMbOw6cGfvFLUuyeI4Bv4ixCsqWfeIP34S4hHsUHsHUOyON5wci-YNBnIxF1hBFUgK33PxzFCzu0c98Uj8j3xD_EDY9I05xucwJgm25s2hOE7EQ2iKRAG5_GGsm0ypZV5jUlvJSbPeyK-Cwf1msT-7Sf9QOst3b6nSVuA9JI9P14tbMpaOfiPWQdQh7NV4BiO6Nfb-u5WDPpaob8" style="">
+</div>
+<div class="flex-1">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary-fixed text-on-secondary-container rounded-full text-xs font-bold uppercase mb-6" style="">On-Site Lab</div>
+<h3 class="font-headline text-3xl font-bold text-primary mb-4" style="">Swift In-House Lab Work</h3>
+<p class="text-on-surface-variant text-lg mb-6 leading-relaxed" style="">Skip the second trip. Rapid testing and specialized screenings right here in Bethesda.</p>
+<span class="inline-flex items-center gap-2 text-secondary font-bold text-lg" style="">Learn about Rapid Results <span class="material-symbols-outlined" data-icon="bolt" style="">bolt</span></span>
+</div>
+</div>
+</div>
+<div class="mb-24">
+<h2 class="font-headline text-3xl lg:text-4xl font-extrabold text-primary mb-12 text-center" style="">Why Choose Bethesda Location</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/10 text-center">
+<div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center text-primary mx-auto mb-6">
+<span class="material-symbols-outlined text-3xl" data-icon="clinical_notes" style="">clinical_notes</span>
+</div>
+<h4 class="font-bold text-primary text-xl mb-4" style="">Expert Medical Team</h4>
+<p class="text-on-surface-variant" style="">Our Bethesda clinicians are leaders in internal medicine with decades of combined experience.</p>
+</div>
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/10 text-center">
+<div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center text-primary mx-auto mb-6">
+<span class="material-symbols-outlined text-3xl" data-icon="precision_manufacturing" style="">precision_manufacturing</span>
+</div>
+<h4 class="font-bold text-primary text-xl mb-4" style="">State-of-the-Art Tech</h4>
+<p class="text-on-surface-variant" style="">Equipped with the latest diagnostic imaging and electronic health records for seamless care.</p>
+</div>
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/10 text-center">
+<div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center text-primary mx-auto mb-6">
+<span class="material-symbols-outlined text-3xl" data-icon="volunteer_activism" style="">volunteer_activism</span>
+</div>
+<h4 class="font-bold text-primary text-xl mb-4" style="">Patient-Centered Care</h4>
+<p class="text-on-surface-variant" style="">We prioritize your comfort and time, ensuring every visit is thorough, efficient, and compassionate.</p>
+</div>
+</div>
+</div>
+<div class="mb-24">
+<h2 class="font-headline text-3xl lg:text-4xl font-extrabold text-primary mb-12 text-center" style="">Patient FAQ</h2>
+<div class="max-w-3xl mx-auto space-y-4">
+<details class="faq-details group bg-white rounded-2xl border border-outline-variant/10 overflow-hidden shadow-sm" style="">
+<summary class="faq-summary flex justify-between items-center p-6 cursor-pointer list-none font-bold text-primary text-lg" style="">
+                  Do you accept my health insurance?
+<span class="material-symbols-outlined expand-icon transition-transform duration-300" data-icon="expand_more" style="">expand_more</span>
+</summary>
+<div class="px-6 pb-6 text-on-surface-variant leading-relaxed" style="">
+                  We accept most major commercial insurance plans, Medicare, and several Medicaid Managed Care organizations. Please call us to confirm your specific plan is in-network.
+                </div>
+</details>
+<details class="faq-details group bg-white rounded-2xl border border-outline-variant/10 overflow-hidden shadow-sm" style="">
+<summary class="faq-summary flex justify-between items-center p-6 cursor-pointer list-none font-bold text-primary text-lg" style="">
+                  Is same-day appointment availability offered?
+<span class="material-symbols-outlined expand-icon transition-transform duration-300" data-icon="expand_more" style="">expand_more</span>
+</summary>
+<div class="px-6 pb-6 text-on-surface-variant leading-relaxed" style="">
+                  Yes! We reserve several slots daily for acute or urgent care needs. Contact our office early in the morning for the best chance of securing a same-day visit.
+                </div>
+</details>
+<details class="faq-details group bg-white rounded-2xl border border-outline-variant/10 overflow-hidden shadow-sm" style="">
+<summary class="faq-summary flex justify-between items-center p-6 cursor-pointer list-none font-bold text-primary text-lg" style="">
+                  How can I access my test results?
+<span class="material-symbols-outlined expand-icon transition-transform duration-300" data-icon="expand_more" style="">expand_more</span>
+</summary>
+<div class="px-6 pb-6 text-on-surface-variant leading-relaxed" style="">
+                  Results are typically available within 48-72 hours via our secure Patient Portal. You will receive an email notification once your clinician has reviewed and released your results.
+                </div>
+</details>
+</div>
+</div>
+<div class="bg-primary-gradient rounded-[3rem] p-12 lg:p-24 text-center relative overflow-hidden text-white shadow-2xl">
+<div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+<div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl"></div>
+<span class="text-secondary-fixed-dim font-bold uppercase tracking-widest text-sm mb-6 block" style="">Immediate Availability</span>
+<h2 class="font-headline text-4xl lg:text-6xl font-extrabold mb-8 relative z-10" style="">Ready to visit us?</h2>
+<p class="text-secondary-fixed-dim text-lg mb-12 max-w-2xl mx-auto relative z-10" style="">Join the thousands of Bethesda residents who trust First Medical Associates for their primary healthcare needs.</p>
+<div class="flex flex-col sm:flex-row gap-6 justify-center relative z-10">
+<button class="bg-white text-primary px-12 py-5 rounded-xl font-bold text-xl shadow-xl hover:bg-secondary-fixed transition-all hover:scale-105 active:scale-95" style="">Schedule Visit</button>
+<button class="bg-transparent border-2 border-white/40 text-white px-12 py-5 rounded-xl font-bold text-xl hover:bg-white/10 transition-all" style="">Portal Login</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-white border-t border-surface-variant relative z-50 h-auto">
+<div class="max-w-7xl mx-auto px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-slate-500">
+<p class="" style="">© 2024 First Medical Associates. All Rights Reserved.</p>
+<div class="flex items-center gap-6">
+<span class="flex items-center gap-1" style=""><span class="material-symbols-outlined text-sm" data-icon="health_and_safety" style="">health_and_safety</span> HIPAA Compliant</span>
+<span class="flex items-center gap-1 text-blue-900 font-bold" style=""><span class="material-symbols-outlined text-sm" data-icon="lock" style="">lock</span> Secure Portal</span>
+</div>
+</div>
+</footer>
+</body></html>
