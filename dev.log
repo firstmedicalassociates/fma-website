@@ -1,0 +1,23 @@
+
+> cms-backend-template@0.1.0 dev
+> prisma generate && next dev
+
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+
+✔ Generated Prisma Client (v7.7.0) to .\node_modules\@prisma\client in 113ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+
+⚠ Port 3000 is in use by process 9060, using available port 3001 instead.
+▲ Next.js 16.1.5 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://100.64.80.96:3001
+- Environments: .env
+
+✓ Starting...
+⨯ Unable to acquire lock at C:\Users\citry\OneDrive\Desktop\fma-website\.next\dev\lock, is another instance of next dev running?
+  Suggestion: If you intended to restart next dev, terminate the other process, and then try again.
+[?25h

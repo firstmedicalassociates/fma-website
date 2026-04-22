@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import SiteFooter from "../../components/site-footer";
+import SiteHeader from "../../components/site-header";
 import { absoluteUrl } from "../../lib/config/site";
 import { splitLocationSlug } from "../../lib/locations";
 import { prisma } from "../../lib/prisma";
 import {
   buildLocationTitleMap,
+  formatLocationSlugFallback,
   formatProviderList,
   resolveLocationTitles,
 } from "../../lib/providers";
@@ -95,9 +98,10 @@ export default async function ProviderDetailPage({ params }) {
   const locationTitleBySlug = buildLocationTitleMap(locations);
   const locationTitles = resolveLocationTitles(provider.locations, locationTitleBySlug);
   const locationLinks = provider.locations.map((locationSlug) => ({
-    href: locationSlug,
+    href: locationTitleBySlug[locationSlug] ? locationSlug : null,
     label:
       locationTitleBySlug[locationSlug] ||
+      formatLocationSlugFallback(locationSlug) ||
       splitLocationSlug(locationSlug)
         .join(" / ")
         .replace(/\b\w/g, (letter) => letter.toUpperCase()),
@@ -122,14 +126,16 @@ export default async function ProviderDetailPage({ params }) {
   };
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#f8fafc",
-        padding: "56px 16px 88px",
-        fontFamily: "var(--font-geist-sans), Arial, sans-serif",
-      }}
-    >
+    <>
+      <SiteHeader />
+      <main
+        style={{
+          minHeight: "100vh",
+          background: "#f8fafc",
+          padding: "56px 16px 88px",
+          fontFamily: "var(--font-geist-sans), Arial, sans-serif",
+        }}
+      >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -169,21 +175,38 @@ export default async function ProviderDetailPage({ params }) {
                 <div style={{ marginTop: 6, display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {locationLinks.length > 0 ? (
                     locationLinks.map((location) => (
-                      <Link
-                        key={location.href}
-                        href={location.href}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          padding: "6px 12px",
-                          borderRadius: 999,
-                          background: "#eef2ff",
-                          color: "#1d4ed8",
-                          fontWeight: 700,
-                        }}
-                      >
-                        {location.label}
-                      </Link>
+                      location.href ? (
+                        <Link
+                          key={`${location.label}-${location.href}`}
+                          href={location.href}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            padding: "6px 12px",
+                            borderRadius: 999,
+                            background: "#eef2ff",
+                            color: "#1d4ed8",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {location.label}
+                        </Link>
+                      ) : (
+                        <span
+                          key={location.label}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            padding: "6px 12px",
+                            borderRadius: 999,
+                            background: "#f1f5f9",
+                            color: "#475569",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {location.label}
+                        </span>
+                      )
                     ))
                   ) : (
                     <p style={{ color: "#6b7280" }}>No location assignments</p>
@@ -262,6 +285,8 @@ export default async function ProviderDetailPage({ params }) {
           </article>
         </section>
       </div>
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

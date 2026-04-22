@@ -1,4 +1,6 @@
 import Link from "next/link";
+import SiteFooter from "../components/site-footer";
+import SiteHeader from "../components/site-header";
 import { prisma } from "../lib/prisma";
 
 export const runtime = "nodejs";
@@ -23,36 +25,40 @@ export default async function BlogIndexPage() {
   });
 
   return (
-    <main style={{ maxWidth: 860, margin: "72px auto", padding: "0 16px" }}>
-      <h1 style={{ marginBottom: 24 }}>Blog</h1>
-      {posts.length === 0 ? (
-        <p>No posts yet.</p>
-      ) : (
-        <div style={{ display: "grid", gap: 20 }}>
-          {posts.map((post) => (
-            <article
-              key={post.id}
-              style={{
-                border: "1px solid #e4ddd2",
-                borderRadius: 16,
-                padding: 16,
-                background: "#fff",
-              }}
-            >
-              {post.coverImageUrl ? (
-                <img
-                  src={post.coverImageUrl}
-                  alt={post.title}
-                  style={{ width: "100%", borderRadius: 12, marginBottom: 12 }}
-                />
-              ) : null}
-              <h2 style={{ margin: "0 0 8px" }}>{post.title}</h2>
-              {post.excerpt ? <p>{post.excerpt}</p> : null}
-              <Link href={`/blog/${post.slug}`}>Read more</Link>
-            </article>
-          ))}
-        </div>
-      )}
-    </main>
+    <>
+      <SiteHeader />
+      <main style={{ maxWidth: 860, margin: "72px auto", padding: "0 16px" }}>
+        <h1 style={{ marginBottom: 24 }}>Blog</h1>
+        {posts.length === 0 ? (
+          <p>No posts yet.</p>
+        ) : (
+          <div style={{ display: "grid", gap: 20 }}>
+            {posts.map((post) => (
+              <article
+                key={post.id}
+                style={{
+                  border: "1px solid #e4ddd2",
+                  borderRadius: 16,
+                  padding: 16,
+                  background: "#fff",
+                }}
+              >
+                {post.coverImageUrl ? (
+                  <img
+                    src={post.coverImageUrl}
+                    alt={post.title}
+                    style={{ width: "100%", borderRadius: 12, marginBottom: 12 }}
+                  />
+                ) : null}
+                <h2 style={{ margin: "0 0 8px" }}>{post.title}</h2>
+                {post.excerpt ? <p>{post.excerpt}</p> : null}
+                <Link href={`/blog/${post.slug}`}>Read more</Link>
+              </article>
+            ))}
+          </div>
+        )}
+      </main>
+      <SiteFooter />
+    </>
   );
 }

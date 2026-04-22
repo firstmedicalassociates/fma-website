@@ -5,10 +5,13 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
+  ChevronDown,
+  ChevronUp,
   ImageIcon,
   Info,
   Layers3,
   PhoneCall,
+  X,
 } from "../admin-icons";
 import {
   OFFICE_HOUR_DAYS,
@@ -25,7 +28,7 @@ const STAGES = [
   {
     id: "overview",
     label: "Overview",
-    description: "Core page title, route, and introductory copy.",
+    description: "Core page title, route, introductory copy, and resource links.",
     Icon: Info,
     kicker: "Stage 01",
     title: "Core details",
@@ -33,7 +36,7 @@ const STAGES = [
   {
     id: "contact",
     label: "Contact",
-    description: "Address, phone, booking links, and office hours.",
+    description: "Address, phone, and office hours.",
     Icon: PhoneCall,
     kicker: "Stage 02",
     title: "Contact & hours",
@@ -41,10 +44,10 @@ const STAGES = [
   {
     id: "media",
     label: "Media",
-    description: "Map image, parking instructions, and supporting callouts.",
+    description: "Location image and supporting media.",
     Icon: ImageIcon,
     kicker: "Stage 03",
-    title: "Media & arrival notes",
+    title: "Media",
   },
   {
     id: "services",
@@ -65,6 +68,17 @@ function createOfficeHourRow(overrides = {}) {
     closed: Boolean(overrides.closed),
     label: overrides.label || "",
   };
+}
+
+function moveItem(values, fromIndex, toIndex) {
+  if (fromIndex < 0 || toIndex < 0 || fromIndex >= values.length || toIndex >= values.length) {
+    return values;
+  }
+
+  const nextValues = [...values];
+  const [item] = nextValues.splice(fromIndex, 1);
+  nextValues.splice(toIndex, 0, item);
+  return nextValues;
 }
 
 function getInitialOfficeHourRows(value) {
@@ -122,10 +136,9 @@ function getInitialValues(initialLocation) {
     hideOfficePhone: Boolean(initialLocation?.hideOfficePhone),
     directionsUrl: initialLocation?.directionsUrl || "",
     bookingUrl: initialLocation?.bookingUrl || "",
+    reviewUrl: initialLocation?.reviewUrl || "",
     mapImageUrl: initialLocation?.mapImageUrl || "",
     mapImageAlt: initialLocation?.mapImageAlt || "",
-    parkingTitle: initialLocation?.parkingTitle || "",
-    parkingDescription: initialLocation?.parkingDescription || "",
     officeHours: normalizeOfficeHours(
       Array.isArray(initialLocation?.officeHours) ? initialLocation.officeHours : []
     ),
@@ -205,14 +218,15 @@ export default function LocationForm({
   const [hideOfficePhone, setHideOfficePhone] = useState(initialValues.hideOfficePhone);
   const [directionsUrl, setDirectionsUrl] = useState(initialValues.directionsUrl);
   const [bookingUrl, setBookingUrl] = useState(initialValues.bookingUrl);
+  const [reviewUrl, setReviewUrl] = useState(initialValues.reviewUrl);
   const [mapImageUrl, setMapImageUrl] = useState(initialValues.mapImageUrl);
   const [mapImageAlt, setMapImageAlt] = useState(initialValues.mapImageAlt);
-  const [parkingTitle, setParkingTitle] = useState(initialValues.parkingTitle);
-  const [parkingDescription, setParkingDescription] = useState(initialValues.parkingDescription);
   const [officeHourRows, setOfficeHourRows] = useState(() =>
     getInitialOfficeHourRows(initialValues.officeHours)
   );
   const [selectedServiceIds, setSelectedServiceIds] = useState(initialValues.serviceIds);
+  const [imageStatus, setImageStatus] = useState("idle");
+  const [imageMessage, setImageMessage] = useState("");
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
 
@@ -277,6 +291,20 @@ export default function LocationForm({
     );
   }
 
+  function moveSelectedService(serviceId, direction) {
+    setSelectedServiceIds((current) => {
+      const currentIndex = current.indexOf(serviceId);
+      if (currentIndex < 0) return current;
+
+      const nextIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+      return moveItem(current, currentIndex, nextIndex);
+    });
+  }
+
+  function removeSelectedService(serviceId) {
+    setSelectedServiceIds((current) => current.filter((value) => value !== serviceId));
+  }
+
   function updateOfficeHourRow(rowId, field, value) {
     setOfficeHourRows((current) =>
       current.map((row) =>
@@ -317,6 +345,40 @@ export default function LocationForm({
       const nextRows = current.filter((row) => row.id !== rowId);
       return nextRows.length > 0 ? nextRows : getInitialOfficeHourRows([]);
     });
+  }
+
+  async function handleLocationImageUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setImageStatus("uploading");
+    setImageMessage("");
+    setMessage("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("kind", "location");
+
+      const response = await fetch("/api/admin/uploads", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        setImageStatus("error");
+        setImageMessage(data.error || "Image upload failed.");
+        return;
+      }
+
+      setMapImageUrl(data.url);
+      setImageStatus("done");
+      setImageMessage("Image uploaded.");
+    } catch {
+      setImageStatus("error");
+      setImageMessage("Image upload failed.");
+    }
   }
 
   async function handleSubmit(event) {
@@ -368,10 +430,9 @@ export default function LocationForm({
           hideOfficePhone,
           directionsUrl,
           bookingUrl,
+          reviewUrl,
           mapImageUrl,
           mapImageAlt,
-          parkingTitle,
-          parkingDescription,
           officeHours,
           serviceIds: selectedServiceIds,
           services: [],
@@ -408,7 +469,7 @@ export default function LocationForm({
             className="builder-button admin-primary-cta"
             type="submit"
             form="location-form"
-            disabled={status === "saving"}
+            disabled={status === "saving" || imageStatus === "uploading"}
           >
             {status === "saving"
               ? isEditMode
@@ -539,6 +600,39 @@ export default function LocationForm({
                         placeholder="Short paragraph describing the location experience."
                       />
                     </div>
+
+                    <div className="builder-list-block">
+                      <div className="builder-list-header">
+                        <div>
+                          <h4>Resources</h4>
+                          <p>Book Appointment and Leave a Review are set per location. Patient Portal uses the shared site link.</p>
+                        </div>
+                      </div>
+
+                      <div className="builder-grid-two">
+                        <div className="builder-field">
+                          <label>Book appointment URL</label>
+                          <input
+                            className="builder-input"
+                            type="url"
+                            value={bookingUrl}
+                            onChange={(event) => setBookingUrl(event.target.value)}
+                            placeholder="https://example.com/book"
+                          />
+                        </div>
+
+                        <div className="builder-field">
+                          <label>Leave a review URL</label>
+                          <input
+                            className="builder-input"
+                            type="url"
+                            value={reviewUrl}
+                            onChange={(event) => setReviewUrl(event.target.value)}
+                            placeholder="https://example.com/review"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="builder-element location-preview-card">
@@ -559,6 +653,15 @@ export default function LocationForm({
                           <span>Assigned providers</span>
                           <strong>{assignedProviderCount}</strong>
                         </div>
+                      </div>
+
+                      <div className="builder-list-block">
+                        <div className="builder-list-header">
+                          <h4>Resources</h4>
+                        </div>
+                        <p>{bookingUrl || "Add the Book Appointment URL"}</p>
+                        <p>Patient Portal uses the shared site link.</p>
+                        <p>{reviewUrl || "Add the Leave a Review URL"}</p>
                       </div>
                     </div>
                   </div>
@@ -677,28 +780,15 @@ export default function LocationForm({
                       Hide the office phone in the public phone card
                     </label>
 
-                    <div className="builder-grid-two">
-                      <div className="builder-field">
-                        <label>Directions URL</label>
-                        <input
-                          className="builder-input"
-                          type="url"
-                          value={directionsUrl}
-                          onChange={(event) => setDirectionsUrl(event.target.value)}
-                          placeholder="https://maps.google.com/..."
-                        />
-                      </div>
-
-                      <div className="builder-field">
-                        <label>Booking URL</label>
-                        <input
-                          className="builder-input"
-                          type="url"
-                          value={bookingUrl}
-                          onChange={(event) => setBookingUrl(event.target.value)}
-                          placeholder="https://example.com/book"
-                        />
-                      </div>
+                    <div className="builder-field">
+                      <label>Directions URL</label>
+                      <input
+                        className="builder-input"
+                        type="url"
+                        value={directionsUrl}
+                        onChange={(event) => setDirectionsUrl(event.target.value)}
+                        placeholder="https://maps.google.com/..."
+                      />
                     </div>
 
                     <div className="builder-field">
@@ -850,18 +940,28 @@ export default function LocationForm({
                   <div className="builder-element">
                     <div className="builder-grid-two">
                       <div className="builder-field">
-                        <label>Map / hero image URL</label>
+                        <label>Location image</label>
                         <input
                           className="builder-input"
-                          type="url"
-                          value={mapImageUrl}
-                          onChange={(event) => setMapImageUrl(event.target.value)}
-                          placeholder="https://example.com/map-image.jpg"
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/gif"
+                          onChange={handleLocationImageUpload}
                         />
+                        <p className="builder-helper-text">
+                          Upload the image used for this location&apos;s media preview and public page.
+                        </p>
+                        {mapImageUrl ? (
+                          <p className="builder-helper-text">Current image: {mapImageUrl}</p>
+                        ) : null}
+                        {imageMessage ? (
+                          <p className={`status-message ${imageStatus === "error" ? "is-error" : ""}`}>
+                            {imageMessage}
+                          </p>
+                        ) : null}
                       </div>
 
                       <div className="builder-field">
-                        <label>Map image alt text</label>
+                        <label>Location image alt text</label>
                         <input
                           className="builder-input"
                           type="text"
@@ -872,29 +972,6 @@ export default function LocationForm({
                       </div>
                     </div>
 
-                    <div className="builder-grid-two">
-                      <div className="builder-field">
-                        <label>Parking title</label>
-                        <input
-                          className="builder-input"
-                          type="text"
-                          value={parkingTitle}
-                          onChange={(event) => setParkingTitle(event.target.value)}
-                          placeholder="Validated parking available"
-                        />
-                      </div>
-
-                      <div className="builder-field">
-                        <label>Parking description</label>
-                        <textarea
-                          className="builder-textarea"
-                          rows={5}
-                          value={parkingDescription}
-                          onChange={(event) => setParkingDescription(event.target.value)}
-                          placeholder="Enter via Wisconsin Avenue. Bring your ticket for validation."
-                        />
-                      </div>
-                    </div>
                   </div>
 
                   <div className="builder-element location-preview-card">
@@ -909,11 +986,15 @@ export default function LocationForm({
                         <div className="builder-preview-placeholder">Location hero / map image</div>
                       )}
 
-                      <div className="builder-list-block">
-                        <div className="builder-list-header">
-                          <h4>{parkingTitle || "Parking callout"}</h4>
+                      <div className="location-preview-meta-grid">
+                        <div className="location-preview-meta-item">
+                          <span>Alt text</span>
+                          <strong>{mapImageAlt || "Add descriptive alt text for this image."}</strong>
                         </div>
-                        <p>{parkingDescription || "Parking notes and arrival instructions will appear here."}</p>
+                        <div className="location-preview-meta-item">
+                          <span>Upload status</span>
+                          <strong>{mapImageUrl ? "Image ready for the public page" : "Upload a location image"}</strong>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -926,7 +1007,7 @@ export default function LocationForm({
                     <div className="builder-section-heading">
                       <div>
                         <h3>Assign services</h3>
-                        <p>Select existing shared services for this location page.</p>
+                        <p>Select existing shared services for this location page, then set their order here.</p>
                       </div>
                       <Link className="builder-button secondary" href="/admin/services/new">
                         Create service
@@ -968,14 +1049,50 @@ export default function LocationForm({
                         </details>
 
                         {selectedServiceIds.length > 0 ? (
-                          <div className="location-preview-chip-row">
-                            {selectedServiceIds.map(
-                              (serviceId) => (
-                                <span className="admin-pill" key={serviceId}>
-                                  {serviceTitleById[serviceId] || serviceId}
-                                </span>
-                              )
-                            )}
+                          <div className="service-order-list">
+                            {selectedServiceIds.map((serviceId, index) => {
+                              const service = serviceOptionById[serviceId];
+                              const isFirst = index === 0;
+                              const isLast = index === selectedServiceIds.length - 1;
+
+                              return (
+                                <div className="service-order-card" key={serviceId}>
+                                  <div className="service-order-copy">
+                                    <strong>{service?.title || serviceTitleById[serviceId] || serviceId}</strong>
+                                    <span>{service?.category || "General Care"}</span>
+                                  </div>
+
+                                  <div className="service-order-actions">
+                                    <button
+                                      className="builder-icon-button"
+                                      type="button"
+                                      aria-label={`Move ${service?.title || "service"} up`}
+                                      onClick={() => moveSelectedService(serviceId, "up")}
+                                      disabled={isFirst}
+                                    >
+                                      <ChevronUp />
+                                    </button>
+                                    <button
+                                      className="builder-icon-button"
+                                      type="button"
+                                      aria-label={`Move ${service?.title || "service"} down`}
+                                      onClick={() => moveSelectedService(serviceId, "down")}
+                                      disabled={isLast}
+                                    >
+                                      <ChevronDown />
+                                    </button>
+                                    <button
+                                      className="builder-icon-button danger"
+                                      type="button"
+                                      aria-label={`Remove ${service?.title || "service"} from this location`}
+                                      onClick={() => removeSelectedService(serviceId)}
+                                    >
+                                      <X />
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         ) : null}
                       </>
@@ -1008,7 +1125,11 @@ export default function LocationForm({
               ) : null}
 
               <div className="builder-row">
-                <button className="builder-button admin-primary-cta" type="submit" disabled={status === "saving"}>
+                <button
+                  className="builder-button admin-primary-cta"
+                  type="submit"
+                  disabled={status === "saving" || imageStatus === "uploading"}
+                >
                   {status === "saving"
                     ? isEditMode
                       ? "Saving..."

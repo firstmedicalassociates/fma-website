@@ -36,7 +36,7 @@ function groupServicesByCategory(services) {
 export default async function AdminServicesPage() {
   const [services, locations] = await Promise.all([
     prisma.service.findMany({
-      orderBy: [{ sortOrder: "asc" }, { category: "asc" }, { title: "asc" }],
+      orderBy: [{ category: "asc" }, { title: "asc" }],
       select: SERVICE_SELECT,
     }),
     prisma.location.findMany({
@@ -142,10 +142,6 @@ export default async function AdminServicesPage() {
                               {assignedLocationTitles.length === 1 ? "" : "s"}
                             </span>
                             <span>
-                              <Layers3 />
-                              Sort order {service.sortOrder}
-                            </span>
-                            <span>
                               <Clock3 />
                               Updated {dateFormatter.format(service.updatedAt)}
                             </span>
@@ -197,6 +193,7 @@ export default async function AdminServicesPage() {
             <div className="admin-side-list">
               <p>Create and edit service content here.</p>
               <p>Assign existing services inside each location editor.</p>
+              <p>Order is controlled per location, not in the shared service library.</p>
               <p>Hidden services stay editable but are removed from public pages.</p>
             </div>
           </article>

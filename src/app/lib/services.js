@@ -3,7 +3,6 @@ export const SERVICE_SELECT = {
   category: true,
   title: true,
   description: true,
-  sortOrder: true,
   isActive: true,
   updatedAt: true,
   createdAt: true,
@@ -18,17 +17,11 @@ function normalizeRequiredText(value) {
   return String(value ?? "").trim();
 }
 
-function normalizeSortOrder(value) {
-  const parsed = Number.parseInt(String(value ?? "0"), 10);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
-
 export function normalizeServicePayload(input = {}) {
   return {
     category: normalizeText(input.category) || "General Care",
     title: normalizeRequiredText(input.title),
     description: normalizeRequiredText(input.description),
-    sortOrder: normalizeSortOrder(input.sortOrder),
     isActive: input.isActive ?? true,
   };
 }

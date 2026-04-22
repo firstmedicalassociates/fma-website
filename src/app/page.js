@@ -1,4 +1,6 @@
 import Link from "next/link";
+import SiteFooter from "./components/site-footer";
+import SiteHeader from "./components/site-header";
 import { SITE_NAME } from "./lib/config/site";
 import { prisma } from "./lib/prisma";
 
@@ -71,6 +73,7 @@ export default async function Home() {
 
   return (
     <div className="home-page">
+      <SiteHeader />
       <main className="home-shell">
         <section className="home-hero">
           <div className="home-hero-copy">
@@ -237,6 +240,7 @@ export default async function Home() {
           )}
         </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }

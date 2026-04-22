@@ -17,15 +17,6 @@
   font-family: var(--font-geist-sans), Arial, sans-serif;
 }
 
-.siteHeader {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  border-bottom: 1px solid var(--line);
-  backdrop-filter: blur(18px);
-  background: rgba(255, 255, 255, 0.88);
-}
-
 .headerInner,
 .footerInner {
   width: min(1180px, calc(100% - 32px));
@@ -158,7 +149,7 @@
 
 .tabNavWrap {
   position: sticky;
-  top: 78px;
+  top: 0;
   z-index: 20;
   padding: 22px 18px;
   border-bottom: 1px solid rgba(17, 33, 74, 0.08);
@@ -313,6 +304,67 @@
   margin-top: 14px;
   color: var(--accent);
   font-weight: 700;
+}
+
+.resourceLinks {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.resourceLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px;
+  margin-top: 0;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, var(--surface-strong) 0%, var(--surface-strong-2) 100%);
+  box-shadow: 0 18px 36px rgba(15, 31, 87, 0.14);
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    opacity 180ms ease;
+}
+
+.resourceLinkPrimary {
+  background: linear-gradient(135deg, var(--surface-strong) 0%, var(--surface-strong-2) 100%);
+  color: #fff;
+}
+
+.resourceLinkSecondary {
+  background: linear-gradient(135deg, var(--surface-strong) 0%, var(--surface-strong-2) 100%);
+  color: #fff;
+}
+
+.resourceLinkDisabled {
+  opacity: 0.46;
+  cursor: default;
+  pointer-events: none;
+}
+
+.infoCard a.resourceLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 0;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.resourceLink:hover {
+  transform: translateY(-1px);
 }
 
 .parkingCard {
@@ -498,19 +550,6 @@
   justify-content: flex-end;
 }
 
-.footer {
-  border-top: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.74);
-}
-
-.footerInner {
-  min-height: 78px;
-}
-
-.footerMeta {
-  color: var(--muted);
-}
-
 @media (max-width: 1120px) {
   .locationPanel {
     grid-template-columns: 1fr;
@@ -544,7 +583,7 @@
   }
 
   .tabNavWrap {
-    top: 106px;
+    top: 0;
     padding: 18px 12px;
   }
 

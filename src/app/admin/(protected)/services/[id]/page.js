@@ -18,7 +18,6 @@ export default async function EditServicePage({ params }) {
       category: true,
       title: true,
       description: true,
-      sortOrder: true,
       isActive: true,
     },
   });

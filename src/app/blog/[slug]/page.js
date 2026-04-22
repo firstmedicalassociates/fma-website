@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import SiteFooter from "../../components/site-footer";
+import SiteHeader from "../../components/site-header";
 import { prisma } from "../../lib/prisma";
 
 export const runtime = "nodejs";
@@ -122,12 +124,16 @@ export default async function BlogPostPage({ params }) {
     .replace(/<p class="page-title">.*?<\/p>/i, "");
 
   return (
-    <main style={{ maxWidth: 760, margin: "72px auto", padding: "0 16px" }}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <article dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
-    </main>
+    <>
+      <SiteHeader />
+      <main style={{ maxWidth: 760, margin: "72px auto", padding: "0 16px" }}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <article dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
+      </main>
+      <SiteFooter />
+    </>
   );
 }

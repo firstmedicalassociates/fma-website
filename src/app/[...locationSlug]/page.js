@@ -32,10 +32,9 @@ const LOCATION_PAGE_SELECT = {
   hideOfficePhone: true,
   directionsUrl: true,
   bookingUrl: true,
+  reviewUrl: true,
   mapImageUrl: true,
   mapImageAlt: true,
-  parkingTitle: true,
-  parkingDescription: true,
   officeHours: true,
   serviceIds: true,
   services: true,
@@ -157,7 +156,6 @@ export default async function LocationLandingPage({ params }) {
             },
             isActive: true,
           },
-          orderBy: [{ sortOrder: "asc" }, { category: "asc" }, { title: "asc" }],
           select: {
             id: true,
             category: true,
@@ -172,9 +170,10 @@ export default async function LocationLandingPage({ params }) {
   const locationUrl = absoluteUrl(location.slug);
   const openingHours = formatOfficeHoursForDisplay(location.officeHours);
   const openingHoursSpecification = buildOpeningHoursSpecification(location.officeHours);
+  const serviceRecordsById = Object.fromEntries(serviceRecords.map((service) => [service.id, service]));
   const locationServices =
     selectedServiceIds.length > 0
-      ? serviceRecords
+      ? selectedServiceIds.map((serviceId) => serviceRecordsById[serviceId]).filter(Boolean)
       : Array.isArray(location.services)
         ? location.services
         : [];
@@ -208,9 +207,6 @@ export default async function LocationLandingPage({ params }) {
           ...location,
           mapImageUrl: location.mapImageUrl || "",
           mapImageAlt: location.mapImageAlt || location.title,
-          parkingTitle: location.parkingTitle || "Parking",
-          parkingDescription:
-            location.parkingDescription || "Parking and arrival instructions will appear here.",
           officeHours: Array.isArray(location.officeHours) ? location.officeHours : [],
           publicPhone,
           services: locationServices,

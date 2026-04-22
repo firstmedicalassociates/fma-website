@@ -1,3 +1,5 @@
+import SiteFooter from "../components/site-footer";
+import SiteHeader from "../components/site-header";
 import { prisma } from "../lib/prisma";
 import { buildLocationTitleMap, mapProviderForDirectory } from "../lib/providers";
 import ProvidersDirectory from "./providers-directory";
@@ -39,8 +41,12 @@ export default async function ProvidersPage() {
   const locationTitleBySlug = buildLocationTitleMap(locations);
 
   return (
-    <ProvidersDirectory
-      providers={providers.map((provider) => mapProviderForDirectory(provider, locationTitleBySlug))}
-    />
+    <>
+      <SiteHeader />
+      <ProvidersDirectory
+        providers={providers.map((provider) => mapProviderForDirectory(provider, locationTitleBySlug))}
+      />
+      <SiteFooter />
+    </>
   );
 }

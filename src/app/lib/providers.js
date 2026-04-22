@@ -27,9 +27,31 @@ export function buildLocationTitleMap(locations = []) {
   );
 }
 
+const LOCATION_ABBREVIATIONS = new Set(["dr", "ii", "iii", "iv", "ln", "md", "rd", "ste"]);
+
+export function formatLocationSlugFallback(value = "") {
+  const normalized = String(value || "")
+    .trim()
+    .replace(/^\/+|\/+$/g, "");
+  if (!normalized) return "";
+
+  const segments = normalized.split("/").filter(Boolean);
+  const lastSegment = segments[segments.length - 1] || "";
+
+  return lastSegment
+    .split("-")
+    .filter(Boolean)
+    .map((part) => {
+      const lowered = part.toLowerCase();
+      if (LOCATION_ABBREVIATIONS.has(lowered)) return lowered.toUpperCase();
+      return lowered.charAt(0).toUpperCase() + lowered.slice(1);
+    })
+    .join(" ");
+}
+
 export function resolveLocationTitles(locationSlugs = [], locationTitleBySlug = {}) {
   return normalizeStringList(locationSlugs).map(
-    (slug) => locationTitleBySlug[slug] || slug.replace(/^\//, "")
+    (slug) => locationTitleBySlug[slug] || formatLocationSlugFallback(slug)
   );
 }
 

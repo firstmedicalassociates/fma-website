@@ -113,6 +113,22 @@ export function X(props) {
   );
 }
 
+export function ChevronUp(props) {
+  return (
+    <IconBase {...props}>
+      <path d="m6 14 6-6 6 6" />
+    </IconBase>
+  );
+}
+
+export function ChevronDown(props) {
+  return (
+    <IconBase {...props}>
+      <path d="m6 10 6 6 6-6" />
+    </IconBase>
+  );
+}
+
 export function Users(props) {
   return (
     <IconBase {...props}>

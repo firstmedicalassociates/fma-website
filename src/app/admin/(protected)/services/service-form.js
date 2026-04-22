@@ -9,7 +9,6 @@ function getInitialValues(initialService) {
     category: initialService?.category || "General Care",
     title: initialService?.title || "",
     description: initialService?.description || "",
-    sortOrder: String(initialService?.sortOrder ?? 0),
     isActive: initialService?.isActive ?? true,
   };
 }
@@ -21,7 +20,6 @@ export default function ServiceForm({ mode = "create", initialService }) {
   const [category, setCategory] = useState(initialValues.category);
   const [title, setTitle] = useState(initialValues.title);
   const [description, setDescription] = useState(initialValues.description);
-  const [sortOrder, setSortOrder] = useState(initialValues.sortOrder);
   const [isActive, setIsActive] = useState(initialValues.isActive);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
@@ -44,7 +42,6 @@ export default function ServiceForm({ mode = "create", initialService }) {
           category,
           title,
           description,
-          sortOrder,
           isActive,
         }),
       });
@@ -102,28 +99,15 @@ export default function ServiceForm({ mode = "create", initialService }) {
           </div>
 
           <form className="builder-form" id="service-form" onSubmit={handleSubmit}>
-            <div className="builder-grid-two">
-              <div className="builder-field">
-                <label>Category</label>
-                <input
-                  className="builder-input"
-                  type="text"
-                  value={category}
-                  onChange={(event) => setCategory(event.target.value)}
-                  placeholder="Primary Care"
-                />
-              </div>
-
-              <div className="builder-field">
-                <label>Sort order</label>
-                <input
-                  className="builder-input"
-                  type="number"
-                  value={sortOrder}
-                  onChange={(event) => setSortOrder(event.target.value)}
-                  placeholder="0"
-                />
-              </div>
+            <div className="builder-field">
+              <label>Category</label>
+              <input
+                className="builder-input"
+                type="text"
+                value={category}
+                onChange={(event) => setCategory(event.target.value)}
+                placeholder="Primary Care"
+              />
             </div>
 
             <div className="builder-field">
@@ -205,8 +189,8 @@ export default function ServiceForm({ mode = "create", initialService }) {
                   <strong>{isActive ? "Visible on public pages" : "Hidden from public pages"}</strong>
                 </div>
                 <div className="location-preview-meta-item">
-                  <span>Sort order</span>
-                  <strong>{sortOrder || "0"}</strong>
+                  <span>Ordering</span>
+                  <strong>Each location controls its own service order.</strong>
                 </div>
               </div>
             </div>

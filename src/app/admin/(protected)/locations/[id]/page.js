@@ -18,13 +18,12 @@ export default async function EditLocationPage({ params }) {
       select: LOCATION_FORM_SELECT,
     }),
     prisma.service.findMany({
-      orderBy: [{ sortOrder: "asc" }, { category: "asc" }, { title: "asc" }],
+      orderBy: [{ category: "asc" }, { title: "asc" }],
       select: {
         id: true,
         category: true,
         title: true,
         description: true,
-        sortOrder: true,
         isActive: true,
       },
     }),

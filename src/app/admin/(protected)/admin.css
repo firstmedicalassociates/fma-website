@@ -932,6 +932,7 @@
   gap: 10px;
   margin-bottom: 14px;
   min-width: 0;
+  align-content: start;
 }
 
 .builder-field label,
@@ -1442,6 +1443,7 @@
   display: grid;
   gap: 14px;
   min-width: 0;
+  align-items: start;
 }
 
 .builder-grid-two {
@@ -1494,6 +1496,91 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
+}
+
+.service-order-list {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.service-order-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(var(--admin-accent-rgb), 0.12);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.service-order-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.service-order-copy strong,
+.service-order-copy span {
+  min-width: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.service-order-copy span {
+  color: var(--admin-muted);
+  font-size: 0.84rem;
+}
+
+.service-order-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.builder-icon-button {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--admin-accent-rgb), 0.12);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--admin-accent);
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.builder-icon-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.builder-icon-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0, 22, 98, 0.12);
+}
+
+.builder-icon-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.builder-icon-button.danger {
+  color: #b42318;
+  border-color: rgba(180, 35, 24, 0.14);
+  background: rgba(255, 218, 214, 0.72);
 }
 
 .builder-multiselect {
@@ -2647,6 +2734,13 @@
 }
 
 .builder-option {
+  background:
+    linear-gradient(180deg, rgba(247, 250, 253, 0.96), rgba(235, 238, 241, 0.92)),
+    #ffffff;
+}
+
+.service-order-card {
+  border-color: rgba(0, 22, 98, 0.08);
   background:
     linear-gradient(180deg, rgba(247, 250, 253, 0.96), rgba(235, 238, 241, 0.92)),
     #ffffff;

@@ -4,6 +4,9 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import SiteFooter from "../components/site-footer";
+import SiteHeader from "../components/site-header";
+import { PATIENT_PORTAL_URL } from "../lib/config/site";
 import { buildDisplayAddress, formatOfficeHoursForDisplay, resolveLocationAddressParts } from "../lib/locations";
 import styles from "./location-page.module.css";
 
@@ -39,39 +42,12 @@ export default function LocationPageShell({ location, providers, serviceGroups }
     [location.officeHours]
   );
   const publicPhone = location.publicPhone || "";
+  const patientPortalUrl = PATIENT_PORTAL_URL;
+  const hasPatientPortalLink = Boolean(patientPortalUrl && patientPortalUrl !== "#");
 
   return (
     <div className={styles.page}>
-      <header className={styles.siteHeader}>
-        <div className={styles.headerInner}>
-          <div className={styles.brandBlock}>
-            <span className={styles.brandMark}>F</span>
-            <div>
-              <p className={styles.brandName}>First Medical Associates</p>
-              <p className={styles.brandTag}>Primary care locations</p>
-            </div>
-          </div>
-
-          <nav className={styles.utilityNav} aria-label="Utility navigation">
-            <Link href="/providers">Providers</Link>
-            <Link href="/blog">Blog</Link>
-          </nav>
-
-          <div className={styles.headerActions}>
-            {publicPhone ? (
-              <a className={styles.secondaryCta} href={`tel:${publicPhone.replace(/[^\d+]/g, "")}`}>
-                Call {publicPhone}
-              </a>
-            ) : null}
-            {location.bookingUrl ? (
-              <a className={styles.primaryCta} href={location.bookingUrl} target="_blank" rel="noreferrer">
-                Book Appointment
-              </a>
-            ) : null}
-          </div>
-        </div>
-      </header>
-
+      <SiteHeader />
       <main className={styles.main}>
         <section className={styles.tabShell}>
           <div className={styles.tabNavWrap}>
@@ -137,13 +113,45 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                   </div>
                 </div>
 
-                <div className={styles.parkingCard}>
-                  <p className={styles.parkingKicker}>Arrival</p>
-                  <h3>{location.parkingTitle}</h3>
-                  <p>{location.parkingDescription}</p>
-                  <button className={styles.inlineTabCta} type="button" onClick={() => setActiveTab("doctors")}>
-                    Next: Meet Providers
-                  </button>
+                <div className={styles.infoCard}>
+                  <div className={styles.infoIcon}>03</div>
+                  <div>
+                    <h2>Resources</h2>
+                    <div className={styles.resourceLinks}>
+                      {location.bookingUrl ? (
+                        <a className={`${styles.resourceLink} ${styles.resourceLinkPrimary}`} href={location.bookingUrl} target="_blank" rel="noreferrer">
+                          Book Appointment
+                        </a>
+                      ) : (
+                        <span className={`${styles.resourceLink} ${styles.resourceLinkPrimary} ${styles.resourceLinkDisabled}`}>
+                          Book Appointment
+                        </span>
+                      )}
+                      {hasPatientPortalLink ? (
+                        <a
+                          className={`${styles.resourceLink} ${styles.resourceLinkSecondary}`}
+                          href={patientPortalUrl}
+                          target={patientPortalUrl.startsWith("http") ? "_blank" : undefined}
+                          rel={patientPortalUrl.startsWith("http") ? "noreferrer" : undefined}
+                        >
+                          Patient Portal
+                        </a>
+                      ) : (
+                        <span className={`${styles.resourceLink} ${styles.resourceLinkSecondary} ${styles.resourceLinkDisabled}`}>
+                          Patient Portal
+                        </span>
+                      )}
+                      {location.reviewUrl ? (
+                        <a className={`${styles.resourceLink} ${styles.resourceLinkSecondary}`} href={location.reviewUrl} target="_blank" rel="noreferrer">
+                          Leave a Review
+                        </a>
+                      ) : (
+                        <span className={`${styles.resourceLink} ${styles.resourceLinkSecondary} ${styles.resourceLinkDisabled}`}>
+                          Leave a Review
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -264,16 +272,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
           ) : null}
         </section>
       </main>
-
-      <footer className={styles.footer}>
-        <div className={styles.footerInner}>
-          <p>{new Date().getFullYear()} First Medical Associates. All rights reserved.</p>
-          <div className={styles.footerMeta}>
-            <span>HIPAA mindful workflow</span>
-            <span>Secure scheduling</span>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

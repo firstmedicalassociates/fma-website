@@ -1,0 +1,150 @@
+.shell {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.content {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.siteHeader {
+  border-bottom: 1px solid rgba(17, 33, 74, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(18px);
+}
+
+.headerInner,
+.footerInner {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.headerInner {
+  min-height: 78px;
+}
+
+.brandBlock {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brandLink {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brandMark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0f1f57 0%, #112c7a 100%);
+  color: #fff;
+  font-weight: 800;
+}
+
+.brandName,
+.brandTag {
+  margin: 0;
+}
+
+.brandName {
+  color: #122038;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.brandTag {
+  margin-top: 2px;
+  color: #58657d;
+  font-size: 0.9rem;
+}
+
+.utilityNav,
+.footerMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navLink,
+.footerLink {
+  color: #58657d;
+  font-weight: 600;
+  transition: color 180ms ease;
+}
+
+.navLink:hover,
+.navLinkActive,
+.footerLink:hover {
+  color: #0b4f96;
+}
+
+.navLinkActive {
+  font-weight: 700;
+}
+
+.headerAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0f1f57 0%, #112c7a 100%);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 18px 36px rgba(15, 31, 87, 0.18);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.headerAction:hover {
+  transform: translateY(-1px);
+}
+
+.footer {
+  border-top: 1px solid rgba(17, 33, 74, 0.12);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.footerInner {
+  min-height: 78px;
+}
+
+.footerCopy {
+  margin: 0;
+  color: #58657d;
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .headerInner,
+  .footerInner {
+    width: min(100%, calc(100% - 24px));
+    flex-wrap: wrap;
+    padding: 14px 0;
+  }
+
+  .utilityNav,
+  .footerMeta {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .headerAction {
+    width: 100%;
+  }
+}

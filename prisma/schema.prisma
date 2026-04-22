@@ -87,6 +87,7 @@ model Location {
   hideOfficePhone    Boolean  @default(false)
   directionsUrl      String?
   bookingUrl         String?
+  reviewUrl          String?
   mapImageUrl        String?
   mapImageAlt        String?
   parkingTitle       String?
