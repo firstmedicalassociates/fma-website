@@ -13,30 +13,10 @@
     linear-gradient(180deg, #f7faff 0%, #edf3fb 100%);
   color: #132449;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
 }
 
-.topBar {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  width: min(1440px, calc(100% - 32px));
-  margin: 0 auto;
-  padding: 24px 0 18px;
-  min-height: 0;
-}
-
-.topCopy {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
-}
-
-.eyebrow,
 .panelEyebrow {
   color: #3358b7;
   font-size: 0.72rem;
@@ -45,27 +25,6 @@
   text-transform: uppercase;
 }
 
-.topCopy h1 {
-  font-size: 2.2rem;
-  line-height: 1;
-  letter-spacing: -0.05em;
-}
-
-.topCopy p {
-  color: #5c6b84;
-  line-height: 1.6;
-}
-
-.topActions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.primaryAction,
-.secondaryAction,
 .detailActionPrimary,
 .detailActionSecondary,
 .bottomAction,
@@ -84,7 +43,6 @@
     border-color 180ms ease;
 }
 
-.primaryAction,
 .detailActionPrimary,
 .bottomAction {
   background: linear-gradient(135deg, #0f2358 0%, #1b4ec9 100%);
@@ -92,7 +50,6 @@
   box-shadow: 0 20px 40px rgba(15, 35, 88, 0.22);
 }
 
-.secondaryAction,
 .detailActionSecondary {
   background: rgba(255, 255, 255, 0.84);
   border: 1px solid rgba(19, 36, 73, 0.14);
@@ -106,8 +63,6 @@
   cursor: default;
 }
 
-.primaryAction:hover,
-.secondaryAction:hover,
 .detailActionPrimary:hover,
 .detailActionSecondary:hover,
 .bottomAction:hover {
@@ -136,6 +91,112 @@
   inset: 0;
 }
 
+.mapSearchDock {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: min(720px, max(360px, calc(100% - 820px)));
+  pointer-events: auto;
+}
+
+.mapSearchForm {
+  width: 100%;
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto
+    minmax(0, 0.9fr)
+    auto
+    minmax(0, 1fr)
+    auto;
+  align-items: center;
+  gap: 0;
+  padding: 10px 12px 10px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 58px rgba(15, 35, 88, 0.18);
+  backdrop-filter: blur(18px);
+}
+
+.mapSearchField {
+  display: grid;
+  gap: 2px;
+  padding: 0 14px;
+}
+
+.mapSearchLabel {
+  color: #173a88;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.mapSearchField input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #132449;
+  font: inherit;
+  font-size: 0.94rem;
+  outline: none;
+}
+
+.mapSearchField input::placeholder {
+  color: rgba(23, 58, 136, 0.58);
+}
+
+.mapSearchDivider {
+  width: 1px;
+  height: 36px;
+  background: rgba(23, 58, 136, 0.2);
+}
+
+.mapSearchButton {
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f2d8f 0%, #001d7a 100%);
+  color: #ffffff;
+  box-shadow: 0 16px 30px rgba(0, 29, 122, 0.24);
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+.mapSearchButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 34px rgba(0, 29, 122, 0.28);
+}
+
+.mapSearchButton:disabled {
+  opacity: 0.58;
+  cursor: default;
+  transform: none;
+  box-shadow: 0 12px 24px rgba(0, 29, 122, 0.16);
+}
+
+.mapSearchButton svg {
+  width: 24px;
+  height: 24px;
+}
+
+.mapSearchButtonBusy {
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
 .mapVeil {
   position: absolute;
   inset: 0;
@@ -143,26 +204,6 @@
     linear-gradient(180deg, rgba(237, 243, 251, 0.16) 0%, rgba(237, 243, 251, 0.04) 22%, rgba(237, 243, 251, 0.22) 100%),
     radial-gradient(circle at center, transparent 0%, rgba(15, 35, 88, 0.08) 100%);
   pointer-events: none;
-}
-
-.mapSummary {
-  position: absolute;
-  top: 22px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 52px;
-  padding: 0 18px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 18px 44px rgba(15, 35, 88, 0.1);
-  color: #10203e;
-  font-size: 0.92rem;
-  font-weight: 700;
-  z-index: 1;
 }
 
 .mapFallback {
@@ -203,13 +244,25 @@
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: minmax(288px, 330px) minmax(0, 1fr) minmax(330px, 390px);
   gap: 20px;
   align-items: stretch;
   min-height: 0;
   height: 100%;
   padding: 20px;
   overflow: hidden;
+  pointer-events: none;
+}
+
+.stageContentBoth {
+  grid-template-columns: minmax(332px, 382px) minmax(0, 1fr) minmax(330px, 390px);
+}
+
+.stageContentResultsOnly {
+  grid-template-columns: minmax(332px, 382px) minmax(0, 1fr);
+}
+
+.stageContentDetailOnly {
+  grid-template-columns: minmax(0, 1fr) minmax(330px, 390px);
 }
 
 .centerSpacer {
@@ -228,16 +281,67 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(18px);
   overflow: hidden;
+  pointer-events: auto;
 }
 
 .searchPanel {
   padding: 24px;
-  gap: 18px;
+  gap: 16px;
   min-height: 0;
 }
 
 .searchPanel > * {
   min-width: 0;
+}
+
+.resultsToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.resultsTag {
+  max-width: min(100%, 100%);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 8px 14px 8px 10px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(230, 238, 252, 0.96), rgba(244, 247, 253, 0.94));
+  border: 1px solid rgba(23, 58, 136, 0.12);
+  box-shadow:
+    0 14px 30px rgba(15, 35, 88, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+  color: #173a88;
+}
+
+.resultsTagIcon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0f2d8f 0%, #173a88 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 18px rgba(15, 35, 88, 0.16);
+}
+
+.resultsTagIcon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.resultsTagText {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .panelHeader {
@@ -301,6 +405,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
   color: #3358b7;
   font-size: 0.88rem;
@@ -324,6 +429,8 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(23, 58, 136, 0.3) rgba(15, 35, 88, 0.08);
 }
 
 .locationRow {
@@ -350,6 +457,14 @@
   border-color: rgba(27, 78, 201, 0.28);
   background: #ffffff;
   box-shadow: 0 18px 42px rgba(15, 35, 88, 0.08);
+}
+
+.locationRowTitle {
+  font-size: 1rem;
+  line-height: 1.2;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #173a88;
 }
 
 .locationRowHeader {
@@ -472,6 +587,31 @@
   flex: 1 1 auto;
   overflow: auto;
   padding: 24px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(23, 58, 136, 0.3) rgba(15, 35, 88, 0.08);
+}
+
+.locationList::-webkit-scrollbar,
+.detailBody::-webkit-scrollbar {
+  width: 10px;
+}
+
+.locationList::-webkit-scrollbar-track,
+.detailBody::-webkit-scrollbar-track {
+  background: rgba(15, 35, 88, 0.06);
+  border-radius: 999px;
+}
+
+.locationList::-webkit-scrollbar-thumb,
+.detailBody::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(27, 78, 201, 0.34), rgba(15, 35, 88, 0.24));
+  border: 2px solid rgba(248, 250, 255, 0.88);
+  border-radius: 999px;
+}
+
+.locationList::-webkit-scrollbar-thumb:hover,
+.detailBody::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(27, 78, 201, 0.42), rgba(15, 35, 88, 0.3));
 }
 
 .detailHeader {
@@ -604,19 +744,20 @@
 }
 
 @media (max-width: 1200px) {
-  .stageContent {
-    grid-template-columns: minmax(280px, 320px) minmax(0, 1fr) minmax(300px, 340px);
+  .stageContentBoth {
+    grid-template-columns: minmax(316px, 352px) minmax(0, 1fr) minmax(300px, 340px);
+  }
+
+  .stageContentResultsOnly {
+    grid-template-columns: minmax(316px, 352px) minmax(0, 1fr);
+  }
+
+  .stageContentDetailOnly {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
   }
 }
 
 @media (max-width: 1040px) {
-  .topBar {
-    width: min(100%, calc(100% - 20px));
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 18px 0 14px;
-  }
-
   .stage {
     min-height: 0;
     padding: 0 10px 10px;
@@ -624,6 +765,10 @@
 
   .mapBackdrop {
     inset: 0 10px 10px;
+  }
+
+  .mapSearchDock {
+    width: min(760px, calc(100% - 28px));
   }
 
   .stageContent {
@@ -636,25 +781,34 @@
     display: none;
   }
 
-  .mapSummary {
-    left: 14px;
-    transform: none;
-    max-width: calc(100% - 28px);
-    justify-content: space-between;
-  }
 }
 
 @media (max-width: 720px) {
-  .topCopy h1 {
-    font-size: 1.8rem;
+  .mapSearchDock {
+    top: 18px;
+    width: calc(100% - 20px);
   }
 
-  .topActions {
+  .mapSearchForm {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 30px;
+  }
+
+  .mapSearchField {
+    padding: 0;
+  }
+
+  .mapSearchDivider {
     width: 100%;
+    height: 1px;
   }
 
-  .topActions > * {
-    flex: 1 1 180px;
+  .mapSearchButton {
+    width: 52px;
+    height: 52px;
+    justify-self: end;
   }
 
   .panel {

@@ -14,6 +14,7 @@ const DEFAULT_MAP_CENTER = { lat: 39.1141, lng: -76.8041 };
 const DEFAULT_MAP_ZOOM = 7;
 const FOCUSED_MAP_ZOOM = 11;
 const MAP_BOUNDS_PADDING = 96;
+const DEFAULT_SEARCH_RADIUS_MILES = 25;
 const WEEKDAY_LABELS = [
   "Sunday",
   "Monday",
@@ -100,10 +101,6 @@ function waitForGoogleMapsReady(timeoutMs = 10000) {
   });
 }
 
-function normalizeSearchValue(value = "") {
-  return String(value || "").trim().toLowerCase();
-}
-
 function buildCallHref(value = "") {
   const normalized = String(value || "").replace(/[^\d+]/g, "");
   return normalized ? `tel:${normalized}` : "";
@@ -113,18 +110,52 @@ function isExternalUrl(value = "") {
   return /^https?:\/\//i.test(String(value || "").trim());
 }
 
-function buildSearchText(location) {
-  return normalizeSearchValue(
-    [
-      location.title,
-      location.address,
-      ...(location.addressLines || []),
-      location.addressCity,
-      location.addressState,
-      location.postalCode,
-      location.publicPhone,
-    ].join(" ")
-  );
+function buildFinderSearchQuery({ state = "", city = "", zip = "" }) {
+  return [city, state, zip]
+    .map((value) => String(value || "").trim())
+    .filter(Boolean)
+    .join(", ");
+}
+
+function buildFinderSearchAttempts({ state = "", city = "", zip = "" }) {
+  const stateValue = String(state || "").trim();
+  const cityValue = String(city || "").trim();
+  const zipValue = String(zip || "").trim();
+
+  return [
+    buildFinderSearchQuery({ state: stateValue, city: cityValue, zip: zipValue }),
+    [cityValue, stateValue].filter(Boolean).join(", "),
+    zipValue,
+    cityValue,
+    stateValue,
+  ].filter((value, index, values) => value && values.indexOf(value) === index);
+}
+
+function toRadians(value) {
+  return (value * Math.PI) / 180;
+}
+
+function calculateDistanceMiles(origin, target) {
+  if (!origin || !target) return null;
+
+  const earthRadiusMiles = 3958.8;
+  const latitudeDelta = toRadians(target.lat - origin.lat);
+  const longitudeDelta = toRadians(target.lng - origin.lng);
+  const originLatitude = toRadians(origin.lat);
+  const targetLatitude = toRadians(target.lat);
+
+  const haversine =
+    Math.sin(latitudeDelta / 2) ** 2 +
+    Math.cos(originLatitude) * Math.cos(targetLatitude) * Math.sin(longitudeDelta / 2) ** 2;
+  const arc = 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+
+  return earthRadiusMiles * arc;
+}
+
+function formatDistanceMiles(value) {
+  if (typeof value !== "number" || Number.isNaN(value)) return "";
+  if (value < 10) return `${value.toFixed(1)} mi away`;
+  return `${Math.round(value)} mi away`;
 }
 
 function getLocationStatus(officeHours = []) {
@@ -257,6 +288,29 @@ async function ensureGoogleMapsLibraries(googleMaps) {
   }
 }
 
+async function geocodeAddress(geocoder, attempts = []) {
+  for (const address of attempts) {
+    try {
+      const response = await geocoder.geocode({ address });
+      const result = response.results?.[0];
+
+      if (result?.geometry?.location) {
+        return {
+          position: {
+            lat: result.geometry.location.lat(),
+            lng: result.geometry.location.lng(),
+          },
+          label: result.formatted_address || address,
+        };
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return null;
+}
+
 function ActionLink({ href, className, children, external = false }) {
   if (!href) {
     return <span className={`${className} ${styles.actionDisabled}`}>{children}</span>;
@@ -285,7 +339,12 @@ function ActionLink({ href, className, children, external = false }) {
 }
 
 export default function LocationFinder({ locations = [] }) {
-  const [query, setQuery] = useState("");
+  const [searchState, setSearchState] = useState("");
+  const [searchCity, setSearchCity] = useState("");
+  const [searchZip, setSearchZip] = useState("");
+  const [searchOrigin, setSearchOrigin] = useState(null);
+  const [searchStatus, setSearchStatus] = useState("idle");
+  const [searchErrorMessage, setSearchErrorMessage] = useState("");
   const [pinnedSlug, setPinnedSlug] = useState(locations[0]?.slug || "");
   const [hasPinnedSelection, setHasPinnedSelection] = useState(false);
   const [mapStatus, setMapStatus] = useState(GOOGLE_MAPS_API_KEY ? "loading" : "missingKey");
@@ -299,23 +358,62 @@ export default function LocationFinder({ locations = [] }) {
   const markersRef = useRef(new Map());
   const geocodeCacheRef = useRef(new Map());
 
-  const filteredLocations = useMemo(() => {
-    const normalizedQuery = normalizeSearchValue(query);
-    if (!normalizedQuery) return locations;
+  const rankedLocations = useMemo(() => {
+    const baseLocations = locations.map((location) => {
+      const position = geocodeCacheRef.current.get(location.slug);
+      const distanceMiles = searchOrigin?.position
+        ? calculateDistanceMiles(searchOrigin.position, position)
+        : null;
 
-    return locations.filter((location) => buildSearchText(location).includes(normalizedQuery));
-  }, [locations, query]);
+      return {
+        ...location,
+        distanceMiles,
+      };
+    });
 
-  const selectedLocation = useMemo(() => {
-    if (filteredLocations.length === 0) return null;
-
-    if (hasPinnedSelection) {
-      const pinnedLocation = filteredLocations.find((location) => location.slug === pinnedSlug);
-      if (pinnedLocation) return pinnedLocation;
+    if (!searchOrigin?.position) {
+      return baseLocations;
     }
 
-    return filteredLocations[0] || null;
+    return [...baseLocations].sort((left, right) => {
+      const leftDistance =
+        typeof left.distanceMiles === "number" ? left.distanceMiles : Number.POSITIVE_INFINITY;
+      const rightDistance =
+        typeof right.distanceMiles === "number" ? right.distanceMiles : Number.POSITIVE_INFINITY;
+
+      if (leftDistance !== rightDistance) {
+        return leftDistance - rightDistance;
+      }
+
+      return left.title.localeCompare(right.title);
+    });
+  }, [geocodeVersion, locations, searchOrigin]);
+
+  const filteredLocations = useMemo(() => {
+    if (!searchOrigin?.position) {
+      return rankedLocations;
+    }
+
+    return rankedLocations.filter(
+      (location) =>
+        typeof location.distanceMiles === "number" &&
+        location.distanceMiles <= DEFAULT_SEARCH_RADIUS_MILES
+    );
+  }, [rankedLocations, searchOrigin]);
+
+  const selectedLocation = useMemo(() => {
+    if (!hasPinnedSelection || filteredLocations.length === 0) return null;
+
+    return filteredLocations.find((location) => location.slug === pinnedSlug) || null;
   }, [filteredLocations, hasPinnedSelection, pinnedSlug]);
+
+  const finderSearchQuery = useMemo(
+    () => buildFinderSearchQuery({ state: searchState, city: searchCity, zip: searchZip }),
+    [searchCity, searchState, searchZip]
+  );
+  const hasFinderSearchInput = Boolean(finderSearchQuery);
+  const hasActiveFinderSearch = Boolean(searchOrigin?.position);
+  const canRunFinderSearch = mapStatus === "ready" && !geocodeErrorMessage;
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -486,7 +584,10 @@ export default function LocationFinder({ locations = [] }) {
   useEffect(() => {
     if (mapStatus !== "ready" || !mapRef.current || typeof window === "undefined") return;
 
-    const visiblePositions = filteredLocations
+    const positionsForBounds = hasActiveFinderSearch
+      ? filteredLocations.slice(0, 6)
+      : filteredLocations;
+    const visiblePositions = positionsForBounds
       .map((location) => geocodeCacheRef.current.get(location.slug))
       .filter(Boolean);
 
@@ -512,45 +613,151 @@ export default function LocationFinder({ locations = [] }) {
     const bounds = new googleMaps.maps.LatLngBounds();
     visiblePositions.forEach((position) => bounds.extend(position));
     mapRef.current.fitBounds(bounds, MAP_BOUNDS_PADDING);
-  }, [filteredLocations, geocodeVersion, hasPinnedSelection, mapStatus, selectedLocation]);
+  }, [
+    filteredLocations,
+    geocodeVersion,
+    hasActiveFinderSearch,
+    hasPinnedSelection,
+    mapStatus,
+    selectedLocation,
+  ]);
+
+  async function handleFinderSearch(event) {
+    event.preventDefault();
+
+    if (!hasFinderSearchInput) {
+      setSearchOrigin(null);
+      setSearchStatus("idle");
+      setSearchErrorMessage("");
+      setHasPinnedSelection(false);
+      setPinnedSlug("");
+      return;
+    }
+
+    if (!canRunFinderSearch || !geocoderRef.current) {
+      setSearchStatus("error");
+      setSearchErrorMessage("Search becomes available once the map finishes loading.");
+      return;
+    }
+
+    setSearchStatus("loading");
+    setSearchErrorMessage("");
+
+    const result = await geocodeAddress(
+      geocoderRef.current,
+      buildFinderSearchAttempts({ state: searchState, city: searchCity, zip: searchZip })
+    );
+
+    if (!result) {
+      setSearchStatus("error");
+      setSearchErrorMessage("Location not found. Try a city, state, or ZIP code.");
+      return;
+    }
+
+    setSearchOrigin(result);
+    setSearchStatus("success");
+    setHasPinnedSelection(false);
+    setPinnedSlug("");
+  }
+
+  function clearSearches() {
+    setSearchState("");
+    setSearchCity("");
+    setSearchZip("");
+    setSearchOrigin(null);
+    setSearchStatus("idle");
+    setSearchErrorMessage("");
+    setHasPinnedSelection(false);
+    setPinnedSlug("");
+  }
 
   const selectedLocationStatus = selectedLocation ? getLocationStatus(selectedLocation.officeHours) : null;
   const selectedLocationCallHref = buildCallHref(selectedLocation?.publicPhone);
   const emptyResults = filteredLocations.length === 0;
+  const resultsTagLabel = searchOrigin?.label || "";
+  const showResultsPanel = hasActiveFinderSearch;
+  const showDetailPanel = Boolean(selectedLocation);
+  const stageContentClassName = `${styles.stageContent} ${
+    showResultsPanel && showDetailPanel
+      ? styles.stageContentBoth
+      : showResultsPanel
+        ? styles.stageContentResultsOnly
+        : styles.stageContentDetailOnly
+  }`;
 
   return (
     <div className={styles.shell}>
       <SiteHeader />
       <div className={styles.page}>
-        <header className={styles.topBar}>
-          <div className={styles.topCopy}>
-            <span className={styles.eyebrow}>Location Finder</span>
-            <h1>Find care close to home.</h1>
-            <p>Search locations, compare hours, and narrow the visible map pins in real time.</p>
-          </div>
-
-          <div className={styles.topActions}>
-            <Link className={styles.secondaryAction} href="/providers">
-              View providers
-            </Link>
-            <ActionLink
-              className={styles.primaryAction}
-              href={selectedLocation?.bookingUrl || selectedLocation?.slug || "/providers"}
-              external={Boolean(selectedLocation?.bookingUrl)}
-            >
-              Book appointment
-            </ActionLink>
-          </div>
-        </header>
-
         <main className={styles.stage}>
           <div className={styles.mapBackdrop}>
             <div className={styles.mapCanvas} ref={mapElementRef} />
             <div className={styles.mapVeil} />
 
-            <div className={styles.mapSummary}>
-              <span>{filteredLocations.length} locations</span>
-              <span>{filteredLocations.reduce((total, location) => total + location.providerCount, 0)} providers</span>
+            <div className={styles.mapSearchDock}>
+              <form className={styles.mapSearchForm} onSubmit={handleFinderSearch}>
+                <label className={styles.mapSearchField}>
+                  <span className={styles.mapSearchLabel}>City</span>
+                  <input
+                    type="text"
+                    value={searchCity}
+                    onChange={(event) => setSearchCity(event.target.value)}
+                    placeholder="Search by city"
+                  />
+                </label>
+
+                <div className={styles.mapSearchDivider} aria-hidden="true" />
+
+                <label className={styles.mapSearchField}>
+                  <span className={styles.mapSearchLabel}>State</span>
+                  <input
+                    type="text"
+                    value={searchState}
+                    onChange={(event) => setSearchState(event.target.value)}
+                    placeholder="Search by state"
+                  />
+                </label>
+
+                <div className={styles.mapSearchDivider} aria-hidden="true" />
+
+                <label className={styles.mapSearchField}>
+                  <span className={styles.mapSearchLabel}>Zip Code</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={searchZip}
+                    onChange={(event) => setSearchZip(event.target.value)}
+                    placeholder="Search by zip code"
+                  />
+                </label>
+
+                <button
+                  className={styles.mapSearchButton}
+                  type="submit"
+                  disabled={
+                    searchStatus === "loading" ||
+                    !canRunFinderSearch ||
+                    (!hasFinderSearchInput && !hasActiveFinderSearch)
+                  }
+                  aria-label="Search locations"
+                >
+                  {searchStatus === "loading" ? (
+                    <span className={styles.mapSearchButtonBusy}>...</span>
+                  ) : (
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        d="M5 12h12m-5-5 5 5-5 5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2.4"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </form>
+
             </div>
 
             {mapStatus === "missingKey" ? (
@@ -572,86 +779,78 @@ export default function LocationFinder({ locations = [] }) {
             ) : null}
           </div>
 
-          <div className={styles.stageContent}>
-            <aside className={`${styles.panel} ${styles.searchPanel}`}>
-              <div className={styles.panelHeader}>
-                <span className={styles.panelEyebrow}>All Locations</span>
-                <h2>Search by clinic, city, state, or ZIP.</h2>
-                <p>Start typing to narrow both the location list and the visible map pins.</p>
-              </div>
-
-            <label className={styles.searchField}>
-              <span className={styles.searchIcon}>Search</span>
-              <input
-                type="search"
-                value={query}
-                onChange={(event) => {
-                  setQuery(event.target.value);
-                  setHasPinnedSelection(false);
-                }}
-                placeholder="Search state, city, ZIP, or clinic name"
-              />
-            </label>
-
-            <div className={styles.resultMeta}>
-              <span>{filteredLocations.length} matching locations</span>
-              {query ? (
-                <button
-                  className={styles.clearButton}
-                  type="button"
-                  onClick={() => {
-                    setQuery("");
-                    setHasPinnedSelection(false);
-                  }}
-                >
-                  Clear
-                </button>
-              ) : null}
-            </div>
-
-            <div className={styles.locationList} role="list">
-              {emptyResults ? (
-                <div className={styles.emptyState}>
-                  <strong>No locations match that search.</strong>
-                  <span>Try a city, state abbreviation, or ZIP code instead.</span>
-                </div>
-              ) : (
-                filteredLocations.map((location) => {
-                  const locationStatus = getLocationStatus(location.officeHours);
-                  const isActive = selectedLocation?.slug === location.slug;
-
-                  return (
-                    <button
-                      key={location.slug}
-                      className={`${styles.locationRow} ${isActive ? styles.locationRowActive : ""}`}
-                      type="button"
-                      onClick={() => {
-                        setPinnedSlug(location.slug);
-                        setHasPinnedSelection(true);
-                      }}
+          {showResultsPanel || showDetailPanel ? (
+            <div className={stageContentClassName}>
+              {showResultsPanel ? (
+                <aside className={`${styles.panel} ${styles.searchPanel}`}>
+                  <div className={styles.resultsToolbar}>
+                    <div
+                      className={styles.resultsTag}
+                      aria-label={`Showing locations within ${DEFAULT_SEARCH_RADIUS_MILES} miles of ${resultsTagLabel}`}
                     >
-                      <div className={styles.locationRowHeader}>
-                        <h3>{location.title}</h3>
-                        <span className={`${styles.statusPill} ${styles[`statusPill${locationStatus.tone.charAt(0).toUpperCase()}${locationStatus.tone.slice(1)}`] || ""}`}>
-                          {locationStatus.label}
-                        </span>
-                      </div>
-                      <p>{location.addressLines[0] || location.address || "Address pending"}</p>
-                      <div className={styles.locationRowMeta}>
-                        <span>{location.addressLines.slice(1).join(", ") || location.title}</span>
-                        <span>{location.providerCount} providers</span>
-                      </div>
+                      <span className={styles.resultsTagIcon} aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                          <path
+                            d="M12 21s-6-5.25-6-11a6 6 0 1 1 12 0c0 5.75-6 11-6 11Z"
+                            fill="currentColor"
+                          />
+                          <circle cx="12" cy="10" r="2.6" fill="#ffffff" />
+                        </svg>
+                      </span>
+                      <span className={styles.resultsTagText}>{resultsTagLabel}</span>
+                    </div>
+                    <button
+                      className={styles.clearButton}
+                      type="button"
+                      onClick={clearSearches}
+                    >
+                      Clear
                     </button>
-                  );
-                })
-              )}
-            </div>
-          </aside>
+                  </div>
 
-            <div className={styles.centerSpacer} />
+                  <div className={styles.locationList} role="list">
+                    {emptyResults ? (
+                      <div className={styles.emptyState}>
+                        <strong>No locations match that search.</strong>
+                        <span>Try a different city, state, or ZIP code.</span>
+                      </div>
+                    ) : (
+                      filteredLocations.map((location) => {
+                        const isActive = selectedLocation?.slug === location.slug;
 
-            <aside className={`${styles.panel} ${styles.detailPanel}`}>
-              {selectedLocation ? (
+                        return (
+                          <button
+                            key={location.slug}
+                            className={`${styles.locationRow} ${isActive ? styles.locationRowActive : ""}`}
+                            type="button"
+                            onClick={() => {
+                              setPinnedSlug(location.slug);
+                              setHasPinnedSelection(true);
+                            }}
+                          >
+                            <h3 className={styles.locationRowTitle}>{location.title}</h3>
+                            <p>{location.addressLines[0] || location.address || "Address pending"}</p>
+                            <div className={styles.locationRowMeta}>
+                              <span>{location.addressLines.slice(1).join(", ") || location.title}</span>
+                              <span>
+                                {hasActiveFinderSearch && typeof location.distanceMiles === "number"
+                                  ? formatDistanceMiles(location.distanceMiles)
+                                  : `${location.providerCount} providers`}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </aside>
+              ) : null}
+
+              {showResultsPanel && showDetailPanel ? <div className={styles.centerSpacer} /> : null}
+              {!showResultsPanel && showDetailPanel ? <div className={styles.centerSpacer} /> : null}
+
+              {showDetailPanel ? (
+                <aside className={`${styles.panel} ${styles.detailPanel}`}>
                 <>
                 <div className={styles.detailHero}>
                   {selectedLocation.mapImageUrl ? (
@@ -760,14 +959,10 @@ export default function LocationFinder({ locations = [] }) {
                   </ActionLink>
                 </div>
                 </>
-              ) : (
-                <div className={styles.emptyDetail}>
-                  <strong>No location selected.</strong>
-                  <span>Choose a location from the list to view its details.</span>
-                </div>
-              )}
-            </aside>
-          </div>
+                </aside>
+              ) : null}
+            </div>
+          ) : null}
         </main>
       </div>
       <SiteFooter />
