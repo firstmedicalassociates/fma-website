@@ -1,9 +1,9 @@
 import { prisma } from "../lib/prisma";
-import { mapProviderForDirectory } from "../lib/providers";
+import { buildLocationTitleMap, mapProviderForDirectory } from "../lib/providers";
 import ProvidersDirectory from "./providers-directory";
 
 export const runtime = "nodejs";
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Providers",
@@ -11,19 +11,36 @@ export const metadata = {
 };
 
 export default async function ProvidersPage() {
-  const providers = await prisma.provider.findMany({
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      title: true,
-      bio: true,
-      imageUrl: true,
-      locations: true,
-      languages: true,
-    },
-  });
+  const [providers, locations] = await Promise.all([
+    prisma.provider.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        title: true,
+        bio: true,
+        imageUrl: true,
+        imageAlt: true,
+        locations: true,
+        languages: true,
+      },
+    }),
+    prisma.location.findMany({
+      orderBy: { title: "asc" },
+      select: {
+        slug: true,
+        title: true,
+      },
+    }),
+  ]);
 
-  return <ProvidersDirectory providers={providers.map(mapProviderForDirectory)} />;
+  const locationTitleBySlug = buildLocationTitleMap(locations);
+
+  return (
+    <ProvidersDirectory
+      providers={providers.map((provider) => mapProviderForDirectory(provider, locationTitleBySlug))}
+    />
+  );
 }

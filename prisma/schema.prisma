@@ -40,11 +40,62 @@ model Provider {
   title     String
   bio       String
   imageUrl  String
+  imageAlt  String?
   linkUrl   String?
   locations String[] @default([])
   languages String[] @default([])
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([name])
+  @@index([isActive, sortOrder, name])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  category    String   @default("General Care")
+  title       String
+  description String
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, sortOrder, title])
+  @@index([category, sortOrder, title])
+}
+
+model Location {
+  id                 String   @id @default(cuid())
+  slug               String   @unique
+  title              String
+  eyebrow            String?
+  accent             String?
+  intro              String?
+  address            String
+  streetAddress      String?
+  addressCity        String?
+  addressState       String?
+  postalCode         String?
+  addressCountry     String?
+  displayAddress     String?
+  phone              String?
+  directPhone        String?
+  callTextPhone      String?
+  hideOfficePhone    Boolean  @default(false)
+  directionsUrl      String?
+  bookingUrl         String?
+  mapImageUrl        String?
+  mapImageAlt        String?
+  parkingTitle       String?
+  parkingDescription String?
+  officeHours        Json     @default("[]")
+  serviceIds         String[] @default([])
+  services           Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([updatedAt])
 }

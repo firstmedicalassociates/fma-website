@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import path from "path";
 import { promises as fs } from "fs";
 import { imageSize } from "image-size";
+import { requireAdminRequest } from "../../../lib/admin-auth";
 
 export const runtime = "nodejs";
 
@@ -15,6 +16,9 @@ async function fileExists(filePath) {
 }
 
 export async function POST(request) {
+  const auth = requireAdminRequest(request);
+  if (!auth.ok) return auth.response;
+
   let formData;
   try {
     formData = await request.formData();

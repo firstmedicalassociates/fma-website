@@ -1,6 +1,7 @@
 import { prisma } from "./lib/prisma";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 function getSiteUrl() {
   const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL;
@@ -11,15 +12,20 @@ function getSiteUrl() {
 export default async function sitemap() {
   const siteUrl = getSiteUrl();
 
-  const [posts, providers] = await Promise.all([
+  const [posts, providers, locations] = await Promise.all([
     prisma.blogPost.findMany({
       where: { status: "PUBLISHED" },
       select: { slug: true, updatedAt: true, publishedAt: true },
       orderBy: { publishedAt: "desc" },
     }),
     prisma.provider.findMany({
+      where: { isActive: true },
       select: { slug: true, updatedAt: true },
-      orderBy: { name: "asc" },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    }),
+    prisma.location.findMany({
+      select: { slug: true, updatedAt: true },
+      orderBy: { title: "asc" },
     }),
   ]);
 
@@ -58,5 +64,12 @@ export default async function sitemap() {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...postRoutes, ...providerRoutes];
+  const locationRoutes = locations.map((location) => ({
+    url: `${siteUrl}${location.slug}`,
+    lastModified: location.updatedAt || new Date(),
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }));
+
+  return [...staticRoutes, ...postRoutes, ...providerRoutes, ...locationRoutes];
 }

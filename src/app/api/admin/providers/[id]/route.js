@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
+import { requireAdminRequest } from "../../../../lib/admin-auth";
 import { normalizeProviderPayload } from "../../../../lib/providers";
 
 export const runtime = "nodejs";
 
-export async function PATCH(request, { params }) {
+export async function PUT(request, { params }) {
+  const auth = requireAdminRequest(request);
+  if (!auth.ok) return auth.response;
+
   const { id } = await params;
   if (!id) {
     return NextResponse.json({ ok: false, error: "Missing id." }, { status: 400 });
@@ -17,32 +21,23 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ ok: false, error: "Invalid JSON." }, { status: 400 });
   }
 
-  const {
-    name,
-    title,
-    bio,
-    slug,
-    imageUrl,
-    linkUrl,
-    locations,
-    languages,
-  } = normalizeProviderPayload(body);
+  const payload = normalizeProviderPayload(body);
 
-  if (!name || !title || !bio || !slug || !imageUrl) {
+  if (!payload.name || !payload.title || !payload.bio || !payload.slug || !payload.imageUrl) {
     return NextResponse.json(
       { ok: false, error: "Name, title, bio, slug, and image are required." },
       { status: 400 }
     );
   }
 
-  if (locations.length === 0) {
+  if (payload.locations.length === 0) {
     return NextResponse.json(
-      { ok: false, error: "Select at least one location." },
+      { ok: false, error: "Assign the provider to at least one location." },
       { status: 400 }
     );
   }
 
-  if (languages.length === 0) {
+  if (payload.languages.length === 0) {
     return NextResponse.json(
       { ok: false, error: "Add at least one language." },
       { status: 400 }
@@ -52,20 +47,11 @@ export async function PATCH(request, { params }) {
   try {
     const provider = await prisma.provider.update({
       where: { id },
-      data: {
-        name,
-        title,
-        bio,
-        slug,
-        imageUrl,
-        linkUrl,
-        locations,
-        languages,
-      },
-      select: { slug: true },
+      data: payload,
+      select: { id: true, slug: true },
     });
 
-    return NextResponse.json({ ok: true, slug: provider.slug });
+    return NextResponse.json({ ok: true, id: provider.id, slug: provider.slug });
   } catch (error) {
     const errorMessage = String(error?.message || "");
 
@@ -77,20 +63,17 @@ export async function PATCH(request, { params }) {
     }
 
     if (errorMessage.toLowerCase().includes("record to update not found")) {
-      return NextResponse.json(
-        { ok: false, error: "Provider not found." },
-        { status: 404 }
-      );
+      return NextResponse.json({ ok: false, error: "Provider not found." }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { ok: false, error: "Failed to update provider." },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: false, error: "Failed to update provider." }, { status: 500 });
   }
 }
 
-export async function DELETE(_request, { params }) {
+export async function DELETE(request, { params }) {
+  const auth = requireAdminRequest(request);
+  if (!auth.ok) return auth.response;
+
   const { id } = await params;
   if (!id) {
     return NextResponse.json({ ok: false, error: "Missing id." }, { status: 400 });
@@ -100,9 +83,6 @@ export async function DELETE(_request, { params }) {
     await prisma.provider.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "Failed to delete provider." },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: false, error: "Failed to delete provider." }, { status: 500 });
   }
 }

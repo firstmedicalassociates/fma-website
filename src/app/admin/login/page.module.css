@@ -1,0 +1,447 @@
+.page {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.16), transparent 26%),
+    radial-gradient(circle at right, rgba(255, 255, 255, 0.08), transparent 28%),
+    linear-gradient(180deg, #181818 0%, #101010 100%);
+  color: #f5f4f3;
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.1;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.6) 0 1px, transparent 1px),
+    radial-gradient(circle at 80% 40%, rgba(255, 255, 255, 0.45) 0 1px, transparent 1px),
+    radial-gradient(circle at 45% 80%, rgba(255, 255, 255, 0.35) 0 1px, transparent 1px);
+  background-size: 30px 30px, 42px 42px, 48px 48px;
+  mix-blend-mode: soft-light;
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  width: min(1160px, calc(100% - 32px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  gap: 24px;
+  align-items: center;
+  padding: 32px 0;
+}
+
+.brandPanel,
+.formPanel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(42, 42, 42, 0.78), rgba(28, 28, 28, 0.72));
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+}
+
+.brandPanel::after,
+.formPanel::after {
+  content: "";
+  position: absolute;
+  inset: -120% auto auto -220%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(-45deg);
+  transition: 600ms cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+}
+
+.brandPanel:hover::after,
+.formPanel:hover::after {
+  inset: -30% auto auto -30%;
+}
+
+.brandPanel {
+  padding: 48px;
+  display: grid;
+  gap: 28px;
+}
+
+.brandBadge,
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: #d9d7d4;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.brandBadge svg,
+.statusPill svg {
+  width: 16px;
+  height: 16px;
+}
+
+.brandHeading {
+  max-width: 560px;
+}
+
+.brandEyebrow {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: #bdbab6;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.brandHeading h1 {
+  margin: 0 0 14px;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.06em;
+}
+
+.brandHeading p {
+  margin: 0;
+  max-width: 34rem;
+  color: #bbb8b5;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.featureCard {
+  padding: 20px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.featureCard svg {
+  width: 22px;
+  height: 22px;
+  margin-bottom: 18px;
+  color: #ffffff;
+}
+
+.featureCard h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.featureCard p {
+  margin: 0;
+  color: #a9a7a3;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.formPanel {
+  padding: 32px;
+}
+
+.formHeader {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.formHeader h2 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 2.9rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.formHeader p {
+  margin: 0;
+  color: #b4b1ad;
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+.form {
+  display: grid;
+  gap: 18px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.label {
+  color: #d2cfcb;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  padding: 15px 16px;
+  font: inherit;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.input::placeholder {
+  color: #84807c;
+}
+
+.input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.button {
+  min-height: 52px;
+  border: 0;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #d9d7d4 100%);
+  color: #111111;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.22);
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 32px rgba(0, 0, 0, 0.3);
+}
+
+.button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.message {
+  margin: 2px 0 0;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f2efeb;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.messageError {
+  border-color: rgba(255, 131, 131, 0.24);
+  background: rgba(255, 131, 131, 0.08);
+  color: #ffd8d8;
+}
+
+.messageSuccess {
+  border-color: rgba(168, 255, 180, 0.2);
+  background: rgba(168, 255, 180, 0.08);
+  color: #e9ffed;
+}
+
+.footerNote {
+  margin: 4px 0 0;
+  color: #8d8985;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 980px) {
+  .shell {
+    grid-template-columns: 1fr;
+    max-width: 720px;
+    padding: 24px 0 40px;
+  }
+
+  .brandPanel {
+    padding: 36px;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .shell {
+    width: min(100%, calc(100% - 20px));
+    gap: 18px;
+    padding: 10px 0 24px;
+  }
+
+  .brandPanel,
+  .formPanel {
+    border-radius: 24px;
+  }
+
+  .brandPanel {
+    padding: 26px 22px;
+  }
+
+  .formPanel {
+    padding: 24px 20px;
+  }
+
+  .brandHeading h1 {
+    font-size: 2.8rem;
+  }
+}
+
+/* Brandon palette overrides */
+.page {
+  background:
+    radial-gradient(circle at top left, rgba(118, 199, 253, 0.2), transparent 28%),
+    radial-gradient(circle at right, rgba(14, 42, 139, 0.08), transparent 28%),
+    linear-gradient(180deg, #fbfdff 0%, #f7fafd 100%);
+  color: #18223a;
+}
+
+.page::before {
+  opacity: 0.06;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(0, 22, 98, 0.5) 0 1px, transparent 1px),
+    radial-gradient(circle at 80% 40%, rgba(0, 101, 145, 0.4) 0 1px, transparent 1px),
+    radial-gradient(circle at 45% 80%, rgba(65, 87, 182, 0.28) 0 1px, transparent 1px);
+  mix-blend-mode: multiply;
+}
+
+.brandPanel,
+.formPanel {
+  border-color: rgba(0, 22, 98, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(241, 244, 247, 0.94)),
+    #ffffff;
+  box-shadow:
+    0 28px 70px rgba(0, 22, 98, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.brandBadge,
+.statusPill {
+  border-color: rgba(0, 22, 98, 0.1);
+  background: rgba(118, 199, 253, 0.12);
+  color: #36506e;
+}
+
+.brandHeading h1,
+.formHeader h2,
+.featureCard h2 {
+  color: #001662;
+}
+
+.brandEyebrow,
+.brandHeading p,
+.formHeader p,
+.featureCard p,
+.footerNote {
+  color: #5b6982;
+}
+
+.featureCard {
+  border-color: rgba(0, 22, 98, 0.08);
+  background:
+    linear-gradient(180deg, rgba(247, 250, 253, 0.98), rgba(235, 238, 241, 0.94)),
+    #ffffff;
+}
+
+.featureCard svg,
+.brandBadge svg,
+.statusPill svg {
+  color: #006591;
+}
+
+.label {
+  color: #36506e;
+}
+
+.input {
+  border-color: rgba(0, 22, 98, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 253, 0.96)),
+    #ffffff;
+  color: #18223a;
+}
+
+.input::placeholder {
+  color: #8492a8;
+}
+
+.input:focus {
+  border-color: rgba(0, 101, 145, 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 250, 253, 0.98)),
+    #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(0, 101, 145, 0.18),
+    0 0 0 4px rgba(118, 199, 253, 0.16);
+}
+
+.button {
+  background: linear-gradient(180deg, #0e2a8b 0%, #001662 100%);
+  color: #ffffff;
+  box-shadow: 0 18px 32px rgba(0, 22, 98, 0.2);
+}
+
+.button:hover:not(:disabled) {
+  box-shadow: 0 22px 36px rgba(0, 22, 98, 0.24);
+}
+
+.message {
+  border-color: rgba(0, 22, 98, 0.08);
+  background: rgba(118, 199, 253, 0.12);
+  color: #203552;
+}
+
+.messageError {
+  border-color: rgba(180, 35, 24, 0.14);
+  background: rgba(255, 218, 214, 0.8);
+  color: #b42318;
+}
+
+.messageSuccess {
+  border-color: rgba(0, 101, 145, 0.14);
+  background: rgba(118, 199, 253, 0.14);
+  color: #005277;
+}
