@@ -1,5 +1,7 @@
 export const SITE_NAME = "First Medical Associates";
 export const PATIENT_PORTAL_URL = process.env.NEXT_PUBLIC_PATIENT_PORTAL_URL?.trim() || "#";
+export const SITE_CALL_HREF = process.env.NEXT_PUBLIC_SITE_CALL_HREF?.trim() || "";
+export const SITE_CALL_LABEL = process.env.NEXT_PUBLIC_SITE_CALL_LABEL?.trim() || "Call now";
 export const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim() || "";
 export const GOOGLE_MAPS_MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID?.trim() || "";
 
