@@ -1,7 +1,7 @@
 import Link from "next/link";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
-import { prisma } from "../lib/prisma";
+import { isDatabaseConfigured, prisma } from "../lib/prisma";
 
 export const runtime = "nodejs";
 export const revalidate = 60;
@@ -11,18 +11,26 @@ export const metadata = {
 };
 
 export default async function BlogIndexPage() {
-  const posts = await prisma.blogPost.findMany({
-    where: { status: "PUBLISHED" },
-    orderBy: { publishedAt: "desc" },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      coverImageUrl: true,
-      excerpt: true,
-      publishedAt: true,
-    },
-  });
+  let posts = [];
+
+  if (isDatabaseConfigured) {
+    try {
+      posts = await prisma.blogPost.findMany({
+        where: { status: "PUBLISHED" },
+        orderBy: { publishedAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          coverImageUrl: true,
+          excerpt: true,
+          publishedAt: true,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to load blog posts during render, showing an empty state instead.", error);
+    }
+  }
 
   return (
     <>

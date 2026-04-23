@@ -1,4 +1,4 @@
-import { prisma } from "./lib/prisma";
+import { isDatabaseConfigured, prisma } from "./lib/prisma";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,24 +11,6 @@ function getSiteUrl() {
 
 export default async function sitemap() {
   const siteUrl = getSiteUrl();
-
-  const [posts, providers, locations] = await Promise.all([
-    prisma.blogPost.findMany({
-      where: { status: "PUBLISHED" },
-      select: { slug: true, updatedAt: true, publishedAt: true },
-      orderBy: { publishedAt: "desc" },
-    }),
-    prisma.provider.findMany({
-      where: { isActive: true },
-      select: { slug: true, updatedAt: true },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    }),
-    prisma.location.findMany({
-      select: { slug: true, updatedAt: true },
-      orderBy: { title: "asc" },
-    }),
-  ]);
-
   const staticRoutes = [
     {
       url: `${siteUrl}/`,
@@ -55,6 +37,36 @@ export default async function sitemap() {
       priority: 0.8,
     },
   ];
+
+  if (!isDatabaseConfigured) {
+    return staticRoutes;
+  }
+
+  let posts = [];
+  let providers = [];
+  let locations = [];
+
+  try {
+    [posts, providers, locations] = await Promise.all([
+      prisma.blogPost.findMany({
+        where: { status: "PUBLISHED" },
+        select: { slug: true, updatedAt: true, publishedAt: true },
+        orderBy: { publishedAt: "desc" },
+      }),
+      prisma.provider.findMany({
+        where: { isActive: true },
+        select: { slug: true, updatedAt: true },
+        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      }),
+      prisma.location.findMany({
+        select: { slug: true, updatedAt: true },
+        orderBy: { title: "asc" },
+      }),
+    ]);
+  } catch (error) {
+    console.error("Failed to build the dynamic sitemap entries, returning static routes only.", error);
+    return staticRoutes;
+  }
 
   const postRoutes = posts.map((post) => ({
     url: `${siteUrl}/blog/${post.slug}`,

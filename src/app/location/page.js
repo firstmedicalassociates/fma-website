@@ -1,6 +1,6 @@
 import { SITE_NAME } from "../lib/config/site";
 import { buildStructuredAddress, formatOfficeHoursForDisplay, resolveLocationAddressParts } from "../lib/locations";
-import { prisma } from "../lib/prisma";
+import { isDatabaseConfigured, prisma } from "../lib/prisma";
 import LocationFinder from "./location-finder";
 
 export const runtime = "nodejs";
@@ -68,24 +68,36 @@ function buildGeocodeQuery(location) {
 }
 
 export default async function LocationFinderPage() {
-  const [locations, providers] = await Promise.all([
-    prisma.location.findMany({
-      orderBy: { title: "asc" },
-      select: LOCATION_FINDER_SELECT,
-    }),
-    prisma.provider.findMany({
-      where: { isActive: true },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-      select: {
-        slug: true,
-        name: true,
-        title: true,
-        imageUrl: true,
-        imageAlt: true,
-        locations: true,
-      },
-    }),
-  ]);
+  let locations = [];
+  let providers = [];
+
+  if (isDatabaseConfigured) {
+    try {
+      [locations, providers] = await Promise.all([
+        prisma.location.findMany({
+          orderBy: { title: "asc" },
+          select: LOCATION_FINDER_SELECT,
+        }),
+        prisma.provider.findMany({
+          where: { isActive: true },
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+          select: {
+            slug: true,
+            name: true,
+            title: true,
+            imageUrl: true,
+            imageAlt: true,
+            locations: true,
+          },
+        }),
+      ]);
+    } catch (error) {
+      console.error(
+        "Failed to load location finder data during render, showing an empty state instead.",
+        error
+      );
+    }
+  }
 
   const providersByLocationSlug = providers.reduce((groups, provider) => {
     for (const locationSlug of provider.locations || []) {

@@ -1,35 +1,51 @@
 import { notFound } from "next/navigation";
 import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
-import { prisma } from "../../lib/prisma";
+import { isDatabaseConfigured, prisma } from "../../lib/prisma";
 
 export const runtime = "nodejs";
 export const revalidate = 60;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const posts = await prisma.blogPost.findMany({
-    where: { status: "PUBLISHED" },
-    select: { slug: true },
-  });
-  return posts.map((post) => ({ slug: post.slug }));
+  if (!isDatabaseConfigured) {
+    return [];
+  }
+
+  try {
+    const posts = await prisma.blogPost.findMany({
+      where: { status: "PUBLISHED" },
+      select: { slug: true },
+    });
+    return posts.map((post) => ({ slug: post.slug }));
+  } catch (error) {
+    console.error("Failed to generate blog static params, skipping prerendered blog posts.", error);
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  if (!slug) return {};
+  if (!slug || !isDatabaseConfigured) return {};
 
-  const post = await prisma.blogPost.findUnique({
-    where: { slug },
-    select: {
-      title: true,
-      metaTitle: true,
-      metaDescription: true,
-      excerpt: true,
-      coverImageUrl: true,
-      coverImageAlt: true,
-    },
-  });
+  let post = null;
+
+  try {
+    post = await prisma.blogPost.findUnique({
+      where: { slug },
+      select: {
+        title: true,
+        metaTitle: true,
+        metaDescription: true,
+        excerpt: true,
+        coverImageUrl: true,
+        coverImageAlt: true,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to load blog metadata, falling back to default metadata.", error);
+    return {};
+  }
 
   if (!post) return {};
 
@@ -74,25 +90,32 @@ function getSiteUrl() {
 
 export default async function BlogPostPage({ params }) {
   const { slug } = await params;
-  if (!slug) {
+  if (!slug || !isDatabaseConfigured) {
     notFound();
   }
 
-  const post = await prisma.blogPost.findUnique({
-    where: { slug },
-    select: {
-      title: true,
-      metaTitle: true,
-      metaDescription: true,
-      excerpt: true,
-      contentHtml: true,
-      coverImageUrl: true,
-      coverImageAlt: true,
-      status: true,
-      publishedAt: true,
-      updatedAt: true,
-    },
-  });
+  let post = null;
+
+  try {
+    post = await prisma.blogPost.findUnique({
+      where: { slug },
+      select: {
+        title: true,
+        metaTitle: true,
+        metaDescription: true,
+        excerpt: true,
+        contentHtml: true,
+        coverImageUrl: true,
+        coverImageAlt: true,
+        status: true,
+        publishedAt: true,
+        updatedAt: true,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to load a blog post, returning 404 instead.", error);
+    notFound();
+  }
 
   if (!post || post.status !== "PUBLISHED") {
     notFound();
