@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { SERVICE_ICON_OPTIONS, normalizeServiceIcon } from "../../../lib/services";
 
 function getInitialValues(initialService) {
   return {
@@ -9,6 +10,7 @@ function getInitialValues(initialService) {
     category: initialService?.category || "General Care",
     title: initialService?.title || "",
     description: initialService?.description || "",
+    icon: initialService?.icon || "medical_services",
     isActive: initialService?.isActive ?? true,
   };
 }
@@ -20,9 +22,24 @@ export default function ServiceForm({ mode = "create", initialService }) {
   const [category, setCategory] = useState(initialValues.category);
   const [title, setTitle] = useState(initialValues.title);
   const [description, setDescription] = useState(initialValues.description);
+  const [icon, setIcon] = useState(normalizeServiceIcon(initialValues.icon));
+  const [iconSearch, setIconSearch] = useState("");
   const [isActive, setIsActive] = useState(initialValues.isActive);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
+  const normalizedIcon = normalizeServiceIcon(icon);
+
+  const filteredIconOptions = useMemo(() => {
+    const query = iconSearch.trim().toLowerCase();
+    if (!query) return SERVICE_ICON_OPTIONS;
+
+    return SERVICE_ICON_OPTIONS.filter((option) => {
+      return (
+        option.value.toLowerCase().includes(query) ||
+        option.label.toLowerCase().includes(query)
+      );
+    });
+  }, [iconSearch]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -42,6 +59,7 @@ export default function ServiceForm({ mode = "create", initialService }) {
           category,
           title,
           description,
+          icon: normalizeServiceIcon(icon),
           isActive,
         }),
       });
@@ -134,6 +152,66 @@ export default function ServiceForm({ mode = "create", initialService }) {
               />
             </div>
 
+            <div className="builder-field">
+              <div className="service-icon-label-row">
+                <label htmlFor="service-icon-name">Icon</label>
+                <span className="service-icon-selected-pill">
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    {normalizedIcon}
+                  </span>
+                  {normalizedIcon}
+                </span>
+              </div>
+              <input
+                id="service-icon-name"
+                className="builder-input"
+                type="text"
+                value={icon}
+                onChange={(event) => setIcon(event.target.value)}
+                placeholder="medical_services"
+              />
+              <p className="builder-helper-text">
+                Choose an icon below, or type a Material Symbols icon name manually.
+              </p>
+
+              <div className="service-icon-picker-shell">
+                <input
+                  className="builder-input service-icon-search"
+                  type="search"
+                  value={iconSearch}
+                  onChange={(event) => setIconSearch(event.target.value)}
+                  placeholder="Search icons"
+                  aria-label="Search available icons"
+                />
+                {filteredIconOptions.length > 0 ? (
+                  <div className="service-icon-grid" role="listbox" aria-label="Icon chooser">
+                    {filteredIconOptions.map((option) => {
+                      const isSelected = normalizedIcon === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          className={`service-icon-option${isSelected ? " is-selected" : ""}`}
+                          type="button"
+                          title={`${option.label} (${option.value})`}
+                          aria-label={`Use ${option.label} icon`}
+                          aria-pressed={isSelected}
+                          onClick={() => setIcon(option.value)}
+                        >
+                          <span className="material-symbols-outlined" aria-hidden="true">
+                            {option.value}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="builder-helper-text service-icon-empty">
+                    No icons match that search.
+                  </p>
+                )}
+              </div>
+            </div>
+
             <label className="builder-checkbox">
               <input
                 type="checkbox"
@@ -184,6 +262,15 @@ export default function ServiceForm({ mode = "create", initialService }) {
               </div>
 
               <div className="location-preview-meta-grid">
+                <div className="location-preview-meta-item">
+                  <span>Icon</span>
+                  <strong className="service-icon-preview-row">
+                    <span className="material-symbols-outlined service-icon-preview">
+                      {normalizedIcon}
+                    </span>
+                    {normalizedIcon}
+                  </strong>
+                </div>
                 <div className="location-preview-meta-item">
                   <span>Status</span>
                   <strong>{isActive ? "Visible on public pages" : "Hidden from public pages"}</strong>

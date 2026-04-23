@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Clock3, Layers3, MapPin } from "../admin-icons";
 import { prisma } from "../../../lib/prisma";
-import { SERVICE_SELECT } from "../../../lib/services";
+import { SERVICE_SELECT, normalizeServiceIcon } from "../../../lib/services";
 import ServiceActions from "./service-actions";
 
 export const runtime = "nodejs";
@@ -118,7 +118,9 @@ export default async function AdminServicesPage() {
                           <div className="admin-record-header">
                             <div className="admin-record-identity">
                               <div className="admin-record-avatar admin-record-avatar-icon">
-                                <Layers3 />
+                                <span className="material-symbols-outlined admin-service-icon">
+                                  {normalizeServiceIcon(service.icon)}
+                                </span>
                               </div>
                               <div>
                                 <h3 className="admin-record-title">{service.title}</h3>

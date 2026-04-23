@@ -5,7 +5,7 @@ import {
   buildStructuredAddress,
   normalizeOfficeHours,
 } from "./locations";
-import { normalizeServiceIds } from "./services";
+import { normalizeServiceIcon, normalizeServiceIds } from "./services";
 
 export const LOCATION_FORM_SELECT = {
   id: true,
@@ -75,6 +75,7 @@ function normalizeServices(values) {
       const category = String(value?.category ?? "").trim();
       const title = String(value?.title ?? "").trim();
       const description = String(value?.description ?? "").trim();
+      const icon = normalizeServiceIcon(value?.icon);
 
       if (!title || !description) return null;
 
@@ -82,6 +83,7 @@ function normalizeServices(values) {
         category: category || "General Care",
         title,
         description,
+        icon,
       };
     })
     .filter(Boolean);

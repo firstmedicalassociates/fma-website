@@ -5,6 +5,7 @@ import styles from "./site-chrome.module.css";
 const FOOTER_LINKS = [
   { href: "/locations", label: "Locations" },
   { href: "/providers", label: "Providers" },
+  { href: "/services", label: "Services" },
   { href: "/blog", label: "Blog" },
 ];
 

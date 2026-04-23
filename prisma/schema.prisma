@@ -58,6 +58,7 @@ model Service {
   category    String   @default("General Care")
   title       String
   description String
+  icon        String   @default("medical_services")
   sortOrder   Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())

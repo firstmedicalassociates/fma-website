@@ -161,6 +161,7 @@ export default async function LocationLandingPage({ params }) {
             category: true,
             title: true,
             description: true,
+            icon: true,
           },
         })
       : [],
