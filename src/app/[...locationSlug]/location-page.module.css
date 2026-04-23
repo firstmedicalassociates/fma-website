@@ -214,7 +214,7 @@
   display: grid;
   align-content: center;
   gap: 28px;
-  background: linear-gradient(180deg, rgba(240, 245, 251, 0.98), rgba(232, 239, 247, 0.94));
+  background: linear-gradient(180deg, rgba(228, 236, 246, 0.88), rgba(214, 226, 240, 0.92));
 }
 
 .locationIntro {
@@ -387,8 +387,25 @@
 
 .locationMedia {
   position: relative;
+  display: grid;
+  align-items: center;
+  padding: 30px;
   min-height: 480px;
   background: linear-gradient(180deg, rgba(228, 236, 246, 0.88), rgba(214, 226, 240, 0.92));
+}
+
+.locationMediaCard {
+  position: relative;
+  width: 100%;
+  min-height: 420px;
+  height: 100%;
+  border-radius: 30px;
+  overflow: hidden;
+  border: 1px solid rgba(17, 33, 74, 0.12);
+  background: #ffffff;
+  box-shadow:
+    0 26px 56px rgba(15, 31, 87, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86);
 }
 
 .mediaImage,
@@ -413,7 +430,7 @@
 
 .mediaPlaceholder {
   position: absolute;
-  inset: 32px;
+  inset: 0;
   display: grid;
   place-items: center;
   padding: 28px;
@@ -459,6 +476,37 @@
   box-shadow: 0 18px 42px rgba(15, 31, 87, 0.06);
 }
 
+.serviceCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.serviceIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(0, 101, 145, 0.1);
+  color: #006591;
+  font-size: 1.4rem;
+}
+
+.serviceCard .serviceCategory {
+  width: fit-content;
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 101, 145, 0.12);
+  color: #0b4f96;
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+}
+
 .providerCard {
   justify-items: center;
   text-align: center;
@@ -483,6 +531,302 @@
 .providerActions {
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.servicesHero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: end;
+}
+
+.servicesHeroPrimary,
+.servicesHeroSecondary {
+  display: grid;
+  gap: 12px;
+}
+
+.servicesHeroKicker {
+  width: fit-content;
+  margin: 0;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: #003a53;
+  color: #71a5c6;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.servicesHeroTitle {
+  margin: 0;
+  font-size: clamp(2.8rem, 6.2vw, 5.9rem);
+  line-height: 0.9;
+  letter-spacing: -0.07em;
+  color: #001662;
+}
+
+.servicesHeroSecondary p {
+  margin: 0;
+  color: #444652;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.servicesHeroLines {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.servicesHeroLines span {
+  display: block;
+  height: 4px;
+  border-radius: 999px;
+}
+
+.servicesHeroLines span:first-child {
+  width: 92px;
+  background: #006591;
+}
+
+.servicesHeroLines span:last-child {
+  width: 32px;
+  background: rgba(117, 118, 131, 0.32);
+}
+
+.servicesToolbar {
+  position: sticky;
+  top: 96px;
+  z-index: 10;
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(197, 197, 212, 0.56);
+  background: rgba(247, 250, 253, 0.92);
+  backdrop-filter: blur(14px);
+}
+
+.servicesSearchWrap {
+  position: relative;
+}
+
+.servicesSearchIcon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: #5b6982;
+  font-size: 20px;
+}
+
+.servicesSearchInput {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px 0 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(197, 197, 212, 0.62);
+  background: #fff;
+  color: #181c1e;
+  font-size: 0.96rem;
+  outline: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.servicesSearchInput:focus {
+  border-color: rgba(65, 87, 182, 0.42);
+  box-shadow:
+    0 0 0 1px rgba(65, 87, 182, 0.3),
+    0 0 0 4px rgba(185, 195, 255, 0.28);
+}
+
+.servicesFilterRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.servicesFilterRow::-webkit-scrollbar {
+  height: 8px;
+}
+
+.servicesFilterRow::-webkit-scrollbar-track {
+  background: rgba(197, 197, 212, 0.24);
+  border-radius: 999px;
+}
+
+.servicesFilterRow::-webkit-scrollbar-thumb {
+  background: rgba(65, 87, 182, 0.3);
+  border-radius: 999px;
+}
+
+.servicesFilterLabel {
+  margin: 0 4px 0 0;
+  color: #5b6982;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.servicesFilterPill {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(197, 197, 212, 0.62);
+  background: #fff;
+  color: #444652;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.servicesFilterPill:hover {
+  border-color: rgba(14, 42, 139, 0.38);
+  color: #0e2a8b;
+  transform: translateY(-1px);
+}
+
+.servicesFilterPillActive {
+  border-color: transparent;
+  background: #001662;
+  color: #fff;
+  box-shadow: 0 12px 22px rgba(0, 22, 98, 0.16);
+}
+
+.serviceFinderGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.serviceFinderCard {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 22px;
+  border: 1px solid rgba(197, 197, 212, 0.5);
+  background: #fff;
+  box-shadow: 0 14px 30px rgba(0, 22, 98, 0.05);
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.serviceFinderCard:hover {
+  border-color: rgba(0, 101, 145, 0.45);
+  box-shadow: 0 20px 38px rgba(0, 22, 98, 0.1);
+  transform: translateY(-2px);
+}
+
+.serviceFinderCardHighlight {
+  border-color: transparent;
+  background: linear-gradient(135deg, #0e2a8b 0%, #001662 100%);
+  color: #fff;
+}
+
+.serviceFinderCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.serviceFinderIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(0, 101, 145, 0.12);
+  color: #006591;
+  font-size: 1.45rem;
+}
+
+.serviceFinderCategory {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 101, 145, 0.1);
+  color: #006591;
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.serviceFinderCard h3 {
+  margin: 0;
+  color: #001662;
+  font-size: 1.12rem;
+  letter-spacing: -0.03em;
+}
+
+.serviceFinderCard p {
+  margin: 0;
+  color: #444652;
+  line-height: 1.7;
+}
+
+.serviceFinderAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #006591;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.serviceFinderAction .material-symbols-outlined {
+  font-size: 16px;
+  transition: transform 180ms ease;
+}
+
+.serviceFinderCard:hover .serviceFinderAction .material-symbols-outlined {
+  transform: translateX(2px);
+}
+
+.serviceFinderCardHighlight .serviceFinderIcon {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.serviceFinderCardHighlight .serviceFinderCategory {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.serviceFinderCardHighlight h3 {
+  color: #ffffff;
+}
+
+.serviceFinderCardHighlight p {
+  color: #b9c3ff;
+}
+
+.serviceFinderCardHighlight .serviceFinderAction {
+  color: #ffffff;
 }
 
 .serviceGroupStack {
@@ -557,10 +901,16 @@
 
   .locationMedia {
     min-height: 420px;
+    padding: 24px;
+  }
+
+  .locationMediaCard {
+    min-height: 360px;
   }
 
   .providerGrid,
-  .serviceGrid {
+  .serviceGrid,
+  .serviceFinderGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -606,8 +956,28 @@
   }
 
   .providerGrid,
-  .serviceGrid {
+  .serviceGrid,
+  .serviceFinderGrid {
     grid-template-columns: 1fr;
+  }
+
+  .locationMedia {
+    padding: 18px;
+  }
+
+  .locationMediaCard {
+    min-height: 320px;
+    border-radius: 24px;
+  }
+
+  .servicesHero {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .servicesToolbar {
+    top: 84px;
+    padding: 14px;
   }
 }
 

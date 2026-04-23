@@ -4,6 +4,7 @@ const { PrismaClient } = require("@prisma/client");
 const { PrismaNeon } = require("@prisma/adapter-neon");
 const locationSeedData = require("./location-seed-data");
 const providerSeedData = require("./provider-seed-data");
+const serviceSeedData = require("./service-seed-data");
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -223,6 +224,28 @@ function mergeProvider(existingProvider, seededProvider) {
   };
 }
 
+function buildSeedService(entry, sortOrder) {
+  return {
+    category: cleanText(entry.category) || "General Care",
+    title: cleanText(entry.title),
+    description: cleanText(entry.description),
+    icon: cleanText(entry.icon) || "medical_services",
+    sortOrder,
+    isActive: true,
+  };
+}
+
+function mergeService(existingService, seededService) {
+  return {
+    category: seededService.category,
+    title: seededService.title,
+    description: seededService.description,
+    icon: seededService.icon,
+    sortOrder: seededService.sortOrder,
+    isActive: typeof existingService.isActive === "boolean" ? existingService.isActive : true,
+  };
+}
+
 async function main() {
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
@@ -244,6 +267,32 @@ async function main() {
       role: "ADMIN",
     },
   });
+
+  for (const [index, entry] of serviceSeedData.entries()) {
+    const seededService = buildSeedService(entry, index);
+    const existingService = await prisma.service.findFirst({
+      where: {
+        category: seededService.category,
+        title: seededService.title,
+      },
+      select: {
+        id: true,
+        isActive: true,
+      },
+    });
+
+    if (existingService) {
+      await prisma.service.update({
+        where: { id: existingService.id },
+        data: mergeService(existingService, seededService),
+      });
+      continue;
+    }
+
+    await prisma.service.create({
+      data: seededService,
+    });
+  }
 
   const sortedLocations = [...locationSeedData].sort((first, second) =>
     first.name.localeCompare(second.name, undefined, { sensitivity: "base" })

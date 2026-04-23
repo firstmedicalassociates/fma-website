@@ -8,6 +8,7 @@ import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import { PATIENT_PORTAL_URL } from "../lib/config/site";
 import { buildDisplayAddress, formatOfficeHoursForDisplay, resolveLocationAddressParts } from "../lib/locations";
+import { normalizeServiceIcon } from "../lib/services";
 import styles from "./location-page.module.css";
 
 const TABS = [
@@ -33,14 +34,62 @@ function formatAddressLines(location) {
     .filter(Boolean);
 }
 
+function isTelehealthService(service = {}) {
+  const category = String(service.category || "").toLowerCase();
+  const title = String(service.title || "").toLowerCase();
+  return category.includes("tele") || title.includes("tele");
+}
+
 export default function LocationPageShell({ location, providers, serviceGroups }) {
   const [activeTab, setActiveTab] = useState("location");
+  const [serviceQuery, setServiceQuery] = useState("");
+  const [serviceFilter, setServiceFilter] = useState("all");
 
   const addressLines = useMemo(() => formatAddressLines(location), [location]);
   const officeHourRows = useMemo(
     () => formatOfficeHoursForDisplay(location.officeHours),
     [location.officeHours]
   );
+  const serviceEntries = useMemo(() => {
+    return (Array.isArray(serviceGroups) ? serviceGroups : []).flatMap((group) => {
+      const category = String(group?.category || "General Care").trim() || "General Care";
+      const items = Array.isArray(group?.items) ? group.items : [];
+      return items.map((service) => ({
+        ...service,
+        category,
+      }));
+    });
+  }, [serviceGroups]);
+  const serviceFilters = useMemo(() => {
+    const seen = new Set();
+    const ordered = [];
+    for (const service of serviceEntries) {
+      const category = String(service.category || "").trim();
+      if (!category) continue;
+      const normalized = category.toLowerCase();
+      if (seen.has(normalized)) continue;
+      seen.add(normalized);
+      ordered.push(category);
+    }
+    return ordered;
+  }, [serviceEntries]);
+  const filteredServices = useMemo(() => {
+    const query = serviceQuery.trim().toLowerCase();
+    return serviceEntries.filter((service) => {
+      const matchesFilter =
+        serviceFilter === "all" ||
+        String(service.category || "").toLowerCase() === serviceFilter;
+
+      if (!matchesFilter) return false;
+      if (!query) return true;
+
+      return (
+        String(service.title || "").toLowerCase().includes(query) ||
+        String(service.description || "").toLowerCase().includes(query) ||
+        String(service.category || "").toLowerCase().includes(query)
+      );
+    });
+  }, [serviceEntries, serviceFilter, serviceQuery]);
   const publicPhone = location.publicPhone || "";
   const patientPortalUrl = PATIENT_PORTAL_URL;
   const hasPatientPortalLink = Boolean(patientPortalUrl && patientPortalUrl !== "#");
@@ -156,15 +205,17 @@ export default function LocationPageShell({ location, providers, serviceGroups }
               </div>
 
               <div className={styles.locationMedia}>
-                {location.imageUrl ? (
-                  <img
-                    className={styles.mediaImage}
-                    src={location.imageUrl}
-                    alt={location.mapImageAlt}
-                  />
-                ) : (
-                  <div className={styles.mediaPlaceholder}>Location image is currently unavailable.</div>
-                )}
+                <div className={styles.locationMediaCard}>
+                  {location.imageUrl ? (
+                    <img
+                      className={styles.mediaImage}
+                      src={location.imageUrl}
+                      alt={location.mapImageAlt}
+                    />
+                  ) : (
+                    <div className={styles.mediaPlaceholder}>Location image is currently unavailable.</div>
+                  )}
+                </div>
               </div>
             </section>
           ) : null}
@@ -219,43 +270,112 @@ export default function LocationPageShell({ location, providers, serviceGroups }
 
           {activeTab === "services" ? (
             <section className={styles.servicesPanel}>
-              <div className={styles.panelIntro}>
-                <p className={styles.stageLabel}>Stage 03: Expert Medical Solutions</p>
-                <h2>Services Available at {location.title}</h2>
-                <p>Browse the services currently available at this location.</p>
+              <div className={styles.servicesHero}>
+                <div className={styles.servicesHeroPrimary}>
+                  <p className={styles.servicesHeroKicker}>Interactive Portal</p>
+                  <h2 className={styles.servicesHeroTitle}>
+                    Service Finder
+                    <br />
+                    Dashboard.
+                  </h2>
+                </div>
+                <div className={styles.servicesHeroSecondary}>
+                  <p>
+                    Seamlessly navigate our clinical offerings at {location.title}. Use the
+                    dashboard below to search, filter, and discover the exact care you need.
+                  </p>
+                  <div className={styles.servicesHeroLines}>
+                    <span />
+                    <span />
+                  </div>
+                </div>
               </div>
 
-              {serviceGroups.length === 0 ? (
+              {serviceEntries.length === 0 ? (
                 <div className={styles.emptyState}>
                   No services have been added to this location yet.
                 </div>
               ) : (
-                <div className={styles.serviceGroupStack}>
-                  {serviceGroups.map((group) => (
-                    <section key={group.category} className={styles.serviceGroup}>
-                      <div className={styles.serviceGroupHeader}>
-                        <span>{group.category}</span>
-                        <div className={styles.serviceDivider} />
-                      </div>
+                <>
+                  <div className={styles.servicesToolbar}>
+                    <div className={styles.servicesSearchWrap}>
+                      <span className={`material-symbols-outlined ${styles.servicesSearchIcon}`}>
+                        search
+                      </span>
+                      <input
+                        className={styles.servicesSearchInput}
+                        type="search"
+                        placeholder="Search services (e.g., Diabetes, Telemedicine)"
+                        value={serviceQuery}
+                        onChange={(event) => setServiceQuery(event.target.value)}
+                        aria-label="Search services"
+                      />
+                    </div>
 
-                      <div className={styles.serviceGrid}>
-                        {group.items.map((service) => (
-                          <article key={`${group.category}-${service.title}`} className={styles.serviceCard}>
-                            <p className={styles.serviceCategory}>{group.category}</p>
-                            <h3>{service.title}</h3>
-                            <p>{service.description}</p>
+                    <div className={styles.servicesFilterRow}>
+                      <span className={styles.servicesFilterLabel}>Filter By:</span>
+                      <button
+                        type="button"
+                        className={`${styles.servicesFilterPill} ${serviceFilter === "all" ? styles.servicesFilterPillActive : ""}`}
+                        onClick={() => setServiceFilter("all")}
+                      >
+                        All Services
+                      </button>
+                      {serviceFilters.map((category) => {
+                        const value = category.toLowerCase();
+                        return (
+                          <button
+                            key={category}
+                            type="button"
+                            className={`${styles.servicesFilterPill} ${serviceFilter === value ? styles.servicesFilterPillActive : ""}`}
+                            onClick={() => setServiceFilter(value)}
+                          >
+                            {category}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {filteredServices.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      No services match your search. Try a different term or filter.
+                    </div>
+                  ) : (
+                    <div className={styles.serviceFinderGrid}>
+                      {filteredServices.map((service) => {
+                        const telehealth = isTelehealthService(service);
+                        return (
+                          <article
+                            key={`${service.category}-${service.title}`}
+                            className={`${styles.serviceFinderCard} ${telehealth ? styles.serviceFinderCardHighlight : ""}`}
+                          >
+                            <div>
+                              <div className={styles.serviceFinderCardHeader}>
+                                <span className={`material-symbols-outlined ${styles.serviceFinderIcon}`}>
+                                  {normalizeServiceIcon(service.icon)}
+                                </span>
+                                <p className={styles.serviceFinderCategory}>{service.category}</p>
+                              </div>
+                              <h3>{service.title}</h3>
+                              <p>{service.description}</p>
+                            </div>
+                            <div className={styles.serviceFinderAction}>
+                              {telehealth ? "Launch Visit" : "Learn More"}
+                              <span className="material-symbols-outlined">arrow_forward</span>
+                            </div>
                           </article>
-                        ))}
-                      </div>
-                    </section>
-                  ))}
-                </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
               )}
 
               <div className={styles.primaryBanner}>
                 <div>
-                  <p className={styles.stageLabel}>Ready to schedule?</p>
-                  <h2>Visit {location.title}</h2>
+                  <p className={styles.stageLabel}>Need immediate clinical assistance?</p>
+                  <h2>Connect with the care team at {location.title}.</h2>
                 </div>
                 <div className={styles.bannerActions}>
                   {location.bookingUrl ? (

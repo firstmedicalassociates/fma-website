@@ -1009,9 +1009,6 @@ export default function LocationForm({
                         <h3>Assign services</h3>
                         <p>Select existing shared services for this location page, then set their order here.</p>
                       </div>
-                      <Link className="builder-button secondary" href="/admin/services/new">
-                        Create service
-                      </Link>
                     </div>
 
                     {serviceOptions.length === 0 ? (

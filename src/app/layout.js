@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "@fontsource/material-symbols-outlined";
 import { SITE_NAME, getSiteUrl } from "./lib/config/site";
 
 const geistSans = Geist({
