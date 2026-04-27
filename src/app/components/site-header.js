@@ -42,6 +42,36 @@ function SearchIcon() {
   );
 }
 
+function QuickActionIcon({ name }) {
+  if (name === "phone") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M6.7 3.8h3.1l1.3 4.2-2.1 1.7a15.4 15.4 0 0 0 5.3 5.3l1.7-2.1 4.2 1.3v3.1c0 .8-.6 1.4-1.4 1.4A16.8 16.8 0 0 1 5.3 5.2c0-.8.6-1.4 1.4-1.4Z" />
+      </svg>
+    );
+  }
+
+  if (name === "calendar") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M7 3v4" />
+        <path d="M17 3v4" />
+        <path d="M4 9h16" />
+        <rect x="4" y="5" width="16" height="16" rx="3" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
 export default function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
@@ -67,6 +97,31 @@ export default function SiteHeader() {
     ...(PATIENT_PORTAL_URL !== "#"
       ? [{ href: PATIENT_PORTAL_URL, label: "Patient Portal", external: true }]
       : []),
+  ];
+  const patientPortalHref = PATIENT_PORTAL_URL !== "#" ? PATIENT_PORTAL_URL : "/patient-resources";
+  const patientPortalExternal = PATIENT_PORTAL_URL !== "#";
+  const mobileQuickActions = [
+    {
+      key: "call",
+      label: "Call",
+      href: headerActionHref,
+      external: headerActionExternal,
+      icon: "phone",
+    },
+    {
+      key: "portal",
+      label: "Patient Portal",
+      href: patientPortalHref,
+      external: patientPortalExternal,
+      icon: "users",
+    },
+    {
+      key: "book",
+      label: "Book Online",
+      href: "/locations",
+      external: false,
+      icon: "calendar",
+    },
   ];
 
   const searchSummary = useMemo(() => {
@@ -332,24 +387,39 @@ export default function SiteHeader() {
                 )}
               </li>
             ))}
-            <li className={`${styles.mobileNavItem} ${styles.mobileNavActionItem}`}>
-              {headerActionExternal ? (
+          </ul>
+
+          <div className={styles.mobileQuickActions}>
+            {mobileQuickActions.map((action) =>
+              action.external ? (
                 <a
-                  className={styles.mobileNavAction}
-                  href={headerActionHref}
+                  key={action.key}
+                  className={styles.mobileQuickAction}
+                  href={action.href}
                   onClick={closeMobileMenu}
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  {headerActionLabel}
+                  <span className={styles.mobileQuickActionButton}>
+                    <QuickActionIcon name={action.icon} />
+                  </span>
+                  <span className={styles.mobileQuickActionLabel}>{action.label}</span>
                 </a>
               ) : (
-                <Link className={styles.mobileNavAction} href={headerActionHref} onClick={closeMobileMenu}>
-                  {headerActionLabel}
+                <Link
+                  key={action.key}
+                  className={styles.mobileQuickAction}
+                  href={action.href}
+                  onClick={closeMobileMenu}
+                >
+                  <span className={styles.mobileQuickActionButton}>
+                    <QuickActionIcon name={action.icon} />
+                  </span>
+                  <span className={styles.mobileQuickActionLabel}>{action.label}</span>
                 </Link>
-              )}
-            </li>
-          </ul>
+              )
+            )}
+          </div>
         </div>
       </nav>
     </header>
