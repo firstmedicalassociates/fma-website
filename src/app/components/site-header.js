@@ -50,6 +50,7 @@ export default function SiteHeader() {
   const [results, setResults] = useState([]);
   const [searchStatus, setSearchStatus] = useState("idle");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const trimmedQuery = query.trim();
   const hasSearchQuery = trimmedQuery.length >= SEARCH_MIN_CHARACTERS;
@@ -77,7 +78,27 @@ export default function SiteHeader() {
 
   useEffect(() => {
     setIsSearchOpen(false);
+    setIsMobileMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleEscape(event) {
+      if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     function handlePointerDown(event) {
@@ -141,8 +162,21 @@ export default function SiteHeader() {
     router.push(`/search?q=${encodeURIComponent(trimmedQuery)}`);
   }
 
+  function toggleMobileMenu() {
+    setIsMobileMenuOpen((current) => !current);
+    setIsSearchOpen(false);
+  }
+
+  function closeMobileMenu() {
+    setIsMobileMenuOpen(false);
+  }
+
+  const headerClassName = `${styles.siteHeader}${isMobileMenuOpen ? ` ${styles.siteHeaderMenuOpen}` : ""}`;
+  const mobileBurgerClassName = `${styles.mobileBurger}${isMobileMenuOpen ? ` ${styles.mobileBurgerToggled}` : ""}`;
+  const mobileNavClassName = `${styles.mobileNav}${isMobileMenuOpen ? ` ${styles.mobileNavOpen}` : ""}`;
+
   return (
-    <header className={styles.siteHeader}>
+    <header className={headerClassName}>
       <div className={styles.headerInner}>
         <Link className={styles.brandLink} href="/">
           <Image
@@ -154,6 +188,20 @@ export default function SiteHeader() {
             width={3754}
           />
         </Link>
+
+        <button
+          aria-controls="mobile-primary-nav"
+          aria-expanded={isMobileMenuOpen}
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          className={mobileBurgerClassName}
+          onClick={toggleMobileMenu}
+          type="button"
+        >
+          <span className={styles.mobileBurgerBuns} aria-hidden="true">
+            <span className={styles.mobileBurgerBun} />
+            <span className={styles.mobileBurgerBun} />
+          </span>
+        </button>
 
         <nav className={styles.utilityNav} aria-label="Primary navigation">
           {navLinks.map((link) =>
@@ -252,6 +300,58 @@ export default function SiteHeader() {
           )}
         </div>
       </div>
+
+      <nav
+        aria-label="Mobile navigation"
+        className={mobileNavClassName}
+        id="mobile-primary-nav"
+        role="navigation"
+      >
+        <div className={styles.mobileNavInner}>
+          <ul className={styles.mobileNavList}>
+            {navLinks.map((link) => (
+              <li className={styles.mobileNavItem} key={`${link.label}-${link.href}`}>
+                {link.external ? (
+                  <a
+                    className={styles.mobileNavLink}
+                    href={link.href}
+                    onClick={closeMobileMenu}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <span>{link.label}</span>
+                  </a>
+                ) : (
+                  <Link
+                    className={`${styles.mobileNavLink} ${isActivePath(pathname, link.href) ? styles.mobileNavLinkActive : ""}`}
+                    href={link.href}
+                    onClick={closeMobileMenu}
+                  >
+                    <span>{link.label}</span>
+                  </Link>
+                )}
+              </li>
+            ))}
+            <li className={`${styles.mobileNavItem} ${styles.mobileNavActionItem}`}>
+              {headerActionExternal ? (
+                <a
+                  className={styles.mobileNavAction}
+                  href={headerActionHref}
+                  onClick={closeMobileMenu}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  {headerActionLabel}
+                </a>
+              ) : (
+                <Link className={styles.mobileNavAction} href={headerActionHref} onClick={closeMobileMenu}>
+                  {headerActionLabel}
+                </Link>
+              )}
+            </li>
+          </ul>
+        </div>
+      </nav>
     </header>
   );
 }
