@@ -525,7 +525,10 @@ export default async function Home() {
                     <span
                       key={`${word}-${index}`}
                       className={`${styles.dnxtTextAnimation} dnxt-text-animation ${index === 0 ? "is-visible" : ""}`}
-                      style={{ "--dnxt-index": index }}
+                      style={{
+                        "--dnxt-index": index,
+                        "--dnxt-char-count": Math.max(String(word).length, 6),
+                      }}
                     >
                       {word}
                     </span>

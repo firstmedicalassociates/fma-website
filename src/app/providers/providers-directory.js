@@ -64,9 +64,7 @@ export default function ProvidersDirectory({ providers }) {
             <div>
               <p className={styles.kicker}>Clinical Team</p>
               <h1>
-                Provider Finder
-                <br />
-                Dashboard.
+                Find a Doctor
               </h1>
             </div>
             <p className={styles.heroCopy}>
@@ -76,20 +74,6 @@ export default function ProvidersDirectory({ providers }) {
           <div className={styles.heroLines} aria-hidden="true">
             <span />
             <span />
-          </div>
-          <div className={styles.metricRow}>
-            <div className={styles.metricCard}>
-              <strong>{providers.length}</strong>
-              <span>Active Providers</span>
-            </div>
-            <div className={styles.metricCard}>
-              <strong>{locationOptions.length}</strong>
-              <span>Locations</span>
-            </div>
-            <div className={styles.metricCard}>
-              <strong>{languageOptions.length}</strong>
-              <span>Languages</span>
-            </div>
           </div>
         </section>
 

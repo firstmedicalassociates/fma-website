@@ -126,18 +126,25 @@
   position: sticky;
   top: 10px;
   z-index: 20;
-  padding: 16px;
+  padding: 14px 0;
   margin-bottom: 26px;
-  border-radius: 20px;
-  border: 1px solid rgba(197, 197, 212, 0.58);
-  background: rgba(247, 250, 253, 0.94);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 18px 34px rgba(0, 22, 98, 0.08);
+  border-top: 1px solid rgba(197, 197, 212, 0.4);
+  border-bottom: 1px solid rgba(197, 197, 212, 0.4);
+  background: rgba(247, 250, 253, 0.92);
+  backdrop-filter: blur(10px);
 }
 
 .filterDockInner {
   display: grid;
-  gap: 12px;
+  gap: 14px;
+}
+
+.filterDockInner .filterGroup:first-of-type {
+  margin-top: 8px;
+}
+
+.filterDockInner .filterGroup + .filterGroup {
+  margin-top: 8px;
 }
 
 .searchField {
@@ -178,23 +185,20 @@
 
 .filterGroup {
   display: grid;
-  grid-template-columns: 176px minmax(0, 1fr);
+  grid-template-columns: 1fr;
   align-items: start;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(197, 197, 212, 0.46);
-  background: rgba(255, 255, 255, 0.74);
+  gap: 8px;
+  padding: 2px 0;
 }
 
 .filterLabel {
-  margin: 0;
+  margin: 0 0 2px;
   color: #5b6982;
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .tabs {
@@ -487,10 +491,6 @@
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .filterGroup {
-    grid-template-columns: 150px minmax(0, 1fr);
-  }
 }
 
 @media (max-width: 760px) {
@@ -508,14 +508,21 @@
 
   .filterDock {
     top: 8px;
-    padding: 12px;
-    border-radius: 16px;
+    padding: 12px 0;
   }
 
   .filterGroup {
     grid-template-columns: 1fr;
     gap: 10px;
     padding: 10px;
+  }
+
+  .filterDockInner .filterGroup:first-of-type {
+    margin-top: 4px;
+  }
+
+  .filterDockInner .filterGroup + .filterGroup {
+    margin-top: 4px;
   }
 
   .tabs {
