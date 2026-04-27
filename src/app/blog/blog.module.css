@@ -1,0 +1,343 @@
+.page {
+  --blog-bg: #f7fafd;
+  --blog-surface: rgba(255, 255, 255, 0.9);
+  --blog-surface-strong: #ffffff;
+  --blog-text: #142140;
+  --blog-muted: #5d6c89;
+  --blog-line: rgba(19, 36, 73, 0.12);
+  --blog-primary: #0e2a8b;
+  --blog-secondary: #0b7ca7;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(14, 42, 139, 0.16), transparent 30%),
+    radial-gradient(circle at right top, rgba(11, 124, 167, 0.1), transparent 26%),
+    linear-gradient(180deg, #fcfdff 0%, var(--blog-bg) 50%, #edf3f9 100%);
+  color: var(--blog-text);
+  padding: 34px 0 68px;
+}
+
+.shell,
+.postShell {
+  width: min(1540px, calc(100% - 24px));
+  margin: 0 auto;
+}
+
+.hero {
+  margin-bottom: 24px;
+  padding: clamp(24px, 3vw, 34px);
+  border-radius: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  background: var(--blog-surface);
+  box-shadow:
+    0 28px 76px rgba(9, 27, 81, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.94);
+  display: grid;
+  gap: 14px;
+}
+
+.kicker {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(11, 124, 167, 0.14);
+  color: #0b6d93;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  margin: 0;
+  max-width: 16ch;
+  font-size: clamp(2.2rem, 5vw, 4.8rem);
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+}
+
+.heroCopy {
+  margin: 0;
+  max-width: 70ch;
+  color: var(--blog-muted);
+  line-height: 1.75;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.postCard {
+  border-radius: 28px;
+  border: 1px solid var(--blog-line);
+  background: linear-gradient(180deg, var(--blog-surface-strong) 0%, rgba(239, 244, 252, 0.88) 100%);
+  box-shadow: 0 18px 42px rgba(10, 24, 69, 0.08);
+  overflow: hidden;
+  display: grid;
+  min-height: 100%;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.postCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(14, 42, 139, 0.2);
+  box-shadow: 0 24px 52px rgba(10, 24, 69, 0.13);
+}
+
+.postCardFeatured {
+  grid-column: span 2;
+}
+
+.cardImageWrap {
+  display: block;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cardBody {
+  display: grid;
+  gap: 10px;
+  padding: 22px;
+}
+
+.cardMeta {
+  margin: 0;
+  color: #4e699f;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.2vw, 2rem);
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+}
+
+.cardSummary {
+  margin: 0;
+  color: var(--blog-muted);
+  line-height: 1.72;
+}
+
+.cardLink,
+.backLink {
+  width: fit-content;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.cardLink {
+  border: 1px solid var(--blog-line);
+  color: var(--blog-primary);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.cardLink:hover,
+.backLink:hover {
+  transform: translateY(-1px);
+}
+
+.emptyState {
+  padding: 24px;
+  border-radius: 22px;
+  border: 1px dashed rgba(19, 36, 73, 0.3);
+  background: rgba(255, 255, 255, 0.72);
+  display: grid;
+  gap: 8px;
+}
+
+.emptyState h2 {
+  margin: 0;
+  font-size: 1.42rem;
+  letter-spacing: -0.04em;
+}
+
+.emptyState p {
+  margin: 0;
+  color: var(--blog-muted);
+  line-height: 1.7;
+}
+
+.postShell {
+  width: min(1100px, calc(100% - 24px));
+  display: grid;
+  gap: 14px;
+}
+
+.backLink {
+  border: 1px solid var(--blog-line);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--blog-primary);
+}
+
+.postArticle {
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  background: var(--blog-surface);
+  box-shadow:
+    0 28px 76px rgba(9, 27, 81, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.94);
+  overflow: hidden;
+}
+
+.postHeader {
+  display: grid;
+  gap: 14px;
+  padding: clamp(24px, 3vw, 34px) clamp(22px, 3vw, 34px) 24px;
+}
+
+.postTitle {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 4.2rem);
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+}
+
+.postLead {
+  margin: 0;
+  max-width: 72ch;
+  color: var(--blog-muted);
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+
+.postCoverWrap {
+  margin: 0 clamp(22px, 3vw, 34px);
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(19, 36, 73, 0.12);
+}
+
+.postCover {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  max-height: 560px;
+}
+
+.postContent {
+  display: grid;
+  gap: 22px;
+  padding: clamp(24px, 3vw, 34px);
+}
+
+.postContent section {
+  display: grid;
+  gap: 12px;
+}
+
+.postContent h2 {
+  margin: 0;
+  color: var(--blog-primary);
+  font-size: clamp(1.45rem, 2.8vw, 2.2rem);
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+
+.postContent p {
+  margin: 0;
+  color: #243757;
+  line-height: 1.84;
+}
+
+.postContent ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: #243757;
+  display: grid;
+  gap: 8px;
+  line-height: 1.74;
+}
+
+.postContent a {
+  color: var(--blog-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.postContent img {
+  width: 100%;
+  border-radius: 20px;
+  border: 1px solid var(--blog-line);
+}
+
+@media (max-width: 1180px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .postCardFeatured {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding: 20px 0 48px;
+  }
+
+  .shell,
+  .postShell {
+    width: min(100%, calc(100% - 16px));
+  }
+
+  .hero,
+  .postArticle {
+    border-radius: 24px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .postCardFeatured {
+    grid-column: auto;
+  }
+
+  .cardBody {
+    padding: 18px;
+  }
+
+  .postHeader {
+    padding: 22px 18px 18px;
+  }
+
+  .postCoverWrap {
+    margin: 0 18px;
+    border-radius: 16px;
+  }
+
+  .postContent {
+    padding: 20px 18px 22px;
+  }
+}
