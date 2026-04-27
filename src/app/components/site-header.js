@@ -58,10 +58,11 @@ export default function SiteHeader() {
   const headerActionExternal = isExternalUrl(headerActionHref);
   const headerActionLabel = SITE_CALL_HREF ? SITE_CALL_LABEL : "Call now";
   const navLinks = [
+    { href: "/about", label: "About" },
     { href: "/providers", label: "Find a Doctor" },
     { href: "/services", label: "Services" },
     { href: "/locations", label: "Locations" },
-    { href: "/blog", label: "Blog" },
+    { href: "/patient-resources", label: "Patient Resources" },
     ...(PATIENT_PORTAL_URL !== "#"
       ? [{ href: PATIENT_PORTAL_URL, label: "Patient Portal", external: true }]
       : []),

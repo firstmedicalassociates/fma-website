@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Inter, Manrope } from "next/font/google";
-import heroImage from "../../Brandon HTML/Header-bcgn-1-scaled.jpg";
 import SiteHeader from "./components/site-header";
 import styles from "./page.module.css";
 import { PATIENT_PORTAL_URL, SITE_NAME } from "./lib/config/site";
@@ -16,6 +15,8 @@ const bodyFont = Inter({
   subsets: ["latin"],
   variable: "--font-home-body",
 });
+
+const heroImage = "/uploads/philosophy-consultation.jpg";
 
 export const runtime = "nodejs";
 export const revalidate = 60;
