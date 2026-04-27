@@ -1,11 +1,29 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
 import { isDatabaseConfigured, prisma } from "../../lib/prisma";
+import styles from "../blog.module.css";
 
 export const runtime = "nodejs";
 export const revalidate = 60;
 export const dynamicParams = true;
+
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
+
+function formatDate(value) {
+  if (!value) return "Recently published";
+
+  try {
+    return dateFormatter.format(new Date(value));
+  } catch {
+    return "Recently published";
+  }
+}
 
 export async function generateStaticParams() {
   if (!isDatabaseConfigured) {
@@ -88,6 +106,16 @@ function getSiteUrl() {
   return normalized || "http://localhost:3000";
 }
 
+function extractPostBody(contentHtml = "") {
+  return String(contentHtml || "")
+    .replace(/^<article>/i, "")
+    .replace(/<\/article>\s*$/i, "")
+    .replace(/^\s*<img\b[^>]*>\s*/i, "")
+    .replace(/<header>[\s\S]*?<\/header>\s*/i, "")
+    .replace(/\s*<footer>[\s\S]*?<\/footer>\s*$/i, "")
+    .replace(/<p class="page-title">[\s\S]*?<\/p>/i, "");
+}
+
 export default async function BlogPostPage({ params }) {
   const { slug } = await params;
   if (!slug || !isDatabaseConfigured) {
@@ -108,6 +136,7 @@ export default async function BlogPostPage({ params }) {
         coverImageUrl: true,
         coverImageAlt: true,
         status: true,
+        createdAt: true,
         publishedAt: true,
         updatedAt: true,
       },
@@ -141,20 +170,47 @@ export default async function BlogPostPage({ params }) {
     mainEntityOfPage: canonicalUrl,
   };
 
-  const cleanedHtml = String(post.contentHtml || "")
-    .replace(/^<article>/i, "")
-    .replace(/<\/article>\s*$/i, "")
-    .replace(/<p class="page-title">.*?<\/p>/i, "");
+  const publishedLabel = formatDate(post.publishedAt || post.createdAt);
+  const cleanedHtml = extractPostBody(post.contentHtml);
 
   return (
     <>
       <SiteHeader />
-      <main style={{ maxWidth: 760, margin: "72px auto", padding: "0 16px" }}>
+      <main className={styles.page}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <article dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
+
+        <div className={styles.postShell}>
+          <Link className={styles.backLink} href="/blog">
+            Back to all posts
+          </Link>
+
+          <article className={styles.postArticle}>
+            <header className={styles.postHeader}>
+              <p className={styles.cardMeta}>{publishedLabel}</p>
+              <h1 className={styles.postTitle}>{post.title}</h1>
+              {post.excerpt ? <p className={styles.postLead}>{post.excerpt}</p> : null}
+            </header>
+
+            {post.coverImageUrl ? (
+              <div className={styles.postCoverWrap}>
+                <img
+                  src={post.coverImageUrl}
+                  alt={post.coverImageAlt || post.title}
+                  className={styles.postCover}
+                  loading="eager"
+                />
+              </div>
+            ) : null}
+
+            <div
+              className={styles.postContent}
+              dangerouslySetInnerHTML={{ __html: cleanedHtml }}
+            />
+          </article>
+        </div>
       </main>
       <SiteFooter />
     </>
