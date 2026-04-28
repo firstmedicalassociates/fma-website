@@ -125,6 +125,7 @@ export default async function AdminServicesPage() {
                               <div>
                                 <h3 className="admin-record-title">{service.title}</h3>
                                 <p className="admin-record-path">{service.category}</p>
+                                <p className="admin-record-path">/service/{service.slug}</p>
                                 <p className="admin-record-secondary">{service.description}</p>
                               </div>
                             </div>

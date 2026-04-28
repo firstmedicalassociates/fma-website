@@ -1,14 +1,14 @@
 import Link from 'next/link';
-import { 
-  Calendar, 
-  User, 
-  Users, 
-  MapPin, 
-  Clock, 
-  PhoneCall, 
-  ShieldCheck, 
-  CheckCircle2, 
-  ChevronDown, 
+import {
+  Calendar,
+  User,
+  Users,
+  MapPin,
+  Clock,
+  PhoneCall,
+  ShieldCheck,
+  CheckCircle2,
+  ChevronDown,
   ArrowRight,
   ClipboardList
 } from 'lucide-react';
@@ -17,7 +17,12 @@ export default function ServicesPage() {
   return (
     <main className="services-page">
       <style>{`
-        .services-page { padding: 3rem 0 6rem; }
+        .services-page {
+          min-height: 100vh;
+          padding: 3rem 0 6rem;
+          background: #f8fafc;
+          color: #0f172a;
+        }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
         
         .breadcrumbs { font-size: 0.8125rem; color: #64748b; margin-bottom: 3rem; display: flex; gap: 0.5rem; }
@@ -90,11 +95,11 @@ export default function ServicesPage() {
           .btn-white, .btn-outline-white { width: 100%; justify-content: center; }
         }
       `}</style>
-      
+
       <div className="container">
         <div className="breadcrumbs">
           <Link href="/">Home</Link> <span>&gt;</span>
-          <Link href="/services">Services</Link> <span>&gt;</span>
+          <Link href="/service">Services</Link> <span>&gt;</span>
           <span className="active">Primary Care</span>
         </div>
 
@@ -105,8 +110,8 @@ export default function ServicesPage() {
           <p className="hero-desc">
             Choosing a primary care physician for you and your family is an important
             decision. A primary care provider is usually the first medical professional
-            you will contact when you have a health issue or need a wellness visit. 
-            Your primary care provider is often your physician partner throughout 
+            you will contact when you have a health issue or need a wellness visit.
+            Your primary care provider is often your physician partner throughout
             life&apos;s health journey.
           </p>
           <div className="hero-actions">
@@ -161,19 +166,19 @@ export default function ServicesPage() {
         <div className="info-split">
           <div className="info-left">
             <p>
-              Our physicians are connected electronically via a sophisticated electronic 
-              medical record system. This allows our providers to have immediate access 
+              Our physicians are connected electronically via a sophisticated electronic
+              medical record system. This allows our providers to have immediate access
               to your medical records, which means faster treatment and a speedier recovery.
             </p>
             <p>
-              First Medical Associates&apos; professionals focus on providing superior medical care 
-              in a respectful, patient-centered environment. Our centers partner with hundreds 
-              of the most medically distinguished physician specialists. This means you have 
+              First Medical Associates&apos; professionals focus on providing superior medical care
+              in a respectful, patient-centered environment. Our centers partner with hundreds
+              of the most medically distinguished physician specialists. This means you have
               quick, LOCAL access to specialists and emergency care when you need it.
             </p>
             <p>
-              Same-day and next-day appointments are available at all First Medical 
-              Associates locations. Even when our offices are closed for the day, we have 
+              Same-day and next-day appointments are available at all First Medical
+              Associates locations. Even when our offices are closed for the day, we have
               on-call providers who take your calls to be sure your health needs are met.
             </p>
           </div>
@@ -205,13 +210,13 @@ export default function ServicesPage() {
           <div className="details-left">
             <h2>What is Primary Care?</h2>
             <p>
-              A primary care physician (PCP) acts as your main medical provider. Many PCPs, 
-              including those at First Medical Associates, are family doctors who treat 
+              A primary care physician (PCP) acts as your main medical provider. Many PCPs,
+              including those at First Medical Associates, are family doctors who treat
               patients of all ages, from infants to seniors.
             </p>
             <p>
-              Primary care doctors have undergone comprehensive medical education and 
-              training, which allows them to meet virtually all of your standard health care 
+              Primary care doctors have undergone comprehensive medical education and
+              training, which allows them to meet virtually all of your standard health care
               needs, including sick visits, immunizations, and preventive care.
             </p>
             <Link href="#" className="inline-link">

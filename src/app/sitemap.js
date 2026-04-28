@@ -37,6 +37,12 @@ export default async function sitemap() {
       priority: 0.8,
     },
     {
+      url: `${siteUrl}/service`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: `${siteUrl}/location`,
       lastModified: new Date(),
       changeFrequency: "weekly",
@@ -51,9 +57,10 @@ export default async function sitemap() {
   let posts = [];
   let providers = [];
   let locations = [];
+  let services = [];
 
   try {
-    [posts, providers, locations] = await Promise.all([
+    [posts, providers, locations, services] = await Promise.all([
       prisma.blogPost.findMany({
         where: { status: "PUBLISHED" },
         select: { slug: true, updatedAt: true, publishedAt: true },
@@ -67,6 +74,11 @@ export default async function sitemap() {
       prisma.location.findMany({
         select: { slug: true, updatedAt: true },
         orderBy: { title: "asc" },
+      }),
+      prisma.service.findMany({
+        where: { isActive: true },
+        select: { slug: true, updatedAt: true },
+        orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { title: "asc" }],
       }),
     ]);
   } catch (error) {
@@ -95,5 +107,12 @@ export default async function sitemap() {
     priority: 0.8,
   }));
 
-  return [...staticRoutes, ...postRoutes, ...providerRoutes, ...locationRoutes];
+  const serviceRoutes = services.map((service) => ({
+    url: `${siteUrl}/service/${service.slug}`,
+    lastModified: service.updatedAt || new Date(),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
+  return [...staticRoutes, ...postRoutes, ...providerRoutes, ...locationRoutes, ...serviceRoutes];
 }

@@ -17,9 +17,9 @@ export async function POST(request) {
   }
 
   const payload = normalizeServicePayload(body);
-  if (!payload.title || !payload.description) {
+  if (!payload.title || !payload.description || !payload.slug) {
     return NextResponse.json(
-      { ok: false, error: "Service title and description are required." },
+      { ok: false, error: "Service title, slug, and description are required." },
       { status: 400 }
     );
   }
@@ -32,6 +32,14 @@ export async function POST(request) {
 
     return NextResponse.json({ ok: true, id: service.id });
   } catch (error) {
+    const errorCode = String(error?.code || "");
+    if (errorCode === "P2002") {
+      return NextResponse.json(
+        { ok: false, error: "That service slug is already in use." },
+        { status: 409 }
+      );
+    }
+
     console.error("Failed to create service", error);
     return NextResponse.json({ ok: false, error: "Failed to create service." }, { status: 500 });
   }

@@ -575,7 +575,7 @@
     inset: 0;
     z-index: 147;
     display: block;
-    background: linear-gradient(145deg, rgba(14, 41, 139, 0.695) 0%, rgba(0, 21, 98, 0.777) 100%);
+    background: linear-gradient(145deg, rgba(67, 95, 198, 0.695) 0%, rgba(13, 31, 98, 0.777) 100%);
     backdrop-filter: blur(10px);
 
     opacity: 0;

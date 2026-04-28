@@ -55,10 +55,12 @@ model Provider {
 
 model Service {
   id          String   @id @default(cuid())
+  slug        String   @unique
   category    String   @default("General Care")
   title       String
   description String
   icon        String   @default("medical_services")
+  pageContent Json?
   sortOrder   Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())

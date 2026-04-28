@@ -57,7 +57,7 @@ export async function searchSite(rawQuery, options = {}) {
     };
   }
 
-  const [providers, locations, posts] = await Promise.all([
+  const [providers, locations, posts, services] = await Promise.all([
     prisma.provider.findMany({
       where: {
         isActive: true,
@@ -119,6 +119,24 @@ export async function searchSite(rawQuery, options = {}) {
         title: true,
         excerpt: true,
         metaDescription: true,
+      },
+    }),
+    prisma.service.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          { title: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } },
+          { category: { contains: query, mode: "insensitive" } },
+        ],
+      },
+      orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { title: "asc" }],
+      take: perTypeLimit,
+      select: {
+        slug: true,
+        title: true,
+        description: true,
+        category: true,
       },
     }),
   ]);
@@ -189,7 +207,23 @@ export async function searchSite(rawQuery, options = {}) {
       100,
   }));
 
-  const results = [...providerResults, ...locationResults, ...articleResults]
+  const serviceResults = services.map((service) => ({
+    kind: "service",
+    categoryLabel: "Service",
+    title: service.title,
+    href: `/service/${service.slug}`,
+    description: [cleanText(service.category), cleanText(service.description)]
+      .filter(Boolean)
+      .join(" | "),
+    score:
+      buildResultScore(
+        normalizedQuery,
+        service.title,
+        `${service.category || ""} ${service.description || ""}`
+      ) + 220,
+  }));
+
+  const results = [...providerResults, ...locationResults, ...serviceResults, ...articleResults]
     .sort((first, second) => {
       if (second.score !== first.score) {
         return second.score - first.score;

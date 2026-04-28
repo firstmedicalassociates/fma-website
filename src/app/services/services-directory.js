@@ -133,7 +133,7 @@ export default function ServicesDirectory({ services = [] }) {
                   key={service.id}
                   className={`${styles.card} ${telehealth ? styles.cardTelehealth : ""}`}
                 >
-                  <div>
+                  <Link href={`/service/${service.slug}`}>
                     <div className={styles.cardHeader}>
                       <span className={`material-symbols-outlined ${styles.cardIcon}`}>
                         {normalizeServiceIcon(service.icon)}
@@ -142,11 +142,11 @@ export default function ServicesDirectory({ services = [] }) {
                     </div>
                     <h2>{service.title}</h2>
                     <p>{service.description}</p>
-                  </div>
-                  <div className={styles.cardCta}>
+                  </Link>
+                  <Link href={`/service/${service.slug}`} className={styles.cardCta}>
                     {telehealth ? "Launch Visit" : "Learn More"}
                     <span className="material-symbols-outlined">arrow_forward</span>
-                  </div>
+                  </Link>
                 </article>
               );
             })}

@@ -227,9 +227,12 @@ function mergeProvider(existingProvider, seededProvider) {
 function buildSeedService(entry, sortOrder) {
   return {
     category: cleanText(entry.category) || "General Care",
+    slug: cleanText(entry.slug),
     title: cleanText(entry.title),
     description: cleanText(entry.description),
     icon: cleanText(entry.icon) || "medical_services",
+    pageContent:
+      entry.pageContent && typeof entry.pageContent === "object" ? entry.pageContent : null,
     sortOrder,
     isActive: true,
   };
@@ -238,9 +241,11 @@ function buildSeedService(entry, sortOrder) {
 function mergeService(existingService, seededService) {
   return {
     category: seededService.category,
+    slug: seededService.slug,
     title: seededService.title,
     description: seededService.description,
     icon: seededService.icon,
+    pageContent: seededService.pageContent,
     sortOrder: seededService.sortOrder,
     isActive: typeof existingService.isActive === "boolean" ? existingService.isActive : true,
   };
@@ -272,8 +277,7 @@ async function main() {
     const seededService = buildSeedService(entry, index);
     const existingService = await prisma.service.findFirst({
       where: {
-        category: seededService.category,
-        title: seededService.title,
+        OR: [{ slug: seededService.slug }, { category: seededService.category, title: seededService.title }],
       },
       select: {
         id: true,
@@ -292,6 +296,54 @@ async function main() {
     await prisma.service.create({
       data: seededService,
     });
+  }
+
+  const seededSlugs = new Set(
+    serviceSeedData.map((entry) => cleanText(entry.slug)).filter(Boolean)
+  );
+  const existingServices = await prisma.service.findMany({
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
+  const staleServices = existingServices.filter(
+    (service) => !seededSlugs.has(cleanText(service.slug))
+  );
+
+  if (staleServices.length > 0) {
+    const staleServiceIdSet = new Set(staleServices.map((service) => service.id));
+    const locationsUsingStaleServices = await prisma.location.findMany({
+      where: {
+        serviceIds: {
+          hasSome: [...staleServiceIdSet],
+        },
+      },
+      select: {
+        id: true,
+        serviceIds: true,
+      },
+    });
+
+    await prisma.$transaction([
+      ...locationsUsingStaleServices.map((location) =>
+        prisma.location.update({
+          where: { id: location.id },
+          data: {
+            serviceIds: (location.serviceIds || []).filter(
+              (serviceId) => !staleServiceIdSet.has(serviceId)
+            ),
+          },
+        })
+      ),
+      prisma.service.deleteMany({
+        where: {
+          id: {
+            in: [...staleServiceIdSet],
+          },
+        },
+      }),
+    ]);
   }
 
   const sortedLocations = [...locationSeedData].sort((first, second) =>

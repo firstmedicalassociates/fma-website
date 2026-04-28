@@ -17,6 +17,7 @@ export default async function ServicesPage() {
     orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { title: "asc" }],
     select: {
       id: true,
+      slug: true,
       category: true,
       title: true,
       description: true,

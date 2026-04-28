@@ -15,10 +15,12 @@ export default async function EditServicePage({ params }) {
     where: { id },
     select: {
       id: true,
+      slug: true,
       category: true,
       title: true,
       description: true,
       icon: true,
+      pageContent: true,
       isActive: true,
     },
   });

@@ -22,9 +22,9 @@ export async function PUT(request, { params }) {
   }
 
   const payload = normalizeServicePayload(body);
-  if (!payload.title || !payload.description) {
+  if (!payload.title || !payload.description || !payload.slug) {
     return NextResponse.json(
-      { ok: false, error: "Service title and description are required." },
+      { ok: false, error: "Service title, slug, and description are required." },
       { status: 400 }
     );
   }
@@ -38,6 +38,14 @@ export async function PUT(request, { params }) {
 
     return NextResponse.json({ ok: true, id: service.id });
   } catch (error) {
+    const errorCode = String(error?.code || "");
+    if (errorCode === "P2002") {
+      return NextResponse.json(
+        { ok: false, error: "That service slug is already in use." },
+        { status: 409 }
+      );
+    }
+
     const errorMessage = String(error?.message || "");
 
     if (errorMessage.toLowerCase().includes("record to update not found")) {
