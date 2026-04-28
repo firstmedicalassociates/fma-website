@@ -9,7 +9,6 @@ import {
   Trophy,
   ChevronRight,
   Clock,
-  ExternalLink,
   Users
 } from 'lucide-react';
 
@@ -46,6 +45,7 @@ export default function PressPage() {
         }
         .cat-card {
           background: #f1f5f9;
+          border: 0;
           padding: 1.5rem;
           border-radius: 12px;
           display: flex;
@@ -53,6 +53,8 @@ export default function PressPage() {
           gap: 0.5rem;
           text-align: left;
           transition: transform 0.2s;
+          cursor: pointer;
+          font: inherit;
         }
         .cat-card:hover { transform: translateY(-2px); background: #e2e8f0; }
         .cat-card h6 { font-size: 0.625rem; font-weight: 700; color: #64748b; letter-spacing: 0.02em; }
@@ -80,7 +82,60 @@ export default function PressPage() {
         .main-body .date { color: #64748b; font-size: 0.875rem; margin-bottom: 1rem; }
         .main-body h3 { font-size: 2.25rem; font-weight: 800; color: #001c55; line-height: 1.1; margin-bottom: 1.5rem; }
         .main-body p { color: #475569; font-size: 1rem; line-height: 1.6; margin-bottom: 2rem; }
-        .read-more-link { display: flex; align-items: center; gap: 0.5rem; color: #0070f3; font-weight: 700; }
+        .read-more-link,
+        .view-all-table {
+          border: 0;
+          background: transparent;
+          width: fit-content;
+          cursor: pointer;
+          font: inherit;
+          text-align: left;
+          text-decoration: none;
+        }
+        .read-more-link {
+          min-height: 40px;
+          padding: 0 15px;
+          border-radius: 999px;
+          border: 1px solid rgba(19, 36, 73, 0.14);
+          background: rgba(255, 255, 255, 0.9);
+          color: #0d2c72;
+          font-size: 0.74rem;
+          font-weight: 800;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+          transition:
+            transform 180ms ease,
+            box-shadow 180ms ease,
+            border-color 180ms ease,
+            background-color 180ms ease,
+            color 180ms ease;
+        }
+        .main-featured .read-more-link {
+          border-color: transparent;
+          background: linear-gradient(135deg, #0d2c72 0%, #1d5fa8 100%);
+          color: #ffffff;
+          box-shadow: 0 14px 30px rgba(13, 44, 114, 0.2);
+        }
+        .read-more-link:hover {
+          transform: translateY(-1px);
+        }
+        .side-card .read-more-link:hover {
+          border-color: rgba(13, 44, 114, 0.28);
+          box-shadow: 0 12px 26px rgba(13, 44, 114, 0.12);
+        }
+        .main-featured .read-more-link:hover {
+          box-shadow: 0 18px 34px rgba(13, 44, 114, 0.24);
+        }
+        .read-more-link:focus-visible,
+        .view-all-table:focus-visible,
+        .search-go-btn:focus-visible,
+        .cat-card:focus-visible {
+          outline: 2px solid rgba(13, 44, 114, 0.45);
+          outline-offset: 2px;
+        }
 
         .side-news { display: flex; flex-direction: column; gap: 1.5rem; }
         .side-card { 
@@ -98,7 +153,22 @@ export default function PressPage() {
         .recent-sec { margin-top: 3rem; }
         .sec-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .sec-header h3 { font-size: 1.25rem; font-weight: 800; color: #001c55; }
-        .view-all-table { display: flex; align-items: center; gap: 0.5rem; color: #0070f3; font-weight: 700; font-size: 0.875rem; }
+        .view-all-table {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: #0d2c72;
+          font-size: 0.82rem;
+          font-weight: 800;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          transition: opacity 180ms ease, transform 180ms ease, color 180ms ease;
+        }
+        .view-all-table:hover {
+          opacity: 0.85;
+          transform: translateX(2px);
+          color: #1d5fa8;
+        }
         
         .news-table { width: 100%; border-collapse: collapse; }
         .news-row { border-bottom: 1px solid #f1f5f9; }
@@ -133,7 +203,10 @@ export default function PressPage() {
         .search-go-btn { 
           position: absolute; right: 8px; top: 8px; 
           background: white; color: #001c55; padding: 0.75rem 2rem; border-radius: 8px; 
-          font-weight: 800; 
+          font-weight: 800;
+          border: 0;
+          font: inherit;
+          cursor: pointer;
         }
 
         @media (max-width: 1024px) {
