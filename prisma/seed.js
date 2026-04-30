@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
 const { PrismaNeon } = require("@prisma/adapter-neon");
 const locationSeedData = require("./location-seed-data");
+const locationInfoSeedData = require("./location-info-seed-data");
 const providerSeedData = require("./provider-seed-data");
 const serviceSeedData = require("./service-seed-data");
 
@@ -63,6 +64,8 @@ function parseCityStatePostal(line = "") {
 }
 
 function buildSeedLocation(entry) {
+  const slug = normalizeSlug(entry.href);
+  const infoSeed = locationInfoSeedData[slug];
   const addressLines = Array.isArray(entry.addressLines)
     ? entry.addressLines.map((line) => normalizeAddressLine(line)).filter(Boolean)
     : [];
@@ -74,7 +77,7 @@ function buildSeedLocation(entry) {
   );
 
   return {
-    slug: normalizeSlug(entry.href),
+    slug,
     title: cleanText(entry.name),
     accent: `Primary care in ${cleanText(entry.name)}`,
     intro: `Visit our ${cleanText(entry.name)} location for primary care appointments and office information.`,
@@ -90,6 +93,7 @@ function buildSeedLocation(entry) {
     mapImageUrl: cleanText(entry.img),
     mapImageAlt: `${cleanText(entry.name)} office`,
     officeHours: [],
+    infoSections: normalizeInfoSections(infoSeed?.sections),
     serviceIds: [],
     services: [],
     hideOfficePhone: false,
@@ -114,6 +118,28 @@ function cleanStringList(values = []) {
   return [...new Set(source.map((value) => String(value || "").trim()).filter(Boolean))];
 }
 
+function normalizeInfoSections(value) {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((entry) => {
+      const key = cleanText(entry?.key);
+      const title = cleanText(entry?.title);
+      const paragraphs = Array.isArray(entry?.paragraphs)
+        ? entry.paragraphs.map((paragraph) => cleanText(paragraph)).filter(Boolean)
+        : [];
+
+      if (!title || paragraphs.length === 0) return null;
+
+      return {
+        key: key || normalizeSlug(title).replace(/^\//, ""),
+        title,
+        paragraphs,
+      };
+    })
+    .filter(Boolean);
+}
+
 function formatReadableList(values = []) {
   const items = cleanStringList(values);
 
@@ -125,6 +151,9 @@ function formatReadableList(values = []) {
 }
 
 function mergeLocation(existingLocation, seededLocation) {
+  const existingInfoSections = normalizeInfoSections(existingLocation.infoSections);
+  const seededInfoSections = normalizeInfoSections(seededLocation.infoSections);
+
   return {
     title: pickText(existingLocation.title, seededLocation.title),
     eyebrow: pickText(existingLocation.eyebrow, null),
@@ -149,6 +178,7 @@ function mergeLocation(existingLocation, seededLocation) {
     parkingTitle: pickText(existingLocation.parkingTitle, null),
     parkingDescription: pickText(existingLocation.parkingDescription, null),
     officeHours: pickArray(existingLocation.officeHours, seededLocation.officeHours),
+    infoSections: existingInfoSections.length > 0 ? existingInfoSections : seededInfoSections,
     serviceIds: pickArray(existingLocation.serviceIds, seededLocation.serviceIds),
     services:
       Array.isArray(existingLocation.services) && existingLocation.services.length > 0
@@ -164,10 +194,10 @@ const locationSlugByProviderLabel = new Map(
   ])
 );
 
-locationSlugByProviderLabel.set("Bowie (Health Center Dr)", "/location/bowie");
+locationSlugByProviderLabel.set("Bowie (Health Center Dr)", "/bowie-dev");
 locationSlugByProviderLabel.set("Bowie (Gallant Fox Ln)", "/location/bowie");
 locationSlugByProviderLabel.set("Columbia I", "/location/columbia");
-locationSlugByProviderLabel.set("Columbia II", "/location/columbia");
+locationSlugByProviderLabel.set("Columbia II", "/columbia-dev");
 
 function normalizeProviderLocationSlug(locationLabel = "") {
   const normalizedLabel = cleanText(locationLabel);
@@ -346,20 +376,50 @@ async function main() {
     ]);
   }
 
+  const allActiveServices = await prisma.service.findMany({
+    where: { isActive: true },
+    orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+    select: { id: true },
+  });
+  const allActiveServiceIds = allActiveServices.map((service) => service.id);
+
   const sortedLocations = [...locationSeedData].sort((first, second) =>
     first.name.localeCompare(second.name, undefined, { sensitivity: "base" })
   );
 
   for (const entry of sortedLocations) {
-    const seededLocation = buildSeedLocation(entry);
+    const seededLocation = {
+      ...buildSeedLocation(entry),
+      // Seed behavior mirrors selecting every service in the location editor.
+      serviceIds: allActiveServiceIds,
+    };
+    const shouldForceSeedAddressFields =
+      seededLocation.slug === "/location/bowie" || seededLocation.slug === "/bowie-dev";
     const existingLocation = await prisma.location.findUnique({
       where: { slug: seededLocation.slug },
     });
 
     if (existingLocation) {
+      const mergedLocation = mergeLocation(existingLocation, seededLocation);
       await prisma.location.update({
         where: { slug: seededLocation.slug },
-        data: mergeLocation(existingLocation, seededLocation),
+        data: {
+          ...(shouldForceSeedAddressFields
+            ? {
+                ...mergedLocation,
+                address: seededLocation.address,
+                streetAddress: seededLocation.streetAddress,
+                addressCity: seededLocation.addressCity,
+                addressState: seededLocation.addressState,
+                postalCode: seededLocation.postalCode,
+                addressCountry: seededLocation.addressCountry,
+                displayAddress: seededLocation.displayAddress,
+                directionsUrl: seededLocation.directionsUrl,
+                mapImageAlt: seededLocation.mapImageAlt,
+              }
+            : mergedLocation),
+          serviceIds: allActiveServiceIds,
+        },
       });
       continue;
     }

@@ -91,6 +91,61 @@ export default function AboutPage() {
         .story-card { background: #f8fafc; border-radius: 24px; padding: 3rem; position: relative; overflow: hidden; }
         .map-card { background: #f1f5f9; border-radius: 24px; padding: 3rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
 
+        .cta-link-btn {
+          appearance: none;
+          border: none;
+          background: transparent;
+          color: #0b4f96;
+          font-weight: 800;
+          font-size: 0.875rem;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0;
+          cursor: pointer;
+          transition: color 180ms ease, transform 180ms ease;
+        }
+        .cta-link-btn:hover {
+          color: #001c55;
+          transform: translateX(1px);
+        }
+        .cta-link-btn.light {
+          color: #ffffff;
+        }
+        .cta-link-btn.light:hover {
+          color: #dbeafe;
+        }
+
+        .cta-surface-btn {
+          appearance: none;
+          border: 1px solid rgba(0, 28, 85, 0.14);
+          background: linear-gradient(135deg, #0f2358 0%, #1b4ec9 100%);
+          color: #ffffff;
+          font-weight: 800;
+          font-size: 0.875rem;
+          padding: 0.85rem 1.5rem;
+          border-radius: 12px;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          cursor: pointer;
+          box-shadow: 0 12px 24px rgba(15, 35, 88, 0.18);
+          transition: transform 180ms ease, box-shadow 180ms ease;
+        }
+        .cta-surface-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 16px 30px rgba(15, 35, 88, 0.24);
+        }
+        .cta-surface-btn.light {
+          border-color: rgba(0, 28, 85, 0.16);
+          background: rgba(255, 255, 255, 0.92);
+          color: #001c55;
+          box-shadow: 0 10px 22px rgba(15, 35, 88, 0.12);
+        }
+        .cta-surface-btn.light:hover {
+          box-shadow: 0 14px 28px rgba(15, 35, 88, 0.18);
+        }
+
         .banner-cta {
           background: #001c55; padding: 3rem 4rem; border-radius: 24px; color: white;
           display: flex; justify-content: space-between; align-items: center; margin-bottom: 4rem;
@@ -159,7 +214,7 @@ export default function AboutPage() {
           <div>
             <h4 style={{ fontWeight: 800, color: '#001c55', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Advance Your Career</h4>
             <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}> Join a network that values clinician autonomy and patient satisfaction above all else.</p>
-            <button style={{ color: '#0070f3', fontWeight: 700, fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button className="cta-link-btn">
               View Career Opportunities <ExternalLink size={14} />
             </button>
           </div>
@@ -169,7 +224,7 @@ export default function AboutPage() {
            <div>
             <h4 style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.5rem' }}>Partner With Us</h4>
             <p style={{ fontSize: '0.875rem', opacity: 0.7, marginBottom: '1rem' }}> Empowering independent practitioners through our shared administrative ecosystem.</p>
-            <button style={{ color: 'white', fontWeight: 700, fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button className="cta-link-btn light">
               Learn About Growth <ArrowRight size={14} />
             </button>
            </div>
@@ -185,7 +240,7 @@ export default function AboutPage() {
               <br/><br/>
               Through intentional growth, innovation, and a relentless focus on patients, we continue to expand our impact—one community at a time.
             </p>
-            <button style={{ color: '#001c55', fontWeight: 800, fontSize: '0.875rem', border: '1px solid #e2e8f0', padding: '0.75rem 1.5rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button className="cta-surface-btn">
                Learn More About Our History <ArrowRight size={16} />
             </button>
          </div>
@@ -197,7 +252,7 @@ export default function AboutPage() {
               </p>
             </div>
             <img src="https://picsum.photos/seed/map/600/400" style={{ position: 'absolute', right: 0, bottom: 0, height: '100%', opacity: 0.1, pointerEvents: 'none' }} alt="Map" />
-            <button style={{ color: '#001c55', fontWeight: 800, fontSize: '0.875rem', border: '1px solid #e2e8f0', background: 'white', padding: '0.75rem 1.5rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem', width: 'fit-content', marginTop: '2rem' }}>
+            <button className="cta-surface-btn light" style={{ width: 'fit-content', marginTop: '2rem' }}>
                View Our Locations <ArrowRight size={16} />
             </button>
          </div>

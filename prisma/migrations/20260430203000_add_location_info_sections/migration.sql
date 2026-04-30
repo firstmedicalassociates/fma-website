@@ -1,0 +1,2 @@
+ALTER TABLE "Location"
+ADD COLUMN "infoSections" JSONB NOT NULL DEFAULT '[]';

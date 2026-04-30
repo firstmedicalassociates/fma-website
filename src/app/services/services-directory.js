@@ -11,6 +11,32 @@ function normalizeCategory(value = "") {
     .toLowerCase();
 }
 
+function getCategoryVariant(category = "") {
+  const key = normalizeCategory(category);
+
+  if (key.includes("primary care")) return "primary";
+  if (key.includes("chronic")) return "chronic";
+  if (key.includes("specialized")) return "specialized";
+  if (key.includes("general")) return "general";
+  if (key.includes("tele")) return "telehealth";
+
+  return "default";
+}
+
+function getCardCategoryPillClass(category = "") {
+  const variant = getCategoryVariant(category);
+  const map = {
+    primary: styles.cardCategoryPrimary,
+    chronic: styles.cardCategoryChronic,
+    specialized: styles.cardCategorySpecialized,
+    general: styles.cardCategoryGeneral,
+    telehealth: styles.cardCategoryTelehealth,
+    default: styles.cardCategoryDefault,
+  };
+
+  return map[variant] || styles.cardCategoryDefault;
+}
+
 function isTelehealthService(service = {}) {
   const category = String(service.category || "").toLowerCase();
   const title = String(service.title || "").toLowerCase();
@@ -38,21 +64,28 @@ export default function ServicesDirectory({ services = [] }) {
   const filteredServices = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return services.filter((service) => {
-      const category = normalizeCategory(service?.category);
-      if (activeCategory !== "all" && category !== activeCategory) return false;
-      if (!normalizedQuery) return true;
+    return services
+      .filter((service) => {
+        const category = normalizeCategory(service?.category);
+        if (activeCategory !== "all" && category !== activeCategory) return false;
+        if (!normalizedQuery) return true;
 
-      const title = String(service?.title || "").toLowerCase();
-      const description = String(service?.description || "").toLowerCase();
-      const categoryLabel = String(service?.category || "").toLowerCase();
+        const title = String(service?.title || "").toLowerCase();
+        const description = String(service?.description || "").toLowerCase();
+        const categoryLabel = String(service?.category || "").toLowerCase();
 
-      return (
-        title.includes(normalizedQuery) ||
-        description.includes(normalizedQuery) ||
-        categoryLabel.includes(normalizedQuery)
-      );
-    });
+        return (
+          title.includes(normalizedQuery) ||
+          description.includes(normalizedQuery) ||
+          categoryLabel.includes(normalizedQuery)
+        );
+      })
+      .sort((first, second) => {
+        const firstTelehealth = isTelehealthService(first);
+        const secondTelehealth = isTelehealthService(second);
+        if (firstTelehealth === secondTelehealth) return 0;
+        return firstTelehealth ? 1 : -1;
+      });
   }, [activeCategory, query, services]);
 
   return (
@@ -128,6 +161,7 @@ export default function ServicesDirectory({ services = [] }) {
           <div className={styles.grid}>
             {filteredServices.map((service) => {
               const telehealth = isTelehealthService(service);
+              const categoryPillClass = getCardCategoryPillClass(service.category);
               return (
                 <article
                   key={service.id}
@@ -138,7 +172,9 @@ export default function ServicesDirectory({ services = [] }) {
                       <span className={`material-symbols-outlined ${styles.cardIcon}`}>
                         {normalizeServiceIcon(service.icon)}
                       </span>
-                      <span className={styles.cardCategory}>{service.category}</span>
+                      <span className={`${styles.cardCategory} ${categoryPillClass}`}>
+                        {service.category}
+                      </span>
                     </div>
                     <h2>{service.title}</h2>
                     <p>{service.description}</p>

@@ -33,6 +33,7 @@ export const LOCATION_FORM_SELECT = {
   parkingTitle: true,
   parkingDescription: true,
   officeHours: true,
+  infoSections: true,
   serviceIds: true,
   services: true,
   updatedAt: true,
@@ -89,6 +90,32 @@ function normalizeServices(values) {
     .filter(Boolean);
 }
 
+function normalizeInfoSections(values) {
+  if (!Array.isArray(values)) return [];
+
+  return values
+    .map((value) => {
+      const key = String(value?.key ?? "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      const title = String(value?.title ?? "").trim();
+      const paragraphs = Array.isArray(value?.paragraphs)
+        ? value.paragraphs.map((paragraph) => String(paragraph ?? "").trim()).filter(Boolean)
+        : [];
+
+      if (!title || paragraphs.length === 0) return null;
+
+      return {
+        key: key || title.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, ""),
+        title,
+        paragraphs,
+      };
+    })
+    .filter(Boolean);
+}
+
 function buildLocationRecord(input = {}) {
   const addressParts = {
     streetAddress: normalizeText(input.streetAddress),
@@ -125,6 +152,7 @@ function buildLocationRecord(input = {}) {
     parkingTitle: normalizeText(input.parkingTitle),
     parkingDescription: normalizeText(input.parkingDescription),
     officeHours: normalizeOfficeHours(input.officeHours),
+    infoSections: normalizeInfoSections(input.infoSections),
     serviceIds: normalizeServiceIds(input.serviceIds),
     services: normalizeServices(input.services),
   };

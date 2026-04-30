@@ -9,9 +9,16 @@ module.exports = [
   {
     name: "Bowie, MD",
     cityStatePhone: "301-262-6797",
-    addressLines: ["2 Locations in Bowie"],
+    addressLines: ["14300 Gallant Fox Ln Ste 110", "Bowie, MD 20715"],
     img: "https://drsfirst.com/wp-content/uploads/2023/03/Bowie-1.webp",
     href: "/location/bowie/",
+  },
+  {
+    name: "Bowie II, MD",
+    cityStatePhone: "301-262-6797",
+    addressLines: ["14999 Health Center Dr Ste 201", "Bowie, MD 20716"],
+    img: "https://drsfirst.com/wp-content/uploads/2023/03/Bowie-1.webp",
+    href: "/bowie-dev/",
   },
   {
     name: "Columbia, MD",
@@ -19,6 +26,20 @@ module.exports = [
     addressLines: ["8600 Snowden River Pkwy STE 207,", "Columbia, MD 21045"],
     img: "https://drsfirst.com/wp-content/uploads/2023/03/Columbia-1.webp",
     href: "/location/columbia/",
+  },
+  {
+    name: "Columbia II, MD",
+    cityStatePhone: "443-979-9281",
+    addressLines: ["9841 Broken Land Dr., STE 115", "Columbia, MD 21046"],
+    img: "https://drsfirst.com/wp-content/uploads/2023/04/health-clinic-80.jpg",
+    href: "/columbia-dev/",
+  },
+  {
+    name: "Crofton, MD",
+    cityStatePhone: "443-782-3869",
+    addressLines: ["2200 Defense Highway, Suite 309", "Crofton, MD 21114"],
+    img: "https://drsfirst.com/wp-content/uploads/2026/03/2200-Defense-Hwy-Crofton-MD-Primary-Photo-1-Large.webp",
+    href: "/location/crofton/",
   },
   {
     name: "Frederick, MD",
@@ -82,6 +103,13 @@ module.exports = [
     addressLines: ["1205 York Road, Ste 38,", "Lutherville, MD 21093"],
     img: "https://drsfirst.com/wp-content/uploads/2025/10/fma-lutherville.webp",
     href: "/location/lutherville/",
+  },
+  {
+    name: "Laurel, MD",
+    cityStatePhone: "443-917-3101",
+    addressLines: ["14201 Laurel Park Drive, Suite 111", "Laurel, MD 20707"],
+    img: "https://drsfirst.com/wp-content/uploads/2023/04/health-clinic-02.png",
+    href: "/location/laurel/",
   },
   {
     name: "Greenbelt, MD",

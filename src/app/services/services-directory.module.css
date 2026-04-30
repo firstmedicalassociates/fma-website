@@ -186,10 +186,46 @@
     background-color 160ms ease;
 }
 
+.filterPillDefault {
+  background: #ffffff;
+  color: #475569;
+  border-color: rgba(148, 163, 184, 0.45);
+}
+
+.filterPillPrimary {
+  background: #e8f0fe;
+  color: #1756d0;
+  border-color: rgba(23, 86, 208, 0.28);
+}
+
+.filterPillChronic {
+  background: #ecfdf3;
+  color: #198754;
+  border-color: rgba(25, 135, 84, 0.28);
+}
+
+.filterPillSpecialized {
+  background: #fef3f2;
+  color: #c2410c;
+  border-color: rgba(194, 65, 12, 0.28);
+}
+
+.filterPillGeneral {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border-color: rgba(109, 40, 217, 0.26);
+}
+
+.filterPillTelehealth {
+  background: #fef9c3;
+  color: #a16207;
+  border-color: rgba(161, 98, 7, 0.3);
+}
+
 .filterPill:hover {
   transform: translateY(-1px);
   border-color: rgba(0, 22, 98, 0.34);
-  color: var(--services-primary);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
 }
 
 .filterPillActive {
@@ -257,6 +293,36 @@
   text-transform: uppercase;
 }
 
+.cardCategoryDefault {
+  background: rgba(0, 101, 145, 0.1);
+  color: #006591;
+}
+
+.cardCategoryPrimary {
+  background: #e8f0fe;
+  color: #1756d0;
+}
+
+.cardCategoryChronic {
+  background: #ecfdf3;
+  color: #198754;
+}
+
+.cardCategorySpecialized {
+  background: #fef3f2;
+  color: #c2410c;
+}
+
+.cardCategoryGeneral {
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+.cardCategoryTelehealth {
+  background: #fef9c3;
+  color: #a16207;
+}
+
 .card h2 {
   margin: 0 0 8px;
   color: var(--services-primary);
@@ -305,6 +371,7 @@
 
 .cardTelehealth .cardCategory {
   background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
 }
 
 .cardTelehealth p {

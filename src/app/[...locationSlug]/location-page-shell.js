@@ -15,6 +15,38 @@ const TABS = [
   { id: "location", label: "01. Location" },
   { id: "doctors", label: "02. Doctors" },
   { id: "services", label: "03. Services" },
+  { id: "info", label: "04. Info" },
+];
+
+const INFO_FAQS = [
+  {
+    q: "What services are available at the walk-in clinic?",
+    a: "We offer treatment for acute illnesses, minor injuries, and preventative care.",
+  },
+  {
+    q: "Do I need an appointment for urgent care?",
+    a: "No appointment is necessary for our walk-in urgent care services.",
+  },
+  {
+    q: "Do you offer family medicine for children and adults?",
+    a: "Yes, our family medicine practitioners see patients of all ages.",
+  },
+  {
+    q: "How do referrals to specialists work?",
+    a: "Our primary care providers coordinate referrals to trusted specialists in our network when needed.",
+  },
+  {
+    q: "Are same-day or next-day appointments available?",
+    a: "Yes, we strive to offer same-day and next-day scheduling for our established patients.",
+  },
+];
+
+const WHY_PATIENTS_CHOOSE_ITEMS = [
+  "Patient-centered care tailored to your individual needs",
+  "Connected, coordinated care across our network",
+  "Access to hundreds of distinguished specialists",
+  "Same-day and next-day appointments available",
+  "After-hours on-call providers when you need us",
 ];
 
 function formatAddressLines(location) {
@@ -40,10 +72,52 @@ function isTelehealthService(service = {}) {
   return category.includes("tele") || title.includes("tele");
 }
 
+function normalizeCategory(value = "") {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function getCategoryVariant(category = "") {
+  const key = normalizeCategory(category);
+
+  if (key.includes("primary care")) return "primary";
+  if (key.includes("chronic")) return "chronic";
+  if (key.includes("specialized")) return "specialized";
+  if (key.includes("general")) return "general";
+  if (key.includes("tele")) return "telehealth";
+
+  return "default";
+}
+
+function getCategoryPillClass(stylesModule, category = "") {
+  const variant = getCategoryVariant(category);
+  const map = {
+    primary: stylesModule.serviceFinderCategoryPrimary,
+    chronic: stylesModule.serviceFinderCategoryChronic,
+    specialized: stylesModule.serviceFinderCategorySpecialized,
+    general: stylesModule.serviceFinderCategoryGeneral,
+    telehealth: stylesModule.serviceFinderCategoryTelehealth,
+    default: stylesModule.serviceFinderCategoryDefault,
+  };
+
+  return map[variant] || stylesModule.serviceFinderCategoryDefault;
+}
+
 export default function LocationPageShell({ location, providers, serviceGroups }) {
   const [activeTab, setActiveTab] = useState("location");
   const [serviceQuery, setServiceQuery] = useState("");
   const [serviceFilter, setServiceFilter] = useState("all");
+  const [activeFaq, setActiveFaq] = useState(0);
+  const [infoFormStatus, setInfoFormStatus] = useState("idle");
+  const [infoFormMessage, setInfoFormMessage] = useState("");
+  const [infoFormValues, setInfoFormValues] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
 
   const addressLines = useMemo(() => formatAddressLines(location), [location]);
   const officeHourRows = useMemo(
@@ -73,6 +147,75 @@ export default function LocationPageShell({ location, providers, serviceGroups }
     }
     return ordered;
   }, [serviceEntries]);
+  const infoSections = useMemo(() => {
+    if (!Array.isArray(location.infoSections)) return [];
+
+    return location.infoSections
+      .map((section) => {
+        const title = String(section?.title || "").trim();
+        const paragraphs = Array.isArray(section?.paragraphs)
+          ? section.paragraphs.map((item) => String(item || "").trim()).filter(Boolean)
+          : [];
+
+        if (!title || paragraphs.length === 0) return null;
+
+        return {
+          key: String(section?.key || title).trim().toLowerCase().replace(/\s+/g, "-"),
+          title,
+          paragraphs,
+        };
+      })
+      .filter(Boolean);
+  }, [location.infoSections]);
+  const infoTemplateContent = useMemo(() => {
+    const getSection = (matchers = []) => {
+      return infoSections.find((section) => {
+        const title = String(section.title || "").toLowerCase();
+        const key = String(section.key || "").toLowerCase();
+        return matchers.some((matcher) => title.includes(matcher) || key.includes(matcher));
+      });
+    };
+
+    const walkIn = getSection(["walk-in clinic", "walk in clinic", "walk-in"]);
+    const family = getSection(["family doctor", "family"]);
+    const doctors = getSection(["doctors in", "doctors"]);
+    const primary = getSection(["primary care", "primary"]);
+    const geriatric = getSection(["geriatric care", "geriatric"]);
+
+    const primaryCareTitle = primary?.title || "Primary Care";
+    const primaryCareDescription = primary?.paragraphs?.join(" ") || "";
+    const geriatricTitle = geriatric?.title || "Geriatric Care";
+    const geriatricDescription = geriatric?.paragraphs?.join(" ") || "";
+
+    return {
+      walkIn: {
+        title: walkIn?.title || `Walk-in Clinic in ${location.title}`,
+        description:
+          walkIn?.paragraphs?.join(" ") ||
+          "Our walk-in clinic delivers immediate care for urgent health needs with no appointment necessary.",
+      },
+      family: {
+        title: family?.title || `Family Doctor in ${location.title}`,
+        description:
+          family?.paragraphs?.join(" ") ||
+          "We provide dependable, family-centered care for all ages, from children to older adults.",
+      },
+      doctors: {
+        title: doctors?.title || `Doctors in ${location.title}`,
+        description:
+          doctors?.paragraphs?.join(" ") ||
+          "Our physicians focus on whole-person care with preventive services and modern clinical support.",
+      },
+      primary: {
+        title: primaryCareTitle,
+        description: primaryCareDescription,
+      },
+      geriatric: {
+        title: geriatricTitle,
+        description: geriatricDescription,
+      },
+    };
+  }, [infoSections, location.title]);
   const filteredServices = useMemo(() => {
     const query = serviceQuery.trim().toLowerCase();
     return serviceEntries.filter((service) => {
@@ -93,6 +236,44 @@ export default function LocationPageShell({ location, providers, serviceGroups }
   const publicPhone = location.publicPhone || "";
   const patientPortalUrl = PATIENT_PORTAL_URL;
   const hasPatientPortalLink = Boolean(patientPortalUrl && patientPortalUrl !== "#");
+
+  async function handleInfoFormSubmit(event) {
+    event.preventDefault();
+    setInfoFormStatus("sending");
+    setInfoFormMessage("");
+
+    try {
+      const response = await fetch("/api/location-info-contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...infoFormValues,
+          locationTitle: location.title,
+          locationSlug: location.slug,
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.ok) {
+        setInfoFormStatus("error");
+        setInfoFormMessage(payload.error || "Unable to send your message right now.");
+        return;
+      }
+
+      setInfoFormStatus("success");
+      setInfoFormMessage("Thanks. Your message was sent to our care team.");
+      setInfoFormValues({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        message: "",
+      });
+    } catch {
+      setInfoFormStatus("error");
+      setInfoFormMessage("Unable to send your message right now.");
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -345,6 +526,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                     <div className={styles.serviceFinderGrid}>
                       {filteredServices.map((service) => {
                         const telehealth = isTelehealthService(service);
+                        const categoryPillClass = getCategoryPillClass(styles, service.category);
                         return (
                           <article
                             key={`${service.category}-${service.title}`}
@@ -355,7 +537,9 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                                 <span className={`material-symbols-outlined ${styles.serviceFinderIcon}`}>
                                   {normalizeServiceIcon(service.icon)}
                                 </span>
-                                <p className={styles.serviceFinderCategory}>{service.category}</p>
+                                <p className={`${styles.serviceFinderCategory} ${categoryPillClass}`}>
+                                  {service.category}
+                                </p>
                               </div>
                               <h3>{service.title}</h3>
                               <p>{service.description}</p>
@@ -388,6 +572,255 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                   ) : null}
                 </div>
               </div>
+            </section>
+          ) : null}
+
+          {activeTab === "info" ? (
+            <section className={styles.infoPanel}>
+              <div className={styles.infoFeatureSplit}>
+                <article className={styles.infoFeatureCard}>
+                  <div className={styles.infoFeatureTitleRow}>
+                    <div className={styles.infoFeatureIconWrap}>
+                      <span className="material-symbols-outlined">calendar_month</span>
+                    </div>
+                    <h2>{infoTemplateContent.walkIn.title}</h2>
+                  </div>
+                  <p>{infoTemplateContent.walkIn.description}</p>
+                  <div className={styles.infoFeatureMetaGrid}>
+                    <div className={styles.infoFeatureMetaItem}>
+                      <span className="material-symbols-outlined">schedule</span>
+                      <span>Fast, on-site care when you need it</span>
+                    </div>
+                    <div className={styles.infoFeatureMetaItem}>
+                      <span className="material-symbols-outlined">verified_user</span>
+                      <span>Experience you can trust</span>
+                    </div>
+                    <div className={styles.infoFeatureMetaItem}>
+                      <span className="material-symbols-outlined">favorite</span>
+                      <span>Compassionate care for all</span>
+                    </div>
+                  </div>
+                </article>
+
+              </div>
+
+              <section className={styles.infoWhyFaqRow}>
+                <article className={styles.infoWhyCard}>
+                  <h3>
+                    Why Patients Choose
+                    <br />
+                    First Medical Associates
+                  </h3>
+                  <ul className={styles.infoWhyList}>
+                    {WHY_PATIENTS_CHOOSE_ITEMS.map((item) => (
+                      <li key={item}>
+                        <span className="material-symbols-outlined">check_circle</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+
+                <article className={styles.infoFaqCard}>
+                  <h2>Frequently Asked Questions</h2>
+                  <div className={styles.infoFaqList}>
+                    {INFO_FAQS.map((faq, index) => {
+                      const isOpen = activeFaq === index;
+                      return (
+                        <div
+                          key={faq.q}
+                          className={`${styles.infoFaqItem} ${isOpen ? styles.infoFaqItemActive : ""}`}
+                        >
+                          <button
+                            type="button"
+                            className={styles.infoFaqButton}
+                            onClick={() => setActiveFaq(isOpen ? -1 : index)}
+                          >
+                            <div className={styles.infoFaqQuestionWrap}>
+                              <span className={styles.infoFaqDot}>?</span>
+                              <span>{faq.q}</span>
+                            </div>
+                            <span
+                              className={`material-symbols-outlined ${styles.infoFaqChevron} ${
+                                isOpen ? styles.infoFaqChevronActive : ""
+                              }`}
+                            >
+                              expand_more
+                            </span>
+                          </button>
+                          <div className={`${styles.infoFaqAnswerWrap} ${isOpen ? styles.infoFaqAnswerWrapOpen : ""}`}>
+                            <p>{faq.a}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </article>
+              </section>
+
+              <div className={styles.infoSectionGrid}>
+                <article className={`${styles.infoSectionCard} ${styles.infoSectionCardPrimary}`}>
+                  <div className={styles.infoSectionHeader}>
+                    <div className={styles.infoSectionIcon}>
+                      <span className="material-symbols-outlined">health_and_safety</span>
+                    </div>
+                    <h3>Primary Care & Geriatric Care</h3>
+                  </div>
+                  <div className={styles.infoSectionBody}>
+                    <p>{infoTemplateContent.primary.description || infoTemplateContent.geriatric.description}</p>
+                  </div>
+                </article>
+
+                <article className={styles.infoSectionCard}>
+                  <div className={styles.infoSectionHeader}>
+                    <div className={styles.infoSectionIcon}>
+                      <span className="material-symbols-outlined">groups</span>
+                    </div>
+                    <h3>{infoTemplateContent.family.title}</h3>
+                  </div>
+                  <div className={styles.infoSectionBody}>
+                    <p>{infoTemplateContent.family.description}</p>
+                  </div>
+                </article>
+
+                <article className={styles.infoSectionCard}>
+                  <div className={styles.infoSectionHeader}>
+                    <div className={styles.infoSectionIcon}>
+                      <span className="material-symbols-outlined">medical_services</span>
+                    </div>
+                    <h3>{infoTemplateContent.doctors.title}</h3>
+                  </div>
+                  <div className={styles.infoSectionBody}>
+                    <p>{infoTemplateContent.doctors.description}</p>
+                  </div>
+                </article>
+              </div>
+
+              <section className={styles.infoResourceSection}>
+                <h2>Featured Care & Resources</h2>
+                <div className={styles.infoResourceGrid}>
+                  <article className={styles.infoResourceCard}>
+                    <div className={styles.infoResourceIcon}>
+                      <span className="material-symbols-outlined">group</span>
+                    </div>
+                    <div>
+                      <h3>{infoTemplateContent.primary.title}</h3>
+                      <p>{infoTemplateContent.primary.description}</p>
+                    </div>
+                  </article>
+
+                  <article className={styles.infoResourceCard}>
+                    <div className={styles.infoResourceIcon}>
+                      <span className="material-symbols-outlined">favorite</span>
+                    </div>
+                    <div>
+                      <h3>{infoTemplateContent.geriatric.title}</h3>
+                      <p>{infoTemplateContent.geriatric.description}</p>
+                    </div>
+                  </article>
+                </div>
+              </section>
+
+              <section className={styles.infoBottomGrid}>
+                <article className={styles.infoFormCard}>
+                  <div className={styles.infoFormIntro}>
+                    <h3>
+                      Contact Our
+                      <br />
+                      {location.title} Team
+                    </h3>
+                  </div>
+
+                  <form className={styles.infoFormGrid} onSubmit={handleInfoFormSubmit}>
+                    <label className={styles.infoFormRow}>
+                      <span>First Name</span>
+                      <input
+                        type="text"
+                        value={infoFormValues.firstName}
+                        onChange={(event) =>
+                          setInfoFormValues((current) => ({ ...current, firstName: event.target.value }))
+                        }
+                        placeholder="Enter your first name"
+                        required
+                      />
+                    </label>
+
+                    <label className={styles.infoFormRow}>
+                      <span>Last Name</span>
+                      <input
+                        type="text"
+                        value={infoFormValues.lastName}
+                        onChange={(event) =>
+                          setInfoFormValues((current) => ({ ...current, lastName: event.target.value }))
+                        }
+                        placeholder="Enter your last name"
+                        required
+                      />
+                    </label>
+
+                    <label className={styles.infoFormRow}>
+                      <span>Email</span>
+                      <input
+                        type="email"
+                        value={infoFormValues.email}
+                        onChange={(event) =>
+                          setInfoFormValues((current) => ({ ...current, email: event.target.value }))
+                        }
+                        placeholder="Enter your email"
+                        required
+                      />
+                    </label>
+
+                    <label className={styles.infoFormRow}>
+                      <span>Phone</span>
+                      <input
+                        type="tel"
+                        value={infoFormValues.phone}
+                        onChange={(event) =>
+                          setInfoFormValues((current) => ({ ...current, phone: event.target.value }))
+                        }
+                        placeholder="Enter your phone number"
+                        required
+                      />
+                    </label>
+
+                    <label className={`${styles.infoFormRow} ${styles.infoFormRowMessage}`}>
+                      <span>Message</span>
+                      <textarea
+                        value={infoFormValues.message}
+                        onChange={(event) =>
+                          setInfoFormValues((current) => ({ ...current, message: event.target.value }))
+                        }
+                        rows={4}
+                        placeholder="How can we help?"
+                        required
+                      />
+                    </label>
+
+                    <button
+                      className={styles.infoFormSubmit}
+                      type="submit"
+                      disabled={infoFormStatus === "sending"}
+                    >
+                      {infoFormStatus === "sending" ? "Sending..." : "Send Message"}
+                    </button>
+                  </form>
+
+                  {infoFormMessage ? (
+                    <p
+                      className={`${styles.infoFormStatus} ${
+                        infoFormStatus === "error" ? styles.infoFormStatusError : styles.infoFormStatusSuccess
+                      }`}
+                    >
+                      {infoFormMessage}
+                    </p>
+                  ) : null}
+                </article>
+              </section>
+
+              {infoSections.length === 0 ? (
+                <div className={styles.emptyState}>No location info sections have been added yet.</div>
+              ) : null}
             </section>
           ) : null}
         </section>

@@ -374,67 +374,84 @@
   width: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr) minmax(0, 1.18fr) 88px;
-  overflow: hidden;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #122694 0%, #152f9d 100%);
-  box-shadow: 0 22px 48px rgba(13, 44, 114, 0.22);
+  align-items: center;
+  gap: 0;
+  padding: 8px 10px 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(229, 237, 255, 0.96);
+  box-shadow: 0 16px 36px rgba(15, 35, 88, 0.12);
+  backdrop-filter: blur(18px);
 }
 
 .schedulerItem,
 .schedulerArrow {
-  min-height: 78px;
+  min-height: 52px;
 }
 
 .schedulerItem {
   display: grid;
-  gap: 2px;
+  gap: 3px;
   align-content: center;
-  padding: 16px 20px;
-  color: #fff;
+  padding: 0 18px;
+  color: #173a88;
+  cursor: pointer;
 }
 
 .schedulerItem + .schedulerItem {
-  border-left: 1px solid rgba(255, 255, 255, 0.28);
+  border-left: 1px solid rgba(23, 58, 136, 0.22);
 }
 
 .schedulerTitle {
-  font-size: 0.97rem;
+  font-size: 0.94rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.schedulerText {
-  color: rgba(255, 255, 255, 0.84);
-  font-size: 0.77rem;
-  font-weight: 500;
-  line-height: 1.5;
+  letter-spacing: 0;
+  color: #173a88;
 }
 
 .schedulerArrow {
+  width: 58px;
+  height: 58px;
+  min-height: 58px;
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1aa0d6 0%, #36a9e3 100%);
-  color: #fff;
+  background: #6a83cb;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(53, 83, 167, 0.28);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.schedulerText {
+  color: #6983b6;
+  font-size: 1.04rem;
+  font-weight: 500;
+  line-height: 1.24;
 }
 
 .schedulerArrowIcon {
-  width: 34px;
-  height: 34px;
+  width: 22px;
+  height: 22px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 2.2;
+  stroke-width: 2.4;
 }
 
 .schedulerItem:hover,
 .schedulerArrow:hover {
-  background-color: rgba(255, 255, 255, 0.06);
+  background-color: rgba(23, 58, 136, 0.035);
 }
 
 .schedulerArrow:hover {
-  background: linear-gradient(135deg, #1698d0 0%, #2aa5e2 100%);
+  transform: translateY(-1px);
+  background: #5d77c5;
+  box-shadow: 0 14px 28px rgba(53, 83, 167, 0.32);
 }
 
 .statCard,
@@ -1393,22 +1410,27 @@
   .schedulerBar {
     grid-template-columns: 1fr;
     width: 100%;
-    border-radius: 22px;
+    border-radius: 30px;
+    gap: 10px;
+    padding: 14px;
   }
 
   .schedulerItem {
-    min-height: 74px;
-    padding: 16px 18px;
+    min-height: 0;
+    padding: 0;
   }
 
   .schedulerItem + .schedulerItem {
     border-left: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    border-top: 1px solid rgba(23, 58, 136, 0.2);
+    padding-top: 10px;
   }
 
   .schedulerArrow {
-    width: 100%;
-    min-height: 72px;
+    justify-self: end;
+    width: 52px;
+    height: 52px;
+    min-height: 52px;
   }
 
   .storyGrid,
@@ -1511,7 +1533,7 @@
   }
 
   .schedulerTitle {
-    font-size: 0.92rem;
+    font-size: 0.94rem;
   }
 
   .playButton {

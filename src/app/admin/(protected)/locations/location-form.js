@@ -57,6 +57,14 @@ const STAGES = [
     kicker: "Stage 04",
     title: "Service assignments",
   },
+  {
+    id: "info",
+    label: "Info",
+    description: "Manage location SEO sections shown in the Info tab.",
+    Icon: Info,
+    kicker: "Stage 05",
+    title: "Info sections",
+  },
 ];
 
 function createOfficeHourRow(overrides = {}) {
@@ -142,6 +150,7 @@ function getInitialValues(initialLocation) {
     officeHours: normalizeOfficeHours(
       Array.isArray(initialLocation?.officeHours) ? initialLocation.officeHours : []
     ),
+    infoSections: getInitialInfoSections(initialLocation?.infoSections),
     serviceIds: Array.isArray(initialLocation?.serviceIds) ? initialLocation.serviceIds : [],
   };
 }
@@ -191,6 +200,62 @@ function sortOfficeHourRows(rows) {
   });
 }
 
+function createInfoSection(overrides = {}) {
+  const paragraphs = Array.isArray(overrides.paragraphs)
+    ? overrides.paragraphs.map((value) => String(value || ""))
+    : [""];
+
+  return {
+    id: overrides.id || `info-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    key: overrides.key || "",
+    title: overrides.title || "",
+    paragraphs: paragraphs.length > 0 ? paragraphs : [""],
+  };
+}
+
+function getInitialInfoSections(value) {
+  if (!Array.isArray(value) || value.length === 0) {
+    return [createInfoSection()];
+  }
+
+  const sections = value.map((section, index) =>
+    createInfoSection({
+      id: `info-${index}`,
+      key: section?.key || "",
+      title: section?.title || "",
+      paragraphs: Array.isArray(section?.paragraphs) ? section.paragraphs : [""],
+    })
+  );
+
+  return sections.length > 0 ? sections : [createInfoSection()];
+}
+
+function serializeInfoSections(values) {
+  if (!Array.isArray(values)) return [];
+
+  return values
+    .map((section) => {
+      const key = String(section?.key || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      const title = String(section?.title || "").trim();
+      const paragraphs = Array.isArray(section?.paragraphs)
+        ? section.paragraphs.map((value) => String(value || "").trim()).filter(Boolean)
+        : [];
+
+      if (!title || paragraphs.length === 0) return null;
+
+      return {
+        key: key || title.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, ""),
+        title,
+        paragraphs,
+      };
+    })
+    .filter(Boolean);
+}
+
 export default function LocationForm({
   mode = "create",
   initialLocation,
@@ -224,6 +289,9 @@ export default function LocationForm({
   const [officeHourRows, setOfficeHourRows] = useState(() =>
     getInitialOfficeHourRows(initialValues.officeHours)
   );
+  const [infoSections, setInfoSections] = useState(() =>
+    getInitialInfoSections(initialValues.infoSections)
+  );
   const [selectedServiceIds, setSelectedServiceIds] = useState(initialValues.serviceIds);
   const [imageStatus, setImageStatus] = useState("idle");
   const [imageMessage, setImageMessage] = useState("");
@@ -231,6 +299,10 @@ export default function LocationForm({
   const [message, setMessage] = useState("");
 
   const officeHours = useMemo(() => serializeOfficeHourRows(officeHourRows), [officeHourRows]);
+  const serializedInfoSections = useMemo(
+    () => serializeInfoSections(infoSections),
+    [infoSections]
+  );
   const officeHourPreviewRows = useMemo(
     () => officeHours.map((hours) => formatOfficeHourRange(hours)).filter(Boolean),
     [officeHours]
@@ -303,6 +375,73 @@ export default function LocationForm({
 
   function removeSelectedService(serviceId) {
     setSelectedServiceIds((current) => current.filter((value) => value !== serviceId));
+  }
+
+  function addInfoSection() {
+    setInfoSections((current) => [...current, createInfoSection()]);
+  }
+
+  function removeInfoSection(sectionId) {
+    setInfoSections((current) => {
+      const nextSections = current.filter((section) => section.id !== sectionId);
+      return nextSections.length > 0 ? nextSections : [createInfoSection()];
+    });
+  }
+
+  function updateInfoSectionField(sectionId, field, value) {
+    setInfoSections((current) =>
+      current.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              [field]: value,
+            }
+          : section
+      )
+    );
+  }
+
+  function addInfoSectionParagraph(sectionId) {
+    setInfoSections((current) =>
+      current.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              paragraphs: [...section.paragraphs, ""],
+            }
+          : section
+      )
+    );
+  }
+
+  function removeInfoSectionParagraph(sectionId, paragraphIndex) {
+    setInfoSections((current) =>
+      current.map((section) => {
+        if (section.id !== sectionId) return section;
+
+        const nextParagraphs = section.paragraphs.filter((_, index) => index !== paragraphIndex);
+        return {
+          ...section,
+          paragraphs: nextParagraphs.length > 0 ? nextParagraphs : [""],
+        };
+      })
+    );
+  }
+
+  function updateInfoSectionParagraph(sectionId, paragraphIndex, value) {
+    setInfoSections((current) =>
+      current.map((section) => {
+        if (section.id !== sectionId) return section;
+
+        const nextParagraphs = section.paragraphs.map((paragraph, index) =>
+          index === paragraphIndex ? value : paragraph
+        );
+        return {
+          ...section,
+          paragraphs: nextParagraphs,
+        };
+      })
+    );
   }
 
   function updateOfficeHourRow(rowId, field, value) {
@@ -434,6 +573,7 @@ export default function LocationForm({
           mapImageUrl,
           mapImageAlt,
           officeHours,
+          infoSections: serializedInfoSections,
           serviceIds: selectedServiceIds,
           services: [],
         }),
@@ -1111,6 +1251,137 @@ export default function LocationForm({
                               <strong>{service.title || "Service title"}</strong>
                               <p className="location-preview-intro">
                                 {service.description || "Short service description"}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {activeStage === "info" ? (
+                <div className="location-editor-panel-grid">
+                  <div className="builder-element">
+                    <div className="builder-section-heading">
+                      <div>
+                        <h3>Info tab sections</h3>
+                        <p>
+                          Add and edit the SEO content blocks for the public Info tab. Each section
+                          needs a title and at least one paragraph.
+                        </p>
+                      </div>
+                      <button className="builder-button secondary" type="button" onClick={addInfoSection}>
+                        Add section
+                      </button>
+                    </div>
+
+                    <div className="builder-inline-group">
+                      {infoSections.map((section) => (
+                        <div className="builder-list-block" key={section.id}>
+                          <div className="builder-list-header">
+                            <div>
+                              <h4>{section.title || "Untitled section"}</h4>
+                              <p>Key: {section.key || "(auto-generated from title)"}</p>
+                            </div>
+                            <button
+                              className="builder-button secondary danger"
+                              type="button"
+                              onClick={() => removeInfoSection(section.id)}
+                            >
+                              Remove section
+                            </button>
+                          </div>
+
+                          <div className="builder-grid-two">
+                            <div className="builder-field">
+                              <label>Section title</label>
+                              <input
+                                className="builder-input"
+                                type="text"
+                                value={section.title}
+                                onChange={(event) =>
+                                  updateInfoSectionField(section.id, "title", event.target.value)
+                                }
+                                placeholder="Walk-in Clinic in Columbia, MD"
+                              />
+                            </div>
+
+                            <div className="builder-field">
+                              <label>Section key (optional)</label>
+                              <input
+                                className="builder-input"
+                                type="text"
+                                value={section.key}
+                                onChange={(event) =>
+                                  updateInfoSectionField(section.id, "key", event.target.value)
+                                }
+                                placeholder="walk-in-clinic"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="builder-field">
+                            <div className="builder-list-header">
+                              <h4>Paragraphs</h4>
+                              <button
+                                className="builder-button secondary"
+                                type="button"
+                                onClick={() => addInfoSectionParagraph(section.id)}
+                              >
+                                Add paragraph
+                              </button>
+                            </div>
+
+                            <div className="builder-inline-group">
+                              {section.paragraphs.map((paragraph, paragraphIndex) => (
+                                <div className="builder-field" key={`${section.id}-p-${paragraphIndex}`}>
+                                  <label>Paragraph {paragraphIndex + 1}</label>
+                                  <textarea
+                                    className="builder-textarea"
+                                    rows={4}
+                                    value={paragraph}
+                                    onChange={(event) =>
+                                      updateInfoSectionParagraph(
+                                        section.id,
+                                        paragraphIndex,
+                                        event.target.value
+                                      )
+                                    }
+                                    placeholder="Add paragraph text"
+                                  />
+                                  <button
+                                    className="builder-button secondary danger"
+                                    type="button"
+                                    onClick={() => removeInfoSectionParagraph(section.id, paragraphIndex)}
+                                  >
+                                    Remove paragraph
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="builder-element location-preview-card">
+                    <div className="location-preview-body">
+                      <h2>Info preview</h2>
+                      {serializedInfoSections.length === 0 ? (
+                        <p className="builder-helper-text">
+                          Add at least one section title and paragraph to publish info content.
+                        </p>
+                      ) : (
+                        <div className="builder-inline-group">
+                          {serializedInfoSections.map((section) => (
+                            <div className="location-preview-meta-item" key={`preview-${section.key}`}>
+                              <span>{section.key}</span>
+                              <strong>{section.title}</strong>
+                              <p className="location-preview-intro">
+                                {(section.paragraphs || []).slice(0, 1).join(" ")}
                               </p>
                             </div>
                           ))}

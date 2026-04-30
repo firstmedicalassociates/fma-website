@@ -131,6 +131,35 @@ function buildFinderSearchAttempts({ state = "", city = "", zip = "" }) {
   ].filter((value, index, values) => value && values.indexOf(value) === index);
 }
 
+function normalizeFinderInput(value = "") {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function locationMatchesFinderInputs(location, { city = "", state = "", zip = "" }) {
+  if (!city && !state && !zip) return true;
+
+  const haystack = [
+    location.title,
+    location.slug,
+    location.address,
+    ...(Array.isArray(location.addressLines) ? location.addressLines : []),
+    location.addressCity,
+    location.addressState,
+    location.postalCode,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (city && !haystack.includes(city)) return false;
+  if (state && !haystack.includes(state)) return false;
+  if (zip && !haystack.includes(zip)) return false;
+
+  return true;
+}
+
 function toRadians(value) {
   return (value * Math.PI) / 180;
 }
@@ -390,16 +419,26 @@ export default function LocationFinder({ locations = [] }) {
   }, [geocodeVersion, locations, searchOrigin]);
 
   const filteredLocations = useMemo(() => {
+    const finderInputs = {
+      city: normalizeFinderInput(searchCity),
+      state: normalizeFinderInput(searchState),
+      zip: normalizeFinderInput(searchZip),
+    };
+
+    const liveInputFilteredLocations = rankedLocations.filter((location) =>
+      locationMatchesFinderInputs(location, finderInputs)
+    );
+
     if (!searchOrigin?.position) {
-      return rankedLocations;
+      return liveInputFilteredLocations;
     }
 
-    return rankedLocations.filter(
+    return liveInputFilteredLocations.filter(
       (location) =>
         typeof location.distanceMiles === "number" &&
         location.distanceMiles <= DEFAULT_SEARCH_RADIUS_MILES
     );
-  }, [rankedLocations, searchOrigin]);
+  }, [rankedLocations, searchCity, searchOrigin, searchState, searchZip]);
 
   const selectedLocation = useMemo(() => {
     if (!hasPinnedSelection || filteredLocations.length === 0) return null;
@@ -674,8 +713,12 @@ export default function LocationFinder({ locations = [] }) {
   const selectedLocationStatus = selectedLocation ? getLocationStatus(selectedLocation.officeHours) : null;
   const selectedLocationCallHref = buildCallHref(selectedLocation?.publicPhone);
   const emptyResults = filteredLocations.length === 0;
-  const resultsTagLabel = searchOrigin?.label || "";
-  const showResultsPanel = hasActiveFinderSearch;
+  const resultsTagLabel = hasActiveFinderSearch
+    ? searchOrigin?.label || finderSearchQuery
+    : hasFinderSearchInput
+      ? `Live filter: ${finderSearchQuery}`
+      : "All locations";
+  const showResultsPanel = true;
   const showDetailPanel = Boolean(selectedLocation);
   const stageContentClassName = `${styles.stageContent} ${
     showResultsPanel && showDetailPanel
@@ -786,7 +829,11 @@ export default function LocationFinder({ locations = [] }) {
                   <div className={styles.resultsToolbar}>
                     <div
                       className={styles.resultsTag}
-                      aria-label={`Showing locations within ${DEFAULT_SEARCH_RADIUS_MILES} miles of ${resultsTagLabel}`}
+                      aria-label={
+                        hasActiveFinderSearch
+                          ? `Showing locations within ${DEFAULT_SEARCH_RADIUS_MILES} miles of ${resultsTagLabel}`
+                          : `Showing ${resultsTagLabel}`
+                      }
                     >
                       <span className={styles.resultsTagIcon} aria-hidden="true">
                         <svg viewBox="0 0 24 24">

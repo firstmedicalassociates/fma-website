@@ -96,6 +96,7 @@ model Location {
   parkingTitle       String?
   parkingDescription String?
   officeHours        Json     @default("[]")
+  infoSections       Json     @default("[]")
   serviceIds         String[] @default([])
   services           Json?
   createdAt          DateTime @default(now())
