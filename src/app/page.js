@@ -16,6 +16,7 @@ const bodyFont = Inter({
   variable: "--font-home-body",
 });
 
+const heroBackgroundImage = "/uploads/Header-bcgn-1-scaled.jpg";
 const heroImage = "/uploads/philosophy-consultation.jpg";
 
 export const runtime = "nodejs";
@@ -443,7 +444,7 @@ export default async function Home() {
           <div className={styles.heroShell}>
             <div className={styles.heroBackground} aria-hidden="true">
               <Image
-                src={heroImage}
+                src={heroBackgroundImage}
                 alt=""
                 className={styles.heroBackgroundImage}
                 fill
