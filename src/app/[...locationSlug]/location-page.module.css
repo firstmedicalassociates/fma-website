@@ -445,6 +445,78 @@
   gap: 28px;
 }
 
+.infoIntroSection {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(340px, 1.08fr);
+  gap: 28px;
+  margin-bottom: 28px;
+  align-items: start;
+}
+
+.infoIntroCopy {
+  display: grid;
+  gap: 14px;
+}
+
+.infoIntroActions {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.infoIntroSidebar {
+  display: grid;
+  align-content: start;
+  gap: 22px;
+  height: fit-content;
+}
+
+.infoPanelSidebarCard {
+  padding: 28px;
+  border-radius: 28px;
+  border: 1px solid rgba(17, 33, 74, 0.08);
+  background: #fff;
+  box-shadow: 0 16px 34px rgba(15, 31, 87, 0.06);
+  display: grid;
+  gap: 20px;
+}
+
+.infoPanelInfoItem {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.infoPanelInfoIcon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: rgba(12, 94, 207, 0.08);
+  color: #0c5ecf;
+}
+
+.infoPanelInfoIcon span {
+  font-size: 26px;
+}
+
+.infoPanelInfoItem h3 {
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: #0f1f57;
+}
+
+.infoPanelInfoItem p {
+  margin: 0;
+  color: #58657d;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 .infoSectionGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -457,8 +529,9 @@
 
 .infoFeatureSplit {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: 22px;
+  align-items: stretch;
 }
 
 .infoFeatureCard {
@@ -551,7 +624,8 @@
 }
 
 .infoWhyCard {
-  height: 100%;
+  display: grid;
+  align-content: start;
   padding: 34px;
   border-radius: 34px;
   border: 1px solid rgba(17, 33, 74, 0.08);
@@ -568,7 +642,7 @@
 
 .infoWhyFaqRow {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 0.55fr) minmax(0, 1fr);
   gap: 20px;
   align-items: stretch;
 }
@@ -602,7 +676,7 @@
   padding: 26px;
   border-radius: 28px;
   border: 1px solid rgba(17, 33, 74, 0.08);
-  background: #fff;
+  background: linear-gradient(180deg, rgba(228, 236, 246, 0.88), rgba(214, 226, 240, 0.92));
   box-shadow: 0 12px 28px rgba(15, 31, 87, 0.05);
   transition:
     transform 180ms ease,
@@ -714,6 +788,73 @@
   line-height: 1.7;
 }
 
+.infoContactSection {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(340px, 1.08fr);
+  gap: 28px;
+  margin-bottom: 28px;
+  align-items: start;
+  padding: 40px;
+  background: linear-gradient(180deg, rgba(228, 236, 246, 0.88), rgba(214, 226, 240, 0.92));
+  border-radius: 28px;
+}
+
+.infoContactInfo {
+  display: grid;
+  gap: 22px;
+}
+
+.infoContactIntro {
+  display: grid;
+  gap: 12px;
+}
+
+.infoContactIntro h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 2.8vw, 2.4rem);
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+  color: #0f1f57;
+}
+
+.infoContactIntro p {
+  margin: 0;
+  color: #58657d;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.infoContactDetails {
+  display: grid;
+  gap: 18px;
+}
+
+.infoContactItem {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.infoContactItem span {
+  color: #0c5ecf;
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.infoContactItem div {
+  display: grid;
+  gap: 4px;
+}
+
+.infoContactItem p {
+  margin: 0;
+  color: #485066;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
 .infoBottomGrid {
   display: grid;
   grid-template-columns: 1fr;
@@ -723,12 +864,13 @@
 .infoFaqCard {
   display: grid;
   gap: 14px;
-  height: 100%;
+  width: 100%;
   padding: 34px;
   border-radius: 34px;
   border: 1px solid rgba(17, 33, 74, 0.08);
   background: #fff;
   box-shadow: 0 16px 34px rgba(15, 31, 87, 0.06);
+  margin-bottom: 28px;
 }
 
 .infoFaqCard h2 {
@@ -823,37 +965,29 @@
 
 .infoFormCard {
   display: grid;
-  gap: 14px;
-  border-radius: 30px;
-  border: 1px solid rgba(17, 33, 74, 0.08);
+  gap: 18px;
+  padding: 32px;
   background: #fff;
-  box-shadow: 0 16px 34px rgba(15, 31, 87, 0.06);
-  padding: 24px;
-}
-
-.infoFormIntro h3 {
-  margin: 0;
-  line-height: 1.1;
-  letter-spacing: -0.04em;
-  font-size: clamp(1.8rem, 2.8vw, 2.3rem);
+  border-radius: 20px;
+  border: 1px solid rgba(17, 33, 74, 0.08);
+  box-shadow: 0 8px 24px rgba(15, 31, 87, 0.05);
 }
 
 .infoFormGrid {
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .infoFormRow {
   display: grid;
-  grid-template-columns: 120px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .infoFormRow span {
   color: #3a4764;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .infoFormRow input,
@@ -861,8 +995,10 @@
   width: 100%;
   border-radius: 10px;
   border: 1px solid rgba(17, 33, 74, 0.14);
-  padding: 11px 12px;
+  padding: 12px 14px;
+  background: #fff;
   font: inherit;
+  font-size: 0.9rem;
   color: #24314d;
   outline: none;
   transition: border-color 180ms ease, box-shadow 180ms ease;
@@ -880,7 +1016,7 @@
 }
 
 .infoFormRowMessage {
-  align-items: flex-start;
+  grid-column: 1 / -1;
 }
 
 .infoFormRow textarea {
@@ -888,18 +1024,33 @@
 }
 
 .infoFormSubmit {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   border: 0;
   min-height: 48px;
-  border-radius: 14px;
-  background: #0b1f40;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0f1f57 0%, #112c7a 100%);
   color: #fff;
   font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: background-color 180ms ease;
+  transition: background-color 180ms ease, transform 180ms ease;
+}
+
+.infoFormSubmit span:first-child {
+  flex: 1;
+}
+
+.infoFormSubmit span:last-child {
+  font-size: 20px;
 }
 
 .infoFormSubmit:hover {
-  background: #0a2b66;
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #0a2b66 0%, #0d1f4a 100%);
 }
 
 .infoFormSubmit:disabled {
@@ -1438,6 +1589,18 @@
 }
 
 @media (max-width: 1120px) {
+  .infoIntroSection {
+    grid-template-columns: 1fr;
+  }
+
+  .infoFeatureSplit {
+    grid-template-columns: 1fr;
+  }
+
+  .infoContactSection {
+    grid-template-columns: 1fr;
+  }
+
   .locationPanel {
     grid-template-columns: 1fr;
   }

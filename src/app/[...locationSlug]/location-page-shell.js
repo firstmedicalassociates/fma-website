@@ -577,6 +577,61 @@ export default function LocationPageShell({ location, providers, serviceGroups }
 
           {activeTab === "info" ? (
             <section className={styles.infoPanel}>
+              <div className={styles.infoIntroSection}>
+                <div className={styles.infoIntroCopy}>
+                  <h1 className={styles.locationTitle}>{location.title}</h1>
+                  <p className={styles.locationAccent}>
+                    {location.accent || location.intro || "Personalized primary care close to home."}
+                  </p>
+                  <div className={styles.infoIntroActions}>
+                    {publicPhone ? (
+                      <a href={`tel:${publicPhone.replace(/[^\d+]/g, "")}`} className={`${styles.primaryCta}`}>
+                        Call Now
+                      </a>
+                    ) : null}
+                    {location.directionsUrl ? (
+                      <a href={location.directionsUrl} target="_blank" rel="noreferrer" className={`${styles.secondaryCta}`}>
+                        Get Directions
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className={styles.infoIntroSidebar}>
+                  <div className={styles.infoPanelSidebarCard}>
+                    <div className={styles.infoPanelInfoItem}>
+                      <div className={styles.infoPanelInfoIcon}>
+                        <span className="material-symbols-outlined">calendar_month</span>
+                      </div>
+                      <div>
+                        <h3>Walk-In Clinic</h3>
+                        <p>No appointment needed for urgent care</p>
+                      </div>
+                    </div>
+
+                    <div className={styles.infoPanelInfoItem}>
+                      <div className={styles.infoPanelInfoIcon}>
+                        <span className="material-symbols-outlined">groups</span>
+                      </div>
+                      <div>
+                        <h3>Family Doctors</h3>
+                        <p>Treated primary care for the whole family</p>
+                      </div>
+                    </div>
+
+                    <div className={styles.infoPanelInfoItem}>
+                      <div className={styles.infoPanelInfoIcon}>
+                        <span className="material-symbols-outlined">schedule</span>
+                      </div>
+                      <div>
+                        <h3>Same-Day Access</h3>
+                        <p>Same-day or next-day appointments available</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className={styles.infoFeatureSplit}>
                 <article className={styles.infoFeatureCard}>
                   <div className={styles.infoFeatureTitleRow}>
@@ -602,9 +657,6 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                   </div>
                 </article>
 
-              </div>
-
-              <section className={styles.infoWhyFaqRow}>
                 <article className={styles.infoWhyCard}>
                   <h3>
                     Why Patients Choose
@@ -620,8 +672,9 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                     ))}
                   </ul>
                 </article>
+              </div>
 
-                <article className={styles.infoFaqCard}>
+              <article className={styles.infoFaqCard}>
                   <h2>Frequently Asked Questions</h2>
                   <div className={styles.infoFaqList}>
                     {INFO_FAQS.map((faq, index) => {
@@ -656,7 +709,6 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                     })}
                   </div>
                 </article>
-              </section>
 
               <div className={styles.infoSectionGrid}>
                 <article className={`${styles.infoSectionCard} ${styles.infoSectionCardPrimary}`}>
@@ -721,90 +773,125 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                 </div>
               </section>
 
-              <section className={styles.infoBottomGrid}>
-                <article className={styles.infoFormCard}>
-                  <div className={styles.infoFormIntro}>
-                    <h3>
+              <section className={styles.infoContactSection}>
+                <div className={styles.infoContactInfo}>
+                  <div className={styles.infoContactIntro}>
+                    <h2>
                       Contact Our
                       <br />
                       {location.title} Team
-                    </h3>
+                    </h2>
+                    <p>We're here to answer your questions and help you schedule care.</p>
                   </div>
 
-                  <form className={styles.infoFormGrid} onSubmit={handleInfoFormSubmit}>
-                    <label className={styles.infoFormRow}>
-                      <span>First Name</span>
-                      <input
-                        type="text"
-                        value={infoFormValues.firstName}
-                        onChange={(event) =>
-                          setInfoFormValues((current) => ({ ...current, firstName: event.target.value }))
-                        }
-                        placeholder="Enter your first name"
-                        required
-                      />
-                    </label>
+                  <div className={styles.infoContactDetails}>
+                    {publicPhone ? (
+                      <div className={styles.infoContactItem}>
+                        <span className="material-symbols-outlined">phone</span>
+                        <div>
+                          <p>{publicPhone}</p>
+                        </div>
+                      </div>
+                    ) : null}
 
-                    <label className={styles.infoFormRow}>
-                      <span>Last Name</span>
-                      <input
-                        type="text"
-                        value={infoFormValues.lastName}
-                        onChange={(event) =>
-                          setInfoFormValues((current) => ({ ...current, lastName: event.target.value }))
-                        }
-                        placeholder="Enter your last name"
-                        required
-                      />
-                    </label>
+                    {addressLines.length > 0 ? (
+                      <div className={styles.infoContactItem}>
+                        <span className="material-symbols-outlined">location_on</span>
+                        <div>
+                          {addressLines.map((line) => (
+                            <p key={line}>{line}</p>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
 
-                    <label className={styles.infoFormRow}>
-                      <span>Email</span>
-                      <input
-                        type="email"
-                        value={infoFormValues.email}
-                        onChange={(event) =>
-                          setInfoFormValues((current) => ({ ...current, email: event.target.value }))
-                        }
-                        placeholder="Enter your email"
-                        required
-                      />
-                    </label>
+                    {officeHourRows.length > 0 ? (
+                      <div className={styles.infoContactItem}>
+                        <span className="material-symbols-outlined">schedule</span>
+                        <div>
+                          {officeHourRows.map((hours) => (
+                            <p key={hours}>{hours}</p>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
 
-                    <label className={styles.infoFormRow}>
-                      <span>Phone</span>
-                      <input
-                        type="tel"
-                        value={infoFormValues.phone}
-                        onChange={(event) =>
-                          setInfoFormValues((current) => ({ ...current, phone: event.target.value }))
-                        }
-                        placeholder="Enter your phone number"
-                        required
-                      />
-                    </label>
+                <form className={styles.infoFormCard} onSubmit={handleInfoFormSubmit}>
+                  <label className={styles.infoFormRow}>
+                    <span>First Name</span>
+                    <input
+                      type="text"
+                      value={infoFormValues.firstName}
+                      onChange={(event) =>
+                        setInfoFormValues((current) => ({ ...current, firstName: event.target.value }))
+                      }
+                      placeholder="Enter your first name"
+                      required
+                    />
+                  </label>
 
-                    <label className={`${styles.infoFormRow} ${styles.infoFormRowMessage}`}>
-                      <span>Message</span>
-                      <textarea
-                        value={infoFormValues.message}
-                        onChange={(event) =>
-                          setInfoFormValues((current) => ({ ...current, message: event.target.value }))
-                        }
-                        rows={4}
-                        placeholder="How can we help?"
-                        required
-                      />
-                    </label>
+                  <label className={styles.infoFormRow}>
+                    <span>Last Name</span>
+                    <input
+                      type="text"
+                      value={infoFormValues.lastName}
+                      onChange={(event) =>
+                        setInfoFormValues((current) => ({ ...current, lastName: event.target.value }))
+                      }
+                      placeholder="Enter your last name"
+                      required
+                    />
+                  </label>
 
-                    <button
-                      className={styles.infoFormSubmit}
-                      type="submit"
-                      disabled={infoFormStatus === "sending"}
-                    >
-                      {infoFormStatus === "sending" ? "Sending..." : "Send Message"}
-                    </button>
-                  </form>
+                  <label className={styles.infoFormRow}>
+                    <span>Email</span>
+                    <input
+                      type="email"
+                      value={infoFormValues.email}
+                      onChange={(event) =>
+                        setInfoFormValues((current) => ({ ...current, email: event.target.value }))
+                      }
+                      placeholder="Enter your email"
+                      required
+                    />
+                  </label>
+
+                  <label className={styles.infoFormRow}>
+                    <span>Phone</span>
+                    <input
+                      type="tel"
+                      value={infoFormValues.phone}
+                      onChange={(event) =>
+                        setInfoFormValues((current) => ({ ...current, phone: event.target.value }))
+                      }
+                      placeholder="Enter your phone number"
+                      required
+                    />
+                  </label>
+
+                  <label className={`${styles.infoFormRow} ${styles.infoFormRowMessage}`}>
+                    <span>Message</span>
+                    <textarea
+                      value={infoFormValues.message}
+                      onChange={(event) =>
+                        setInfoFormValues((current) => ({ ...current, message: event.target.value }))
+                      }
+                      rows={4}
+                      placeholder="How can we help?"
+                      required
+                    />
+                  </label>
+
+                  <button
+                    className={styles.infoFormSubmit}
+                    type="submit"
+                    disabled={infoFormStatus === "sending"}
+                  >
+                    <span>{infoFormStatus === "sending" ? "Sending..." : "Send Message"}</span>
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                  </button>
 
                   {infoFormMessage ? (
                     <p
@@ -815,7 +902,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                       {infoFormMessage}
                     </p>
                   ) : null}
-                </article>
+                </form>
               </section>
 
               {infoSections.length === 0 ? (
