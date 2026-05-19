@@ -2,17 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   PATIENT_PORTAL_URL,
   SITE_CALL_HREF,
   SITE_CALL_LABEL,
   SITE_NAME,
 } from "../lib/config/site";
+import AiSearchModal from "./ai-search-modal";
 import styles from "./site-chrome.module.css";
-
-const SEARCH_MIN_CHARACTERS = 2;
 
 function isExternalUrl(value = "") {
   const normalized = String(value || "").trim();
@@ -31,15 +30,6 @@ function isActivePath(pathname, href) {
   }
   if (href === "/") return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function SearchIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <circle cx="11" cy="11" r="6.25" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <path d="m16 16 4 4" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
-    </svg>
-  );
 }
 
 function QuickActionIcon({ name }) {
@@ -74,23 +64,12 @@ function QuickActionIcon({ name }) {
 
 export default function SiteHeader() {
   const pathname = usePathname();
-  const router = useRouter();
-  const searchRef = useRef(null);
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
-  const [searchStatus, setSearchStatus] = useState("idle");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [aiAnswer, setAiAnswer] = useState("");
-  const [aiSources, setAiSources] = useState([]);
-  const [aiStatus, setAiStatus] = useState("idle");
 
-  const trimmedQuery = query.trim();
-  const hasSearchQuery = trimmedQuery.length >= SEARCH_MIN_CHARACTERS;
-  const showSearchPanel = isSearchOpen && (hasSearchQuery || searchStatus === "loading");
   const headerActionHref = SITE_CALL_HREF || "/locations";
   const headerActionExternal = isExternalUrl(headerActionHref);
   const headerActionLabel = SITE_CALL_HREF ? SITE_CALL_LABEL : "Call now";
+
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/about", label: "About" },
@@ -103,8 +82,10 @@ export default function SiteHeader() {
       ? [{ href: PATIENT_PORTAL_URL, label: "Patient Portal", external: true }]
       : []),
   ];
+
   const patientPortalHref = PATIENT_PORTAL_URL !== "#" ? PATIENT_PORTAL_URL : "/patient-resources";
   const patientPortalExternal = PATIENT_PORTAL_URL !== "#";
+
   const mobileQuickActions = [
     {
       key: "call",
@@ -129,16 +110,7 @@ export default function SiteHeader() {
     },
   ];
 
-  const searchSummary = useMemo(() => {
-    if (searchStatus === "loading" || aiStatus === "loading") return "Searching...";
-    if (!hasSearchQuery) return `Type at least ${SEARCH_MIN_CHARACTERS} characters to search.`;
-    if (aiAnswer) return "AI Answer + Directory Results";
-    if (results.length === 0) return "No matching pages found.";
-    return `${results.length} matching page${results.length === 1 ? "" : "s"}`;
-  }, [hasSearchQuery, results.length, searchStatus, aiAnswer, aiStatus]);
-
   useEffect(() => {
-    setIsSearchOpen(false);
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
@@ -161,108 +133,8 @@ export default function SiteHeader() {
     };
   }, [isMobileMenuOpen]);
 
-  useEffect(() => {
-    function handlePointerDown(event) {
-      if (!searchRef.current?.contains(event.target)) {
-        setIsSearchOpen(false);
-      }
-    }
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, []);
-
-  useEffect(() => {
-    if (!hasSearchQuery) {
-      setResults([]);
-      setSearchStatus("idle");
-      setAiAnswer("");
-      setAiSources([]);
-      setAiStatus("idle");
-      return undefined;
-    }
-
-    const controller = new AbortController();
-    setResults([]);
-    setSearchStatus("loading");
-    setAiAnswer("");
-    setAiSources([]);
-    setAiStatus("loading");
-
-    const timeoutId = window.setTimeout(async () => {
-      try {
-        const [keywordResponse, aiResponse] = await Promise.allSettled([
-          fetch(`/api/search?q=${encodeURIComponent(trimmedQuery)}`, {
-            signal: controller.signal,
-          }),
-          fetch(`/api/ai-search?q=${encodeURIComponent(trimmedQuery)}`, {
-            signal: controller.signal,
-          }),
-        ]);
-
-        // Handle keyword search results
-        if (keywordResponse.status === "fulfilled") {
-          const response = keywordResponse.value;
-          const data = await response.json().catch(() => ({}));
-          if (response.ok && data.ok) {
-            setResults(Array.isArray(data.results) ? data.results : []);
-            setSearchStatus("ready");
-          } else {
-            setResults([]);
-            setSearchStatus("error");
-          }
-        } else {
-          if (keywordResponse.reason?.name !== "AbortError") {
-            setResults([]);
-            setSearchStatus("error");
-          }
-        }
-
-        // Handle AI search results
-        if (aiResponse.status === "fulfilled") {
-          const response = aiResponse.value;
-          const data = await response.json().catch(() => ({}));
-          if (response.ok && data.ok) {
-            setAiAnswer(data.answer || "");
-            setAiSources(Array.isArray(data.sources) ? data.sources : []);
-            setAiStatus("ready");
-          } else {
-            setAiStatus("error");
-          }
-        } else {
-          if (aiResponse.reason?.name !== "AbortError") {
-            setAiStatus("error");
-          }
-        }
-      } catch (error) {
-        if (error.name === "AbortError") return;
-        setResults([]);
-        setSearchStatus("error");
-        setAiStatus("error");
-      }
-    }, 180);
-
-    return () => {
-      controller.abort();
-      window.clearTimeout(timeoutId);
-    };
-  }, [hasSearchQuery, trimmedQuery]);
-
-  function handleSearchSubmit(event) {
-    event.preventDefault();
-
-    if (!hasSearchQuery) {
-      setIsSearchOpen(true);
-      return;
-    }
-
-    setIsSearchOpen(false);
-    router.push(`/search?q=${encodeURIComponent(trimmedQuery)}`);
-  }
-
   function toggleMobileMenu() {
     setIsMobileMenuOpen((current) => !current);
-    setIsSearchOpen(false);
   }
 
   function closeMobileMenu() {
@@ -326,90 +198,7 @@ export default function SiteHeader() {
         </nav>
 
         <div className={styles.headerTools}>
-          <div className={styles.searchWrap} ref={searchRef}>
-            <form className={styles.searchForm} onSubmit={handleSearchSubmit}>
-              <span className={styles.searchIcon}>
-                <SearchIcon />
-              </span>
-              <input
-                aria-label="Search website"
-                className={styles.searchInput}
-                onChange={(event) => setQuery(event.target.value)}
-                onFocus={() => setIsSearchOpen(true)}
-                placeholder="Search doctors, locations, or articles"
-                type="search"
-                value={query}
-              />
-            </form>
-
-            {showSearchPanel ? (
-              <div className={styles.searchPanel}>
-                <div className={styles.searchPanelHeader}>
-                  <span className={styles.searchPanelTitle}>Search</span>
-                  <span className={styles.searchPanelMeta}>{searchSummary}</span>
-                </div>
-
-                {aiAnswer ? (
-                  <div className={styles.aiAnswerSection}>
-                    <div className={styles.aiAnswerContent}>{aiAnswer}</div>
-                    {aiSources.length > 0 ? (
-                      <div className={styles.aiSourcesList}>
-                        {aiSources.map((source, idx) => (
-                          <Link
-                            key={idx}
-                            className={styles.aiSource}
-                            href={source.url}
-                            onClick={() => setIsSearchOpen(false)}
-                          >
-                            <span className={styles.aiSourceType}>{source.type}</span>
-                            <strong>{source.title}</strong>
-                          </Link>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
-
-                {results.length > 0 ? (
-                  <>
-                    {aiAnswer ? <div className={styles.searchPanelDivider} /> : null}
-                    <div className={styles.searchResults}>
-                      {results.map((result) => (
-                        <Link
-                          key={`${result.kind}-${result.href}`}
-                          className={styles.searchResult}
-                          href={result.href}
-                          onClick={() => setIsSearchOpen(false)}
-                        >
-                          <span className={styles.searchResultBadge}>{result.categoryLabel}</span>
-                          <strong>{result.title}</strong>
-                          <span>{result.description}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </>
-                ) : !aiAnswer ? (
-                  <div className={styles.searchEmptyState}>
-                    {searchStatus === "error" || aiStatus === "error"
-                      ? "Search is temporarily unavailable."
-                      : hasSearchQuery
-                        ? "No related pages found for that search."
-                        : `Start typing a provider name, location, ZIP code, or article topic.`}
-                  </div>
-                ) : null}
-
-                {hasSearchQuery ? (
-                  <Link
-                    className={styles.searchAllResults}
-                    href={`/search?q=${encodeURIComponent(trimmedQuery)}`}
-                    onClick={() => setIsSearchOpen(false)}
-                  >
-                    View all search results
-                  </Link>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
+          <AiSearchModal />
 
           {headerActionExternal ? (
             <a className={styles.headerAction} href={headerActionHref} rel="noopener noreferrer" target="_blank">
@@ -430,6 +219,12 @@ export default function SiteHeader() {
         role="navigation"
       >
         <div className={styles.mobileNavInner}>
+          <div className={styles.mobileAiSearchWrap}>
+            <AiSearchModal
+              className={styles.mobileAiSearchTrigger}
+            />
+          </div>
+
           <ul className={styles.mobileNavList}>
             {navLinks.map((link) => (
               <li className={styles.mobileNavItem} key={`${link.label}-${link.href}`}>

@@ -236,24 +236,29 @@
 
 .heroBackgroundImage {
   object-fit: cover;
-  object-position: 86% 56%;
-  transform: scale(0.9);
+  object-position: 78% 56%;
+  transform: scale(1.02);
   transform-origin: right center;
+}
+
+.heroBackgroundImageMobile {
+  display: none;
+}
+
+.heroMobileFigure {
+  display: none;
+}
+
+.heroMobileFigureImage {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .heroBackgroundWash {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at 18% 50%, rgba(255, 255, 255, 0.62), transparent 30%),
-    linear-gradient(
-      90deg,
-      rgba(247, 250, 253, 0.96) 0%,
-      rgba(247, 250, 253, 0.9) 30%,
-      rgba(247, 250, 253, 0.68) 50%,
-      rgba(247, 250, 253, 0.24) 70%,
-      rgba(247, 250, 253, 0) 100%
-    );
+  background: none;
 }
 
 .heroCopy {
@@ -281,6 +286,31 @@
 .serviceCopy {
   display: grid;
   gap: 12px;
+}
+
+.heroBadge {
+  width: fit-content;
+  margin: 0 0 8px;
+  min-height: 38px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(185, 216, 243, 0.58);
+  color: #1349b4;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.heroBadgeDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #14b7db;
+  box-shadow: 0 0 0 5px rgba(20, 183, 219, 0.12);
 }
 
 .sectionLabel,
@@ -358,8 +388,9 @@
 }
 
 .heroScheduler {
+  width: min(760px, calc(100% + 80px));
   display: grid;
-  gap: 14px;
+  gap: 10px;
 }
 
 .heroSchedulerLabel {
@@ -371,17 +402,63 @@
 }
 
 .schedulerBar {
+  position: relative;
   width: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr) minmax(0, 1.18fr) 88px;
+  display: flex;
   align-items: center;
-  gap: 0;
-  padding: 8px 10px 8px 12px;
+  gap: 10px;
+  padding: 6px 6px 6px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(229, 237, 255, 0.96);
-  box-shadow: 0 16px 36px rgba(15, 35, 88, 0.12);
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    conic-gradient(
+      from var(--hero-search-angle),
+      #8de8ff 0deg,
+      #2f86ff 70deg,
+      #183fbe 160deg,
+      #66d9ff 250deg,
+      #0f2e99 320deg,
+      #8de8ff 360deg
+    ) border-box;
+  border: 1.5px solid transparent;
+  box-shadow: 0 14px 26px rgba(15, 35, 88, 0.1);
   backdrop-filter: blur(18px);
+  animation: heroSearchRotate 4.4s linear infinite;
+}
+
+.schedulerBar::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    conic-gradient(
+      from var(--hero-search-angle),
+      rgba(141, 232, 255, 0.6),
+      rgba(50, 148, 255, 0.56),
+      rgba(25, 62, 178, 0.54),
+      rgba(102, 217, 255, 0.52),
+      rgba(141, 232, 255, 0.6)
+    );
+  filter: blur(15px);
+  opacity: 0.5;
+  z-index: -1;
+  animation: heroSearchPulse 2.2s ease-in-out infinite;
+}
+
+.schedulerBar::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 16% 0%, rgba(145, 225, 255, 0.28), transparent 40%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0));
+  mix-blend-mode: screen;
+  opacity: 0.72;
+  animation: heroSearchSweep 3.8s ease-in-out infinite;
 }
 
 .schedulerItem,
@@ -410,20 +487,58 @@
 }
 
 .schedulerArrow {
-  width: 58px;
-  height: 58px;
-  min-height: 58px;
+  width: 45px;
+  height: 45px;
+  min-height: 45px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #6a83cb;
+  margin-left: auto;
+  background: #1748be;
   color: #ffffff;
   cursor: pointer;
-  box-shadow: 0 10px 22px rgba(53, 83, 167, 0.28);
+  box-shadow: 0 12px 24px rgba(30, 71, 176, 0.28);
   transition:
     transform 180ms ease,
     box-shadow 180ms ease;
+}
+
+.schedulerSearchIcon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: #204aa8;
+  flex: 0 0 auto;
+}
+
+.schedulerSearchIconSvg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  stroke: none;
+}
+
+.schedulerInput {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 14px;
+  background: transparent;
+  color: #2a3d6d;
+  font: inherit;
+  font-size: 0.89rem;
+  font-weight: 500;
+  line-height: 1;
+  outline: none;
+}
+
+.schedulerInput::placeholder {
+  color: #7c88aa;
 }
 
 .schedulerText {
@@ -434,8 +549,8 @@
 }
 
 .schedulerArrowIcon {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -450,8 +565,87 @@
 
 .schedulerArrow:hover {
   transform: translateY(-1px);
-  background: #5d77c5;
+  background: #123ea9;
   box-shadow: 0 14px 28px rgba(53, 83, 167, 0.32);
+}
+
+.schedulerQuickLinks {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.schedulerQuickPill {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(173, 194, 224, 0.5);
+  background: rgba(255, 255, 255, 0.78);
+  color: #1c4cb4;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.schedulerQuickPill:hover {
+  transform: translateY(-1px);
+  border-color: rgba(23, 58, 136, 0.28);
+  box-shadow: 0 10px 22px rgba(13, 44, 114, 0.1);
+}
+
+.schedulerQuickIcon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.9;
+}
+
+@property --hero-search-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes heroSearchRotate {
+  to {
+    --hero-search-angle: 360deg;
+  }
+}
+
+@keyframes heroSearchPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.995);
+  }
+
+  50% {
+    opacity: 0.62;
+    transform: scale(1.012);
+  }
+}
+
+@keyframes heroSearchSweep {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+
+  50% {
+    opacity: 0.88;
+  }
 }
 
 .statCard,
@@ -656,6 +850,10 @@
   box-shadow: none;
 }
 
+.experienceSection {
+  padding: clamp(28px, 4.4vw, 54px) 0;
+}
+
 .serviceSection .sectionHeader {
   margin-bottom: 30px;
   align-items: center;
@@ -787,6 +985,11 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.mobileServiceDots,
+.mobileStoryDots {
+  display: none;
+}
+
 .serviceCard,
 .storyCard {
   padding: 26px;
@@ -818,6 +1021,10 @@
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 12px 40px -16px rgba(24, 28, 30, 0.1);
+}
+
+.serviceCard.mobileServiceOnlyCard {
+  display: none;
 }
 
 .serviceCard:hover {
@@ -1000,66 +1207,232 @@
 
 .mediaCard {
   position: relative;
-  min-height: 400px;
+  min-height: clamp(420px, 42vw, 560px);
+  aspect-ratio: 16 / 10;
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(189, 206, 232, 0.5);
   border-radius: 32px;
-  background: linear-gradient(180deg, #dbe8f3 0%, #eef3f8 100%);
-  box-shadow: var(--shadow);
+  background: linear-gradient(180deg, #dfe8f4 0%, #eef4fb 100%);
+  box-shadow: 0 28px 66px rgba(22, 45, 88, 0.12);
+}
+
+.videoReveal {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.videoPoster {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  cursor: pointer;
+}
+
+.videoPoster::-webkit-details-marker {
+  display: none;
+}
+
+.videoReveal[open] .videoPoster {
+  display: none;
+}
+
+.videoFrameWrap {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+}
+
+.videoReveal:not([open]) .videoFrameWrap {
+  display: none;
+}
+
+.videoFrameWrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  display: block;
 }
 
 .mediaImage {
   object-fit: cover;
-  object-position: center right;
+  object-position: center;
 }
 
 .mediaShade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(8, 17, 43, 0.04) 0%, rgba(8, 17, 43, 0.42) 100%);
-}
-
-.mediaOverlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 28px;
+  background:
+    linear-gradient(180deg, rgba(7, 20, 49, 0.08) 0%, rgba(7, 20, 49, 0.32) 100%),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.2), transparent 42%);
 }
 
 .mediaBadge {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 2;
   width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  background: rgba(245, 250, 255, 0.76);
+  backdrop-filter: blur(10px);
+  color: #1554af;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mediaBadgeIcon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+  stroke: none;
+}
+
+.mediaDuration {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   min-height: 38px;
   padding: 0 14px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(14px);
+  border-radius: 12px;
+  background: rgba(11, 20, 44, 0.6);
   color: #fff;
-  font-size: 0.8rem;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: 1.02rem;
   font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
 }
 
 .playButton {
-  width: 82px;
-  height: 82px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 136px;
+  height: 136px;
   display: grid;
   place-items: center;
-  align-self: center;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.92);
   color: var(--primary);
-  box-shadow: 0 24px 48px rgba(10, 22, 56, 0.2);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 20px 44px rgba(10, 22, 56, 0.22);
 }
 
 .playIcon {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
+}
+
+.experienceContent {
+  gap: 18px;
+  position: relative;
+}
+
+.experienceContent::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -6px;
+  width: 150px;
+  height: 96px;
+  background-image: radial-gradient(circle, rgba(164, 188, 224, 0.56) 1.7px, transparent 1.8px);
+  background-size: 14px 14px;
+  opacity: 0.58;
+  pointer-events: none;
+}
+
+.experienceContent .sectionLabel {
+  color: #1b6abd;
+}
+
+.experienceContent .sectionTitle {
+  max-width: 11ch;
+  font-size: clamp(2.25rem, 4.7vw, 4.6rem);
+  line-height: 0.96;
+}
+
+.experienceContent .sectionText {
+  max-width: 34rem;
+  color: #58657d;
+  font-size: clamp(1rem, 1.1vw, 1.1rem);
+  line-height: 1.62;
+}
+
+.experienceActions {
+  display: grid;
+  gap: 18px;
+  width: fit-content;
+}
+
+.welcomeVideoButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 0 30px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0f3e9a 0%, #1247ab 100%);
+  color: #fff;
+  font-size: 1.03rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  box-shadow: 0 18px 34px rgba(17, 67, 164, 0.22);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.welcomeVideoButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 22px 40px rgba(17, 67, 164, 0.26);
+}
+
+.welcomeVideoButtonIcon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  stroke: none;
+}
+
+.welcomeProvidersLink {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #174fa8;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 9px;
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.welcomeProvidersLink:hover {
+  color: #0e3e94;
+  transform: translateX(2px);
 }
 
 .mediaCaption {
@@ -1365,38 +1738,53 @@
   }
 
   .heroShell {
-    min-height: 620px;
+    min-height: 720px;
   }
 
   .heroBackgroundImage {
-    object-position: 72% center;
-    transform: none;
+    display: none;
+  }
+
+  .heroBackgroundImageMobile {
+    display: none;
   }
 
   .heroBackgroundWash {
     background:
       linear-gradient(
         180deg,
-        rgba(247, 250, 253, 0.94) 0%,
-        rgba(247, 250, 253, 0.82) 28%,
-        rgba(247, 250, 253, 0.56) 54%,
-        rgba(247, 250, 253, 0.16) 100%
+        rgba(247, 250, 253, 0.97) 0%,
+        rgba(247, 250, 253, 0.93) 46%,
+        rgba(247, 250, 253, 0.88) 100%
       ),
       linear-gradient(
         90deg,
-        rgba(247, 250, 253, 0.96) 0%,
-        rgba(247, 250, 253, 0.84) 42%,
-        rgba(247, 250, 253, 0.32) 72%,
-        rgba(247, 250, 253, 0) 100%
+        rgba(247, 250, 253, 0.9) 0%,
+        rgba(247, 250, 253, 0.72) 100%
       );
   }
 
   .heroCopy {
     width: 100%;
-    min-height: 620px;
-    padding: 44px 22px 34px;
+    min-height: 720px;
+    padding: 24px 18px 20px;
     align-content: start;
-    gap: 24px;
+    gap: 20px;
+  }
+
+  .heroBadge {
+    margin: 0 0 4px;
+    min-height: 31px;
+    padding: 0 14px;
+    gap: 8px;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+  }
+
+  .heroBadgeDot {
+    width: 8px;
+    height: 8px;
+    box-shadow: 0 0 0 4px rgba(20, 183, 219, 0.12);
   }
 
   .heroLead {
@@ -1404,41 +1792,138 @@
   }
 
   .heroScheduler {
+    width: 100%;
     gap: 12px;
   }
 
   .schedulerBar {
-    grid-template-columns: 1fr;
+    flex-direction: row;
+    align-items: center;
     width: 100%;
-    border-radius: 30px;
-    gap: 10px;
-    padding: 14px;
+    border-radius: 999px;
+    gap: 8px;
+    padding: 6px 6px 6px 10px;
+    background:
+      linear-gradient(#ffffff, #ffffff) padding-box,
+      conic-gradient(
+        from var(--hero-search-angle),
+        #8de8ff 0deg,
+        #2f86ff 70deg,
+        #183fbe 160deg,
+        #66d9ff 250deg,
+        #0f2e99 320deg,
+        #8de8ff 360deg
+      ) border-box;
+    border: 1.5px solid transparent;
   }
 
-  .schedulerItem {
-    min-height: 0;
-    padding: 0;
+  .schedulerSearchIcon {
+    width: 28px;
+    height: 28px;
   }
 
-  .schedulerItem + .schedulerItem {
-    border-left: 0;
-    border-top: 1px solid rgba(23, 58, 136, 0.2);
-    padding-top: 10px;
+  .schedulerInput {
+    height: 42px;
+    padding: 0 8px;
+    font-size: 0.89rem;
+    line-height: 1.25;
+    background: transparent;
   }
 
   .schedulerArrow {
-    justify-self: end;
-    width: 52px;
-    height: 52px;
-    min-height: 52px;
+    width: 45px;
+    height: 45px;
+    min-height: 45px;
   }
 
-  .storyGrid,
+  .schedulerQuickLinks {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .schedulerQuickPill {
+    min-height: 48px;
+    width: 100%;
+    padding: 0 12px;
+    justify-content: flex-start;
+    font-size: 0.93rem;
+  }
+
+  .heroMobileFigure {
+    position: relative;
+    display: block;
+    width: min(100%, 560px);
+    margin: 16px auto 0;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  .heroMobileFigure::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 15%;
+    background: linear-gradient(180deg, rgba(247, 250, 253, 0) 0%, rgba(247, 250, 253, 0.92) 100%);
+    pointer-events: none;
+  }
+
+  .heroMobileFigureImage {
+    transform: translateY(0);
+  }
+
   .faqGrid,
   .footerGrid,
   .formGrid,
   .philosophyStats {
     grid-template-columns: 1fr;
+  }
+
+  .storyGrid {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    overflow-y: visible;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 10px 20px 18px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 20px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .storyGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .storyCard {
+    flex: 0 0 calc(100vw - 40px);
+    scroll-snap-align: start;
+  }
+
+  .mobileStoryDots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .mobileStoryDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(20, 84, 175, 0.22);
+  }
+
+  .mobileStoryDotActive {
+    width: 7px;
+    height: 7px;
+    background: #1f79de;
   }
 
   .section {
@@ -1455,7 +1940,74 @@
   }
 
   .serviceGrid {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 2px 4px 8px 2px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .serviceGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .serviceCard {
+    flex: 0 0 42%;
+    min-width: 0;
+    scroll-snap-align: start;
+    gap: 12px;
+    padding: 20px 16px;
+    border-radius: 18px;
+  }
+
+  .serviceIcon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .serviceIconSvg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+  }
+
+  .serviceTitle {
+    font-size: 1.12rem;
+    line-height: 1.14;
+  }
+
+  .serviceDescription {
+    display: none;
+  }
+
+  .textLink {
+    font-size: 0.86rem;
+  }
+
+  .serviceCard.mobileServiceOnlyCard {
+    display: grid;
+  }
+
+  .mobileServiceDots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .mobileServiceDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(20, 84, 175, 0.22);
+  }
+
+  .mobileServiceDotActive {
+    width: 7px;
+    height: 7px;
+    background: #1f79de;
   }
 
   .serviceSection .serviceAnimatedTitle {
@@ -1474,20 +2026,93 @@
     align-items: flex-start;
   }
 
-  .philosophyStats {
-    position: relative;
-    margin-top: 12px;
-    left: auto;
-    right: auto;
-    bottom: auto;
+  .philosophyVisual {
+    padding-bottom: 22px;
+  }
+
+  .philosophyVisual::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 0;
+    height: 122px;
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at 22% 24%, rgba(255, 255, 255, 0.62), transparent 44%),
+      linear-gradient(180deg, rgba(194, 210, 235, 0.3), rgba(174, 194, 226, 0.16));
+    filter: blur(2px);
+    z-index: 0;
   }
 
   .philosophyImageWrap {
-    min-height: 420px;
+    z-index: 1;
+    min-height: 510px;
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    background: linear-gradient(180deg, rgba(241, 246, 252, 0.72), rgba(223, 234, 248, 0.52));
+    box-shadow:
+      0 28px 58px rgba(22, 50, 98, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.76);
+  }
+
+  .philosophyImage {
+    object-position: 42% center;
+    transform: scale(1.02);
+  }
+
+  .philosophyStats {
+    position: absolute;
+    margin-top: 0;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 28px;
+    background:
+      linear-gradient(
+        150deg,
+        rgba(255, 255, 255, 0.72) 0%,
+        rgba(246, 251, 255, 0.52) 50%,
+        rgba(233, 242, 253, 0.42) 100%
+      );
+    backdrop-filter: blur(16px) saturate(130%);
+    -webkit-backdrop-filter: blur(16px) saturate(130%);
+    box-shadow:
+      0 20px 38px rgba(18, 44, 90, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.78),
+      inset 0 -14px 26px rgba(168, 190, 224, 0.18);
+  }
+
+  .philosophyStat {
+    gap: 8px;
+    padding: 16px 8px 18px;
+  }
+
+  .philosophyStatValue {
+    font-size: clamp(2rem, 8vw, 2.8rem);
+    letter-spacing: -0.06em;
+  }
+
+  .philosophyStatLabel {
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    color: #556178;
   }
 
   .philosophyDivider {
-    display: none;
+    display: block;
+    top: 22%;
+    bottom: 22%;
+    background: linear-gradient(
+      180deg,
+      rgba(24, 33, 47, 0) 0%,
+      rgba(143, 164, 197, 0.72) 18%,
+      rgba(143, 164, 197, 0.72) 82%,
+      rgba(24, 33, 47, 0) 100%
+    );
   }
 
   .philosophyContent .sectionTitle {
@@ -1525,7 +2150,22 @@
 
   .heroShell,
   .heroCopy {
-    min-height: 580px;
+    min-height: 680px;
+  }
+
+  .heroCopy {
+    padding: 20px 14px 16px;
+  }
+
+  .heroBadge {
+    min-height: 29px;
+    padding: 0 12px;
+    font-size: 0.64rem;
+  }
+
+  .heroBadgeDot {
+    width: 7px;
+    height: 7px;
   }
 
   .heroSchedulerLabel {
@@ -1534,6 +2174,61 @@
 
   .schedulerTitle {
     font-size: 0.94rem;
+  }
+
+  .schedulerSearchIcon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .schedulerSearchIconSvg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .schedulerInput {
+    font-size: 0.86rem;
+  }
+
+  .schedulerArrow {
+    width: 42px;
+    height: 42px;
+    min-height: 42px;
+  }
+
+  .schedulerQuickLinks {
+    gap: 8px;
+  }
+
+  .schedulerQuickPill {
+    min-height: 44px;
+    font-size: 0.88rem;
+    gap: 6px;
+  }
+
+  .heroMobileFigure {
+    margin-top: 14px;
+  }
+
+  .philosophyImageWrap {
+    min-height: 470px;
+    border-radius: 28px;
+  }
+
+  .philosophyStats {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    border-radius: 24px;
+  }
+
+  .philosophyStat {
+    gap: 6px;
+    padding: 14px 6px 16px;
+  }
+
+  .philosophyStatLabel {
+    font-size: 0.62rem;
   }
 
   .playButton {

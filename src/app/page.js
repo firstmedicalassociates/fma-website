@@ -17,7 +17,11 @@ const bodyFont = Inter({
 });
 
 const heroBackgroundImage = "/uploads/Header-bcgn-1-scaled.jpg";
+const heroBackgroundImageMobile = "/uploads/Header-bcgn-2-mobile.jpg";
 const heroImage = "/uploads/philosophy-consultation.jpg";
+const welcomeVideoUrl = "https://vimeo.com/1036472343?fl=pl&fe=vl";
+const welcomeVideoEmbedUrl =
+  "https://player.vimeo.com/video/1036472343?autoplay=1&title=0&byline=0&portrait=0";
 
 export const runtime = "nodejs";
 export const revalidate = 60;
@@ -374,6 +378,29 @@ function Icon({ name, className }) {
           <path d="m6 9 6 6 6-6" />
         </svg>
       );
+    case "search":
+      return (
+        <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.2" />
+          <path d="m16 16 4 4" />
+        </svg>
+      );
+    case "ai-sparkle":
+      return (
+        <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2.75 13.75 8.25 19.25 10 13.75 11.75 12 17.25 10.25 11.75 4.75 10 10.25 8.25 12 2.75Z" />
+          <path d="M19 14.5 19.8 17.2 22.5 18 19.8 18.8 19 21.5 18.2 18.8 15.5 18 18.2 17.2 19 14.5Z" />
+        </svg>
+      );
+    case "users":
+      return (
+        <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      );
     case "star":
       return (
         <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
@@ -451,12 +478,25 @@ export default async function Home() {
                 priority
                 sizes="100vw"
               />
+              <Image
+                src={heroBackgroundImageMobile}
+                alt=""
+                className={styles.heroBackgroundImageMobile}
+                fill
+                priority
+                sizes="100vw"
+              />
               <div className={styles.heroBackgroundWash} />
             </div>
 
             <div className={styles.container}>
               <div className={styles.heroCopy}>
                 <div className={styles.heroHeading}>
+                  <p className={styles.heroBadge}>
+                    <span className={styles.heroBadgeDot} aria-hidden="true" />
+                    Patient-Centered Primary Care
+                  </p>
+
                   <h1 className={styles.heroTitle}>
                     <span className={styles.heroTitleLine}>
                       Receive the{" "}
@@ -475,28 +515,54 @@ export default async function Home() {
                 </p>
 
                 <div className={styles.heroScheduler}>
-                  <p className={styles.heroSchedulerLabel}>Schedule Your Next Appointment</p>
                   <div className={styles.schedulerBar}>
-                    <SmartLink href="/locations" className={styles.schedulerItem}>
-                      <span className={styles.schedulerTitle}>Where?</span>
-                      <span className={styles.schedulerText}>Search City or State</span>
-                    </SmartLink>
-                    <SmartLink href="/providers" className={styles.schedulerItem}>
-                      <span className={styles.schedulerTitle}>Find a Doctor</span>
-                      <span className={styles.schedulerText}>Search for a provider</span>
-                    </SmartLink>
-                    <SmartLink href="#services" className={styles.schedulerItem}>
-                      <span className={styles.schedulerTitle}>Appointment Types</span>
-                      <span className={styles.schedulerText}>Search for a specialty</span>
-                    </SmartLink>
+                    <span className={styles.schedulerSearchIcon} aria-hidden="true">
+                      <Icon name="ai-sparkle" className={styles.schedulerSearchIconSvg} />
+                    </span>
+                    <input
+                      aria-label="Search doctors, services, locations, or appointment types"
+                      className={styles.schedulerInput}
+                      placeholder="Search doctors, services, locations, or appointment types"
+                      type="search"
+                    />
                     <SmartLink
-                      href={bookingHref}
+                      href="/search"
                       className={styles.schedulerArrow}
-                      aria-label="Continue to appointment scheduling"
+                      aria-label="Open search"
                     >
                       <Icon name="arrow" className={styles.schedulerArrowIcon} />
                     </SmartLink>
                   </div>
+
+                  <div className={styles.schedulerQuickLinks}>
+                    <SmartLink href="/services" className={styles.schedulerQuickPill}>
+                      <Icon name="cross" className={styles.schedulerQuickIcon} />
+                      Primary care
+                    </SmartLink>
+                    <SmartLink href="/providers" className={styles.schedulerQuickPill}>
+                      <Icon name="users" className={styles.schedulerQuickIcon} />
+                      Find a doctor
+                    </SmartLink>
+                    <SmartLink href="/locations" className={styles.schedulerQuickPill}>
+                      <Icon name="location" className={styles.schedulerQuickIcon} />
+                      Locations
+                    </SmartLink>
+                    <SmartLink href={bookingHref} className={styles.schedulerQuickPill}>
+                      <Icon name="calendar" className={styles.schedulerQuickIcon} />
+                      Appointments
+                    </SmartLink>
+                  </div>
+                </div>
+
+                <div className={styles.heroMobileFigure} aria-hidden="true">
+                  <Image
+                    src={heroBackgroundImageMobile}
+                    alt=""
+                    className={styles.heroMobileFigureImage}
+                    width={1113}
+                    height={1113}
+                    sizes="(max-width: 780px) 100vw, 0px"
+                  />
                 </div>
               </div>
             </div>
@@ -561,6 +627,28 @@ export default async function Home() {
                 </SmartLink>
               </article>
             ))}
+
+            <article className={`${styles.serviceCard} ${styles.mobileServiceOnlyCard}`}>
+              <span className={styles.serviceIcon}>
+                <Icon name="shield" className={styles.serviceIconSvg} />
+              </span>
+              <div className={styles.serviceCopy}>
+                <h3 className={styles.serviceTitle}>Specialized Care</h3>
+                <p className={styles.serviceDescription}>
+                  Connect with specialist-led care paths tailored for advanced or complex needs.
+                </p>
+              </div>
+              <SmartLink href="/services" className={styles.textLink}>
+                Learn More
+                <Icon name="arrow" className={styles.inlineIcon} />
+              </SmartLink>
+            </article>
+          </div>
+
+          <div className={styles.mobileServiceDots} aria-hidden="true">
+            <span className={`${styles.mobileServiceDot} ${styles.mobileServiceDotActive}`} />
+            <span className={styles.mobileServiceDot} />
+            <span className={styles.mobileServiceDot} />
           </div>
         </section>
 
@@ -621,37 +709,65 @@ export default async function Home() {
         <section className={`${styles.section} ${styles.experienceSection}`}>
           <div className={styles.experienceLayout}>
             <div className={styles.mediaCard}>
-              <Image
-                src={heroImage}
-                alt="Bright, welcoming First Medical Associates clinical experience"
-                className={styles.mediaImage}
-                fill
-                sizes="(max-width: 1100px) 100vw, 44vw"
-              />
-              <div className={styles.mediaShade} aria-hidden="true" />
-              <div className={styles.mediaOverlay}>
-                <span className={styles.mediaBadge}>Welcome</span>
-                <div className={styles.playButton}>
-                  <Icon name="play" className={styles.playIcon} />
+              <details className={styles.videoReveal}>
+                <summary className={styles.videoPoster}>
+                  <Image
+                    src={heroImage}
+                    alt="Doctor speaking with a patient during a welcome consultation"
+                    className={styles.mediaImage}
+                    fill
+                    sizes="(max-width: 1100px) 100vw, 44vw"
+                  />
+                  <div className={styles.mediaShade} aria-hidden="true" />
+                  <span className={styles.mediaBadge}>
+                    <Icon name="play" className={styles.mediaBadgeIcon} />
+                    Welcome Video
+                  </span>
+                  <span className={styles.mediaDuration}>1:48</span>
+                  <span className={styles.playButton} aria-hidden="true">
+                    <Icon name="play" className={styles.playIcon} />
+                  </span>
+                </summary>
+
+                <div className={styles.videoFrameWrap} id="welcome-video-player">
+                  <iframe
+                    src={welcomeVideoEmbedUrl}
+                    title="First Medical Associates welcome video"
+                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                  />
                 </div>
-                <p className={styles.mediaCaption}>
-                  A calmer experience starts before the visit, with clearer next steps, easier
-                  scheduling, and care teams that make follow-through feel simple.
-                </p>
-              </div>
+              </details>
             </div>
 
             <div className={styles.experienceContent}>
-              <p className={styles.sectionLabel}>Experience</p>
-              <h2 className={styles.sectionTitle}>Experience excellence in care.</h2>
+              <p className={styles.sectionLabel}>Welcome</p>
+              <h2 className={styles.sectionTitle}>A more personal start to your care.</h2>
               <p className={styles.sectionText}>
-                Explore nearby offices, connect with trusted providers, and move from question to
-                appointment with less friction and more confidence.
+                Get to know our providers, explore our services, and see how we make high-quality
+                care simple, connected, and personalized. Your health journey starts here and
+                we&rsquo;re with you every step.
               </p>
-              <SmartLink href="/providers" className={styles.primaryButton}>
-                Meet Our Providers
-                <Icon name="arrow" className={styles.buttonIcon} />
-              </SmartLink>
+
+              <div className={styles.experienceActions}>
+                <a
+                  href={welcomeVideoUrl}
+                  className={styles.welcomeVideoButton}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Icon name="play" className={styles.welcomeVideoButtonIcon} />
+                  Watch Welcome Video
+                  <Icon name="arrow" className={styles.buttonIcon} />
+                </a>
+
+                <SmartLink href="/providers" className={styles.welcomeProvidersLink}>
+                  Meet our providers
+                  <Icon name="arrow" className={styles.inlineIcon} />
+                </SmartLink>
+              </div>
             </div>
           </div>
         </section>
@@ -675,6 +791,12 @@ export default async function Home() {
                 </div>
               </article>
             ))}
+          </div>
+
+          <div className={styles.mobileStoryDots} aria-hidden="true">
+            <span className={`${styles.mobileStoryDot} ${styles.mobileStoryDotActive}`} />
+            <span className={styles.mobileStoryDot} />
+            <span className={styles.mobileStoryDot} />
           </div>
         </section>
 
