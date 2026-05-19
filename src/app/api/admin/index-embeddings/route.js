@@ -1,0 +1,354 @@
+import { NextResponse } from 'next/server';
+import { OpenAI } from 'openai';
+import { prisma } from '../../../lib/prisma';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+let openai;
+
+function getOpenAI() {
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openai;
+}
+
+const EMBEDDING_MODEL = 'text-embedding-3-small';
+
+function cleanPath(value = '') {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  if (/^https?:\/\//i.test(text)) return text;
+  const withLeadingSlash = text.startsWith('/') ? text : `/${text}`;
+  return withLeadingSlash.replace(/\/{2,}/g, '/');
+}
+
+function buildLocationUrl(slug = '') {
+  const path = cleanPath(slug);
+  if (!path) return '/locations';
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.includes('/location/')) {
+    return cleanPath(path.slice(path.indexOf('/location/')));
+  }
+  if (path.includes('/locations/')) {
+    return cleanPath(path.slice(path.indexOf('/locations/')));
+  }
+  return cleanPath(`/location/${path.replace(/^\/+/, '')}`);
+}
+
+function buildProviderUrl(slug = '') {
+  const path = cleanPath(slug).replace(/^\/+/, '');
+  if (!path) return '/providers';
+  if (path.startsWith('providers/')) return `/${path}`;
+  if (path.startsWith('provider/')) return `/${path.replace(/^provider\//, 'providers/')}`;
+  return `/providers/${path}`;
+}
+
+function buildServiceUrl(slug = '') {
+  const path = cleanPath(slug).replace(/^\/+/, '');
+  if (!path) return '/services';
+  if (path.startsWith('service/')) return `/${path}`;
+  if (path.startsWith('services/')) return `/${path.replace(/^services\//, 'service/')}`;
+  return `/service/${path}`;
+}
+
+function buildPostUrl(slug = '') {
+  const path = cleanPath(slug).replace(/^\/+/, '');
+  if (!path) return '/blog';
+  if (path.startsWith('blog/')) return `/${path}`;
+  return `/blog/${path}`;
+}
+
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function generateEmbedding(text) {
+  if (!text || !text.trim()) return null;
+
+  try {
+    const client = getOpenAI();
+    const response = await client.embeddings.create({
+      model: EMBEDDING_MODEL,
+      input: text,
+    });
+    return response.data[0].embedding;
+  } catch (error) {
+    console.error('Error generating embedding:', error.message);
+    return null;
+  }
+}
+
+async function indexLocations(db) {
+  const locations = await db.location.findMany();
+  let count = 0;
+  const errors = [];
+
+  for (const location of locations) {
+    const content = [
+      location.title,
+      location.accent,
+      location.intro,
+      location.address,
+      location.parkingDescription,
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    if (!content.trim()) {
+      continue;
+    }
+
+    try {
+      const embedding = await generateEmbedding(content);
+      if (!embedding) {
+        errors.push(`${location.title}: no embedding generated`);
+        continue;
+      }
+
+      const metadata = {
+        type: 'location',
+        sourceId: location.id,
+        slug: buildLocationUrl(location.slug),
+        url: buildLocationUrl(location.slug),
+        title: location.title,
+      };
+
+      await db.$executeRawUnsafe(
+        `INSERT INTO "SearchEmbedding" (id, content, embedding, metadata, "createdAt", "updatedAt")
+         VALUES ($1, $2, $3::vector, $4::jsonb, NOW(), NOW())
+         ON CONFLICT(id) DO UPDATE SET
+         content = $2, embedding = $3::vector, metadata = $4::jsonb, "updatedAt" = NOW()`,
+        `location-${location.id}`,
+        content,
+        `[${embedding.join(',')}]`,
+        JSON.stringify(metadata)
+      );
+
+      count++;
+      await sleep(200);
+    } catch (error) {
+      errors.push(`${location.title}: ${error.message}`);
+    }
+  }
+
+  return { count, errors, total: locations.length };
+}
+
+async function indexProviders(db) {
+  const providers = await db.provider.findMany();
+  let count = 0;
+  const errors = [];
+
+  for (const provider of providers) {
+    const content = [provider.name, provider.title, provider.bio]
+      .filter(Boolean)
+      .join(' ');
+
+    if (!content.trim()) continue;
+
+    try {
+      const embedding = await generateEmbedding(content);
+      if (!embedding) {
+        errors.push(`${provider.name}: no embedding generated`);
+        continue;
+      }
+
+      const metadata = {
+        type: 'provider',
+        sourceId: provider.id,
+        slug: provider.slug,
+        url: buildProviderUrl(provider.slug),
+        title: provider.name,
+        locations: provider.locations,
+      };
+
+      await db.$executeRawUnsafe(
+        `INSERT INTO "SearchEmbedding" (id, content, embedding, metadata, "createdAt", "updatedAt")
+         VALUES ($1, $2, $3::vector, $4::jsonb, NOW(), NOW())
+         ON CONFLICT(id) DO UPDATE SET
+         content = $2, embedding = $3::vector, metadata = $4::jsonb, "updatedAt" = NOW()`,
+        `provider-${provider.id}`,
+        content,
+        `[${embedding.join(',')}]`,
+        JSON.stringify(metadata)
+      );
+
+      count++;
+      await sleep(200);
+    } catch (error) {
+      errors.push(`${provider.name}: ${error.message}`);
+    }
+  }
+
+  return { count, errors, total: providers.length };
+}
+
+async function indexServices(db) {
+  const services = await db.service.findMany();
+  let count = 0;
+  const errors = [];
+
+  for (const service of services) {
+    let content = [service.title, service.description, service.category]
+      .filter(Boolean)
+      .join(' ');
+
+    if (service.pageContent) {
+      const pageContent = service.pageContent;
+      if (pageContent.heroDescription)
+        content += ' ' + pageContent.heroDescription;
+      if (pageContent.infoParagraphs)
+        content += ' ' + pageContent.infoParagraphs.join(' ');
+      if (pageContent.features)
+        content += ' ' + pageContent.features.map((f) => f.title).join(' ');
+    }
+
+    if (!content.trim()) continue;
+    content = content.substring(0, 2000);
+
+    try {
+      const embedding = await generateEmbedding(content);
+      if (!embedding) {
+        errors.push(`${service.title}: no embedding generated`);
+        continue;
+      }
+
+      const metadata = {
+        type: 'service',
+        sourceId: service.id,
+        slug: service.slug,
+        url: buildServiceUrl(service.slug),
+        title: service.title,
+        category: service.category,
+      };
+
+      await db.$executeRawUnsafe(
+        `INSERT INTO "SearchEmbedding" (id, content, embedding, metadata, "createdAt", "updatedAt")
+         VALUES ($1, $2, $3::vector, $4::jsonb, NOW(), NOW())
+         ON CONFLICT(id) DO UPDATE SET
+         content = $2, embedding = $3::vector, metadata = $4::jsonb, "updatedAt" = NOW()`,
+        `service-${service.id}`,
+        content,
+        `[${embedding.join(',')}]`,
+        JSON.stringify(metadata)
+      );
+
+      count++;
+      await sleep(200);
+    } catch (error) {
+      errors.push(`${service.title}: ${error.message}`);
+    }
+  }
+
+  return { count, errors, total: services.length };
+}
+
+async function indexBlogPosts(db) {
+  const posts = await db.blogPost.findMany({
+    where: { status: 'PUBLISHED' },
+  });
+  let count = 0;
+  const errors = [];
+
+  for (const post of posts) {
+    const content = [post.title, post.excerpt, post.metaDescription]
+      .filter(Boolean)
+      .join(' ');
+
+    if (!content.trim()) continue;
+
+    try {
+      const embedding = await generateEmbedding(content);
+      if (!embedding) {
+        errors.push(`${post.title}: no embedding generated`);
+        continue;
+      }
+
+      const metadata = {
+        type: 'post',
+        sourceId: post.id,
+        slug: post.slug,
+        url: buildPostUrl(post.slug),
+        title: post.title,
+      };
+
+      await db.$executeRawUnsafe(
+        `INSERT INTO "SearchEmbedding" (id, content, embedding, metadata, "createdAt", "updatedAt")
+         VALUES ($1, $2, $3::vector, $4::jsonb, NOW(), NOW())
+         ON CONFLICT(id) DO UPDATE SET
+         content = $2, embedding = $3::vector, metadata = $4::jsonb, "updatedAt" = NOW()`,
+        `post-${post.id}`,
+        content,
+        `[${embedding.join(',')}]`,
+        JSON.stringify(metadata)
+      );
+
+      count++;
+      await sleep(200);
+    } catch (error) {
+      errors.push(`${post.title}: ${error.message}`);
+    }
+  }
+
+  return { count, errors, total: posts.length };
+}
+
+export async function POST(request) {
+  const logs = [];
+  const errors = { locations: [], providers: [], services: [], posts: [] };
+
+  try {
+    logs.push('Starting indexing...');
+
+    const locationResult = await indexLocations(prisma);
+    logs.push(`Indexed ${locationResult.count}/${locationResult.total} locations`);
+    if (locationResult.errors.length) errors.locations = locationResult.errors;
+
+    const providerResult = await indexProviders(prisma);
+    logs.push(`Indexed ${providerResult.count}/${providerResult.total} providers`);
+    if (providerResult.errors.length) errors.providers = providerResult.errors;
+
+    const serviceResult = await indexServices(prisma);
+    logs.push(`Indexed ${serviceResult.count}/${serviceResult.total} services`);
+    if (serviceResult.errors.length) errors.services = serviceResult.errors;
+
+    const postResult = await indexBlogPosts(prisma);
+    logs.push(`Indexed ${postResult.count}/${postResult.total} posts`);
+    if (postResult.errors.length) errors.posts = postResult.errors;
+
+    const totalCount = locationResult.count + providerResult.count + serviceResult.count + postResult.count;
+
+    return NextResponse.json(
+      {
+        ok: true,
+        message: 'Indexing complete',
+        indexed: {
+          locations: locationResult.count,
+          providers: providerResult.count,
+          services: serviceResult.count,
+          posts: postResult.count,
+          total: totalCount,
+        },
+        logs,
+        errors: Object.values(errors).flat().length > 0 ? errors : null,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Indexing error:', error);
+    logs.push(`Error: ${error.message}`);
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: error.message || 'Failed to index embeddings',
+        logs,
+      },
+      { status: 500 }
+    );
+  }
+}

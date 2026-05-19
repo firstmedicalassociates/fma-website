@@ -104,3 +104,14 @@ model Location {
 
   @@index([updatedAt])
 }
+
+model SearchEmbedding {
+  id        String   @id @default(cuid())
+  content   String
+  embedding Unsupported("vector(1536)")?
+  metadata  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}

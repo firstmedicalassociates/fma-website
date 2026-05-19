@@ -15,7 +15,8 @@
 
 .hero,
 .emptyCard,
-.groupSection {
+.groupSection,
+.aiCard {
   border: 1px solid rgba(255, 255, 255, 0.82);
   border-radius: 32px;
   background: rgba(255, 255, 255, 0.92);
@@ -92,6 +93,66 @@
   margin: 0;
   color: #5b6983;
   line-height: 1.7;
+}
+
+.aiCard {
+  padding: 28px;
+  display: grid;
+  gap: 14px;
+}
+
+.aiCardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.aiCardHeader strong {
+  color: #132449;
+  font-size: 1.05rem;
+}
+
+.aiCardHeader span {
+  color: #5f6d86;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.aiAnswer {
+  margin: 0;
+  color: #33456f;
+  line-height: 1.72;
+}
+
+.aiSources {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.aiSource {
+  min-height: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(19, 36, 73, 0.1);
+  background: linear-gradient(180deg, #f8fbff 0%, #f0f6ff 100%);
+  display: grid;
+  gap: 4px;
+}
+
+.aiSource span {
+  color: #18739b;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.aiSource strong {
+  color: #123770;
+  font-size: 0.95rem;
 }
 
 .groupList {
@@ -194,13 +255,15 @@
 
   .hero,
   .emptyCard,
-  .groupSection {
+  .groupSection,
+  .aiCard {
     border-radius: 24px;
   }
 
   .hero,
   .groupSection,
-  .emptyCard {
+  .emptyCard,
+  .aiCard {
     padding: 22px;
   }
 

@@ -81,6 +81,9 @@ export default function SiteHeader() {
   const [searchStatus, setSearchStatus] = useState("idle");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [aiAnswer, setAiAnswer] = useState("");
+  const [aiSources, setAiSources] = useState([]);
+  const [aiStatus, setAiStatus] = useState("idle");
 
   const trimmedQuery = query.trim();
   const hasSearchQuery = trimmedQuery.length >= SEARCH_MIN_CHARACTERS;
@@ -127,11 +130,12 @@ export default function SiteHeader() {
   ];
 
   const searchSummary = useMemo(() => {
-    if (searchStatus === "loading") return "Searching the site...";
+    if (searchStatus === "loading" || aiStatus === "loading") return "Searching...";
     if (!hasSearchQuery) return `Type at least ${SEARCH_MIN_CHARACTERS} characters to search.`;
+    if (aiAnswer) return "AI Answer + Directory Results";
     if (results.length === 0) return "No matching pages found.";
     return `${results.length} matching page${results.length === 1 ? "" : "s"}`;
-  }, [hasSearchQuery, results.length, searchStatus]);
+  }, [hasSearchQuery, results.length, searchStatus, aiAnswer, aiStatus]);
 
   useEffect(() => {
     setIsSearchOpen(false);
@@ -172,32 +176,69 @@ export default function SiteHeader() {
     if (!hasSearchQuery) {
       setResults([]);
       setSearchStatus("idle");
+      setAiAnswer("");
+      setAiSources([]);
+      setAiStatus("idle");
       return undefined;
     }
 
     const controller = new AbortController();
     setResults([]);
     setSearchStatus("loading");
+    setAiAnswer("");
+    setAiSources([]);
+    setAiStatus("loading");
 
     const timeoutId = window.setTimeout(async () => {
       try {
-        const response = await fetch(`/api/search?q=${encodeURIComponent(trimmedQuery)}`, {
-          signal: controller.signal,
-        });
-        const data = await response.json().catch(() => ({}));
+        const [keywordResponse, aiResponse] = await Promise.allSettled([
+          fetch(`/api/search?q=${encodeURIComponent(trimmedQuery)}`, {
+            signal: controller.signal,
+          }),
+          fetch(`/api/ai-search?q=${encodeURIComponent(trimmedQuery)}`, {
+            signal: controller.signal,
+          }),
+        ]);
 
-        if (!response.ok || !data.ok) {
-          setResults([]);
-          setSearchStatus("error");
-          return;
+        // Handle keyword search results
+        if (keywordResponse.status === "fulfilled") {
+          const response = keywordResponse.value;
+          const data = await response.json().catch(() => ({}));
+          if (response.ok && data.ok) {
+            setResults(Array.isArray(data.results) ? data.results : []);
+            setSearchStatus("ready");
+          } else {
+            setResults([]);
+            setSearchStatus("error");
+          }
+        } else {
+          if (keywordResponse.reason?.name !== "AbortError") {
+            setResults([]);
+            setSearchStatus("error");
+          }
         }
 
-        setResults(Array.isArray(data.results) ? data.results : []);
-        setSearchStatus("ready");
+        // Handle AI search results
+        if (aiResponse.status === "fulfilled") {
+          const response = aiResponse.value;
+          const data = await response.json().catch(() => ({}));
+          if (response.ok && data.ok) {
+            setAiAnswer(data.answer || "");
+            setAiSources(Array.isArray(data.sources) ? data.sources : []);
+            setAiStatus("ready");
+          } else {
+            setAiStatus("error");
+          }
+        } else {
+          if (aiResponse.reason?.name !== "AbortError") {
+            setAiStatus("error");
+          }
+        }
       } catch (error) {
         if (error.name === "AbortError") return;
         setResults([]);
         setSearchStatus("error");
+        setAiStatus("error");
       }
     }, 180);
 
@@ -304,34 +345,58 @@ export default function SiteHeader() {
             {showSearchPanel ? (
               <div className={styles.searchPanel}>
                 <div className={styles.searchPanelHeader}>
-                  <span className={styles.searchPanelTitle}>Search Directory</span>
+                  <span className={styles.searchPanelTitle}>Search</span>
                   <span className={styles.searchPanelMeta}>{searchSummary}</span>
                 </div>
 
-                {hasSearchQuery && results.length > 0 ? (
-                  <div className={styles.searchResults}>
-                    {results.map((result) => (
-                      <Link
-                        key={`${result.kind}-${result.href}`}
-                        className={styles.searchResult}
-                        href={result.href}
-                        onClick={() => setIsSearchOpen(false)}
-                      >
-                        <span className={styles.searchResultBadge}>{result.categoryLabel}</span>
-                        <strong>{result.title}</strong>
-                        <span>{result.description}</span>
-                      </Link>
-                    ))}
+                {aiAnswer ? (
+                  <div className={styles.aiAnswerSection}>
+                    <div className={styles.aiAnswerContent}>{aiAnswer}</div>
+                    {aiSources.length > 0 ? (
+                      <div className={styles.aiSourcesList}>
+                        {aiSources.map((source, idx) => (
+                          <Link
+                            key={idx}
+                            className={styles.aiSource}
+                            href={source.url}
+                            onClick={() => setIsSearchOpen(false)}
+                          >
+                            <span className={styles.aiSourceType}>{source.type}</span>
+                            <strong>{source.title}</strong>
+                          </Link>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
-                ) : (
+                ) : null}
+
+                {results.length > 0 ? (
+                  <>
+                    {aiAnswer ? <div className={styles.searchPanelDivider} /> : null}
+                    <div className={styles.searchResults}>
+                      {results.map((result) => (
+                        <Link
+                          key={`${result.kind}-${result.href}`}
+                          className={styles.searchResult}
+                          href={result.href}
+                          onClick={() => setIsSearchOpen(false)}
+                        >
+                          <span className={styles.searchResultBadge}>{result.categoryLabel}</span>
+                          <strong>{result.title}</strong>
+                          <span>{result.description}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                ) : !aiAnswer ? (
                   <div className={styles.searchEmptyState}>
-                    {searchStatus === "error"
+                    {searchStatus === "error" || aiStatus === "error"
                       ? "Search is temporarily unavailable."
                       : hasSearchQuery
                         ? "No related pages found for that search."
                         : `Start typing a provider name, location, ZIP code, or article topic.`}
                   </div>
-                )}
+                ) : null}
 
                 {hasSearchQuery ? (
                   <Link

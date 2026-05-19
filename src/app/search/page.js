@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
+import { runAiSearch } from "../lib/ai-search";
 import { searchSite } from "../lib/site-search";
 import styles from "./search-page.module.css";
 
@@ -41,6 +42,18 @@ export default async function SearchPage({ searchParams }) {
   });
   const groups = groupResultsByKind(results);
   const hasQuery = query.length >= 2;
+  let aiResult = null;
+
+  if (hasQuery) {
+    try {
+      const result = await runAiSearch(query, { limit: 8 });
+      if (result.ok) {
+        aiResult = result;
+      }
+    } catch (error) {
+      console.error("Search page AI lookup failed:", error);
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -66,6 +79,28 @@ export default async function SearchPage({ searchParams }) {
             </div>
           )}
         </section>
+
+        {hasQuery && aiResult?.answer ? (
+          <section className={styles.aiCard}>
+            <div className={styles.aiCardHeader}>
+              <strong>AI answer for {query}</strong>
+              <span>
+                Confidence {Math.round((aiResult.confidence || 0) * 100)}%
+              </span>
+            </div>
+            <p className={styles.aiAnswer}>{aiResult.answer}</p>
+            {aiResult.sources?.length > 0 ? (
+              <div className={styles.aiSources}>
+                {aiResult.sources.map((source) => (
+                  <Link key={`${source.type}-${source.url}`} className={styles.aiSource} href={source.url}>
+                    <span>{source.type}</span>
+                    <strong>{source.title}</strong>
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </section>
+        ) : null}
 
         {!hasQuery ? (
           <section className={styles.emptyCard}>
