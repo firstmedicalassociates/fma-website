@@ -4,6 +4,7 @@ import { Inter, Manrope } from "next/font/google";
 import SiteHeader from "./components/site-header";
 import SiteFooter from "./components/site-footer";
 import WelcomeVideoCard from "./components/welcome-video-card";
+import HomeHeroAiSearch from "./components/home-hero-ai-search";
 import styles from "./page.module.css";
 import { GENERAL_BOOK_APPOINTMENT_URL, PATIENT_PORTAL_URL } from "./lib/config/site";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
@@ -522,24 +523,7 @@ export default async function Home() {
                 </p>
 
                 <div className={styles.heroScheduler}>
-                  <div className={styles.schedulerBar}>
-                    <span className={styles.schedulerSearchIcon} aria-hidden="true">
-                      <Icon name="ai-sparkle" className={styles.schedulerSearchIconSvg} />
-                    </span>
-                    <input
-                      aria-label="Search doctors, services, locations, or appointment types"
-                      className={styles.schedulerInput}
-                      placeholder="Search doctors, services, locations, or appointment types"
-                      type="search"
-                    />
-                    <SmartLink
-                      href="/search"
-                      className={styles.schedulerArrow}
-                      aria-label="Open search"
-                    >
-                      <Icon name="arrow" className={styles.schedulerArrowIcon} />
-                    </SmartLink>
-                  </div>
+                  <HomeHeroAiSearch />
 
                   <div className={styles.schedulerQuickLinks}>
                     <SmartLink href="/services" className={styles.schedulerQuickPill}>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GENERAL_BOOK_APPOINTMENT_URL } from "../lib/config/site";
+import { AI_SEARCH_REQUEST_EVENT } from "../lib/ai-search-events";
 import styles from "./ai-search-modal.module.css";
 
 const SEARCH_MIN_CHARACTERS = 2;
@@ -91,7 +92,7 @@ function mapApiCards(results = []) {
   }));
 }
 
-export default function AiSearchModal({ className = "", onOpen }) {
+export default function AiSearchModal({ className = "", onOpen, listenForExternalRequests = true }) {
   const inputRef = useRef(null);
   const previousFocusRef = useRef(null);
   const loadingIntervalRef = useRef(null);
@@ -161,10 +162,7 @@ export default function AiSearchModal({ className = "", onOpen }) {
     });
   }
 
-  async function runSearch(event) {
-    event.preventDefault();
-
-    const nextQuery = query.trim();
+  async function executeSearch(nextQuery) {
     if (nextQuery.length < SEARCH_MIN_CHARACTERS) {
       setHelperText(`Please enter at least ${SEARCH_MIN_CHARACTERS} characters.`);
       inputRef.current?.focus();
@@ -211,6 +209,11 @@ export default function AiSearchModal({ className = "", onOpen }) {
     } finally {
       stopLoadingTicker();
     }
+  }
+
+  async function runSearch(event) {
+    event.preventDefault();
+    await executeSearch(query.trim());
   }
 
   useEffect(() => {
@@ -271,6 +274,31 @@ export default function AiSearchModal({ className = "", onOpen }) {
   useEffect(() => {
     return () => stopLoadingTicker();
   }, []);
+
+  useEffect(() => {
+    if (!listenForExternalRequests) return undefined;
+
+    function handleSearchRequest(event) {
+      const nextQuery = String(event?.detail?.query || "").trim();
+      const shouldAutoRun = Boolean(event?.detail?.autoRun);
+
+      openModal();
+
+      setQuery(nextQuery);
+
+      if (shouldAutoRun && nextQuery.length >= SEARCH_MIN_CHARACTERS) {
+        window.setTimeout(() => {
+          void executeSearch(nextQuery);
+        }, 0);
+      }
+    }
+
+    window.addEventListener(AI_SEARCH_REQUEST_EVENT, handleSearchRequest);
+
+    return () => {
+      window.removeEventListener(AI_SEARCH_REQUEST_EVENT, handleSearchRequest);
+    };
+  }, [executeSearch, listenForExternalRequests, openModal]);
 
   return (
     <>

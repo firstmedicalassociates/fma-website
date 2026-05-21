@@ -490,6 +490,8 @@
   width: 45px;
   height: 45px;
   min-height: 45px;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;

@@ -223,6 +223,7 @@ export default function SiteHeader() {
           <div className={styles.mobileAiSearchWrap}>
             <AiSearchModal
               className={styles.mobileAiSearchTrigger}
+              listenForExternalRequests={false}
             />
           </div>
 
