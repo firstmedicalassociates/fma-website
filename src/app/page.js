@@ -2,8 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Inter, Manrope } from "next/font/google";
 import SiteHeader from "./components/site-header";
+import SiteFooter from "./components/site-footer";
+import WelcomeVideoCard from "./components/welcome-video-card";
 import styles from "./page.module.css";
-import { PATIENT_PORTAL_URL, SITE_NAME } from "./lib/config/site";
+import { GENERAL_BOOK_APPOINTMENT_URL, PATIENT_PORTAL_URL } from "./lib/config/site";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
 
 const displayFont = Manrope({
@@ -18,10 +20,9 @@ const bodyFont = Inter({
 
 const heroBackgroundImage = "/uploads/Header-bcgn-1-scaled.jpg";
 const heroBackgroundImageMobile = "/uploads/Header-bcgn-2-mobile.jpg";
-const heroImage = "/uploads/philosophy-consultation.jpg";
-const welcomeVideoUrl = "https://vimeo.com/1036472343?fl=pl&fe=vl";
-const welcomeVideoEmbedUrl =
-  "https://player.vimeo.com/video/1036472343?autoplay=1&title=0&byline=0&portrait=0";
+const welcomeVideoPoster = "/uploads/FMA%20Video%20Thumnail.png";
+const welcomeVideoSource =
+  process.env.NEXT_PUBLIC_WELCOME_VIDEO_URL || "/uploads/FMA_Promo_full.mp4";
 
 export const runtime = "nodejs";
 export const revalidate = 60;
@@ -378,6 +379,13 @@ function Icon({ name, className }) {
           <path d="m6 9 6 6 6-6" />
         </svg>
       );
+    case "close":
+      return (
+        <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m6 6 12 12" />
+          <path d="m18 6-12 12" />
+        </svg>
+      );
     case "search":
       return (
         <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
@@ -429,7 +437,7 @@ function StarRow() {
 export default async function Home() {
   const { featuredLocation, providerCount, locationCount, services } = await getHomeData();
 
-  const bookingHref = featuredLocation.bookingUrl || featuredLocation.slug || "/locations";
+  const bookingHref = GENERAL_BOOK_APPOINTMENT_URL;
   const featuredPhone = buildPublicPhone(featuredLocation) || FALLBACK_LOCATION.phone;
   const addressLines = splitAddressLines(featuredLocation);
   const portalIsConfigured = PATIENT_PORTAL_URL !== "#";
@@ -460,7 +468,6 @@ export default async function Home() {
   const formNote = portalIsConfigured
     ? `Prefer a faster answer? Call ${featuredPhone} or use the patient portal to reach the team directly.`
     : `Prefer a faster answer? Call ${featuredPhone} and our team will help you choose the right next step.`;
-  const year = new Date().getFullYear();
 
   return (
     <div className={`${displayFont.variable} ${bodyFont.variable} ${styles.page}`}>
@@ -709,37 +716,7 @@ export default async function Home() {
         <section className={`${styles.section} ${styles.experienceSection}`}>
           <div className={styles.experienceLayout}>
             <div className={styles.mediaCard}>
-              <details className={styles.videoReveal}>
-                <summary className={styles.videoPoster}>
-                  <Image
-                    src={heroImage}
-                    alt="Doctor speaking with a patient during a welcome consultation"
-                    className={styles.mediaImage}
-                    fill
-                    sizes="(max-width: 1100px) 100vw, 44vw"
-                  />
-                  <div className={styles.mediaShade} aria-hidden="true" />
-                  <span className={styles.mediaBadge}>
-                    <Icon name="play" className={styles.mediaBadgeIcon} />
-                    Welcome Video
-                  </span>
-                  <span className={styles.mediaDuration}>1:48</span>
-                  <span className={styles.playButton} aria-hidden="true">
-                    <Icon name="play" className={styles.playIcon} />
-                  </span>
-                </summary>
-
-                <div className={styles.videoFrameWrap} id="welcome-video-player">
-                  <iframe
-                    src={welcomeVideoEmbedUrl}
-                    title="First Medical Associates welcome video"
-                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                  />
-                </div>
-              </details>
+              <WelcomeVideoCard poster={welcomeVideoPoster} source={welcomeVideoSource} />
             </div>
 
             <div className={styles.experienceContent}>
@@ -752,21 +729,52 @@ export default async function Home() {
               </p>
 
               <div className={styles.experienceActions}>
-                <a
-                  href={welcomeVideoUrl}
-                  className={styles.welcomeVideoButton}
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <a href="#welcome-video-lightbox" className={styles.welcomeVideoButton}>
                   <Icon name="play" className={styles.welcomeVideoButtonIcon} />
                   Watch Welcome Video
                   <Icon name="arrow" className={styles.buttonIcon} />
                 </a>
+              </div>
+            </div>
+          </div>
 
-                <SmartLink href="/providers" className={styles.welcomeProvidersLink}>
-                  Meet our providers
-                  <Icon name="arrow" className={styles.inlineIcon} />
-                </SmartLink>
+          <div
+            id="welcome-video-lightbox"
+            className={styles.videoLightbox}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="welcome-video-lightbox-title"
+          >
+            <a
+              href="#close"
+              className={styles.videoLightboxBackdrop}
+              aria-label="Close welcome video"
+            />
+            <div className={styles.videoLightboxPanel}>
+              <div className={styles.videoLightboxHeader}>
+                <h3 id="welcome-video-lightbox-title" className={styles.videoLightboxTitle}>
+                  Welcome Video
+                </h3>
+                <a
+                  href="#close"
+                  className={styles.videoLightboxClose}
+                  aria-label="Close welcome video"
+                >
+                  <Icon name="close" className={styles.videoLightboxCloseIcon} />
+                </a>
+              </div>
+
+              <div className={styles.videoLightboxFrame}>
+                <video
+                  className={styles.videoPlayer}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  poster={welcomeVideoPoster}
+                >
+                  <source src={welcomeVideoSource} type="video/mp4" />
+                  Your browser does not support HTML5 video.
+                </video>
               </div>
             </div>
           </div>
@@ -800,7 +808,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className={styles.section} id="faq">
+        <section className={`${styles.section} ${styles.faqSection}`} id="faq">
           <div className={styles.sectionHeader}>
             <div>
               <p className={styles.sectionLabel}>FAQ</p>
@@ -936,57 +944,7 @@ export default async function Home() {
         </section>
       </main>
 
-      <footer className={styles.footer}>
-        <div className={styles.footerGrid}>
-          <div className={styles.footerBlock}>
-            <h2 className={styles.footerBrand}>{SITE_NAME}</h2>
-            <p className={styles.footerDescription}>
-              Excellence in clinical care, with neighborhood access, thoughtful communication, and
-              care teams who know how to keep things moving.
-            </p>
-          </div>
-
-          <div className={styles.footerBlock}>
-            <h3 className={styles.footerHeading}>Explore</h3>
-            <div className={styles.footerLinks}>
-              <SmartLink href="/locations" className={styles.footerLink}>
-                Locations
-              </SmartLink>
-              <SmartLink href="/providers" className={styles.footerLink}>
-                Providers
-              </SmartLink>
-              <SmartLink href="/blog" className={styles.footerLink}>
-                Blog
-              </SmartLink>
-              <SmartLink href="#faq" className={styles.footerLink}>
-                FAQ
-              </SmartLink>
-            </div>
-          </div>
-
-          <div className={styles.footerBlock}>
-            <h3 className={styles.footerHeading}>Contact</h3>
-            <div className={styles.footerDetails}>
-              <p>{featuredPhone}</p>
-              <p>{contactEmail}</p>
-              <p>{addressLines.length > 0 ? addressLines.join(", ") : FALLBACK_LOCATION.address}</p>
-            </div>
-          </div>
-
-          <div className={styles.footerBlock}>
-            <h3 className={styles.footerHeading}>Visit</h3>
-            <SmartLink href={bookingHref} className={styles.footerCta}>
-              Book Appointment
-            </SmartLink>
-          </div>
-        </div>
-
-        <div className={styles.footerBottom}>
-          <p className={styles.footerCopyright}>
-            Copyright {year} {SITE_NAME}. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

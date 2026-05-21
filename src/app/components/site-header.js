@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
+  GENERAL_BOOK_APPOINTMENT_URL,
   PATIENT_PORTAL_URL,
   SITE_CALL_HREF,
   SITE_CALL_LABEL,
@@ -66,9 +67,9 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const headerActionHref = SITE_CALL_HREF || "/locations";
+  const headerActionHref = GENERAL_BOOK_APPOINTMENT_URL;
   const headerActionExternal = isExternalUrl(headerActionHref);
-  const headerActionLabel = SITE_CALL_HREF ? SITE_CALL_LABEL : "Call now";
+  const headerActionLabel = "Book Appointment";
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -104,8 +105,8 @@ export default function SiteHeader() {
     {
       key: "book",
       label: "Book Online",
-      href: "/locations",
-      external: false,
+      href: GENERAL_BOOK_APPOINTMENT_URL,
+      external: true,
       icon: "calendar",
     },
   ];

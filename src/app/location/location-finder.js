@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
@@ -15,6 +16,7 @@ const DEFAULT_MAP_ZOOM = 7;
 const FOCUSED_MAP_ZOOM = 11;
 const MAP_BOUNDS_PADDING = 96;
 const DEFAULT_SEARCH_RADIUS_MILES = 25;
+const MOBILE_BREAKPOINT_PX = 720;
 const WEEKDAY_LABELS = [
   "Sunday",
   "Monday",
@@ -185,6 +187,14 @@ function formatDistanceMiles(value) {
   if (typeof value !== "number" || Number.isNaN(value)) return "";
   if (value < 10) return `${value.toFixed(1)} mi away`;
   return `${Math.round(value)} mi away`;
+}
+
+function parseOfficeHoursRow(row = "") {
+  const [dayPart, ...rest] = String(row || "").split(":");
+  return {
+    day: String(dayPart || "").trim(),
+    hours: String(rest.join(":") || "").trim() || "Closed",
+  };
 }
 
 function getLocationStatus(officeHours = []) {
@@ -368,6 +378,7 @@ function ActionLink({ href, className, children, external = false }) {
 }
 
 export default function LocationFinder({ locations = [] }) {
+  const pathname = usePathname();
   const [searchState, setSearchState] = useState("");
   const [searchCity, setSearchCity] = useState("");
   const [searchZip, setSearchZip] = useState("");
@@ -376,6 +387,12 @@ export default function LocationFinder({ locations = [] }) {
   const [searchErrorMessage, setSearchErrorMessage] = useState("");
   const [pinnedSlug, setPinnedSlug] = useState(locations[0]?.slug || "");
   const [hasPinnedSelection, setHasPinnedSelection] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX}px)`).matches;
+  });
+  const [isSheetExpanded, setIsSheetExpanded] = useState(false);
+  const [mobileViewMode, setMobileViewMode] = useState("list");
   const [mapStatus, setMapStatus] = useState(GOOGLE_MAPS_API_KEY ? "loading" : "missingKey");
   const [mapErrorMessage, setMapErrorMessage] = useState("");
   const [geocodeErrorMessage, setGeocodeErrorMessage] = useState("");
@@ -386,6 +403,8 @@ export default function LocationFinder({ locations = [] }) {
   const geocoderRef = useRef(null);
   const markersRef = useRef(new Map());
   const geocodeCacheRef = useRef(new Map());
+  const mobileSheetTouchStartYRef = useRef(null);
+  const mobileSheetScrollerRef = useRef(null);
 
   const rankedLocations = useMemo(() => {
     const baseLocations = locations.map((location) => {
@@ -445,6 +464,11 @@ export default function LocationFinder({ locations = [] }) {
 
     return filteredLocations.find((location) => location.slug === pinnedSlug) || null;
   }, [filteredLocations, hasPinnedSelection, pinnedSlug]);
+  const activeLocation = useMemo(() => {
+    if (selectedLocation) return selectedLocation;
+    if (isMobileViewport && mobileViewMode === "detail") return filteredLocations[0] || null;
+    return null;
+  }, [filteredLocations, isMobileViewport, mobileViewMode, selectedLocation]);
 
   const finderSearchQuery = useMemo(
     () => buildFinderSearchQuery({ state: searchState, city: searchCity, zip: searchZip }),
@@ -453,6 +477,32 @@ export default function LocationFinder({ locations = [] }) {
   const hasFinderSearchInput = Boolean(finderSearchQuery);
   const hasActiveFinderSearch = Boolean(searchOrigin?.position);
   const canRunFinderSearch = mapStatus === "ready" && !geocodeErrorMessage;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX}px)`);
+    const syncMobileState = (event) => {
+      setIsMobileViewport(event.matches);
+      if (!event.matches) {
+        setIsSheetExpanded(false);
+        setMobileViewMode("list");
+      }
+    };
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", syncMobileState);
+      return () => mediaQuery.removeEventListener("change", syncMobileState);
+    }
+
+    mediaQuery.addListener(syncMobileState);
+    return () => mediaQuery.removeListener(syncMobileState);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileViewport || !mobileSheetScrollerRef.current) return;
+    mobileSheetScrollerRef.current.scrollTop = 0;
+  }, [activeLocation?.slug, isMobileViewport, mobileViewMode]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -603,22 +653,25 @@ export default function LocationFinder({ locations = [] }) {
           position,
           map: visibleLocationSlugs.has(location.slug) ? mapRef.current : null,
           title: location.title,
-          icon: getMarkerIcon(googleMaps, location.slug === selectedLocation?.slug),
+          icon: getMarkerIcon(googleMaps, location.slug === activeLocation?.slug),
         });
         marker.addListener("click", () => {
           setPinnedSlug(location.slug);
           setHasPinnedSelection(true);
+          if (isMobileViewport) {
+            setMobileViewMode("detail");
+          }
         });
         markersRef.current.set(location.slug, marker);
       }
 
       marker.setPosition(position);
       marker.setTitle(location.title);
-      marker.setIcon(getMarkerIcon(googleMaps, location.slug === selectedLocation?.slug));
-      marker.setZIndex(location.slug === selectedLocation?.slug ? 100 : 10);
+      marker.setIcon(getMarkerIcon(googleMaps, location.slug === activeLocation?.slug));
+      marker.setZIndex(location.slug === activeLocation?.slug ? 100 : 10);
       marker.setMap(visibleLocationSlugs.has(location.slug) ? mapRef.current : null);
     }
-  }, [filteredLocations, geocodeVersion, locations, mapStatus, selectedLocation]);
+  }, [activeLocation?.slug, filteredLocations, geocodeVersion, isMobileViewport, locations, mapStatus]);
 
   useEffect(() => {
     if (mapStatus !== "ready" || !mapRef.current || typeof window === "undefined") return;
@@ -633,8 +686,8 @@ export default function LocationFinder({ locations = [] }) {
     if (visiblePositions.length === 0) return;
 
     const googleMaps = window.google;
-    const selectedPosition = selectedLocation
-      ? geocodeCacheRef.current.get(selectedLocation.slug)
+    const selectedPosition = activeLocation
+      ? geocodeCacheRef.current.get(activeLocation.slug)
       : null;
 
     if (hasPinnedSelection && selectedPosition) {
@@ -658,7 +711,7 @@ export default function LocationFinder({ locations = [] }) {
     hasActiveFinderSearch,
     hasPinnedSelection,
     mapStatus,
-    selectedLocation,
+    activeLocation,
   ]);
 
   async function handleFinderSearch(event) {
@@ -708,10 +761,31 @@ export default function LocationFinder({ locations = [] }) {
     setSearchErrorMessage("");
     setHasPinnedSelection(false);
     setPinnedSlug("");
+    setMobileViewMode("list");
+    setIsSheetExpanded(false);
   }
 
-  const selectedLocationStatus = selectedLocation ? getLocationStatus(selectedLocation.officeHours) : null;
-  const selectedLocationCallHref = buildCallHref(selectedLocation?.publicPhone);
+  function handleSheetTouchStart(event) {
+    mobileSheetTouchStartYRef.current = event.changedTouches?.[0]?.clientY ?? null;
+  }
+
+  function handleSheetTouchEnd(event) {
+    const startY = mobileSheetTouchStartYRef.current;
+    const endY = event.changedTouches?.[0]?.clientY ?? null;
+    mobileSheetTouchStartYRef.current = null;
+    if (startY === null || endY === null) return;
+
+    const deltaY = endY - startY;
+    if (Math.abs(deltaY) < 36) return;
+    if (deltaY < 0) {
+      setIsSheetExpanded(true);
+      return;
+    }
+    setIsSheetExpanded(false);
+  }
+
+  const selectedLocationStatus = activeLocation ? getLocationStatus(activeLocation.officeHours) : null;
+  const selectedLocationCallHref = buildCallHref(activeLocation?.publicPhone);
   const emptyResults = filteredLocations.length === 0;
   const resultsTagLabel = hasActiveFinderSearch
     ? searchOrigin?.label || finderSearchQuery
@@ -719,14 +793,210 @@ export default function LocationFinder({ locations = [] }) {
       ? `Live filter: ${finderSearchQuery}`
       : "All locations";
   const showResultsPanel = true;
-  const showDetailPanel = Boolean(selectedLocation);
-  const stageContentClassName = `${styles.stageContent} ${
-    showResultsPanel && showDetailPanel
-      ? styles.stageContentBoth
-      : showResultsPanel
-        ? styles.stageContentResultsOnly
-        : styles.stageContentDetailOnly
-  }`;
+  const showDesktopDetailView = !isMobileViewport && Boolean(activeLocation);
+  const stageContentClassName = `${styles.stageContent} ${styles.stageContentResultsOnly}`;
+  const mobileSheetClassName = `${styles.mobileSheet} ${
+    isSheetExpanded ? styles.mobileSheetExpanded : styles.mobileSheetCollapsed
+  } ${mobileViewMode === "detail" ? styles.mobileSheetDetail : styles.mobileSheetList}`;
+  const showDesktopPanels = !isMobileViewport && showResultsPanel;
+  const shouldShowFooter = pathname !== "/locations";
+  const detailAddressPrimary = activeLocation?.addressLines?.[0] || activeLocation?.address || "Address pending";
+  const detailAddressSecondary =
+    activeLocation?.addressLines?.slice(1).join(", ") || selectedLocationStatus?.detail || "Address details";
+  const previewOfficeHours = (activeLocation?.officeHourRows || []).slice(0, 3).map(parseOfficeHoursRow);
+
+  const renderLocationDetailCard = ({ onBack, backLabel }) => (
+    <>
+      <div className={styles.detailHero}>
+        {activeLocation?.mapImageUrl ? (
+          <img
+            className={styles.detailHeroImage}
+            src={activeLocation.mapImageUrl}
+            alt={activeLocation.mapImageAlt}
+          />
+        ) : (
+          <div className={styles.detailHeroPlaceholder}>
+            <span>{activeLocation?.title}</span>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.detailBody}>
+        <button type="button" className={styles.detailBackLink} onClick={onBack}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M14.5 6.5 9 12l5.5 5.5"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2.3"
+            />
+          </svg>
+          <span>{backLabel}</span>
+        </button>
+
+        <div className={styles.detailHeader}>
+          <span className={styles.panelEyebrow}>Selected Location</span>
+          <h2>{activeLocation?.title}</h2>
+          <p>{activeLocation?.intro || activeLocation?.accent || "Location details and provider availability."}</p>
+        </div>
+
+        <ActionLink className={styles.detailAddressCard} href={activeLocation?.slug}>
+          <span className={styles.detailAddressIcon} aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 21s-6-5.25-6-11a6 6 0 1 1 12 0c0 5.75-6 11-6 11Z"
+                fill="currentColor"
+              />
+              <circle cx="12" cy="10" r="2.6" fill="#ffffff" />
+            </svg>
+          </span>
+          <span className={styles.detailAddressCopy}>
+            <strong>{detailAddressPrimary}</strong>
+            <span>{detailAddressSecondary}</span>
+          </span>
+          <span className={styles.detailAddressChevron} aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M9.5 6.5 15 12l-5.5 5.5"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2.2"
+              />
+            </svg>
+          </span>
+        </ActionLink>
+
+        <div className={styles.detailGrid}>
+          <div className={styles.detailStat}>
+            <span className={styles.detailStatLabel}>
+              <span className={styles.detailStatIcon} aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M7.6 3.5h2.7l1.2 3.1-1.7 1.8a14.3 14.3 0 0 0 5.8 5.8l1.8-1.7 3.1 1.2v2.7a2 2 0 0 1-2 2C10.3 18.4 5.6 13.7 5.6 8.5a2 2 0 0 1 2-2Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+              <span>Phone</span>
+            </span>
+            <strong>{activeLocation?.publicPhone || "Call for details"}</strong>
+          </div>
+          <div className={styles.detailStat}>
+            <span className={styles.detailStatLabel}>
+              <span className={styles.detailStatIcon} aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 6v6l3.8 2.2"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="7.4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                </svg>
+              </span>
+              <span>Status</span>
+            </span>
+            <strong>{selectedLocationStatus?.label || "Hours unavailable"}</strong>
+          </div>
+        </div>
+
+        <div className={styles.actionGrid}>
+          <ActionLink className={styles.detailActionPrimary} href={selectedLocationCallHref} external>
+            <span className={styles.detailActionIcon} aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M7.6 3.5h2.7l1.2 3.1-1.7 1.8a14.3 14.3 0 0 0 5.8 5.8l1.8-1.7 3.1 1.2v2.7a2 2 0 0 1-2 2C10.3 18.4 5.6 13.7 5.6 8.5a2 2 0 0 1 2-2Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            Call clinic
+          </ActionLink>
+          <ActionLink className={styles.detailActionSecondary} href={activeLocation?.directionsUrl} external>
+            <span className={styles.detailActionIcon} aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="m7 17 10-10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                />
+                <path
+                  d="m10 7 7-.2-.2 7"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                />
+              </svg>
+            </span>
+            Directions
+          </ActionLink>
+        </div>
+
+        <ActionLink className={`${styles.detailActionSecondary} ${styles.detailActionFull}`} href={activeLocation?.slug}>
+          <span className={styles.detailActionIcon} aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 21s-6-5.25-6-11a6 6 0 1 1 12 0c0 5.75-6 11-6 11Z"
+                fill="currentColor"
+              />
+              <circle cx="12" cy="10" r="2.6" fill="#ffffff" />
+            </svg>
+          </span>
+          View location
+        </ActionLink>
+
+        <section className={styles.detailSection}>
+          <div className={styles.sectionHeading}>
+            <h3>Office hours</h3>
+            <span>{selectedLocationStatus?.detail || "Check the location page for updates."}</span>
+          </div>
+          <div className={styles.hoursList}>
+            {previewOfficeHours.length > 0 ? (
+              previewOfficeHours.map((entry) => (
+                <div className={styles.hoursRow} key={`${activeLocation?.slug}-${entry.day}-${entry.hours}`}>
+                  <span>{entry.day}</span>
+                  <strong>{entry.hours}</strong>
+                </div>
+              ))
+            ) : (
+              <p className={styles.emptyCopy}>Office hours will appear here once added in the CMS.</p>
+            )}
+          </div>
+          <ActionLink className={styles.hoursViewLink} href={activeLocation?.slug}>
+            <span>View full hours</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="m7 10 5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+              />
+            </svg>
+          </ActionLink>
+        </section>
+      </div>
+    </>
+  );
 
   return (
     <div className={styles.shell}>
@@ -822,197 +1092,194 @@ export default function LocationFinder({ locations = [] }) {
             ) : null}
           </div>
 
-          {showResultsPanel || showDetailPanel ? (
-            <div className={stageContentClassName}>
-              {showResultsPanel ? (
-                <aside className={`${styles.panel} ${styles.searchPanel}`}>
-                  <div className={styles.resultsToolbar}>
-                    <div
-                      className={styles.resultsTag}
-                      aria-label={
-                        hasActiveFinderSearch
-                          ? `Showing locations within ${DEFAULT_SEARCH_RADIUS_MILES} miles of ${resultsTagLabel}`
-                          : `Showing ${resultsTagLabel}`
-                      }
-                    >
-                      <span className={styles.resultsTagIcon} aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                          <path
-                            d="M12 21s-6-5.25-6-11a6 6 0 1 1 12 0c0 5.75-6 11-6 11Z"
-                            fill="currentColor"
-                          />
-                          <circle cx="12" cy="10" r="2.6" fill="#ffffff" />
-                        </svg>
-                      </span>
-                      <span className={styles.resultsTagText}>{resultsTagLabel}</span>
-                    </div>
-                    <button
-                      className={styles.clearButton}
-                      type="button"
-                      onClick={clearSearches}
-                    >
-                      Clear
-                    </button>
-                  </div>
+          {isMobileViewport ? (
+            <div className={styles.mobileOverlay}>
+              <div className={styles.mobileSearchDock}>
+                <form className={styles.mobileSearchForm} onSubmit={handleFinderSearch}>
+                  <label className={styles.mobileSearchField}>
+                    <span>Location</span>
+                    <input
+                      type="text"
+                      value={searchCity}
+                      onChange={(event) => setSearchCity(event.target.value)}
+                      placeholder="City"
+                    />
+                  </label>
+                  <label className={styles.mobileSearchField}>
+                    <span>Zip Code</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={searchZip}
+                      onChange={(event) => setSearchZip(event.target.value)}
+                      placeholder="ZIP"
+                    />
+                  </label>
+                  <button
+                    className={styles.mobileSearchButton}
+                    type="submit"
+                    disabled={
+                      searchStatus === "loading" ||
+                      !canRunFinderSearch ||
+                      (!hasFinderSearchInput && !hasActiveFinderSearch)
+                    }
+                    aria-label="Search locations"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        d="M5 12h12m-5-5 5 5-5 5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2.4"
+                      />
+                    </svg>
+                  </button>
+                </form>
+              </div>
 
-                  <div className={styles.locationList} role="list">
-                    {emptyResults ? (
-                      <div className={styles.emptyState}>
-                        <strong>No locations match that search.</strong>
-                        <span>Try a different city, state, or ZIP code.</span>
+              <section className={mobileSheetClassName}>
+                <button
+                  type="button"
+                  className={styles.mobileSheetHandle}
+                  onClick={() => setIsSheetExpanded((current) => !current)}
+                  onTouchStart={handleSheetTouchStart}
+                  onTouchEnd={handleSheetTouchEnd}
+                  aria-label="Toggle location details"
+                >
+                  <span />
+                </button>
+
+                <div className={styles.mobileSheetScroller} ref={mobileSheetScrollerRef}>
+                  {mobileViewMode === "list" ? (
+                    <section className={styles.mobileLocationsSection}>
+                      <div className={styles.mobileLocationsHeading}>
+                        <h3>All Locations</h3>
+                        <button type="button" className={styles.clearButton} onClick={clearSearches}>
+                          Clear
+                        </button>
                       </div>
-                    ) : (
-                      filteredLocations.map((location) => {
-                        const isActive = selectedLocation?.slug === location.slug;
 
-                        return (
+                      <div className={styles.mobileLocationList}>
+                        {filteredLocations.map((location) => (
                           <button
-                            key={location.slug}
-                            className={`${styles.locationRow} ${isActive ? styles.locationRowActive : ""}`}
+                            key={`mobile-${location.slug}`}
                             type="button"
+                            className={`${styles.mobileLocationRow} ${
+                              activeLocation?.slug === location.slug ? styles.mobileLocationRowActive : ""
+                            }`}
                             onClick={() => {
                               setPinnedSlug(location.slug);
                               setHasPinnedSelection(true);
+                              setMobileViewMode("detail");
                             }}
                           >
-                            <h3 className={styles.locationRowTitle}>{location.title}</h3>
-                            <p>{location.addressLines[0] || location.address || "Address pending"}</p>
-                            <div className={styles.locationRowMeta}>
-                              <span>{location.addressLines.slice(1).join(", ") || location.title}</span>
-                              <span>
-                                {hasActiveFinderSearch && typeof location.distanceMiles === "number"
-                                  ? formatDistanceMiles(location.distanceMiles)
-                                  : `${location.providerCount} providers`}
-                              </span>
-                            </div>
+                            <strong>{location.title}</strong>
+                            <span>{location.addressLines[0] || location.address || "Address pending"}</span>
                           </button>
-                        );
-                      })
-                    )}
-                  </div>
-                </aside>
-              ) : null}
+                        ))}
+                      </div>
+                    </section>
+                  ) : null}
 
-              {showResultsPanel && showDetailPanel ? <div className={styles.centerSpacer} /> : null}
-              {!showResultsPanel && showDetailPanel ? <div className={styles.centerSpacer} /> : null}
-
-              {showDetailPanel ? (
-                <aside className={`${styles.panel} ${styles.detailPanel}`}>
-                <>
-                <div className={styles.detailHero}>
-                  {selectedLocation.mapImageUrl ? (
-                    <img
-                      className={styles.detailHeroImage}
-                      src={selectedLocation.mapImageUrl}
-                      alt={selectedLocation.mapImageAlt}
-                    />
-                  ) : (
-                    <div className={styles.detailHeroPlaceholder}>
-                      <span>{selectedLocation.title}</span>
-                    </div>
-                  )}
+                  {mobileViewMode === "detail" && activeLocation ? (
+                    renderLocationDetailCard({
+                      onBack: () => setMobileViewMode("list"),
+                      backLabel: "Back to all locations",
+                    })
+                  ) : null}
                 </div>
 
-                <div className={styles.detailBody}>
-                  <div className={styles.detailHeader}>
-                    <span className={styles.panelEyebrow}>Selected Location</span>
-                    <h2>{selectedLocation.title}</h2>
-                    <p>{selectedLocation.intro || selectedLocation.accent || "Location details and provider availability."}</p>
-                  </div>
+              </section>
+            </div>
+          ) : null}
 
-                  <div className={styles.detailMetaBlock}>
-                    <strong>Address</strong>
-                    <div className={styles.addressStack}>
-                      {(selectedLocation.addressLines || []).map((line) => (
-                        <span key={`${selectedLocation.slug}-${line}`}>{line}</span>
-                      ))}
+          {showDesktopPanels ? (
+            <div className={stageContentClassName}>
+              <aside
+                className={`${styles.panel} ${styles.searchPanel} ${
+                  showDesktopDetailView ? styles.searchPanelDetailView : ""
+                }`}
+              >
+                {showDesktopDetailView && activeLocation ? (
+                  renderLocationDetailCard({
+                    onBack: () => {
+                      setHasPinnedSelection(false);
+                      setPinnedSlug("");
+                    },
+                    backLabel: "Back to all locations",
+                  })
+                ) : (
+                  <>
+                    <div className={styles.resultsToolbar}>
+                      <div
+                        className={styles.resultsTag}
+                        aria-label={
+                          hasActiveFinderSearch
+                            ? `Showing locations within ${DEFAULT_SEARCH_RADIUS_MILES} miles of ${resultsTagLabel}`
+                            : `Showing ${resultsTagLabel}`
+                        }
+                      >
+                        <span className={styles.resultsTagIcon} aria-hidden="true">
+                          <svg viewBox="0 0 24 24">
+                            <path
+                              d="M12 21s-6-5.25-6-11a6 6 0 1 1 12 0c0 5.75-6 11-6 11Z"
+                              fill="currentColor"
+                            />
+                            <circle cx="12" cy="10" r="2.6" fill="#ffffff" />
+                          </svg>
+                        </span>
+                        <span className={styles.resultsTagText}>{resultsTagLabel}</span>
+                      </div>
+                      <button className={styles.clearButton} type="button" onClick={clearSearches}>
+                        Clear
+                      </button>
                     </div>
-                  </div>
 
-                  <div className={styles.detailGrid}>
-                    <div className={styles.detailStat}>
-                      <span>Phone</span>
-                      <strong>{selectedLocation.publicPhone || "Call for details"}</strong>
-                    </div>
-                    <div className={styles.detailStat}>
-                      <span>Status</span>
-                      <strong>{selectedLocationStatus?.label || "Hours unavailable"}</strong>
-                    </div>
-                  </div>
-
-                  <div className={styles.actionGrid}>
-                    <ActionLink className={styles.detailActionPrimary} href={selectedLocationCallHref} external>
-                      Call clinic
-                    </ActionLink>
-                    <ActionLink className={styles.detailActionSecondary} href={selectedLocation.directionsUrl} external>
-                      Directions
-                    </ActionLink>
-                    <ActionLink className={styles.detailActionSecondary} href={selectedLocation.slug}>
-                      View location
-                    </ActionLink>
-                  </div>
-
-                  <section className={styles.detailSection}>
-                    <div className={styles.sectionHeading}>
-                      <h3>Office hours</h3>
-                      <span>{selectedLocationStatus?.detail || "Check the location page"}</span>
-                    </div>
-                    <div className={styles.hoursList}>
-                      {selectedLocation.officeHourRows.length > 0 ? (
-                        selectedLocation.officeHourRows.map((hours) => (
-                          <div className={styles.hoursRow} key={`${selectedLocation.slug}-${hours}`}>
-                            <span>{hours.split(":")[0]}</span>
-                            <strong>{hours.split(": ").slice(1).join(": ")}</strong>
-                          </div>
-                        ))
+                    <div className={styles.locationList} role="list">
+                      {emptyResults ? (
+                        <div className={styles.emptyState}>
+                          <strong>No locations match that search.</strong>
+                          <span>Try a different city, state, or ZIP code.</span>
+                        </div>
                       ) : (
-                        <p className={styles.emptyCopy}>Office hours will appear here once added in the CMS.</p>
+                        filteredLocations.map((location) => {
+                          const isActive = activeLocation?.slug === location.slug;
+
+                          return (
+                            <button
+                              key={location.slug}
+                              className={`${styles.locationRow} ${isActive ? styles.locationRowActive : ""}`}
+                              type="button"
+                              onClick={() => {
+                                setPinnedSlug(location.slug);
+                                setHasPinnedSelection(true);
+                              }}
+                            >
+                              <h3 className={styles.locationRowTitle}>{location.title}</h3>
+                              <p>{location.addressLines[0] || location.address || "Address pending"}</p>
+                              <div className={styles.locationRowMeta}>
+                                <span>{location.addressLines.slice(1).join(", ") || location.title}</span>
+                                <span>
+                                  {hasActiveFinderSearch && typeof location.distanceMiles === "number"
+                                    ? formatDistanceMiles(location.distanceMiles)
+                                    : `${location.providerCount} providers`}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })
                       )}
                     </div>
-                  </section>
-
-                  <section className={styles.detailSection}>
-                    <div className={styles.sectionHeading}>
-                      <h3>Providers</h3>
-                      <Link href="/providers">View all</Link>
-                    </div>
-                    <div className={styles.providerList}>
-                      {selectedLocation.providers.length > 0 ? (
-                        selectedLocation.providers.map((provider) => (
-                          <Link
-                            key={provider.slug}
-                            className={styles.providerRow}
-                            href={`/providers/${provider.slug}`}
-                          >
-                            <img src={provider.imageUrl} alt={provider.imageAlt} />
-                            <div>
-                              <strong>{provider.name}</strong>
-                              <span>{provider.title}</span>
-                            </div>
-                          </Link>
-                        ))
-                      ) : (
-                        <p className={styles.emptyCopy}>No active providers are assigned to this location yet.</p>
-                      )}
-                    </div>
-                  </section>
-
-                  <ActionLink
-                    className={styles.bottomAction}
-                    href={selectedLocation.bookingUrl || selectedLocation.slug}
-                    external={Boolean(selectedLocation.bookingUrl)}
-                  >
-                    Book at this location
-                  </ActionLink>
-                </div>
-                </>
-                </aside>
-              ) : null}
+                  </>
+                )}
+              </aside>
             </div>
           ) : null}
         </main>
       </div>
-      <SiteFooter />
+      {shouldShowFooter ? <SiteFooter /> : null}
     </div>
   );
 }

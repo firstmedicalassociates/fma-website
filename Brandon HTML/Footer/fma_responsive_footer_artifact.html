@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>First Medical Associates Responsive Footer</title>
+  <style>
+    :root {
+      --navy: #061b86;
+      --navy-2: #071264;
+      --blue: #0f63db;
+      --text: #061652;
+      --muted: #5f6a86;
+      --line: #dbe7f6;
+      --soft: #f3f8ff;
+      --card: #ffffff;
+      --shadow: 0 18px 45px rgba(15, 42, 104, .12);
+      --shadow-soft: 0 10px 30px rgba(15, 42, 104, .08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #f5f8fd;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .demo-spacer {
+      min-height: 22vh;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .footer {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 82% 6%, rgba(73, 155, 245, .10), transparent 30%),
+        linear-gradient(135deg, #ffffff 0%, #f8fbff 48%, #eef6ff 100%);
+      border-top: 1px solid rgba(210, 224, 244, .8);
+    }
+
+    .footer::before,
+    .footer::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      opacity: .45;
+    }
+
+    .footer::before {
+      width: 520px;
+      height: 170px;
+      top: -22px;
+      right: -30px;
+      background: repeating-radial-gradient(ellipse at center, rgba(20, 111, 220, .16) 0 1px, transparent 2px 10px);
+      border-radius: 50%;
+      transform: rotate(7deg);
+      opacity: .16;
+    }
+
+    .footer::after {
+      width: 700px;
+      height: 190px;
+      left: -160px;
+      bottom: 118px;
+      background: repeating-radial-gradient(ellipse at center, rgba(20, 111, 220, .16) 0 1px, transparent 2px 12px);
+      transform: rotate(-9deg);
+      opacity: .14;
+    }
+
+    .wave {
+      position: absolute;
+      pointer-events: none;
+      opacity: .38;
+      color: #b8d8fa;
+    }
+
+    .wave.top { top: -20px; right: -50px; width: 610px; height: 150px; }
+    .wave.bottom { bottom: 104px; left: -60px; width: 600px; height: 160px; }
+
+    .footer-main {
+      position: relative;
+      z-index: 2;
+      width: 95%;
+      max-width: none;
+      margin: 0 auto;
+      padding: 54px 0 46px;
+    }
+
+    .desktop-layout {
+      display: grid;
+      grid-template-columns: 310px 1px minmax(700px, 1fr) 300px;
+      gap: 34px;
+      align-items: start;
+    }
+
+    .brand {
+      max-width: 300px;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 17px;
+      margin-bottom: 20px;
+    }
+
+    .plus-mark {
+      width: 78px;
+      height: 78px;
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .plus-mark::before,
+    .plus-mark::after {
+      content: "";
+      position: absolute;
+      border-radius: 3px;
+      background: var(--navy);
+    }
+
+    .plus-mark::before {
+      width: 24px;
+      height: 68px;
+      top: 5px;
+      left: 35px;
+      box-shadow: -24px 18px 0 #51abe7;
+    }
+
+    .plus-mark::after {
+      width: 68px;
+      height: 24px;
+      left: 5px;
+      top: 35px;
+    }
+
+    .logo-text {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 30px;
+      line-height: .96;
+      color: var(--navy-2);
+      text-transform: uppercase;
+      letter-spacing: .01em;
+    }
+
+    .tiny-rule {
+      width: 42px;
+      height: 3px;
+      background: var(--blue);
+      border-radius: 10px;
+      margin: 18px 0 22px;
+    }
+
+    .brand p {
+      margin: 0 0 20px;
+      color: #424d6e;
+      font-size: 19px;
+      line-height: 1.35;
+    }
+
+    .contact-list { display: grid; gap: 12px; }
+
+    .contact-item,
+    .portal,
+    .nav-link,
+    .cta-button {
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+    .contact-item:hover,
+    .portal:hover,
+    .nav-link:hover,
+    .cta-button:hover { transform: translateY(-2px); }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      min-height: 72px;
+      padding: 13px 18px;
+      background: rgba(255,255,255,.93);
+      border: 1px solid rgba(216, 228, 245, .9);
+      border-radius: 12px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .circle-icon {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: #eaf3ff;
+      color: var(--blue);
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .value {
+      display: block;
+      color: var(--blue);
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .portal {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 68px;
+      padding: 14px 18px;
+      color: #fff;
+      background: linear-gradient(135deg, #062ba6, #07166d);
+      border-radius: 12px;
+      box-shadow: 0 16px 34px rgba(5, 30, 118, .23);
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .portal span:first-child {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .separator {
+      width: 1px;
+      min-height: 500px;
+      background: linear-gradient(to bottom, transparent, var(--line) 11%, var(--line) 88%, transparent);
+    }
+
+    .nav-area {
+      padding-top: 116px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(190px, 1fr));
+      gap: 28px;
+    }
+
+    .nav-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 18px;
+      font-size: 20px;
+      letter-spacing: -.025em;
+      color: var(--navy-2);
+    }
+
+    .nav-title .circle-icon {
+      width: 45px;
+      height: 45px;
+    }
+
+    .nav-list { display: grid; gap: 0; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 50px;
+      padding: 0 4px;
+      border-bottom: 1px solid var(--line);
+      color: #111f4c;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .nav-link strong {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      font-weight: 500;
+    }
+
+    .mini-icon {
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      color: var(--blue);
+      flex: 0 0 auto;
+      font-size: 14px;
+    }
+
+    .arrow { color: #697594; font-size: 21px; line-height: 1; }
+
+    .cta-card {
+      position: relative;
+      overflow: hidden;
+      margin-top: 116px;
+      padding: 24px 22px 24px;
+      min-height: 390px;
+      background:
+        radial-gradient(circle at 18% 12%, #fff 0 15%, transparent 34%),
+        linear-gradient(145deg, rgba(238,247,255,.96), rgba(255,255,255,.9));
+      border: 1px solid rgba(216, 229, 247, .85);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .cta-card::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      bottom: -42px;
+      width: 320px;
+      height: 155px;
+      background: repeating-radial-gradient(ellipse at center, rgba(20,111,220,.16) 0 1px, transparent 2px 10px);
+      opacity: .18;
+      transform: rotate(-7deg);
+    }
+
+    .cta-card .circle-icon {
+      width: 78px;
+      height: 78px;
+      margin-bottom: 26px;
+      background: rgba(255,255,255,.9);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .cta-card h2 {
+      margin: 0 0 14px;
+      font-size: 28px;
+      line-height: 1.1;
+      letter-spacing: -.04em;
+      color: var(--navy-2);
+    }
+
+    .cta-card p {
+      margin: 0 0 25px;
+      color: #505b78;
+      font-size: 20px;
+      line-height: 1.36;
+    }
+
+    .cta-actions {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: 13px;
+    }
+
+    .cta-button {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-radius: 11px;
+      font-size: 15px;
+      font-weight: 850;
+      border: 1px solid rgba(9, 55, 180, .16);
+      box-shadow: 0 12px 26px rgba(8, 31, 115, .12);
+    }
+
+    .cta-button.primary { background: linear-gradient(135deg, #062ba6, #07166d); color: #fff; }
+    .cta-button.secondary { background: #fff; color: var(--blue); }
+
+    .footer-bottom {
+      position: relative;
+      z-index: 3;
+      background: linear-gradient(135deg, #061a82, #071061);
+      color: #fff;
+    }
+
+    .bottom-inner {
+      width: 95%;
+      max-width: none;
+      margin: 0 auto;
+      min-height: 132px;
+      padding: 28px 0;
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      align-items: center;
+      gap: 45px;
+    }
+
+    .copyright {
+      margin: 0 0 18px;
+      font-size: 16px;
+      color: rgba(255,255,255,.96);
+    }
+
+    .bottom-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 15px;
+      color: rgba(255,255,255,.95);
+    }
+
+    .bottom-line {
+      width: 1px;
+      height: 68px;
+      background: rgba(255,255,255,.34);
+    }
+
+    .socials {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 18px;
+    }
+
+    .socials strong { margin-right: 8px; font-size: 16px; }
+
+    .social {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--navy);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .mobile-layout { display: none; }
+
+    @media (max-width: 980px) {
+      .demo-spacer { min-height: 10vh; }
+      .desktop-layout, .footer-bottom { display: none; }
+
+      .footer-main {
+        max-width: 560px;
+        padding: 22px 12px 0;
+      }
+
+      .mobile-layout {
+        display: block;
+        position: relative;
+        z-index: 2;
+        background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(247,251,255,.9));
+        border-radius: 0 0 16px 16px;
+      }
+
+      .mobile-pad { padding: 26px 24px 0; }
+
+      .mobile-layout .logo-row { margin-bottom: 18px; }
+      .mobile-layout .plus-mark { width: 70px; height: 70px; }
+      .mobile-layout .plus-mark::before { width: 22px; height: 60px; left: 31px; top: 5px; box-shadow: -22px 16px 0 #51abe7; }
+      .mobile-layout .plus-mark::after { width: 60px; height: 22px; left: 5px; top: 31px; }
+      .mobile-layout .logo-text { font-size: 32px; }
+
+      .mobile-layout .tiny-rule { margin: 20px 0 22px; }
+      .mobile-layout .brand-copy { font-size: 22px; margin: 0 0 24px; color: #444f6e; }
+
+      .mobile-layout .contact-list { gap: 13px; }
+
+      .mobile-layout .contact-item {
+        min-height: 88px;
+        padding: 15px 22px;
+        border-radius: 13px;
+      }
+
+      .mobile-layout .circle-icon { width: 56px; height: 56px; }
+      .mobile-layout .label { font-size: 21px; }
+      .mobile-layout .value { font-size: 27px; }
+
+      .mobile-layout .portal {
+        min-height: 80px;
+        margin-top: 16px;
+        font-size: 24px;
+        border-radius: 13px;
+      }
+
+      .accordion-wrap {
+        margin: 22px -24px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .mobile-accordion {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .accordion-row {
+        width: 100%;
+        min-height: 82px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        border: 0;
+        background: transparent;
+        color: var(--navy-2);
+        font: inherit;
+        cursor: pointer;
+        list-style: none;
+      }
+
+      .accordion-row::-webkit-details-marker {
+        display: none;
+      }
+
+      .mobile-accordion[open] .accordion-row {
+        background: rgba(236, 245, 255, .7);
+      }
+
+      .mobile-accordion[open] .arrow {
+        transform: rotate(180deg);
+      }
+
+      .mobile-accordion .arrow {
+        transition: transform .2s ease;
+      }
+
+      .accordion-panel {
+        display: grid;
+        gap: 0;
+        padding: 0 24px 18px 96px;
+        background: rgba(255, 255, 255, .42);
+      }
+
+      .accordion-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 44px;
+        color: #223058;
+        font-size: 16px;
+        font-weight: 650;
+        border-top: 1px solid rgba(219, 231, 246, .85);
+      }
+
+      .accordion-link span:last-child {
+        color: var(--blue);
+        font-size: 20px;
+      }
+
+      .accordion-row strong {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 26px;
+        letter-spacing: -.03em;
+      }
+
+      .mobile-cta {
+        margin: 24px -12px 24px;
+        min-height: auto;
+        padding: 28px 25px;
+      }
+
+      .mobile-cta .circle-icon { width: 78px; height: 78px; }
+      .mobile-cta h2 { font-size: 32px; }
+      .mobile-cta p { font-size: 22px; }
+      .mobile-cta .cta-button { min-height: 72px; font-size: 23px; }
+
+      .mobile-bottom {
+        margin: 0 -12px;
+        padding: 35px 20px 32px;
+        text-align: center;
+        color: #fff;
+        background: linear-gradient(135deg, #061a82, #071061);
+        border-radius: 0 0 10px 10px;
+      }
+
+      .mobile-bottom .copyright { font-size: 21px; line-height: 1.35; }
+      .mobile-bottom .bottom-links { justify-content: center; font-size: 20px; gap: 17px; }
+
+      .mobile-socials {
+        display: flex;
+        justify-content: center;
+        gap: 22px;
+        padding-top: 30px;
+        margin-top: 30px;
+        border-top: 1px solid rgba(255,255,255,.28);
+      }
+
+      .mobile-socials .social { width: 62px; height: 62px; font-size: 27px; }
+    }
+
+    @media (max-width: 520px) {
+      .footer-main { padding-left: 5px; padding-right: 5px; }
+      .mobile-pad { padding-left: 18px; padding-right: 18px; }
+      .mobile-layout .logo-text { font-size: 27px; }
+      .mobile-layout .brand-copy { font-size: 20px; }
+      .mobile-layout .label { font-size: 18px; }
+      .mobile-layout .value { font-size: 23px; }
+      .accordion-row strong { font-size: 22px; }
+      .accordion-panel { padding-left: 82px; }
+      .accordion-link { font-size: 15px; }
+      .mobile-cta .cta-button { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="demo-spacer">Page content above footer</main>
+
+  <footer class="footer">
+    <svg class="wave top" viewBox="0 0 610 150" fill="none" aria-hidden="true">
+      <path d="M0 16c85 37 145 55 229 30C321 19 370-6 466 32c52 20 92 28 144 21" stroke="currentColor"/>
+      <path d="M0 36c85 37 145 55 229 30C321 39 370 14 466 52c52 20 92 28 144 21" stroke="currentColor" opacity=".75"/>
+      <path d="M0 56c85 37 145 55 229 30C321 59 370 34 466 72c52 20 92 28 144 21" stroke="currentColor" opacity=".55"/>
+      <path d="M0 76c85 37 145 55 229 30C321 79 370 54 466 92c52 20 92 28 144 21" stroke="currentColor" opacity=".35"/>
+    </svg>
+    <svg class="wave bottom" viewBox="0 0 600 160" fill="none" aria-hidden="true">
+      <path d="M0 128c105-44 154-72 255-38 116 39 208 48 345-42" stroke="currentColor"/>
+      <path d="M0 108c105-44 154-72 255-38 116 39 208 48 345-42" stroke="currentColor" opacity=".75"/>
+      <path d="M0 88c105-44 154-72 255-38 116 39 208 48 345-42" stroke="currentColor" opacity=".55"/>
+      <path d="M0 68c105-44 154-72 255-38 116 39 208 48 345-42" stroke="currentColor" opacity=".35"/>
+    </svg>
+
+    <div class="footer-main">
+      <div class="desktop-layout">
+        <section class="brand" aria-label="Contact details">
+          <div class="logo-row">
+            <div class="plus-mark" aria-hidden="true"></div>
+            <div class="logo-text">First<br>Medical<br>Associates</div>
+          </div>
+          <div class="tiny-rule"></div>
+          <p>Patient-centered care across Maryland.</p>
+
+          <div class="contact-list">
+            <a class="contact-item" href="tel:3012843181">
+              <span class="circle-icon">☎</span>
+              <span><span class="label">Call or Text</span><strong class="value">301-284-3181</strong></span>
+            </a>
+            <a class="contact-item" href="tel:8667014905">
+              <span class="circle-icon">▣</span>
+              <span><span class="label">Fax</span><strong class="value">866-701-4905</strong></span>
+            </a>
+            <a class="contact-item" href="mailto:info@DrsFirst.com">
+              <span class="circle-icon">✉</span>
+              <span><span class="label">Email</span><strong class="value">info@DrsFirst.com</strong></span>
+            </a>
+            <a class="portal" href="#patient-portal"><span><span class="circle-icon" style="background:transparent;color:#fff;border:2px solid rgba(255,255,255,.75)">◎</span>Patient Portal</span><span>›</span></a>
+          </div>
+        </section>
+
+        <div class="separator"></div>
+
+        <nav class="nav-area" aria-label="Footer navigation">
+          <section>
+            <h2 class="nav-title"><span class="circle-icon">⌖</span>Explore</h2>
+            <div class="nav-list">
+              <a class="nav-link" href="#find-a-doctor"><strong><span class="mini-icon">♙</span>Find a Doctor</strong><span class="arrow">›</span></a>
+              <a class="nav-link" href="#services"><strong><span class="mini-icon">♡</span>Services</strong><span class="arrow">›</span></a>
+              <a class="nav-link" href="#locations"><strong><span class="mini-icon">⌖</span>Locations</strong><span class="arrow">›</span></a>
+              <a class="nav-link" href="#patient-resources"><strong><span class="mini-icon">▤</span>Patient Resources</strong><span class="arrow">›</span></a>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="nav-title"><span class="circle-icon">▥</span>Company</h2>
+            <div class="nav-list">
+              <a class="nav-link" href="#about"><strong><span class="mini-icon">♙</span>About Us</strong><span class="arrow">›</span></a>
+              <a class="nav-link" href="#providers"><strong><span class="mini-icon">♧</span>Providers</strong><span class="arrow">›</span></a>
+              <a class="nav-link" href="#careers"><strong><span class="mini-icon">▣</span>Careers</strong><span class="arrow">›</span></a>
+              <a class="nav-link" href="#contact"><strong><span class="mini-icon">✉</span>Contact Us</strong><span class="arrow">›</span></a>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="nav-title"><span class="circle-icon">♢</span>Patient Support</h2>
+            <div class="nav-list">
+              <a class="nav-link" href="#forms"><strong><span class="mini-icon">▤</span>Policies &amp; Forms</strong><span class="arrow">›</span></a>
+              <a class="nav-link" href="#privacy"><strong><span class="mini-icon">♢</span>Privacy Policy</strong><span class="arrow">›</span></a>
+              <a class="nav-link" href="#book"><strong><span class="mini-icon">▣</span>Book Online</strong><span class="arrow">›</span></a>
+              <a class="nav-link" href="#pay"><strong><span class="mini-icon">▭</span>Pay Bill</strong><span class="arrow">›</span></a>
+            </div>
+          </section>
+        </nav>
+
+        <aside class="cta-card">
+          <span class="circle-icon">▣</span>
+          <h2>Need care today?</h2>
+          <p>Schedule an appointment or find the right provider near you.</p>
+          <div class="cta-actions">
+            <a class="cta-button primary" href="#schedule">Schedule Appointment <span>›</span></a>
+            <a class="cta-button secondary" href="#doctor">Find a Doctor <span>›</span></a>
+          </div>
+        </aside>
+      </div>
+
+      <div class="mobile-layout">
+        <div class="mobile-pad">
+          <div class="logo-row">
+            <div class="plus-mark" aria-hidden="true"></div>
+            <div class="logo-text">First<br>Medical<br>Associates</div>
+          </div>
+          <div class="tiny-rule"></div>
+          <p class="brand-copy">Patient-centered care across Maryland.</p>
+
+          <div class="contact-list">
+            <a class="contact-item" href="tel:3012843181"><span class="circle-icon">☎</span><span><span class="label">Call or Text</span><strong class="value">301-284-3181</strong></span></a>
+            <a class="contact-item" href="tel:8667014905"><span class="circle-icon">▣</span><span><span class="label">Fax</span><strong class="value">866-701-4905</strong></span></a>
+            <a class="contact-item" href="mailto:info@DrsFirst.com"><span class="circle-icon">✉</span><span><span class="label">Email</span><strong class="value">info@DrsFirst.com</strong></span></a>
+            <a class="portal" href="#patient-portal"><span><span class="circle-icon" style="background:transparent;color:#fff;border:2px solid rgba(255,255,255,.75)">◎</span>Patient Portal</span><span>›</span></a>
+          </div>
+
+          <div class="accordion-wrap">
+            <details class="mobile-accordion" open>
+              <summary class="accordion-row"><strong><span class="circle-icon">⌖</span>Explore</strong><span class="arrow">⌄</span></summary>
+              <div class="accordion-panel">
+                <a class="accordion-link" href="#find-a-doctor"><span>Find a Doctor</span><span>›</span></a>
+                <a class="accordion-link" href="#services"><span>Services</span><span>›</span></a>
+                <a class="accordion-link" href="#locations"><span>Locations</span><span>›</span></a>
+                <a class="accordion-link" href="#patient-resources"><span>Patient Resources</span><span>›</span></a>
+              </div>
+            </details>
+
+            <details class="mobile-accordion">
+              <summary class="accordion-row"><strong><span class="circle-icon">▥</span>Company</strong><span class="arrow">⌄</span></summary>
+              <div class="accordion-panel">
+                <a class="accordion-link" href="#about"><span>About Us</span><span>›</span></a>
+                <a class="accordion-link" href="#providers"><span>Providers</span><span>›</span></a>
+                <a class="accordion-link" href="#careers"><span>Careers</span><span>›</span></a>
+                <a class="accordion-link" href="#contact"><span>Contact Us</span><span>›</span></a>
+              </div>
+            </details>
+
+            <details class="mobile-accordion">
+              <summary class="accordion-row"><strong><span class="circle-icon">♢</span>Patient Support</strong><span class="arrow">⌄</span></summary>
+              <div class="accordion-panel">
+                <a class="accordion-link" href="#forms"><span>Policies &amp; Forms</span><span>›</span></a>
+                <a class="accordion-link" href="#privacy"><span>Privacy Policy</span><span>›</span></a>
+                <a class="accordion-link" href="#book"><span>Book Online</span><span>›</span></a>
+                <a class="accordion-link" href="#pay"><span>Pay Bill</span><span>›</span></a>
+              </div>
+            </details>
+          </div>
+
+          <aside class="cta-card mobile-cta">
+            <span class="circle-icon">▣</span>
+            <h2>Need care today?</h2>
+            <p>Schedule an appointment or find the right provider near you.</p>
+            <div class="cta-actions">
+              <a class="cta-button primary" href="#schedule">Schedule Appointment <span>›</span></a>
+              <a class="cta-button secondary" href="#doctor">Find a Doctor <span>›</span></a>
+            </div>
+          </aside>
+        </div>
+
+        <div class="mobile-bottom">
+          <p class="copyright">© 2026 First Medical Associates. All rights reserved.</p>
+          <div class="bottom-links"><a href="#privacy">Privacy Policy</a><span>|</span><a href="#hipaa">HIPAA Notice</a><span>|</span><a href="#accessibility">Accessibility</a></div>
+          <div class="mobile-socials"><a class="social" href="#facebook">f</a><a class="social" href="#instagram">◎</a><a class="social" href="#linkedin">in</a><a class="social" href="#x">𝕏</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="bottom-inner">
+        <div>
+          <p class="copyright">© 2026 First Medical Associates. All rights reserved.</p>
+          <div class="bottom-links"><a href="#privacy">Privacy Policy</a><span>|</span><a href="#hipaa">HIPAA Notice</a><span>|</span><a href="#accessibility">Accessibility</a></div>
+        </div>
+        <div class="bottom-line"></div>
+        <div class="socials"><strong>Connect with us</strong><a class="social" href="#facebook">f</a><a class="social" href="#instagram">◎</a><a class="social" href="#linkedin">in</a><a class="social" href="#x">𝕏</a></div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

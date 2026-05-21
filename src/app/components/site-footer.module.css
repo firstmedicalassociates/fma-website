@@ -1,0 +1,684 @@
+.footer {
+  --footer-navy: #07186f;
+  --footer-navy-strong: #050f55;
+  --footer-blue: #0f56d9;
+  --footer-text: #0f1f56;
+  --footer-muted: #546082;
+  --footer-line: #d6e4f8;
+  --footer-card: rgba(255, 255, 255, 0.94);
+  --footer-shadow: 0 16px 36px rgba(14, 36, 95, 0.11);
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid rgba(214, 228, 248, 0.9);
+  background:
+    linear-gradient(148deg, rgba(255, 255, 255, 0.76), rgba(243, 248, 255, 0.64)),
+    url("/assets/footer-background-image.png");
+  background-size: cover, cover;
+  background-position: center bottom;
+  color: var(--footer-text);
+}
+
+.footerMain {
+  width: min(95%, 1800px);
+  margin: 0 auto;
+  padding: 54px 0 44px;
+}
+
+.desktopLayout {
+  display: grid;
+  grid-template-columns: 330px 1px minmax(680px, 1fr) 330px;
+  gap: 30px;
+  align-items: start;
+}
+
+.brandColumn {
+  display: grid;
+  gap: 16px;
+}
+
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brandMark {
+  width: 74px;
+  height: 74px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.brandText {
+  display: grid;
+  color: #091d79;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.8rem, 2vw, 1.25rem);
+  line-height: 0.96;
+  text-transform: uppercase;
+}
+
+.brandRule {
+  width: 150px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--footer-blue);
+}
+
+.brandCopy {
+  margin: 0;
+  color: #445176;
+  font-size: clamp(.8rem, 2vw, 1rem);
+  line-height: 1.34;
+}
+
+.contactList {
+  display: grid;
+  gap: 12px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 78px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(215, 228, 245, 0.9);
+  background: var(--footer-card);
+  box-shadow: 0 10px 28px rgba(13, 37, 100, 0.08);
+  transition: transform 180ms ease;
+}
+
+.contactItem:hover {
+  transform: translateY(-2px);
+}
+
+.contactIconWrap,
+.navTitleIconWrap,
+.needCareIconWrap {
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.contactIconWrap {
+  width: 50px;
+  height: 50px;
+  background: #eaf2ff;
+}
+
+.contactIcon,
+.portalIcon,
+.navTitleIcon,
+.navMiniIcon,
+.needCareIcon,
+.needCareActionIcon,
+.portalArrow,
+.navArrow,
+.mobileAccordionChevron {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.95;
+}
+
+.contactIcon,
+.navTitleIcon,
+.navMiniIcon,
+.needCareIcon,
+.needCareActionIcon {
+  color: var(--footer-blue);
+}
+
+.contactLabel {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--footer-muted);
+  font-size: 0.85rem;
+  line-height: 1.1;
+}
+
+.contactValue {
+  display: block;
+  color: var(--footer-blue);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.portalButton {
+  min-height: 68px;
+  margin-top: 2px;
+  padding: 0 16px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+  background: linear-gradient(135deg, #0728a2, #071264);
+  box-shadow: 0 16px 34px rgba(5, 30, 118, 0.24);
+  font-size: 1.18rem;
+  font-weight: 800;
+  transition: transform 180ms ease;
+}
+
+.portalButton:hover {
+  transform: translateY(-2px);
+}
+
+.portalInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.portalIconWrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  color: #fff;
+}
+
+.portalIcon {
+  color: #fff;
+}
+
+.portalArrow {
+  color: #fff;
+}
+
+.footerSeparator {
+  width: 1px;
+  min-height: 520px;
+  background: linear-gradient(to bottom, transparent, var(--footer-line) 12%, var(--footer-line) 88%, transparent);
+}
+
+.navColumns {
+  padding-top: 108px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 24px;
+}
+
+.navTitle {
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #0b1f76;
+  font-size: clamp(1.5rem, 1.3vw, 2rem);
+  letter-spacing: -0.02em;
+}
+
+.navTitleIconWrap {
+  width: 44px;
+  height: 44px;
+  background: #eaf2ff;
+}
+
+.navList {
+  display: grid;
+}
+
+.navLink {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--footer-line);
+  color: #152758;
+  font-size: 1.04rem;
+  transition: transform 180ms ease;
+}
+
+.navLink:hover {
+  transform: translateX(2px);
+}
+
+.navLink strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+}
+
+.navMiniIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.navArrow {
+  width: 20px;
+  height: 20px;
+  color: #6a7696;
+}
+
+.needCareCard {
+  margin-top: 50px;
+  min-height: 420px;
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid rgba(216, 229, 247, 0.88);
+  box-shadow: var(--footer-shadow);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.0)),
+    url("/assets/footer-asset.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.needCareIconWrap {
+  width: 78px;
+  height: 78px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 26px rgba(14, 36, 95, 0.12);
+}
+
+.needCareTitle {
+  margin: 0 0 12px;
+  color: #0b1f76;
+  font-size: clamp(1.8rem, 2vw, 1.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.needCareCopy {
+  margin: 0 0 20px;
+  color: #4f5b7c;
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
+  line-height: 1.3;
+}
+
+.needCareActions {
+  display: grid;
+  gap: 12px;
+}
+
+.needCareAction {
+  min-height: 52px;
+  padding: 0 16px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: .8rem;
+  font-weight: 800;
+  border: 1px solid rgba(9, 55, 180, 0.16);
+  box-shadow: 0 12px 26px rgba(8, 31, 115, 0.12);
+  transition: transform 180ms ease;
+}
+
+.needCareAction:hover {
+  transform: translateY(-2px);
+}
+
+.needCareActionPrimary {
+  color: #fff;
+  background: linear-gradient(135deg, #062ba6, #07166d);
+}
+
+.needCareActionSecondary {
+  color: var(--footer-blue);
+  background: #fff;
+}
+
+.needCareActionInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.needCareActionIcon,
+.needCareActionArrow {
+  width: 20px;
+  height: 20px;
+}
+
+.needCareActionPrimary .needCareActionIcon,
+.needCareActionPrimary .needCareActionArrow {
+  color: #fff;
+}
+
+.mobileLayout {
+  display: none;
+}
+
+.footerBottom {
+  background: linear-gradient(135deg, #061a82, #071061);
+  color: #fff;
+}
+
+.footerBottomInner {
+  width: min(95%, 1800px);
+  margin: 0 auto;
+  min-height: 80px;
+  padding: 10px 0 10px;
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  align-items: center;
+  gap: 44px;
+}
+
+.footerCopyright {
+  margin: 0 0 14px;
+  font-size: .8rem;
+}
+
+.footerLegalLinks {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.footerLegalItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.footerLegalLink {
+  font-size: .9rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.footerBottomLine {
+  width: 1px;
+  height: 68px;
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.socials {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+}
+
+.socials strong {
+  margin-right: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.socialBubble {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: #061a82;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+@media (max-width: 1360px) {
+  .desktopLayout {
+    grid-template-columns: 300px 1px minmax(620px, 1fr) 300px;
+    gap: 24px;
+  }
+
+  .navColumns {
+    gap: 18px;
+  }
+}
+
+@media (max-width: 1120px) {
+  .desktopLayout,
+  .footerBottom {
+    display: none;
+  }
+
+  .footerMain {
+    max-width: 620px;
+    width: min(100%, calc(100% - 12px));
+    padding: 24px 6px 0;
+  }
+
+  .mobileLayout {
+    display: block;
+    border-radius: 0 0 16px 16px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(247, 251, 255, 0.9));
+  }
+
+  .mobileLayout .brandColumn {
+    padding: 26px 24px 0;
+  }
+
+  .mobileLayout .brandRow {
+    margin-bottom: 2px;
+  }
+
+  .mobileLayout .brandMark {
+    width: 70px;
+    height: 70px;
+  }
+
+  .mobileLayout .brandText {
+    font-size: clamp(1.92rem, 6vw, 2.6rem);
+  }
+
+  .mobileLayout .brandCopy {
+    font-size: clamp(1.32rem, 4.2vw, 1.7rem);
+    margin-bottom: 2px;
+  }
+
+  .mobileLayout .contactList {
+    gap: 13px;
+  }
+
+  .mobileLayout .contactItem {
+    min-height: 88px;
+    padding: 15px 22px;
+    border-radius: 13px;
+  }
+
+  .mobileLayout .contactIconWrap {
+    width: 56px;
+    height: 56px;
+  }
+
+  .mobileLayout .contactLabel {
+    font-size: 1.15rem;
+  }
+
+  .mobileLayout .contactValue {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+  }
+
+  .mobileLayout .portalButton {
+    min-height: 80px;
+    margin-top: 16px;
+    font-size: clamp(1.5rem, 4vw, 1.8rem);
+    border-radius: 13px;
+  }
+
+  .mobileLayout .portalIconWrap {
+    width: 50px;
+    height: 50px;
+  }
+
+  .mobileAccordions {
+    margin: 24px 0 0;
+    border-top: 1px solid var(--footer-line);
+  }
+
+  .mobileAccordion {
+    border-bottom: 1px solid var(--footer-line);
+  }
+
+  .mobileAccordionSummary {
+    width: 100%;
+    min-height: 82px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mobileAccordionSummary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobileAccordion[open] .mobileAccordionSummary {
+    background: rgba(236, 245, 255, 0.7);
+  }
+
+  .mobileAccordionSummary strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    color: #0b1f76;
+    font-size: clamp(1.44rem, 5.6vw, 2rem);
+    letter-spacing: -0.03em;
+  }
+
+  .mobileAccordionChevron {
+    color: #203463;
+    transition: transform 180ms ease;
+  }
+
+  .mobileAccordion[open] .mobileAccordionChevron {
+    transform: rotate(180deg);
+  }
+
+  .mobileAccordionPanel {
+    display: grid;
+    padding: 0 24px 18px 96px;
+    background: rgba(255, 255, 255, 0.42);
+  }
+
+  .mobileAccordionLink {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #223058;
+    font-size: 1.05rem;
+    font-weight: 650;
+    border-top: 1px solid rgba(219, 231, 246, 0.85);
+  }
+
+  .mobileLayout .needCareCard {
+    margin: 24px 12px 24px;
+    min-height: auto;
+    padding: 28px 25px;
+  }
+
+  .mobileLayout .needCareTitle {
+    font-size: clamp(2rem, 7vw, 2.7rem);
+  }
+
+  .mobileLayout .needCareCopy {
+    font-size: clamp(1.28rem, 5vw, 1.8rem);
+  }
+
+  .mobileLayout .needCareAction {
+    min-height: 72px;
+    font-size: clamp(0.98rem, 3.4vw, 1.16rem);
+  }
+
+  .footerBottom {
+    display: block;
+    border-radius: 0 0 10px 10px;
+  }
+
+  .footerBottomInner {
+    width: 100%;
+    margin: 0;
+    padding: 35px 20px 32px;
+    min-height: auto;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .footerBottomLine {
+    display: none;
+  }
+
+  .footerCopyright {
+    margin-bottom: 16px;
+    font-size: clamp(1.18rem, 4.6vw, 1.55rem);
+    line-height: 1.35;
+  }
+
+  .footerLegalLinks {
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .footerLegalItem {
+    gap: 12px;
+  }
+
+  .footerLegalLink {
+    font-size: clamp(1.05rem, 4vw, 1.35rem);
+  }
+
+  .socials {
+    justify-content: center;
+    gap: 18px;
+    padding-top: 30px;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
+  }
+
+  .socials strong {
+    display: none;
+  }
+
+  .socialBubble {
+    width: 62px;
+    height: 62px;
+    font-size: 1.7rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .footerMain {
+    width: min(100%, calc(100% - 10px));
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .mobileLayout .brandColumn {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .mobileLayout .brandText {
+    font-size: clamp(1.7rem, 9vw, 2.15rem);
+  }
+
+  .mobileAccordionSummary strong {
+    font-size: clamp(1.2rem, 7vw, 1.55rem);
+  }
+
+  .mobileAccordionPanel {
+    padding-left: 82px;
+  }
+
+  .mobileAccordionLink {
+    font-size: 0.96rem;
+  }
+
+  .mobileLayout .needCareAction {
+    font-size: clamp(0.9rem, 3.8vw, 1.02rem);
+  }
+}

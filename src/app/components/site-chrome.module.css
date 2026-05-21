@@ -319,27 +319,36 @@
 
 .headerAction {
   min-height: 46px;
-  padding: 0 20px;
+  padding: 0 24px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: linear-gradient(135deg, #0f7da7 0%, #006591 100%);
+  border: 1px solid rgba(110, 225, 255, 0.82);
+  background: linear-gradient(135deg, #16c0ff 0%, #1698ff 45%, #0d6df5 100%);
   color: #ffffff;
-  font-size: 0.78rem;
+  font-size: 0.92rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
   text-transform: none;
-  box-shadow: 0 16px 30px rgba(0, 67, 98, 0.26);
+  box-shadow:
+    0 0 0 1px rgba(142, 233, 255, 0.36),
+    0 14px 28px rgba(14, 124, 249, 0.42),
+    0 0 22px rgba(87, 208, 255, 0.34);
   transition:
     transform 180ms ease,
-    box-shadow 180ms ease;
+    box-shadow 180ms ease,
+    filter 180ms ease;
   white-space: nowrap;
 }
 
 .headerAction:hover {
   transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow:
+    0 0 0 1px rgba(172, 240, 255, 0.42),
+    0 16px 32px rgba(14, 124, 249, 0.46),
+    0 0 26px rgba(92, 213, 255, 0.42);
 }
 
 .siteHeaderMenuOpen {

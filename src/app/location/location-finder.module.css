@@ -290,8 +290,177 @@
   min-height: 0;
 }
 
+.searchPanelDetailView {
+  padding: 0;
+  gap: 0;
+}
+
 .searchPanel > * {
   min-width: 0;
+}
+
+.searchPanelDetailView .detailHero {
+  min-height: 134px;
+  border-radius: 16px;
+  margin: 8px 8px 0;
+  overflow: hidden;
+}
+
+.searchPanelDetailView .detailBody {
+  gap: 10px;
+  padding: 12px 12px 14px;
+}
+
+.searchPanelDetailView .detailHeader {
+  gap: 2px;
+}
+
+.searchPanelDetailView .detailHeader h2 {
+  font-size: 2.15rem;
+  line-height: 1.01;
+}
+
+.searchPanelDetailView .detailHeader p {
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.searchPanelDetailView .panelEyebrow {
+  font-size: 0.56rem;
+  letter-spacing: 0.24em;
+}
+
+.searchPanelDetailView .detailGrid {
+  gap: 8px;
+}
+
+.searchPanelDetailView .detailStat {
+  gap: 4px;
+  padding: 12px;
+  border-radius: 16px;
+}
+
+.searchPanelDetailView .detailStat span {
+  font-size: 0.9rem;
+}
+
+.searchPanelDetailView .detailStat strong {
+  font-size: 1.15rem;
+  line-height: 1.35;
+}
+
+.searchPanelDetailView .actionGrid {
+  gap: 8px;
+}
+
+.searchPanelDetailView .detailActionPrimary,
+.searchPanelDetailView .detailActionSecondary {
+  min-height: 40px;
+  padding: 0 12px;
+  font-size: 0.95rem;
+}
+
+.searchPanelDetailView .detailSection {
+  border: 1px solid rgba(19, 36, 73, 0.1);
+  border-radius: 14px;
+  background: rgba(248, 250, 255, 0.84);
+  padding: 10px 12px 8px;
+  gap: 4px;
+}
+
+.searchPanelDetailView .hoursRow {
+  padding: 7px 0;
+}
+
+.searchPanelDetailView .hoursViewLink {
+  margin-top: 2px;
+}
+
+.detailBackLink {
+  border: none;
+  background: transparent;
+  color: #26439c;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.detailBackLink svg {
+  width: 14px;
+  height: 14px;
+}
+
+.detailAddressCard {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 11px;
+  border-radius: 12px;
+  border: 1px solid rgba(19, 36, 73, 0.1);
+  background: rgba(248, 250, 255, 0.86);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.detailAddressCard:hover {
+  border-color: rgba(27, 78, 201, 0.28);
+  box-shadow: 0 10px 24px rgba(15, 35, 88, 0.08);
+}
+
+.detailAddressIcon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(27, 78, 201, 0.1);
+  color: #1b4ec9;
+}
+
+.detailAddressIcon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.detailAddressCopy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.detailAddressCopy strong,
+.detailAddressCopy span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.detailAddressCopy strong {
+  color: #10203e;
+  font-size: 0.89rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.detailAddressCopy span {
+  color: #5c6b84;
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+.detailAddressChevron {
+  color: #8ca2c7;
+}
+
+.detailAddressChevron svg {
+  width: 16px;
+  height: 16px;
 }
 
 .resultsToolbar {
@@ -555,7 +724,7 @@
 
 .detailHero {
   position: relative;
-  min-height: 210px;
+  min-height: 160px;
   background: linear-gradient(135deg, #0f2358 0%, #1b4ec9 100%);
 }
 
@@ -582,11 +751,11 @@
 
 .detailBody {
   display: grid;
-  gap: 20px;
+  gap: 10px;
   min-height: 0;
   flex: 1 1 auto;
   overflow: auto;
-  padding: 24px;
+  padding: 12px;
   scrollbar-width: thin;
   scrollbar-color: rgba(23, 58, 136, 0.3) rgba(15, 35, 88, 0.08);
 }
@@ -616,13 +785,17 @@
 
 .detailHeader {
   display: grid;
-  gap: 8px;
+  gap: 2px;
 }
 
-.detailMetaBlock,
 .detailSection {
   display: grid;
-  gap: 12px;
+  gap: 6px;
+}
+
+.detailMetaBlock {
+  display: grid;
+  gap: 8px;
 }
 
 .detailMetaBlock strong,
@@ -638,34 +811,85 @@
 .detailGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 8px;
 }
 
 .detailStat {
   display: grid;
-  gap: 6px;
-  padding: 16px;
+  gap: 4px;
+  padding: 9px 10px;
   border: 1px solid rgba(19, 36, 73, 0.1);
-  border-radius: 20px;
+  border-radius: 12px;
   background: rgba(248, 250, 255, 0.9);
+}
+
+.detailStatLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detailStatIcon {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(27, 78, 201, 0.12);
+  color: #1b4ec9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detailStatIcon svg {
+  width: 10px;
+  height: 10px;
+}
+
+.detailStatLabel > span:last-child {
+  color: #61708d;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
 .detailStat strong {
   color: #10203e;
-  line-height: 1.4;
+  line-height: 1.3;
+  font-size: 1.05rem;
 }
 
 .actionGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.detailActionFull {
+  min-height: 40px;
+  font-size: 0.92rem;
+}
+
+.detailActionIcon {
+  width: 15px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detailActionIcon svg {
+  width: 15px;
+  height: 15px;
 }
 
 .sectionHeading {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(19, 36, 73, 0.08);
 }
 
 .sectionHeading a {
@@ -673,18 +897,41 @@
   font-weight: 700;
 }
 
+.sectionHeading h3 {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sectionHeading h3::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border: 1.8px solid currentColor;
+  border-radius: 999px;
+  box-sizing: border-box;
+}
+
+.sectionHeading span {
+  font-size: 0.74rem;
+}
+
 .hoursList,
 .providerList {
   display: grid;
-  gap: 10px;
+  gap: 4px;
 }
 
 .hoursRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 18px;
-  padding: 14px 0;
+  gap: 12px;
+  padding: 9px 0;
   border-bottom: 1px solid rgba(19, 36, 73, 0.08);
 }
 
@@ -695,11 +942,32 @@
 
 .hoursRow span {
   color: #5c6b84;
+  font-size: 0.84rem;
 }
 
 .hoursRow strong {
   color: #132449;
   text-align: right;
+  font-size: 0.84rem;
+}
+
+.hoursViewLink {
+  justify-self: center;
+  color: #2e56bc;
+  font-size: 0.82rem;
+  font-weight: 700;
+  min-height: auto;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.hoursViewLink svg {
+  width: 13px;
+  height: 13px;
 }
 
 .providerRow {
@@ -743,6 +1011,384 @@
   width: 100%;
 }
 
+.mobileOverlay {
+  display: none;
+}
+
+.mobileSearchDock,
+.mobileSheet {
+  pointer-events: auto;
+}
+
+.mobileSearchForm {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.75fr) auto;
+  align-items: center;
+  gap: 0;
+  padding: 10px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.96);
+  box-shadow: 0 16px 44px rgba(15, 35, 88, 0.18);
+  backdrop-filter: blur(14px);
+}
+
+.mobileSearchField {
+  display: grid;
+  gap: 2px;
+  padding: 0 10px;
+}
+
+.mobileSearchField span {
+  color: #173a88;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mobileSearchField input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #132449;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  outline: none;
+}
+
+.mobileSearchButton {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f2d8f 0%, #001d7a 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(15, 35, 88, 0.24);
+}
+
+.mobileSearchButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mobileSheet {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 34px 34px 22px 22px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.98);
+  box-shadow: 0 -18px 48px rgba(0, 0, 0, 0.18);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  transition:
+    height 360ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: height;
+}
+
+.mobileSheetList {}
+
+.mobileSheetDetail {}
+
+.mobileSheetDetail .detailHero {
+  min-height: 126px;
+  border-radius: 14px;
+  margin: 0 2px 3px;
+  overflow: hidden;
+}
+
+.mobileSheetDetail .detailBody {
+  padding: 0 2px 6px;
+  gap: 8px;
+}
+
+.mobileSheetDetail .detailBackLink {
+  font-size: 0.86rem;
+}
+
+.mobileSheetDetail .detailHeader h2 {
+  font-size: 2.05rem;
+  line-height: 1.02;
+}
+
+.mobileSheetDetail .detailHeader p {
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.mobileSheetDetail .panelEyebrow {
+  font-size: 0.54rem;
+  letter-spacing: 0.22em;
+}
+
+.mobileSheetDetail .detailActionPrimary,
+.mobileSheetDetail .detailActionSecondary {
+  min-height: 38px;
+  font-size: 0.9rem;
+}
+
+.mobileSheetDetail .detailActionFull {
+  min-height: 36px;
+}
+
+.mobileSheetDetail .sectionHeading span {
+  display: none;
+}
+
+.mobileSheetCollapsed {
+  height: 320px;
+}
+
+.mobileSheetExpanded {
+  height: calc(100% - 92px);
+  border-radius: 26px 26px 18px 18px;
+  box-shadow: 0 -24px 56px rgba(0, 0, 0, 0.22);
+}
+
+.mobileSheetHandle {
+  border: none;
+  background: transparent;
+  padding: 10px 0 4px;
+  display: flex;
+  justify-content: center;
+}
+
+.mobileSheetHandle span {
+  width: 52px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(19, 36, 73, 0.2);
+}
+
+.mobileSheetScroller {
+  overflow-y: auto;
+  padding: 10px 16px 14px;
+  display: grid;
+  gap: 14px;
+  overscroll-behavior: contain;
+}
+
+.mobileSheetHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.mobileDetailMedia {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(19, 36, 73, 0.1);
+  background: #e8eef8;
+  box-shadow: 0 8px 20px rgba(15, 35, 88, 0.12);
+  aspect-ratio: 16 / 9;
+  max-height: 170px;
+}
+
+.mobileSheetCollapsed.mobileSheetDetail .mobileSheetScroller {
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.mobileSheetCollapsed.mobileSheetDetail .mobileDetailMedia {
+  display: none;
+}
+
+.mobileSheetCollapsed.mobileSheetDetail .mobileSheetHeader {
+  gap: 2px;
+}
+
+.mobileSheetCollapsed.mobileSheetDetail .mobileSheetHeader h2 {
+  font-size: 19px;
+  line-height: 1.08;
+}
+
+.mobileSheetCollapsed.mobileSheetDetail .mobileSheetHeader p {
+  font-size: 11px;
+}
+
+.mobileSheetCollapsed.mobileSheetDetail .mobileLocationMeta p {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.mobileSheetCollapsed.mobileSheetDetail .mobileLocationMeta span {
+  font-size: 11px;
+}
+
+.mobileSheetCollapsed.mobileSheetDetail .mobileLocationsSection {
+  display: none;
+}
+
+.mobileDetailImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.mobileDetailImageFallback {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #10203e;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px;
+  text-align: center;
+}
+
+.mobileBackButton {
+  justify-self: start;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 999px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f2d8f 0%, #001d7a 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(15, 35, 88, 0.24);
+}
+
+.mobileBackButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+.mobileSheetHeader h2 {
+  margin: 0;
+  color: #10203e;
+  font-size: 23px;
+  line-height: 1.06;
+}
+
+.mobileSheetHeader p {
+  margin: 0;
+  color: #1b4ec9;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mobileLocationMeta {
+  display: grid;
+  gap: 2px;
+}
+
+.mobileLocationMeta p {
+  margin: 0;
+  color: #132449;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.mobileLocationMeta span {
+  color: #5c6b84;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mobileActionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mobileActionPrimary,
+.mobileActionSecondary {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 10px;
+  line-height: 1;
+}
+
+.mobileActionPrimary {
+  background: linear-gradient(135deg, #0f2358 0%, #1b4ec9 100%);
+  color: #ffffff;
+  border: 1px solid transparent;
+  box-shadow: 0 12px 22px rgba(15, 35, 88, 0.2);
+}
+
+.mobileActionSecondary {
+  background: rgba(255, 255, 255, 0.95);
+  color: #132449;
+  border: 1px solid rgba(19, 36, 73, 0.14);
+}
+
+.mobileLocationsSection {
+  display: grid;
+  gap: 10px;
+}
+
+.mobileLocationsHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mobileLocationsHeading h3 {
+  margin: 0;
+  color: #10203e;
+  font-size: 13px;
+}
+
+.mobileLocationList {
+  display: grid;
+  gap: 8px;
+}
+
+.mobileLocationRow {
+  border: 1px solid rgba(19, 36, 73, 0.1);
+  border-radius: 16px;
+  background: #f6f9ff;
+  text-align: left;
+  padding: 12px;
+  display: grid;
+  gap: 3px;
+}
+
+.mobileLocationRow strong {
+  color: #173a88;
+  font-size: 14px;
+}
+
+.mobileLocationRow span {
+  color: #5c6b84;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.mobileLocationRowActive {
+  border-color: rgba(27, 78, 201, 0.45);
+  background: #ffffff;
+}
+
+.mobileSheetFooter {
+  padding: 10px 16px 16px;
+  border-top: 1px solid rgba(19, 36, 73, 0.08);
+  background: rgba(255, 255, 255, 0.98);
+}
+
 @media (max-width: 1200px) {
   .stageContentBoth {
     grid-template-columns: minmax(316px, 352px) minmax(0, 1fr) minmax(300px, 340px);
@@ -784,56 +1430,32 @@
 }
 
 @media (max-width: 720px) {
-  .mapSearchDock {
-    top: 18px;
-    width: calc(100% - 20px);
+  .stage {
+    padding: 0 8px 8px;
   }
 
-  .mapSearchForm {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 14px;
-    border-radius: 30px;
-  }
-
-  .mapSearchField {
-    padding: 0;
-  }
-
-  .mapSearchDivider {
-    width: 100%;
-    height: 1px;
-  }
-
-  .mapSearchButton {
-    width: 52px;
-    height: 52px;
-    justify-self: end;
-  }
-
-  .panel {
+  .mapBackdrop {
+    inset: 0 8px 8px;
     border-radius: 26px;
   }
 
-  .searchPanel,
-  .detailBody {
-    padding: 18px;
+  .mapSearchDock,
+  .stageContent {
+    display: none;
   }
 
-  .detailGrid,
-  .actionGrid {
-    grid-template-columns: 1fr;
+  .mobileOverlay {
+    display: block;
+    position: relative;
+    z-index: 3;
+    height: 100%;
+    pointer-events: none;
   }
 
-  .locationRowHeader,
-  .locationRowMeta,
-  .sectionHeading,
-  .hoursRow {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .hoursRow strong {
-    text-align: left;
+  .mobileSearchDock {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
   }
 }

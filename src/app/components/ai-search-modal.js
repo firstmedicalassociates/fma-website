@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { GENERAL_BOOK_APPOINTMENT_URL } from "../lib/config/site";
 import styles from "./ai-search-modal.module.css";
 
 const SEARCH_MIN_CHARACTERS = 2;
@@ -378,7 +379,7 @@ export default function AiSearchModal({ className = "", onOpen }) {
                       <p>{resultPayload.summary}</p>
 
                       <div className={styles.quickActions}>
-                        <Link className={`${styles.quickAction} ${styles.quickActionPrimary}`} href="/locations">
+                        <Link className={`${styles.quickAction} ${styles.quickActionPrimary}`} href={GENERAL_BOOK_APPOINTMENT_URL}>
                           Schedule Appointment
                         </Link>
                         <Link className={styles.quickAction} href="/providers">
