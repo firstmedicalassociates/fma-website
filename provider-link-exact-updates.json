@@ -1,0 +1,247 @@
+{
+  "totalProvidersInDb": 48,
+  "sheetRowsParsed": 47,
+  "exactMatchUpdates": 33,
+  "sheetNamesWithoutExactSiteMatch": 6,
+  "sheetOnlyNames": [
+    "Eleanor Dzodzomenyo",
+    "Jinkle Modi",
+    "Maria Ibrahim",
+    "Quoc Nguyen",
+    "Yvonne Tukei",
+    "Zainab Turay"
+  ],
+  "updates": [
+    {
+      "id": "cmo0klfxi0013yklffk4xj6ct",
+      "slug": "alexander-jimenez",
+      "name": "Alexander Alegria Jimenez",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803201",
+      "sheetName": "Alexander Alegria Jimenez"
+    },
+    {
+      "id": "cmo0klcel000pyklf1oaayp6l",
+      "slug": "alisha-singh",
+      "name": "Alisha Singh",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803193",
+      "sheetName": "Alisha Singh"
+    },
+    {
+      "id": "cmo0klfhp0010yklf8tqdmotn",
+      "slug": "aniruddha-bhattacharyya",
+      "name": "Aniruddha Bhattacharyya",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803166",
+      "sheetName": "Aniruddha Bhattacharyya"
+    },
+    {
+      "id": "cmo0kl8kf0006yklf3z7e1uwh",
+      "slug": "anita-kunwar",
+      "name": "Anita Kunwar",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803174",
+      "sheetName": "Anita Kunwar"
+    },
+    {
+      "id": "cmo0klc1i000nyklf2nu0mi11",
+      "slug": "emily-velasquez-pa-c",
+      "name": "Emily Velasquez",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803191",
+      "sheetName": "Emily Velasquez"
+    },
+    {
+      "id": "cmo0klejq000uyklfgofjqe62",
+      "slug": "emma-feeney",
+      "name": "Emma Feeney Harsel",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803189",
+      "sheetName": "Emma Feeney Harsel"
+    },
+    {
+      "id": "cmo0klfsf0012yklffzp0qtl0",
+      "slug": "ilan-kokotek-2",
+      "name": "Ilan Kokotek",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803157",
+      "sheetName": "Ilan Kokotek"
+    },
+    {
+      "id": "cmo0klfn60011yklfp299zsbn",
+      "slug": "james-wang",
+      "name": "James Wang",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803170",
+      "sheetName": "James Wang"
+    },
+    {
+      "id": "cmo0klc7s000oyklf2wc7ms3e",
+      "slug": "janiah-lambert",
+      "name": "Janiah Lambert",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803182",
+      "sheetName": "Janiah Lambert"
+    },
+    {
+      "id": "cmo0kla80000fyklfs5pu1up2",
+      "slug": "jason-lowry",
+      "name": "Jason Lowery",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803161",
+      "sheetName": "Jason Lowery"
+    },
+    {
+      "id": "cmo0kl89m0004yklfy293xy55",
+      "slug": "kahsu-tsehay",
+      "name": "Kahsu Tsehay",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803163",
+      "sheetName": "Kahsu Tsehay"
+    },
+    {
+      "id": "cmo0kldsj000tyklfnfrnwehz",
+      "slug": "karen-lizarraga",
+      "name": "Karen Lizarraga",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803195",
+      "sheetName": "Karen Lizarraga"
+    },
+    {
+      "id": "cmo0klbfx000kyklfgqi5ovii",
+      "slug": "katherine-lee",
+      "name": "Katherine Lee",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803149",
+      "sheetName": "Katherine Lee"
+    },
+    {
+      "id": "cmo0klepp000vyklfbnjk0f1c",
+      "slug": "leanne-antioquia",
+      "name": "Leanne Antioquia",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803152",
+      "sheetName": "Leanne Antioquia"
+    },
+    {
+      "id": "cmo0kl7y60002yklfy5qzydee",
+      "slug": "lekh-poudel",
+      "name": "Lekh Poudel",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803194",
+      "sheetName": "Lekh Poudel"
+    },
+    {
+      "id": "cmo0klfcq000zyklfuvxpspda",
+      "slug": "lizy-thomas",
+      "name": "Lizy Thomas",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803176",
+      "sheetName": "Lizy Thomas"
+    },
+    {
+      "id": "cmo0kl9hm000byklfkafylzxo",
+      "slug": "mahpara-qureshi",
+      "name": "Mahpara Qureshi",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803181",
+      "sheetName": "Mahpara Qureshi"
+    },
+    {
+      "id": "cmo0klaet000gyklf4p1r148j",
+      "slug": "mamatha-chella",
+      "name": "Mamatha Chella",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803177",
+      "sheetName": "Mamatha Chella"
+    },
+    {
+      "id": "cmo0kl8f20005yklfyophc4vv",
+      "slug": "maria-borodatcheva",
+      "name": "Maria Borodatcheva",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803175",
+      "sheetName": "Maria Borodatcheva"
+    },
+    {
+      "id": "cmo0klcqv000ryklfubqhmarz",
+      "slug": "marili-lemus",
+      "name": "Marili Lemus",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803183",
+      "sheetName": "Marili Lemus"
+    },
+    {
+      "id": "cmo0klb8j000jyklftey8qbg2",
+      "slug": "matthew-bruntel",
+      "name": "Matthew Bruntel",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803168",
+      "sheetName": "Matthew Bruntel"
+    },
+    {
+      "id": "cmo0kl8xg0008yklfczjclmwr",
+      "slug": "meera-ramakrishnan",
+      "name": "Meera Ramakrishnan",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803165",
+      "sheetName": "Meera Ramakrishnan"
+    },
+    {
+      "id": "cmo0kl83t0003yklfer8psblm",
+      "slug": "melinda-jorge",
+      "name": "Melinda Jorge",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803153",
+      "sheetName": "Melinda Jorge"
+    },
+    {
+      "id": "cmo0klckk000qyklfyjebopmc",
+      "slug": "molly-harrigan",
+      "name": "Molly Harrigan",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6810573",
+      "sheetName": "Molly Harrigan"
+    },
+    {
+      "id": "cmo0kl9ns000cyklfs1x0gqpr",
+      "slug": "nitika-bandara",
+      "name": "Nitika Bandara",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803180",
+      "sheetName": "Nitika Bandara"
+    },
+    {
+      "id": "cmo0klg380014yklfffj8yzvg",
+      "slug": "paula-moon-2",
+      "name": "Paula Moon",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803198",
+      "sheetName": "Paula Moon"
+    },
+    {
+      "id": "cmo0kl7s80001yklf0koqscqr",
+      "slug": "robin-codjoe",
+      "name": "Robin Codjoe",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803155",
+      "sheetName": "Robin Codjoe"
+    },
+    {
+      "id": "cmo0kl8qs0007yklfcn3jf52m",
+      "slug": "sharon-j-mccormack",
+      "name": "Sharon McCormack",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803171",
+      "sheetName": "Sharon McCormack"
+    },
+    {
+      "id": "cmo0kl9bf000ayklf4q5hji9w",
+      "slug": "sheli-agarwal",
+      "name": "Sheli Agarwal",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803159",
+      "sheetName": "Sheli Agarwal"
+    },
+    {
+      "id": "cmo0klg8x0015yklfx8a0c2d6",
+      "slug": "soma-mitra",
+      "name": "Soma Mitra",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803178",
+      "sheetName": "Soma Mitra"
+    },
+    {
+      "id": "cmo0klbut000myklf5wp2b1p6",
+      "slug": "tylisa-duckett",
+      "name": "TyLisa Duckett",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803151",
+      "sheetName": "Tylisa Duckett"
+    },
+    {
+      "id": "cmo0klczw000syklf3rxb5ibj",
+      "slug": "victoria-thee",
+      "name": "Victoria Thee",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803192",
+      "sheetName": "Victoria Thee"
+    },
+    {
+      "id": "cmo0klb10000iyklfc9fb47cg",
+      "slug": "zahtasia-mcroy",
+      "name": "Zahtasia McRoy",
+      "linkUrl": "https://pmc-firstmedicalassociates.provider-match.com/book/6803200",
+      "sheetName": "Zahtasia McRoy"
+    }
+  ]
+}

@@ -5,8 +5,10 @@ import SiteHeader from "./components/site-header";
 import SiteFooter from "./components/site-footer";
 import WelcomeVideoCard from "./components/welcome-video-card";
 import HomeHeroAiSearch from "./components/home-hero-ai-search";
+import ServiceTypedWord from "./components/service-typed-word";
+import WhyChooseAccordion from "./components/why-choose-accordion";
 import styles from "./page.module.css";
-import { GENERAL_BOOK_APPOINTMENT_URL, PATIENT_PORTAL_URL } from "./lib/config/site";
+import { PATIENT_PORTAL_URL } from "./lib/config/site";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
 
 const displayFont = Manrope({
@@ -66,25 +68,6 @@ const FALLBACK_SERVICES = [
     title: "Chronic Conditions",
     description:
       "Ongoing support and advanced management strategies for diabetes, hypertension, and asthma.",
-  },
-];
-
-const PHILOSOPHY_POINTS = [
-  {
-    icon: "calendar",
-    title: "Same-Day Appointments",
-    description: "When you need care quickly, we ensure you are seen without delay.",
-  },
-  {
-    icon: "devices",
-    title: "Sophisticated EMR",
-    description: "Seamless digital health records accessible via our intuitive patient portal.",
-  },
-  {
-    icon: "leaf",
-    title: "Patient-Centered Environment",
-    description:
-      "Clinics designed to reduce anxiety, featuring natural light and comfortable waiting areas.",
   },
 ];
 
@@ -160,7 +143,63 @@ const FAQS = [
   },
 ];
 
-const SERVICE_ICONS = ["cross", "pulse", "shield"];
+const HOME_SERVICE_SHOWCASE = [
+  {
+    title: "Primary Care",
+    image: "/assets/drs-first-primary-care.jpg",
+    alt: "A physician smiling with an older adult patient during a primary care visit.",
+  },
+  {
+    title: "Chronic Conditions",
+    image: "/assets/drs-first-chronic-conditions.jpg",
+    alt: "An older couple reviewing chronic care information together.",
+  },
+  {
+    title: "Specialized Care",
+    image: "/assets/drs-first-urgent-needs.jpg",
+    alt: "A child pretending to check a man's heartbeat with a stethoscope.",
+  },
+];
+
+const WHY_CHOOSE_ACCORDION = [
+  {
+    title: "Comprehensive and collaborative approach to healthcare across multiple Maryland locations",
+    description:
+      "Our care teams collaborate across locations to deliver coordinated treatment plans, smoother referrals, and more consistent follow-up.",
+    expanded: false,
+  },
+  {
+    title: "Modern practices delivering safe, effective healthcare you deserve",
+    description:
+      "We combine evidence-based protocols, modern technology, and experienced clinicians to provide care that is both safe and effective.",
+    expanded: false,
+  },
+  {
+    title: "Personalized care that increases your health outcomes",
+    description:
+      "Our teams build long-term relationships with patients and coordinate care plans around your history, goals, and everyday needs.",
+    expanded: true,
+  },
+];
+
+const HEALTHCARE_HIGHLIGHTS = [
+  "Same Day Appointments",
+  "On-Site Lab Testing",
+  "Most Insurances Accepted",
+];
+
+const SERVICE_TYPED_WORDS = [
+  "Primary Care",
+  "Chronic Conditions",
+  "Specialized Care",
+  "Asthma Care",
+  "Diabete Care",
+];
+const SERVICE_TYPED_LONGEST_WORD = SERVICE_TYPED_WORDS.reduce(
+  (longest, word) => (word.length > longest.length ? word : longest),
+  SERVICE_TYPED_WORDS[0],
+);
+const SERVICE_TYPED_WIDTH_CH = Math.max(12, SERVICE_TYPED_LONGEST_WORD.length + 1);
 
 function isExternalUrl(url = "") {
   return /^https?:\/\//i.test(url);
@@ -203,11 +242,19 @@ async function getHomeData() {
       locationCount: 14,
       articleCount: 12,
       services: FALLBACK_SERVICES,
+      heroSearchLocations: [
+        {
+          slug: FALLBACK_LOCATION.slug,
+          addressCity: "City",
+          addressState: "ST",
+        },
+      ],
+      heroSearchProviders: [],
     };
   }
 
   try {
-    const [featuredLocation, providerCount, locationCount, articleCount, services] =
+    const [featuredLocation, providerCount, locationCount, articleCount, services, heroSearchLocations, heroSearchProviders] =
       await Promise.all([
         prisma.location.findFirst({
           orderBy: { title: "asc" },
@@ -242,6 +289,23 @@ async function getHomeData() {
             description: true,
           },
         }),
+        prisma.location.findMany({
+          select: {
+            slug: true,
+            addressCity: true,
+            addressState: true,
+          },
+        }),
+        prisma.provider.findMany({
+          where: { isActive: true },
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+          select: {
+            slug: true,
+            name: true,
+            linkUrl: true,
+            locations: true,
+          },
+        }),
       ]);
 
     return {
@@ -250,6 +314,8 @@ async function getHomeData() {
       locationCount,
       articleCount,
       services: services.length > 0 ? services : FALLBACK_SERVICES,
+      heroSearchLocations,
+      heroSearchProviders,
     };
   } catch (error) {
     console.error("Failed to load homepage data, rendering fallback content instead.", error);
@@ -260,6 +326,14 @@ async function getHomeData() {
       locationCount: 14,
       articleCount: 12,
       services: FALLBACK_SERVICES,
+      heroSearchLocations: [
+        {
+          slug: FALLBACK_LOCATION.slug,
+          addressCity: "City",
+          addressState: "ST",
+        },
+      ],
+      heroSearchProviders: [],
     };
   }
 }
@@ -436,36 +510,13 @@ function StarRow() {
 }
 
 export default async function Home() {
-  const { featuredLocation, providerCount, locationCount, services } = await getHomeData();
+  const { featuredLocation, providerCount, locationCount, heroSearchLocations, heroSearchProviders } =
+    await getHomeData();
 
-  const bookingHref = GENERAL_BOOK_APPOINTMENT_URL;
   const featuredPhone = buildPublicPhone(featuredLocation) || FALLBACK_LOCATION.phone;
   const addressLines = splitAddressLines(featuredLocation);
   const portalIsConfigured = PATIENT_PORTAL_URL !== "#";
   const contactEmail = "care@firstmedical.com";
-  const statCards = [
-    { value: `${providerCount}+`, label: "Providers" },
-    { value: locationCount, label: "Locations" },
-    { value: "4.9", label: "Patient Rating" },
-  ];
-  const serviceCards = services.slice(0, 3).map((service, index) => ({
-    ...service,
-    icon: SERVICE_ICONS[index % SERVICE_ICONS.length],
-  }));
-  const animatedServiceWords =
-    serviceCards.length > 0
-      ? serviceCards.map((service) => service.title)
-      : ["Primary Care", "Diabetes Care", "Asthma Care"];
-  const serviceWordStepSeconds = 2.8;
-  const serviceWordTotalSeconds = Math.max(
-    animatedServiceWords.length * serviceWordStepSeconds,
-    serviceWordStepSeconds,
-  );
-  const longestServiceWord = animatedServiceWords.reduce(
-    (longest, word) => (word.length > longest.length ? word : longest),
-    animatedServiceWords[0],
-  );
-  const serviceWordWidthCh = Math.max(12, longestServiceWord.length + 2);
   const formNote = portalIsConfigured
     ? `Prefer a faster answer? Call ${featuredPhone} or use the patient portal to reach the team directly.`
     : `Prefer a faster answer? Call ${featuredPhone} and our team will help you choose the right next step.`;
@@ -523,26 +574,11 @@ export default async function Home() {
                 </p>
 
                 <div className={styles.heroScheduler}>
-                  <HomeHeroAiSearch />
-
-                  <div className={styles.schedulerQuickLinks}>
-                    <SmartLink href="/services" className={styles.schedulerQuickPill}>
-                      <Icon name="cross" className={styles.schedulerQuickIcon} />
-                      Primary care
-                    </SmartLink>
-                    <SmartLink href="/providers" className={styles.schedulerQuickPill}>
-                      <Icon name="users" className={styles.schedulerQuickIcon} />
-                      Find a doctor
-                    </SmartLink>
-                    <SmartLink href="/locations" className={styles.schedulerQuickPill}>
-                      <Icon name="location" className={styles.schedulerQuickIcon} />
-                      Locations
-                    </SmartLink>
-                    <SmartLink href={bookingHref} className={styles.schedulerQuickPill}>
-                      <Icon name="calendar" className={styles.schedulerQuickIcon} />
-                      Appointments
-                    </SmartLink>
-                  </div>
+                  <p className={styles.heroSchedulerLabel}>Schedule Your Next Appointment</p>
+                  <HomeHeroAiSearch
+                    locations={heroSearchLocations}
+                    providers={heroSearchProviders}
+                  />
                 </div>
 
                 <div className={styles.heroMobileFigure} aria-hidden="true">
@@ -561,139 +597,64 @@ export default async function Home() {
         </section>
 
         <section className={`${styles.section} ${styles.serviceSection}`} id="services">
-          <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionLabel}>Clinical Offerings</p>
-              <h2
-                className={`${styles.sectionTitle} ${styles.serviceAnimatedTitle} dnxt_next_text_animation dnxt-headline clip`}
-              >
-                <span
-                  className={`${styles.dnxtAnimationBText} dnxt-animation-b-text dnxt-text-heading`}
-                >
-                  We Provide the Best
-                </span>
-                <span
-                  className={`${styles.dnxtWordsWrapper} dnxt-words-wrapper`}
-                  style={{
-                    "--dnxt-step-duration": `${serviceWordStepSeconds}s`,
-                    "--dnxt-total-duration": `${serviceWordTotalSeconds}s`,
-                    "--dnxt-word-width": `${serviceWordWidthCh}ch`,
-                  }}
-                >
-                  {animatedServiceWords.map((word, index) => (
-                    <span
-                      key={`${word}-${index}`}
-                      className={`${styles.dnxtTextAnimation} dnxt-text-animation ${index === 0 ? "is-visible" : ""}`}
-                      style={{
-                        "--dnxt-index": index,
-                        "--dnxt-char-count": Math.max(String(word).length, 6),
-                      }}
-                    >
-                      {word}
-                    </span>
-                  ))}
-                </span>
-              </h2>
-            </div>
-
-            <SmartLink href="/locations" className={styles.serviceSectionLink}>
-              View All Services
-              <Icon name="arrow" className={styles.inlineIcon} />
-            </SmartLink>
+          <div className={styles.serviceShowcaseHeader}>
+            <h2 className={`${styles.sectionTitle} ${styles.serviceShowcaseTitle}`}>
+              <span className={styles.serviceShowcaseTitleTop}>We Provide the Best</span>
+              <span className={styles.serviceShowcaseTitleAccent}>
+                <ServiceTypedWord
+                  words={SERVICE_TYPED_WORDS}
+                  widthCh={SERVICE_TYPED_WIDTH_CH}
+                  wrapperClassName={styles.serviceTypedWord}
+                  textClassName={styles.serviceTypedWordText}
+                  caretClassName={styles.serviceTypedWordCaret}
+                />
+              </span>
+            </h2>
           </div>
 
-          <div className={styles.serviceGrid}>
-            {serviceCards.map((service) => (
-              <article key={service.title} className={styles.serviceCard}>
-                <span className={styles.serviceIcon}>
-                  <Icon name={service.icon} className={styles.serviceIconSvg} />
-                </span>
-                <div className={styles.serviceCopy}>
-                  <h3 className={styles.serviceTitle}>{service.title}</h3>
-                  <p className={styles.serviceDescription}>{service.description}</p>
+          <div className={styles.serviceShowcaseGrid}>
+            {HOME_SERVICE_SHOWCASE.map((tile) => (
+              <article key={tile.title} className={styles.serviceShowcaseCard}>
+                <div className={styles.serviceShowcaseImageWrap}>
+                  <Image
+                    src={tile.image}
+                    alt={tile.alt}
+                    className={styles.serviceShowcaseImage}
+                    width={680}
+                    height={680}
+                    sizes="(max-width: 780px) 100vw, (max-width: 1100px) 50vw, 33vw"
+                  />
                 </div>
-                <SmartLink href="/locations" className={styles.textLink}>
-                  Learn More
-                  <Icon name="arrow" className={styles.inlineIcon} />
-                </SmartLink>
+                <h3 className={styles.serviceShowcaseLabel}>{tile.title}</h3>
               </article>
             ))}
-
-            <article className={`${styles.serviceCard} ${styles.mobileServiceOnlyCard}`}>
-              <span className={styles.serviceIcon}>
-                <Icon name="shield" className={styles.serviceIconSvg} />
-              </span>
-              <div className={styles.serviceCopy}>
-                <h3 className={styles.serviceTitle}>Specialized Care</h3>
-                <p className={styles.serviceDescription}>
-                  Connect with specialist-led care paths tailored for advanced or complex needs.
-                </p>
-              </div>
-              <SmartLink href="/services" className={styles.textLink}>
-                Learn More
-                <Icon name="arrow" className={styles.inlineIcon} />
-              </SmartLink>
-            </article>
-          </div>
-
-          <div className={styles.mobileServiceDots} aria-hidden="true">
-            <span className={`${styles.mobileServiceDot} ${styles.mobileServiceDotActive}`} />
-            <span className={styles.mobileServiceDot} />
-            <span className={styles.mobileServiceDot} />
           </div>
         </section>
 
-        <section className={`${styles.section} ${styles.sectionSoft} ${styles.philosophySection}`} id="about">
-          <div className={styles.philosophyLayout}>
-            <div className={styles.philosophyVisual}>
-              <div className={styles.philosophyImageWrap}>
-                <Image
-                  src="/uploads/philosophy-consultation.jpg"
-                  alt="Doctor consulting with a patient in a modern clinic office"
-                  className={styles.philosophyImage}
-                  fill
-                  sizes="(max-width: 1100px) 100vw, 42vw"
-                />
+        <section className={`${styles.section} ${styles.whyChooseSection}`}>
+          <div className={styles.whyChooseLayout}>
+            <div className={styles.whyChooseContent}>
+              <div className={styles.whyChooseBadge} aria-label="FMA Why Choose Us">
+                <span className={styles.whyChooseBadgeMark}>FMA</span>
+                <span className={styles.whyChooseBadgeText}>Why Choose Us</span>
               </div>
 
-              <div className={styles.philosophyStats}>
-                {statCards.map((stat, index) => (
-                  <div key={stat.label} className={styles.philosophyStat}>
-                    <strong className={styles.philosophyStatValue}>{stat.value}</strong>
-                    <span className={styles.philosophyStatLabel}>{stat.label}</span>
-                    {index < statCards.length - 1 ? (
-                      <span className={styles.philosophyDivider} aria-hidden="true" />
-                    ) : null}
-                  </div>
-                ))}
-              </div>
+              <h2 className={styles.whyChooseTitle}>
+                <span className={styles.whyChooseTitleTop}>First Medical Associates</span>
+                <span className={styles.whyChooseTitleAccent}>Puts You First</span>
+              </h2>
+
+              <p className={styles.whyChooseText}>
+                Our patients build trusting relationships with their primary care doctors and
+                internists and receive personalized care to increase their health outcomes.
+              </p>
+
+              <SmartLink href="/about" className={styles.whyChooseButton}>
+                Learn More
+              </SmartLink>
             </div>
 
-            <div className={styles.philosophyContent}>
-              <div>
-                <p className={styles.sectionLabel}>Our Philosophy</p>
-                <h2 className={styles.sectionTitle}>Elevating the standard of clinical excellence.</h2>
-                <p className={styles.sectionText}>
-                  We believe that premium healthcare should be accessible, transparent, and built
-                  entirely around the patient. Our modern facilities and sophisticated medical
-                  teams are dedicated to providing clarity and comfort in every interaction.
-                </p>
-              </div>
-
-              <div className={styles.featureList}>
-                {PHILOSOPHY_POINTS.map((point) => (
-                  <article key={point.title} className={styles.featureItem}>
-                    <span className={styles.featureIcon}>
-                      <Icon name={point.icon} className={styles.featureIconSvg} />
-                    </span>
-                    <div>
-                      <h3 className={styles.featureTitle}>{point.title}</h3>
-                      <p className={styles.featureText}>{point.description}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
+            <WhyChooseAccordion items={WHY_CHOOSE_ACCORDION} styles={styles} />
           </div>
         </section>
 
@@ -704,21 +665,26 @@ export default async function Home() {
             </div>
 
             <div className={styles.experienceContent}>
-              <p className={styles.sectionLabel}>Welcome</p>
-              <h2 className={styles.sectionTitle}>A more personal start to your care.</h2>
-              <p className={styles.sectionText}>
-                Get to know our providers, explore our services, and see how we make high-quality
-                care simple, connected, and personalized. Your health journey starts here and
-                we&rsquo;re with you every step.
+              <h2 className={styles.healthcareTitle}>
+                <span className={styles.healthcareTitleTop}>Healthcare Services</span>
+                <span className={styles.healthcareTitleAccent}>Personalized For You</span>
+              </h2>
+
+              <p className={styles.healthcareText}>
+                Our personalized care is dedicated to increasing your health outcomes and quality
+                of life.
               </p>
 
-              <div className={styles.experienceActions}>
-                <a href="#welcome-video-lightbox" className={styles.welcomeVideoButton}>
-                  <Icon name="play" className={styles.welcomeVideoButtonIcon} />
-                  Watch Welcome Video
-                  <Icon name="arrow" className={styles.buttonIcon} />
-                </a>
-              </div>
+              <ul className={styles.healthcareList}>
+                {HEALTHCARE_HIGHLIGHTS.map((item) => (
+                  <li key={item} className={styles.healthcareListItem}>
+                    <span className={styles.healthcareListIcon} aria-hidden="true">
+                      &#10003;
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
@@ -764,12 +730,45 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className={`${styles.section} ${styles.sectionSoft} ${styles.storySection}`}>
-          <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionLabel}>Patient Stories</p>
-              <h2 className={styles.sectionTitle}>What our patients say</h2>
+        <section className={`${styles.section} ${styles.commitSection}`}>
+          <div className={styles.commitLayout}>
+            <div className={styles.commitContent}>
+              <h2 className={styles.commitTitle}>
+                Committed To Bettering
+                <br />
+                Your Care Each Visit
+              </h2>
+              <p className={styles.commitText}>
+                First Medical Associates provides a comprehensive and collaborative approach to
+                health care across multiple locations in Maryland.
+              </p>
+              <SmartLink href="/providers" className={styles.commitButton}>
+                Find a Doctor
+              </SmartLink>
             </div>
+
+            <div className={styles.commitStats} aria-label="Practice statistics">
+              <article className={styles.commitStatItem}>
+                <p className={styles.commitStatValue}>{providerCount}+</p>
+                <p className={styles.commitStatLabel}>
+                  <span>Active</span> Providers
+                </p>
+              </article>
+              <article className={styles.commitStatItem}>
+                <p className={styles.commitStatValue}>{locationCount}</p>
+                <p className={styles.commitStatLabel}>
+                  <span>Locations</span> To Serve You
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section className={`${styles.section} ${styles.sectionSoft} ${styles.storySection}`}>
+          <div className={`${styles.sectionHeader} ${styles.storyHeader}`}>
+            <h2 className={styles.storyHeadline}>
+              <span className={styles.storyHeadlineAccent}>Trusted</span> By Patients Like You
+            </h2>
           </div>
 
           <div className={styles.storyGrid}>
@@ -793,16 +792,15 @@ export default async function Home() {
         </section>
 
         <section className={`${styles.section} ${styles.faqSection}`} id="faq">
-          <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionLabel}>FAQ</p>
-              <h2 className={styles.sectionTitle}>Frequently asked questions</h2>
-            </div>
+          <div className={`${styles.sectionHeader} ${styles.faqHeader}`}>
+            <h2 className={styles.faqHeadline}>
+              Your <span className={styles.faqHeadlineAccent}>Wellness Team</span> By Your Side
+            </h2>
           </div>
 
           <div className={styles.faqGrid}>
-            {FAQS.map((item, index) => (
-              <details key={item.question} className={styles.faqItem} open={index === 0}>
+            {FAQS.map((item) => (
+              <details key={item.question} className={styles.faqItem}>
                 <summary className={styles.faqSummary}>
                   <span>{item.question}</span>
                   <span className={styles.faqToggle}>
@@ -816,112 +814,94 @@ export default async function Home() {
         </section>
 
         <section className={`${styles.section} ${styles.sectionSoft} ${styles.contactSection}`} id="contact">
-          <div className={styles.contactLayout}>
-            <div className={styles.contactContent}>
-              <div>
-                <p className={styles.sectionLabel}>Get in Touch</p>
-                <h2 className={styles.sectionTitle}>Begin your health journey.</h2>
-                <p className={styles.sectionText}>
-                  Whether you are ready to schedule, comparing locations, or simply have a
-                  question, our team is here to help you find the clearest next step.
-                </p>
+          <div className={styles.contactModernLayout}>
+            <div className={styles.contactModernContent}>
+              <div className={styles.contactModernPill} aria-label="Contact support">
+                <span className={styles.contactModernPillActive}>Contact Us</span>
+                <span className={styles.contactModernPillText}>We&rsquo;re Here to Help</span>
               </div>
 
-              <div className={styles.contactStack}>
-                <article className={styles.contactRow}>
-                  <span className={styles.contactIcon}>
-                    <Icon name="location" className={styles.contactIconSvg} />
-                  </span>
-                  <div>
-                    <p className={styles.metaLabel}>Main office</p>
-                    <p className={styles.metaValue}>
-                      {addressLines.length > 0 ? (
-                        addressLines.map((line) => (
-                          <span key={line} className={styles.addressLine}>
-                            {line}
-                          </span>
-                        ))
-                      ) : (
-                        <span className={styles.addressLine}>{FALLBACK_LOCATION.address}</span>
-                      )}
-                    </p>
-                  </div>
-                </article>
+              <h2 className={styles.contactModernTitle}>
+                <span>Book an Appointment</span>
+                <span>
+                  Now <em>For A Healthier You.</em>
+                </span>
+              </h2>
 
+              <div className={styles.contactModernDetails}>
                 <article className={styles.contactRow}>
-                  <span className={styles.contactIcon}>
+                  <span className={styles.contactIcon} aria-hidden="true">
                     <Icon name="phone" className={styles.contactIconSvg} />
                   </span>
                   <div>
                     <p className={styles.metaLabel}>Phone</p>
                     <p className={styles.metaValue}>{featuredPhone}</p>
-                    <p className={styles.contactHint}>Mon-Fri, 8am-5pm</p>
                   </div>
                 </article>
 
                 <article className={styles.contactRow}>
-                  <span className={styles.contactIcon}>
+                  <span className={styles.contactIcon} aria-hidden="true">
+                    <Icon name="location" className={styles.contactIconSvg} />
+                  </span>
+                  <div>
+                    <p className={styles.metaLabel}>Address</p>
+                    <p className={styles.metaValue}>
+                      {addressLines.length > 0
+                        ? addressLines.map((line) => (
+                            <span key={line} className={styles.addressLine}>
+                              {line}
+                            </span>
+                          ))
+                        : FALLBACK_LOCATION.displayAddress.split("\n").map((line) => (
+                            <span key={line} className={styles.addressLine}>
+                              {line}
+                            </span>
+                          ))}
+                    </p>
+                  </div>
+                </article>
+
+                <article className={styles.contactRow}>
+                  <span className={styles.contactIcon} aria-hidden="true">
                     <Icon name="mail" className={styles.contactIconSvg} />
                   </span>
                   <div>
                     <p className={styles.metaLabel}>Email</p>
                     <p className={styles.metaValue}>{contactEmail}</p>
-                    <p className={styles.contactHint}>We aim to reply within 24 hours.</p>
                   </div>
                 </article>
               </div>
+
+              <div className={styles.contactSocialRow} aria-label="Social media links">
+                <a href="#" className={styles.contactSocialIcon} aria-label="Facebook">
+                  f
+                </a>
+                <a href="#" className={styles.contactSocialIcon} aria-label="X">
+                  x
+                </a>
+                <a href="#" className={styles.contactSocialIcon} aria-label="LinkedIn">
+                  in
+                </a>
+                <a href="#" className={styles.contactSocialIcon} aria-label="Instagram">
+                  o
+                </a>
+              </div>
             </div>
 
-            <div className={styles.contactCard}>
-              <form className={styles.form} action="#">
-                <div className={styles.formGrid}>
-                  <label className={styles.fieldGroup}>
-                    <span className={styles.fieldLabel}>Full Name</span>
-                    <input
-                      className={styles.fieldInput}
-                      name="name"
-                      placeholder="John Doe"
-                      type="text"
-                    />
-                  </label>
+            <div className={styles.contactModernCard}>
+              <h3 className={styles.contactModernCardTitle}>Get In Touch</h3>
+              <p className={styles.contactModernCardText}>
+                Fill the form out below to get in touch with a representative.
+              </p>
 
-                  <label className={styles.fieldGroup}>
-                    <span className={styles.fieldLabel}>Email Address</span>
-                    <input
-                      className={styles.fieldInput}
-                      name="email"
-                      placeholder="john@example.com"
-                      type="email"
-                    />
-                  </label>
-                </div>
-
-                <label className={styles.fieldGroup}>
-                  <span className={styles.fieldLabel}>Phone Number</span>
-                  <input
-                    className={styles.fieldInput}
-                    name="phone"
-                    placeholder="(555) 123-4567"
-                    type="tel"
-                  />
-                </label>
-
-                <label className={styles.fieldGroup}>
-                  <span className={styles.fieldLabel}>Message</span>
-                  <textarea
-                    className={styles.fieldTextarea}
-                    name="message"
-                    placeholder="How can we help you?"
-                    rows="5"
-                  />
-                </label>
-
-                <div className={styles.formActions}>
-                  <button className={styles.submitButton} type="button">
-                    Send Message
-                  </button>
-                  <p className={styles.formNote}>{formNote}</p>
-                </div>
+              <form className={styles.contactModernForm} action="#">
+                <input className={styles.contactModernInput} name="name" placeholder="Name" type="text" />
+                <input className={styles.contactModernInput} name="email" placeholder="Email" type="email" />
+                <input className={styles.contactModernInput} name="phone" placeholder="Phone" type="tel" />
+                <button className={styles.contactModernSubmit} type="button">
+                  Get In Touch
+                </button>
+                <p className={styles.contactModernNote}>{formNote}</p>
               </form>
             </div>
           </div>

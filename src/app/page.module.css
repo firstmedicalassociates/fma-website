@@ -219,6 +219,8 @@
 }
 
 .hero {
+  position: relative;
+  z-index: 5;
   padding: 0 0 4px;
 }
 
@@ -226,7 +228,7 @@
   position: relative;
   width: 100%;
   min-height: 720px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .heroBackground {
@@ -337,9 +339,10 @@
   max-width: none;
   font-size: clamp(2.4rem, 4.4vw, 3.85rem);
   font-weight: 800;
-  letter-spacing: -0.06em;
+  letter-spacing: 0;
   line-height: 0.98;
   color: #102b95;
+  padding-left: 0;
 }
 
 .heroTitleLine {
@@ -406,8 +409,8 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 6px 6px 10px;
+  gap: 8px;
+  padding: 8px;
   border-radius: 999px;
   background:
     linear-gradient(#ffffff, #ffffff) padding-box,
@@ -466,24 +469,135 @@
   min-height: 52px;
 }
 
-.schedulerItem {
+.schedulerFilterGrid {
+  flex: 1;
+  min-width: 0;
   display: grid;
-  gap: 3px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.schedulerFilterField {
+  position: relative;
+  min-height: 52px;
+  display: grid;
   align-content: center;
-  padding: 0 18px;
+  gap: 4px;
+  padding: 0 16px;
+}
+
+.schedulerFilterField + .schedulerFilterField {
+  border-left: 1px solid rgba(23, 58, 136, 0.2);
+}
+
+.schedulerFilterField:focus-within {
+  z-index: 8;
+}
+
+.schedulerFilterLabel {
   color: #173a88;
-  cursor: pointer;
-}
-
-.schedulerItem + .schedulerItem {
-  border-left: 1px solid rgba(23, 58, 136, 0.22);
-}
-
-.schedulerTitle {
-  font-size: 0.94rem;
+  font-size: 0.82rem;
   font-weight: 800;
-  letter-spacing: 0;
-  color: #173a88;
+  line-height: 1.15;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.schedulerFilterInput {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #36527f;
+  font: inherit;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.2;
+  outline: none;
+}
+
+.schedulerFilterInput::placeholder {
+  color: #6d86ad;
+  font-weight: 500;
+}
+
+.schedulerSuggestions {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 6px;
+  right: 6px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  border: 1px solid rgba(67, 106, 180, 0.28);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 250, 255, 0.96));
+  box-shadow:
+    0 18px 30px rgba(20, 49, 110, 0.18),
+    0 1px 0 rgba(255, 255, 255, 0.82) inset;
+  max-height: 250px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(23, 58, 136, 0.3) rgba(15, 35, 88, 0.08);
+  z-index: 20;
+}
+
+.schedulerSuggestions::-webkit-scrollbar {
+  width: 10px;
+}
+
+.schedulerSuggestions::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.schedulerSuggestions::-webkit-scrollbar-track {
+  background: rgba(15, 35, 88, 0.06);
+  border-radius: 999px;
+}
+
+.schedulerSuggestions::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(27, 78, 201, 0.34), rgba(15, 35, 88, 0.24));
+  border: 2px solid rgba(248, 250, 255, 0.88);
+  border-radius: 999px;
+}
+
+.schedulerSuggestions::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(27, 78, 201, 0.42), rgba(15, 35, 88, 0.3));
+}
+
+.schedulerSuggestionItem + .schedulerSuggestionItem {
+  margin-top: 3px;
+}
+
+.schedulerSuggestionButton {
+  width: 100%;
+  min-height: 34px;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 10px;
+  background: transparent;
+  color: #1d3f77;
+  font: inherit;
+  font-size: 0.96rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.schedulerSuggestionButton:hover,
+.schedulerSuggestionButton:focus-visible {
+  background: rgba(41, 111, 223, 0.14);
+  color: #153066;
+  outline: none;
+}
+
+.schedulerSuggestionButton:active {
+  transform: translateY(1px);
 }
 
 .schedulerArrow {
@@ -506,43 +620,6 @@
     box-shadow 180ms ease;
 }
 
-.schedulerSearchIcon {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  color: #204aa8;
-  flex: 0 0 auto;
-}
-
-.schedulerSearchIconSvg {
-  width: 15px;
-  height: 15px;
-  fill: currentColor;
-  stroke: none;
-}
-
-.schedulerInput {
-  flex: 1;
-  min-width: 0;
-  height: 42px;
-  border: 0;
-  border-radius: 999px;
-  padding: 0 14px;
-  background: transparent;
-  color: #2a3d6d;
-  font: inherit;
-  font-size: 0.89rem;
-  font-weight: 500;
-  line-height: 1;
-  outline: none;
-}
-
-.schedulerInput::placeholder {
-  color: #7c88aa;
-}
-
 .schedulerText {
   color: #6983b6;
   font-size: 1.04rem;
@@ -560,7 +637,6 @@
   stroke-width: 2.4;
 }
 
-.schedulerItem:hover,
 .schedulerArrow:hover {
   background-color: rgba(23, 58, 136, 0.035);
 }
@@ -569,49 +645,6 @@
   transform: translateY(-1px);
   background: #123ea9;
   box-shadow: 0 14px 28px rgba(53, 83, 167, 0.32);
-}
-
-.schedulerQuickLinks {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 8px;
-  width: 100%;
-}
-
-.schedulerQuickPill {
-  min-height: 38px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(173, 194, 224, 0.5);
-  background: rgba(255, 255, 255, 0.78);
-  color: #1c4cb4;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  white-space: nowrap;
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    border-color 180ms ease;
-}
-
-.schedulerQuickPill:hover {
-  transform: translateY(-1px);
-  border-color: rgba(23, 58, 136, 0.28);
-  box-shadow: 0 10px 22px rgba(13, 44, 114, 0.1);
-}
-
-.schedulerQuickIcon {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.9;
 }
 
 @property --hero-search-angle {
@@ -828,7 +861,10 @@
 }
 
 .serviceSection {
-  padding: clamp(24px, 3vw, 36px) 0 8px;
+  padding:
+    clamp(24px, 3vw, 36px)
+    clamp(24px, 4vw, 40px)
+    8px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -853,6 +889,12 @@
 }
 
 .experienceSection {
+  padding: clamp(28px, 4.4vw, 54px) 0;
+}
+
+.storySection {
+  width: 100%;
+  max-width: none;
   padding: clamp(28px, 4.4vw, 54px) 0;
 }
 
@@ -994,8 +1036,8 @@
 }
 
 .storyGrid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 24px;
 }
 
 .mobileServiceDots,
@@ -1092,6 +1134,494 @@
   box-shadow: none;
 }
 
+.serviceShowcaseHeader {
+  margin-bottom: clamp(18px, 3vw, 30px);
+}
+
+.serviceSection .serviceShowcaseTitle {
+  max-width: none;
+  font-size: clamp(2.05rem, 3.6vw, 3rem);
+  line-height: 1.04;
+}
+
+.serviceShowcaseTitleTop {
+  display: block;
+  color: #0d2c8f;
+  white-space: nowrap;
+}
+
+.serviceShowcaseTitleAccent {
+  width: fit-content;
+  display: block;
+  color: #1598c9;
+  white-space: nowrap;
+  padding-right: 0;
+}
+
+.serviceTypedWord {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  min-width: var(--typed-word-width, 0);
+  line-height: 1.04;
+}
+
+.serviceTypedWordText {
+  display: inline-block;
+  min-height: 1.04em;
+}
+
+.serviceTypedWordCaret {
+  width: 2px;
+  height: 0.94em;
+  margin-left: 4px;
+  background: #9db1b8;
+  animation: serviceTypedCaretBlink 0.95s steps(1, end) infinite;
+}
+
+@keyframes serviceTypedCaretBlink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.serviceShowcaseGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 2.6vw, 34px);
+}
+
+.serviceShowcaseCard {
+  display: grid;
+  gap: 14px;
+}
+
+.serviceShowcaseImageWrap {
+  overflow: hidden;
+  border-radius: 12px;
+  background: #dbe5ef;
+}
+
+.serviceShowcaseImage {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  display: block;
+  object-fit: cover;
+}
+
+.serviceShowcaseLabel {
+  margin: 0;
+  color: #0d2c8f;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(1.08rem, 1.25vw, 1.42rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.whyChooseSection {
+  padding: clamp(18px, 3.4vw, 32px) 0 clamp(22px, 3.8vw, 40px);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.whyChooseLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: clamp(26px, 4vw, 56px);
+  align-items: start;
+}
+
+.whyChooseContent {
+  display: grid;
+  gap: 24px;
+}
+
+.whyChooseBadge {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #c8d8df;
+  overflow: hidden;
+}
+
+.whyChooseBadgeMark {
+  min-height: 40px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #112f9c;
+  color: #ffffff;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.whyChooseBadgeText {
+  min-height: 40px;
+  padding: 0 18px 0 16px;
+  display: inline-flex;
+  align-items: center;
+  color: #1397c8;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.whyChooseTitle {
+  margin: 0;
+  display: grid;
+  gap: 2px;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(1.58rem, 2.65vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 1.02;
+}
+
+.whyChooseTitleTop {
+  color: #0d2c8f;
+}
+
+.whyChooseTitleAccent {
+  color: #1598c9;
+}
+
+.whyChooseText {
+  margin: 0;
+  max-width: 34rem;
+  color: #657397;
+  font-size: clamp(0.92rem, 0.95vw, 1.06rem);
+  line-height: 1.7;
+}
+
+.whyChooseButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-width: 158px;
+  min-height: 56px;
+  padding: 0 34px;
+  border-radius: 13px;
+  background: #159ecb;
+  color: #ffffff;
+  font-size: 0.96rem;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  letter-spacing: -0.02em;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.whyChooseButton:hover {
+  transform: translateY(-1px);
+  background: #138fba;
+  box-shadow: 0 16px 30px rgba(21, 158, 203, 0.2);
+}
+
+.whyChooseAccordion {
+  display: grid;
+  gap: 16px;
+}
+
+.whyChooseItem {
+  border: 1px solid rgba(24, 33, 47, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.38);
+  padding: 20px 28px;
+}
+
+.whyChooseItemHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: center;
+}
+
+.whyChooseItemTrigger {
+  width: 100%;
+  display: block;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.whyChooseItemTrigger:focus-visible {
+  outline: 2px solid rgba(21, 158, 203, 0.5);
+  outline-offset: 6px;
+  border-radius: 8px;
+}
+
+.whyChooseItemTitle {
+  margin: 0;
+  color: #0d2c8f;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(0.82rem, 0.95vw, 1.18rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
+}
+
+.whyChooseItemIcon {
+  color: #9eafc7;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: 1.52rem;
+  line-height: 1;
+}
+
+.whyChooseItemExpanded {
+  padding-bottom: 22px;
+}
+
+.whyChooseItemText {
+  margin: 14px 0 0;
+  color: #6f7ea0;
+  font-size: clamp(0.94rem, 1.03vw, 1.1rem);
+  line-height: 1.75;
+}
+
+.healthcareSection {
+  padding: clamp(26px, 4.2vw, 54px) 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.healthcareBlock {
+  width: min(760px, 100%);
+  display: grid;
+  gap: 24px;
+}
+
+.healthcareTitle {
+  margin: 0;
+  display: grid;
+  gap: 2px;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(1.55rem, 2.45vw, 2.35rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 1.03;
+}
+
+.healthcareTitleTop {
+  color: #0d2c8f;
+}
+
+.healthcareTitleAccent {
+  color: #1598c9;
+}
+
+.healthcareText {
+  margin: 0;
+  max-width: 36rem;
+  color: #6e7ba0;
+  font-size: clamp(0.9rem, 0.92vw, 1.04rem);
+  line-height: 1.64;
+}
+
+.healthcareList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.healthcareListItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #6f7ea1;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(0.98rem, 1.08vw, 1.28rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.22;
+}
+
+.healthcareListIcon {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #129ecb;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.commitSection {
+  position: relative;
+  overflow: hidden;
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: clamp(38px, 5vw, 78px) clamp(22px, 3.5vw, 44px);
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(135deg, #1123a7 0%, #1020a1 52%, #1225a9 100%);
+  box-shadow: none;
+  color: #ffffff;
+}
+
+.commitSection::before,
+.commitSection::after {
+  content: "";
+  position: absolute;
+  inset: auto;
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.commitSection::before {
+  left: -220px;
+  bottom: -320px;
+  width: 740px;
+  height: 740px;
+  background: repeating-radial-gradient(
+    ellipse at center,
+    transparent 0 24px,
+    rgba(170, 196, 255, 0.34) 24px 26px
+  );
+  transform: rotate(-18deg);
+}
+
+.commitSection::after {
+  right: -320px;
+  top: -280px;
+  width: 920px;
+  height: 920px;
+  background: repeating-radial-gradient(
+    ellipse at center,
+    transparent 0 26px,
+    rgba(171, 198, 255, 0.32) 26px 28px
+  );
+  transform: rotate(14deg);
+}
+
+.commitLayout {
+  position: relative;
+  z-index: 1;
+  width: min(1240px, calc(100% - 80px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 0.52fr) minmax(0, 0.48fr);
+  gap: clamp(28px, 5vw, 74px);
+  align-items: center;
+}
+
+.commitContent {
+  display: grid;
+  gap: 24px;
+}
+
+.commitTitle {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(1.85rem, 2.7vw, 3.05rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1.14;
+  color: #ffffff;
+}
+
+.commitText {
+  margin: 0;
+  max-width: 37rem;
+  color: rgba(241, 246, 255, 0.95);
+  font-size: clamp(0.98rem, 1vw, 1.12rem);
+  line-height: 1.7;
+}
+
+.commitButton {
+  width: fit-content;
+  min-width: 174px;
+  min-height: 58px;
+  padding: 0 34px;
+  border-radius: 14px;
+  background: #11a5cf;
+  color: #ffffff;
+  font-size: 1.04rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.commitButton:hover {
+  transform: translateY(-1px);
+  background: #0f97be;
+  box-shadow: 0 16px 34px rgba(17, 165, 207, 0.28);
+}
+
+.commitStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(18px, 2vw, 32px);
+  justify-items: start;
+}
+
+.commitStatItem {
+  display: grid;
+  gap: 10px;
+}
+
+.commitStatValue {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(3rem, 4.8vw, 4.7rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+}
+
+.commitStatLabel {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(1.15rem, 1.42vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.commitStatLabel span {
+  color: #10c1e0;
+}
+
 .philosophyLayout,
 .experienceLayout,
 .contactLayout {
@@ -1104,6 +1634,7 @@
 .experienceLayout {
   grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
   gap: clamp(18px, 2.4vw, 32px);
+  align-items: start;
 }
 
 .experienceLayout .mediaCard {
@@ -1112,6 +1643,7 @@
 
 .experienceLayout .experienceContent {
   order: 1;
+  align-self: start;
 }
 
 .philosophyVisual {
@@ -1542,6 +2074,33 @@
   gap: 16px;
 }
 
+.storyHeader {
+  justify-content: center;
+  margin-bottom: clamp(20px, 3vw, 34px);
+}
+
+.storyHeader,
+.storyGrid {
+  width: min(1240px, calc(100% - 80px));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.storyHeadline {
+  margin: 0;
+  text-align: center;
+  color: #0d2c8f;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(1.45rem, 2.4vw, 2.45rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1.05;
+}
+
+.storyHeadlineAccent {
+  color: #179fcb;
+}
+
 .starRow {
   display: flex;
   gap: 4px;
@@ -1565,15 +2124,43 @@
 
 .faqGrid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 24px;
+  gap: 12px 60px;
 }
 
 .faqSection {
-  width: min(1110px, calc(100% - 32px));
+  width: min(1240px, calc(100% - 80px));
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: -28px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0 0 clamp(28px, 4.4vw, 54px);
+}
+
+.faqHeader {
+  justify-content: center;
+  margin: clamp(22px, 3vw, 34px) 0;
+}
+
+.faqHeadline {
+  margin: 0;
+  text-align: center;
+  color: #0d2c8f;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(1.35rem, 2.1vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1.08;
+}
+
+.faqHeadlineAccent {
+  color: #179fcb;
 }
 
 .faqItem {
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgba(167, 184, 214, 0.45);
 }
 
 .faqSummary {
@@ -1582,12 +2169,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 0;
+  padding: 8px 0 12px;
   cursor: pointer;
   font-family: var(--font-home-display), sans-serif;
-  font-size: 1.08rem;
+  font-size: clamp(0.86rem, 0.95vw, 1.08rem);
   font-weight: 800;
-  line-height: 1.35;
+  line-height: 1.3;
+  color: #0d2c8f;
 }
 
 .faqSummary::-webkit-details-marker {
@@ -1595,28 +2183,275 @@
 }
 
 .faqToggle {
-  width: 38px;
-  height: 38px;
+  width: 20px;
+  height: 20px;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  border-radius: 999px;
-  background: rgba(13, 44, 114, 0.08);
-  color: var(--primary);
+  border-radius: 0;
+  background: transparent;
+  color: #179fcb;
   transition:
     transform 180ms ease,
-    background-color 180ms ease,
     color 180ms ease;
 }
 
 .faqItem[open] .faqToggle {
   transform: rotate(180deg);
-  background: var(--primary);
-  color: #fff;
+  color: #179fcb;
 }
 
 .faqAnswer {
   padding: 0 0 14px;
+  color: #5f6d8f;
+  font-size: clamp(0.84rem, 0.86vw, 0.95rem);
+  line-height: 1.58;
+}
+
+.contactSection {
+  position: relative;
+  width: min(1240px, calc(100% - 80px));
+  margin-left: auto;
+  margin-right: auto;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: clamp(28px, 4.8vw, 58px) 0;
+}
+
+.contactSection::before,
+.contactSection::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.contactSection::before {
+  left: -300px;
+  bottom: -420px;
+  width: 860px;
+  height: 860px;
+  background: repeating-radial-gradient(
+    ellipse at center,
+    transparent 0 24px,
+    rgba(169, 185, 214, 0.32) 24px 26px
+  );
+}
+
+.contactSection::after {
+  right: -320px;
+  top: -420px;
+  width: 900px;
+  height: 900px;
+  background: repeating-radial-gradient(
+    ellipse at center,
+    transparent 0 24px,
+    rgba(169, 185, 214, 0.3) 24px 26px
+  );
+}
+
+.contactModernLayout {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 0.48fr) minmax(0, 0.52fr);
+  gap: clamp(30px, 5vw, 72px);
+  align-items: start;
+}
+
+.contactModernContent {
+  display: grid;
+  gap: 22px;
+  padding-top: 22px;
+}
+
+.contactModernPill {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  gap: 0;
+  border-radius: 999px;
+  background: #c9d8dd;
+  overflow: hidden;
+}
+
+.contactModernPillActive {
+  min-height: 34px;
+  padding: 0 22px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #0e2d96;
+  color: #ffffff;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.contactModernPillText {
+  min-height: 34px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  color: #1299c8;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.contactModernTitle {
+  margin: 0;
+  display: grid;
+  gap: 2px;
+  color: #0d2c8f;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(1.45rem, 2.2vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 1.05;
+}
+
+.contactModernTitle em {
+  color: #179fcb;
+  font-style: normal;
+}
+
+.contactModernDetails {
+  display: grid;
+  gap: 14px;
+}
+
+.contactModernDetails > p {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+  color: #5f6d8f;
+  font-size: 1rem;
+}
+
+.contactModernDetails > p strong {
+  color: #6b7898;
+  font-weight: 500;
+}
+
+.contactModernDetails > p span {
+  color: #5f6d8f;
+}
+
+.contactSocialRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contactSocialIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #18418f, #139ecb);
+  color: #ffffff;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease;
+}
+
+.contactSocialIcon:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+.contactModernCard {
+  border: 1px solid rgba(24, 33, 47, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.44);
+  padding: clamp(24px, 3vw, 36px);
+}
+
+.contactModernCardTitle {
+  margin: 0;
+  color: #0d2c8f;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: clamp(1.6rem, 2vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.contactModernCardText {
+  margin: 16px 0 0;
+  max-width: 28rem;
+  color: #6a789a;
+  font-size: clamp(0.94rem, 1vw, 1.12rem);
+  line-height: 1.7;
+}
+
+.contactModernForm {
+  margin-top: 30px;
+  display: grid;
+  gap: 10px;
+}
+
+.contactModernInput {
+  width: 100%;
+  min-height: 56px;
+  border: 1px solid rgba(24, 33, 47, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.44);
+  color: #1b2b45;
+  font: inherit;
+  font-size: 1rem;
+  padding: 0 20px;
+}
+
+.contactModernInput:focus {
+  outline: none;
+  border-color: rgba(19, 74, 172, 0.38);
+  box-shadow: 0 0 0 3px rgba(19, 74, 172, 0.12);
+}
+
+.contactModernSubmit {
+  margin-top: 2px;
+  width: 100%;
+  min-height: 56px;
+  border: 0;
+  border-radius: 12px;
+  background: #139ecb;
+  color: #ffffff;
+  font: inherit;
+  font-size: 1.07rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease;
+}
+
+.contactModernSubmit:hover {
+  transform: translateY(-1px);
+  background: #108db5;
+}
+
+.contactModernNote {
+  margin: 14px 0 0;
+  color: #5f6d8f;
+  font-size: 0.9rem;
+  line-height: 1.62;
 }
 
 .contactLayout {
@@ -1763,10 +2598,34 @@
 }
 
 @media (max-width: 1100px) {
+  .commitLayout,
+  .contactModernLayout,
+  .whyChooseLayout,
   .philosophyLayout,
   .experienceLayout,
   .contactLayout {
     grid-template-columns: 1fr;
+  }
+
+  .commitStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contactModernLayout {
+    width: 100%;
+    gap: 24px;
+  }
+
+  .contactModernContent {
+    padding-top: 0;
+  }
+
+  .commitTitle {
+    max-width: none;
+  }
+
+  .whyChooseContent {
+    gap: 18px;
   }
 
   .experienceLayout .mediaCard {
@@ -1795,12 +2654,41 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .storyHeadline {
+    font-size: clamp(1.3rem, 3.8vw, 2rem);
+  }
+
   .serviceGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .serviceShowcaseGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .footerGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .faqSection {
+    width: min(100%, calc(100% - 64px));
+  }
+
+  .contactSection {
+    width: min(100%, calc(100% - 64px));
+  }
+
+  .faqGrid {
+    gap: 10px 30px;
+  }
+
+  .faqHeadline {
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+  }
+
+  .storyHeader,
+  .storyGrid {
+    width: min(100%, calc(100% - 64px));
   }
 }
 
@@ -1901,12 +2789,10 @@
   }
 
   .schedulerBar {
-    flex-direction: row;
-    align-items: center;
     width: 100%;
-    border-radius: 999px;
+    border-radius: 28px;
     gap: 8px;
-    padding: 6px 6px 6px 10px;
+    padding: 8px;
     background:
       linear-gradient(#ffffff, #ffffff) padding-box,
       conic-gradient(
@@ -1921,38 +2807,36 @@
     border: 1.5px solid transparent;
   }
 
-  .schedulerSearchIcon {
-    width: 28px;
-    height: 28px;
+  .schedulerFilterGrid {
+    grid-template-columns: 1fr;
   }
 
-  .schedulerInput {
-    height: 42px;
-    padding: 0 8px;
-    font-size: 0.89rem;
-    line-height: 1.25;
-    background: transparent;
+  .schedulerFilterField {
+    min-height: 50px;
+    padding: 6px 10px;
+  }
+
+  .schedulerFilterField + .schedulerFilterField {
+    border-left: 0;
+    border-top: 1px solid rgba(23, 58, 136, 0.16);
+  }
+
+  .schedulerFilterLabel {
+    font-size: 0.96rem;
+  }
+
+  .schedulerFilterInput {
+    font-size: 0.9rem;
+  }
+
+  .schedulerSuggestions {
+    max-height: 210px;
   }
 
   .schedulerArrow {
-    width: 45px;
-    height: 45px;
-    min-height: 45px;
-  }
-
-  .schedulerQuickLinks {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .schedulerQuickPill {
-    min-height: 48px;
-    width: 100%;
-    padding: 0 12px;
-    justify-content: flex-start;
-    font-size: 0.93rem;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
   }
 
   .heroMobileFigure {
@@ -1986,6 +2870,19 @@
     grid-template-columns: 1fr;
   }
 
+  .faqSection {
+    width: min(100%, calc(100% - 20px));
+  }
+
+  .contactSection {
+    width: min(100%, calc(100% - 20px));
+  }
+
+  .faqHeadline {
+    font-size: clamp(1.02rem, 5vw, 1.38rem);
+    line-height: 1.14;
+  }
+
   .storyGrid {
     display: grid;
     grid-template-columns: 1fr;
@@ -1998,6 +2895,11 @@
 
   .storyCard {
     width: 100%;
+  }
+
+  .storyHeadline {
+    font-size: clamp(1.12rem, 5.9vw, 1.55rem);
+    line-height: 1.1;
   }
 
   .mobileStoryDots {
@@ -2027,7 +2929,247 @@
   }
 
   .serviceSection {
-    padding: 20px 0 0;
+    padding: 20px 20px 0;
+  }
+
+  .whyChooseSection {
+    padding: 24px 0;
+  }
+
+  .contactSection {
+    padding: 24px 0;
+  }
+
+  .contactSection::before {
+    left: -430px;
+    bottom: -520px;
+  }
+
+  .contactSection::after {
+    right: -480px;
+    top: -520px;
+  }
+
+  .contactModernLayout {
+    width: 100%;
+    gap: 18px;
+  }
+
+  .contactModernContent {
+    gap: 16px;
+  }
+
+  .contactModernPillActive,
+  .contactModernPillText {
+    min-height: 30px;
+    padding: 0 12px;
+    font-size: 0.86rem;
+  }
+
+  .contactModernTitle {
+    font-size: clamp(1.3rem, 6.2vw, 2.05rem);
+  }
+
+  .contactModernDetails > p {
+    font-size: 0.94rem;
+  }
+
+  .contactModernCard {
+    padding: 18px 16px;
+    border-radius: 10px;
+  }
+
+  .contactModernCardTitle {
+    font-size: clamp(1.32rem, 6vw, 1.75rem);
+  }
+
+  .contactModernCardText {
+    margin-top: 12px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .contactModernForm {
+    margin-top: 16px;
+    gap: 8px;
+  }
+
+  .contactModernInput,
+  .contactModernSubmit {
+    min-height: 50px;
+    border-radius: 10px;
+    font-size: 0.94rem;
+  }
+
+  .contactModernNote {
+    margin-top: 10px;
+    font-size: 0.84rem;
+  }
+
+  .storyHeader,
+  .storyGrid {
+    width: min(100%, calc(100% - 20px));
+  }
+
+  .commitSection {
+    padding: 26px 18px 30px;
+  }
+
+  .commitLayout {
+    width: min(100%, calc(100% - 8px));
+  }
+
+  .commitSection::before {
+    left: -320px;
+    bottom: -400px;
+  }
+
+  .commitSection::after {
+    right: -420px;
+    top: -360px;
+  }
+
+  .commitLayout {
+    gap: 20px;
+  }
+
+  .commitContent {
+    gap: 16px;
+  }
+
+  .commitTitle {
+    font-size: clamp(1.65rem, 7.2vw, 2.45rem);
+    line-height: 1.1;
+  }
+
+  .commitText {
+    font-size: 0.94rem;
+    line-height: 1.62;
+  }
+
+  .commitButton {
+    min-height: 50px;
+    min-width: 148px;
+    padding: 0 22px;
+    border-radius: 10px;
+    font-size: 0.96rem;
+  }
+
+  .commitStats {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .commitStatItem {
+    gap: 4px;
+  }
+
+  .commitStatValue {
+    font-size: clamp(2.2rem, 11vw, 3.3rem);
+    line-height: 0.96;
+  }
+
+  .commitStatLabel {
+    font-size: clamp(1rem, 4.8vw, 1.3rem);
+    line-height: 1.22;
+  }
+
+  .whyChooseBadgeMark {
+    min-height: 34px;
+    padding: 0 14px;
+    font-size: 0.9rem;
+  }
+
+  .whyChooseBadgeText {
+    min-height: 34px;
+    padding: 0 14px 0 12px;
+    font-size: 0.9rem;
+  }
+
+  .whyChooseTitle {
+    font-size: clamp(1.8rem, 8vw, 2.75rem);
+  }
+
+  .whyChooseText {
+    font-size: 0.98rem;
+    line-height: 1.65;
+  }
+
+  .whyChooseButton {
+    min-height: 50px;
+    padding: 0 24px;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+
+  .whyChooseAccordion {
+    gap: 12px;
+  }
+
+  .whyChooseItem {
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  .whyChooseItemHeader {
+    gap: 12px;
+  }
+
+  .whyChooseItemTitle {
+    font-size: clamp(0.88rem, 3.6vw, 1.08rem);
+  }
+
+  .whyChooseItemIcon {
+    font-size: 1.4rem;
+  }
+
+  .whyChooseItemText {
+    margin-top: 10px;
+    font-size: 0.95rem;
+    line-height: 1.66;
+  }
+
+  .healthcareSection {
+    padding: 24px 0;
+  }
+
+  .healthcareBlock {
+    gap: 18px;
+  }
+
+  .healthcareTitle {
+    font-size: clamp(1.45rem, 6.8vw, 2.1rem);
+    line-height: 1.04;
+  }
+
+  .healthcareText {
+    font-size: 0.92rem;
+    line-height: 1.58;
+  }
+
+  .healthcareList {
+    gap: 12px;
+  }
+
+  .healthcareListItem {
+    font-size: clamp(0.98rem, 4.4vw, 1.2rem);
+  }
+
+  .serviceSection .serviceShowcaseTitle {
+    font-size: clamp(1.65rem, 6.8vw, 2.4rem);
+  }
+
+  .serviceShowcaseGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .serviceShowcaseCard {
+    gap: 12px;
+  }
+
+  .serviceShowcaseLabel {
+    font-size: clamp(0.98rem, 4.2vw, 1.18rem);
   }
 
   .philosophySection {
@@ -2255,6 +3397,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .serviceTypedWordCaret {
+    animation: none;
+  }
+
   .dnxtTextAnimation {
     animation: none;
     opacity: 0;
@@ -2298,38 +3444,32 @@
     font-size: 0.94rem;
   }
 
-  .schedulerTitle {
-    font-size: 0.94rem;
+  .schedulerFilterLabel {
+    font-size: 0.92rem;
   }
 
-  .schedulerSearchIcon {
-    width: 26px;
-    height: 26px;
+  .schedulerFilterInput {
+    font-size: 0.84rem;
   }
 
-  .schedulerSearchIconSvg {
-    width: 14px;
-    height: 14px;
+  .schedulerSuggestions {
+    left: 2px;
+    right: 2px;
+    top: calc(100% + 6px);
+    padding: 6px;
+    border-radius: 10px;
   }
 
-  .schedulerInput {
-    font-size: 0.86rem;
+  .schedulerSuggestionButton {
+    min-height: 32px;
+    font-size: 0.9rem;
+    border-radius: 8px;
   }
 
   .schedulerArrow {
     width: 42px;
     height: 42px;
     min-height: 42px;
-  }
-
-  .schedulerQuickLinks {
-    gap: 8px;
-  }
-
-  .schedulerQuickPill {
-    min-height: 44px;
-    font-size: 0.88rem;
-    gap: 6px;
   }
 
   .heroMobileFigure {

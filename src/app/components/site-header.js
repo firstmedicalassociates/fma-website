@@ -72,16 +72,12 @@ export default function SiteHeader() {
   const headerActionLabel = "Book Appointment";
 
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
     { href: "/providers", label: "Find a Doctor" },
-    { href: "/services", label: "Services" },
     { href: "/locations", label: "Locations" },
+    { href: "/services", label: "Services" },
+    { href: "/patient-resources", label: "Resources" },
+    { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
-    { href: "/patient-resources", label: "Patient Resources" },
-    ...(PATIENT_PORTAL_URL !== "#"
-      ? [{ href: PATIENT_PORTAL_URL, label: "Patient Portal", external: true }]
-      : []),
   ];
 
   const patientPortalHref = PATIENT_PORTAL_URL !== "#" ? PATIENT_PORTAL_URL : "/patient-resources";
