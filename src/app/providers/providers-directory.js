@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./providers-directory.module.css";
 
 function slugify(value) {
@@ -21,40 +21,81 @@ function getInitials(name = "") {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
-export default function ProvidersDirectory({ providers }) {
-  const [activeLocation, setActiveLocation] = useState("all");
-  const [activeLanguage, setActiveLanguage] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const deferredSearchTerm = useDeferredValue(searchTerm);
+function getCityFromLocation(value = "") {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  return text.split(",")[0].trim();
+}
 
-  const locationOptions = useMemo(() => {
-    return [...new Set(providers.flatMap((provider) => provider.locations || []).filter(Boolean))].sort();
+function getActiveLabel(activeValue, options, allLabel) {
+  if (activeValue === "all") return allLabel;
+  const match = options.find((option) => slugify(option) === activeValue);
+  return match || allLabel;
+}
+
+export default function ProvidersDirectory({ providers }) {
+  const [activeCity, setActiveCity] = useState("all");
+  const [activeLanguage, setActiveLanguage] = useState("all");
+
+  const [activeSpecialty, setActiveSpecialty] = useState("all");
+  const [openFilter, setOpenFilter] = useState(null);
+  const filterBarRef = useRef(null);
+
+  const cityOptions = useMemo(() => {
+    return [
+      ...new Set(
+        providers
+          .flatMap((provider) => provider.locations || [])
+          .map((location) => getCityFromLocation(location))
+          .filter(Boolean)
+      ),
+    ].sort();
   }, [providers]);
 
   const languageOptions = useMemo(() => {
     return [...new Set(providers.flatMap((provider) => provider.languages || []).filter(Boolean))].sort();
   }, [providers]);
 
-  const filteredProviders = useMemo(() => {
-    const normalizedSearch = String(deferredSearchTerm || "").trim().toLowerCase();
+  const specialtyOptions = useMemo(() => {
+    return [...new Set(providers.map((provider) => String(provider.role || "").trim()).filter(Boolean))].sort();
+  }, [providers]);
 
+  const filteredProviders = useMemo(() => {
     return providers.filter((provider) => {
-      const matchesLocation =
-        activeLocation === "all" ||
-        (provider.locations || []).some((location) => slugify(location) === activeLocation);
+      const matchesCity =
+        activeCity === "all" ||
+        (provider.locations || []).some((location) => slugify(getCityFromLocation(location)) === activeCity);
       const matchesLanguage =
         activeLanguage === "all" ||
         (provider.languages || []).some((language) => slugify(language) === activeLanguage);
-      const matchesSearch =
-        !normalizedSearch ||
-        String(provider.name || "").toLowerCase().includes(normalizedSearch) ||
-        String(provider.role || "").toLowerCase().includes(normalizedSearch) ||
-        String(provider.location || "").toLowerCase().includes(normalizedSearch) ||
-        String(provider.language || "").toLowerCase().includes(normalizedSearch);
+      const matchesSpecialty =
+        activeSpecialty === "all" || slugify(provider.role) === activeSpecialty;
 
-      return matchesLocation && matchesLanguage && matchesSearch;
+      return matchesCity && matchesLanguage && matchesSpecialty;
     });
-  }, [activeLanguage, activeLocation, deferredSearchTerm, providers]);
+  }, [activeCity, activeLanguage, activeSpecialty, providers]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (filterBarRef.current && !filterBarRef.current.contains(event.target)) {
+        setOpenFilter(null);
+      }
+    }
+
+    function handleEscape(event) {
+      if (event.key === "Escape") {
+        setOpenFilter(null);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   return (
     <div className={styles.page}>
@@ -79,70 +120,175 @@ export default function ProvidersDirectory({ providers }) {
 
         <section className={styles.filterDock}>
           <div className={styles.filterDockInner}>
-            <div className={styles.searchField}>
-              <span className={`material-symbols-outlined ${styles.searchIcon}`}>search</span>
-              <input
-                type="search"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search providers (e.g., Melinda Jorge, Family Medicine)"
-                aria-label="Search providers"
-              />
-            </div>
-
-            <div className={styles.filterGroup}>
-              <div className={styles.filterLabel}>Filter By Location:</div>
-              <div className={styles.tabs} role="tablist" aria-label="Location Filters">
+            <div
+              className={styles.providerFilterBar}
+              role="group"
+              aria-label="Provider filters"
+              ref={filterBarRef}
+            >
+              <div
+                className={`${styles.providerFilterField} ${
+                  openFilter === "city" ? styles.providerFilterFieldOpen : ""
+                }`}
+              >
+                <span className={styles.providerFilterLabel}>City</span>
                 <button
-                  className={styles.tab}
                   type="button"
-                  aria-pressed={activeLocation === "all"}
-                  onClick={() => setActiveLocation("all")}
+                  className={styles.providerDropdownTrigger}
+                  onClick={() => setOpenFilter((current) => (current === "city" ? null : "city"))}
+                  aria-expanded={openFilter === "city"}
+                  aria-haspopup="listbox"
+                  aria-label="Filter providers by city"
                 >
-                  All Locations
+                  {getActiveLabel(activeCity, cityOptions, "All Cities")}
                 </button>
-                {locationOptions.map((location) => {
-                  const key = slugify(location);
-                  return (
-                    <button
-                      key={location}
-                      className={styles.tab}
-                      type="button"
-                      aria-pressed={activeLocation === key}
-                      onClick={() => setActiveLocation(key)}
-                    >
-                      {location}
-                    </button>
-                  );
-                })}
+                {openFilter === "city" ? (
+                  <ul className={styles.providerDropdownMenu} role="listbox" aria-label="City options">
+                    <li>
+                      <button
+                        type="button"
+                        className={`${styles.providerDropdownOption} ${
+                          activeCity === "all" ? styles.providerDropdownOptionActive : ""
+                        }`}
+                        onClick={() => {
+                          setActiveCity("all");
+                          setOpenFilter(null);
+                        }}
+                      >
+                        All Cities
+                      </button>
+                    </li>
+                    {cityOptions.map((city) => {
+                      const value = slugify(city);
+                      return (
+                        <li key={city}>
+                          <button
+                            type="button"
+                            className={`${styles.providerDropdownOption} ${
+                              activeCity === value ? styles.providerDropdownOptionActive : ""
+                            }`}
+                            onClick={() => {
+                              setActiveCity(value);
+                              setOpenFilter(null);
+                            }}
+                          >
+                            {city}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
               </div>
-            </div>
 
-            <div className={styles.filterGroup}>
-              <div className={styles.filterLabel}>Filter By Language:</div>
-              <div className={styles.tabs} role="tablist" aria-label="Language Filters">
+              <div
+                className={`${styles.providerFilterField} ${
+                  openFilter === "language" ? styles.providerFilterFieldOpen : ""
+                }`}
+              >
+                <span className={styles.providerFilterLabel}>Language</span>
                 <button
-                  className={styles.tab}
                   type="button"
-                  aria-pressed={activeLanguage === "all"}
-                  onClick={() => setActiveLanguage("all")}
+                  className={styles.providerDropdownTrigger}
+                  onClick={() => setOpenFilter((current) => (current === "language" ? null : "language"))}
+                  aria-expanded={openFilter === "language"}
+                  aria-haspopup="listbox"
+                  aria-label="Filter providers by language"
                 >
-                  All Languages
+                  {getActiveLabel(activeLanguage, languageOptions, "All Languages")}
                 </button>
-                {languageOptions.map((language) => {
-                  const key = slugify(language);
-                  return (
-                    <button
-                      key={language}
-                      className={styles.tab}
-                      type="button"
-                      aria-pressed={activeLanguage === key}
-                      onClick={() => setActiveLanguage(key)}
-                    >
-                      {language}
-                    </button>
-                  );
-                })}
+                {openFilter === "language" ? (
+                  <ul className={styles.providerDropdownMenu} role="listbox" aria-label="Language options">
+                    <li>
+                      <button
+                        type="button"
+                        className={`${styles.providerDropdownOption} ${
+                          activeLanguage === "all" ? styles.providerDropdownOptionActive : ""
+                        }`}
+                        onClick={() => {
+                          setActiveLanguage("all");
+                          setOpenFilter(null);
+                        }}
+                      >
+                        All Languages
+                      </button>
+                    </li>
+                    {languageOptions.map((language) => {
+                      const value = slugify(language);
+                      return (
+                        <li key={language}>
+                          <button
+                            type="button"
+                            className={`${styles.providerDropdownOption} ${
+                              activeLanguage === value ? styles.providerDropdownOptionActive : ""
+                            }`}
+                            onClick={() => {
+                              setActiveLanguage(value);
+                              setOpenFilter(null);
+                            }}
+                          >
+                            {language}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
+              </div>
+
+              <div
+                className={`${styles.providerFilterField} ${
+                  openFilter === "specialty" ? styles.providerFilterFieldOpen : ""
+                }`}
+              >
+                <span className={styles.providerFilterLabel}>Specialty</span>
+                <button
+                  type="button"
+                  className={styles.providerDropdownTrigger}
+                  onClick={() => setOpenFilter((current) => (current === "specialty" ? null : "specialty"))}
+                  aria-expanded={openFilter === "specialty"}
+                  aria-haspopup="listbox"
+                  aria-label="Filter providers by specialty"
+                >
+                  {getActiveLabel(activeSpecialty, specialtyOptions, "All Specialties")}
+                </button>
+                {openFilter === "specialty" ? (
+                  <ul className={styles.providerDropdownMenu} role="listbox" aria-label="Specialty options">
+                    <li>
+                      <button
+                        type="button"
+                        className={`${styles.providerDropdownOption} ${
+                          activeSpecialty === "all" ? styles.providerDropdownOptionActive : ""
+                        }`}
+                        onClick={() => {
+                          setActiveSpecialty("all");
+                          setOpenFilter(null);
+                        }}
+                      >
+                        All Specialties
+                      </button>
+                    </li>
+                    {specialtyOptions.map((specialty) => {
+                      const value = slugify(specialty);
+                      return (
+                        <li key={specialty}>
+                          <button
+                            type="button"
+                            className={`${styles.providerDropdownOption} ${
+                              activeSpecialty === value ? styles.providerDropdownOptionActive : ""
+                            }`}
+                            onClick={() => {
+                              setActiveSpecialty(value);
+                              setOpenFilter(null);
+                            }}
+                          >
+                            {specialty}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
               </div>
             </div>
           </div>
@@ -171,24 +317,10 @@ export default function ProvidersDirectory({ providers }) {
                     )}
                   </div>
                   <div className={styles.cardBody}>
-                    <div className={styles.cardHeader}>
-                      <span className={styles.cardCategory}>{provider.role || "Provider"}</span>
-                    </div>
                     <span className={styles.provName}>{provider.name || ""}</span>
+                    <span className={styles.provRole}>{provider.role || "Provider"}</span>
                     <span className={styles.provLoc}>{provider.location || ""}</span>
-                    <div className={styles.metaRow}>
-                      {(provider.languages || []).slice(0, 2).map((language) => (
-                        <span key={`${provider.id}-${language}`} className={styles.metaChip}>
-                          {language}
-                        </span>
-                      ))}
-                    </div>
-                    <span className={styles.provMore}>
-                      View Profile
-                      <span className={`material-symbols-outlined ${styles.provMoreIcon}`}>
-                        arrow_forward
-                      </span>
-                    </span>
+                    <span className={styles.provMore}>Learn More</span>
                   </div>
                 </Link>
               ))}

@@ -12,6 +12,14 @@ import {
   Package
 } from 'lucide-react';
 import Link from 'next/link';
+import { buildStaticMetadata } from "../lib/seo";
+
+export const metadata = buildStaticMetadata({
+  title: "Patient Resources | First Medical Associates",
+  description:
+    "Access insurance information, patient forms, policies, education materials, and support resources from First Medical Associates.",
+  pathname: "/patient-resources",
+});
 
 export default function ResourcesOverview() {
   const sidebarActions = [

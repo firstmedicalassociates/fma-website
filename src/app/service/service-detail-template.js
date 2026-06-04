@@ -12,6 +12,7 @@ import {
   User,
   Users,
 } from "lucide-react";
+import { getServiceSeoContent } from "../lib/seo";
 import { normalizeServicePageContent } from "../lib/services";
 
 const FEATURE_ICONS = [Users, MapPin, Clock, PhoneCall];
@@ -23,6 +24,7 @@ function formatTag(value = "") {
 
 export default function ServiceDetailTemplate({ service }) {
   const content = normalizeServicePageContent(service?.pageContent || {});
+  const seo = getServiceSeoContent(service);
   const features = content.features;
   const infoParagraphs = content.infoParagraphs;
   const commitmentItems = content.commitmentItems;
@@ -678,7 +680,7 @@ export default function ServiceDetailTemplate({ service }) {
 
           <div className="hero-content">
             <div className="tag">{formatTag(content.eyebrow)}</div>
-            <h1 className="hero-title">{service?.title || "Service"}</h1>
+            <h1 className="hero-title">{seo.h1}</h1>
             <h2 className="hero-subtitle">{content.heroSubtitle}</h2>
             <p className="hero-desc">{content.heroDescription}</p>
 

@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
+import { buildStaticMetadata } from "../../lib/seo";
 import { 
   ShieldAlert, 
   Lock, 
@@ -9,6 +10,13 @@ import {
   ChevronRight,
   Phone
 } from 'lucide-react';
+
+export const metadata = buildStaticMetadata({
+  title: "Patient Forms and Policies | First Medical Associates",
+  description:
+    "Review patient policies and access forms for records requests, privacy notices, and visit preparation.",
+  pathname: "/patient-resources/patients",
+});
 
 export default function PatientsPage() {
   const forms = [

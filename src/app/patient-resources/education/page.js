@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unescaped-entities, @next/next/no-img-element */
+import { buildStaticMetadata } from "../../lib/seo";
 import { 
   Heart, 
   Droplets, 
@@ -19,6 +20,13 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import Link from 'next/link';
+
+export const metadata = buildStaticMetadata({
+  title: "Patient Education | First Medical Associates",
+  description:
+    "Browse patient education guides and wellness resources from First Medical Associates.",
+  pathname: "/patient-resources/education",
+});
 
 export default function EducationPage() {
   const topCategories = [

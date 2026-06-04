@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unescaped-entities, @next/next/no-img-element */
+import { buildStaticMetadata } from "../../lib/seo";
 import { 
   Handshake, 
   ArrowRight, 
@@ -15,6 +16,13 @@ import {
   Quote,
   MessageSquare
 } from 'lucide-react';
+
+export const metadata = buildStaticMetadata({
+  title: "Partnerships | First Medical Associates",
+  description:
+    "Explore partnership opportunities with First Medical Associates across care delivery, health plans, employers, and community organizations.",
+  pathname: "/about/partners",
+});
 
 export default function PartnersPage() {
   const partnerTypes = [

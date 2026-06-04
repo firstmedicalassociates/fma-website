@@ -7,6 +7,7 @@ import SiteHeader from "../../components/site-header";
 import { absoluteUrl } from "../../lib/config/site";
 import { buildDisplayAddress, splitLocationSlug } from "../../lib/locations";
 import { prisma } from "../../lib/prisma";
+import { getProviderSeoContent } from "../../lib/seo";
 import {
   buildLocationTitleMap,
   formatLocationSlugFallback,
@@ -202,28 +203,28 @@ export async function generateMetadata({ params }) {
   if (!provider || !provider.isActive) return {};
 
   const canonicalUrl = absoluteUrl(`/providers/${slug}`);
-  const description = provider.bio.length > 160 ? `${provider.bio.slice(0, 157)}...` : provider.bio;
+  const seo = getProviderSeoContent(provider);
   const imageUrl = provider.imageUrl.startsWith("http")
     ? provider.imageUrl
     : absoluteUrl(provider.imageUrl);
 
   return {
-    title: `${provider.name} | Providers`,
-    description,
+    title: seo.title,
+    description: seo.description,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
       type: "profile",
       url: canonicalUrl,
-      title: `${provider.name} | Providers`,
-      description,
+      title: seo.title,
+      description: seo.description,
       images: imageUrl ? [{ url: imageUrl, alt: provider.imageAlt || provider.name }] : undefined,
     },
     twitter: {
       card: imageUrl ? "summary_large_image" : "summary",
-      title: `${provider.name} | Providers`,
-      description,
+      title: seo.title,
+      description: seo.description,
       images: imageUrl ? [{ url: imageUrl, alt: provider.imageAlt || provider.name }] : undefined,
     },
   };
@@ -320,6 +321,7 @@ export default async function ProviderDetailPage({ params }) {
   const subtitle = provider.title
     ? `${provider.title} at First Medical Associates`
     : "First Medical Associates provider";
+  const seo = getProviderSeoContent(provider);
   const languagesText = formatProviderList(provider.languages) || "Language support information coming soon";
   const bioParagraphs = splitBioParagraphs(provider.bio);
   const updatedLabel = formatUpdatedDate(provider.updatedAt);
@@ -394,7 +396,7 @@ export default async function ProviderDetailPage({ params }) {
                 </span>
 
                 <div className={styles.heroHeading}>
-                  <h1>{provider.name}</h1>
+                  <h1>{seo.h1}</h1>
                   <p>{subtitle}</p>
                 </div>
 

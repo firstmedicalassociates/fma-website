@@ -1,0 +1,225 @@
+import { SITE_NAME, absoluteUrl } from "./config/site";
+
+function cleanText(value = "") {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function truncateText(value = "", maxLength = 160) {
+  const normalized = cleanText(value);
+  if (!normalized) return "";
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength - 3)}...`;
+}
+
+const LOCATION_SEO_BY_SLUG = {
+  "/location/annapolis": {
+    title: "Walk-In Healthcare at First Medical Associates in Annapolis | Convenient Care",
+    h1: "Primary care Doctor in Annapolis, MD",
+  },
+  "/bowie-dev": {
+    title: "bowie dev | Primary Care Doctor at First Medical Associates",
+    h1: "Best primary care physician and doctor in Bowie, MD",
+  },
+  "/location/bowie": {
+    title: "Top Doctors & Walk-In Clinic in Bowie, MD | First Medical Associates",
+    h1: "Best primary care physician and doctor in Bowie, MD",
+  },
+  "/location/columbia": {
+    title: "Columbia | Primary Care Doctor at First Medical Associates",
+    h1: "Best primary care physician and doctor in Columbia, MD",
+  },
+  "/location/crofton": {
+    title: "Crofton | Primary Care Doctor at First Medical Associates",
+    h1: "Primary care Doctor in Crofton , MD",
+  },
+  "/location/frederick": {
+    title: "Primary Care & Family Doctors | Walk-In Clinic in Frederick, MD | First Medical Associates",
+    h1: "Primary care Doctor in Frederick, MD",
+  },
+  "/location/gaithersburg": {
+    title: "Walk-In Healthcare at First Medical Associates in Gaithersburg | Quick & Convenient Care",
+    h1: "Family doctor in Gaithersburg, MD",
+  },
+  "/location/germantown": {
+    title: "Primary Care Doctor in Germantown, MD | Comprehensive Walk-In Clinic & Family Doctors | First Medical Associates",
+    h1: "Primary care Doctor in Germantown, MD",
+  },
+  "/location/glen-burnie": {
+    title: "Walk-In Healthcare at First Medical Associates in Glen Burnie | Quick & Convenient Care",
+    h1: "Primary care Doctor in Glen Burnie, MD",
+  },
+  "/location/greenbelt": {
+    title: "Greenbelt | Primary Care Doctor at First Medical Associates",
+    h1: "Primary care doctor in GREENBELT, MD",
+  },
+  "/location/laurel": {
+    title: "Laurel | Primary Care Doctor at First Medical Associates",
+    h1: "Primary care Doctor in Laurel, MD",
+  },
+  "/location/lutherville": {
+    title: "Primary Care Doctor in Lutherville | First Medical Associates",
+    h1: "Primary care Doctor in Lutherville , MD",
+  },
+  "/location/nottingham": {
+    title: "Primary Care Doctor in Nottingham, MD | Family & Walk-In Clinic | First Medical Associates",
+    h1: "Primary Care Doctor in Nottingham, MD",
+  },
+  "/location/rockville": {
+    title: "Primary Care Doctor in Rockville, MD | First Medical Associates",
+    h1: "Primary care Doctor in Rockville, MD",
+  },
+  "/location/severna-park": {
+    title: "Walk-In Healthcare at First Medical Associates in Severna Park | Fast & Reliable Care",
+    h1: "Primary care Doctor in Severna Park, MD",
+  },
+  "/location/silver-spring": {
+    title: "Primary Care Doctor in Silver Spring, MD | First Medical Associates",
+    h1: "Primary care Doctor in Silver Spring, MD",
+  },
+};
+
+const PROVIDER_SEO_OVERRIDES = {
+  "jason-lowry": {
+    titleName: "Jason Lowry",
+  },
+  "maria-munoz-md": {
+    h1: "Maria Munoz-Ritterbusch",
+  },
+  "quoc-anh-nguyen": {
+    titleName: "Quoc Anh Nguyen",
+    h1: "Dr. Quinton Nguyen",
+  },
+  "rakesh-malik": {
+    h1: "Dr. Rakesh Malik",
+  },
+  "sharon-j-mccormack": {
+    titleName: "Sharon J. McCormack",
+    h1: "Sharon J. McCormack",
+  },
+};
+
+const SERVICE_SEO_TITLES_BY_SLUG = {
+  asthma: "Chronic Asthma Care Doctor in Maryland | Expert Treatment",
+  depression: "Depression Care Doctor in Maryland | Compassionate Support",
+  diabetes: "Diabetes Doctor in Maryland | Expert Care & Management",
+  "gastrointestinal-issues":
+    "Gastrointestinal Doctor at First Medical Associates in Maryland | Specialized Care",
+  "geriatric-care": "Geriatric Doctor at First Medical Associates in Maryland | Expert Senior Care",
+  "uti-test-and-treatment":
+    "UTI Treatment at First Medical Associates in Maryland | Fast & Effective Care",
+  "sore-throat": "Sore Throat and Flu Treatment in Maryland | Fast Relief",
+  telemedicine:
+    "Telemedicine Services at First Medical Associates in Maryland | Convenient Online Care",
+  "annual-physicals": "Annual Physicals at First Medical Associates in Maryland | Expert Care",
+  "primary-care": "Primary Care Doctor at First Medical Associates in Maryland | Trusted Healthcare",
+  "urgent-needs": "Urgent Care Doctor in Maryland | Quick & Reliable Care",
+  "mens-health": "Men's Health Doctor at First Medical Associates in Maryland | Specialized Care",
+  "skin-rash-and-eczema":
+    "Skin Rash Doctor at First Medical Associates in Maryland | Expert Diagnosis & Treatment",
+  "std-testing": "STD Testing at First Medical Associates in Maryland | Discreet & Accurate Results",
+  "womens-health":
+    "Women's Health at First Medical Associates in Maryland | Specialized Care & Support",
+};
+
+export function buildStaticMetadata({ title, description, pathname, image } = {}) {
+  const canonicalUrl = pathname ? absoluteUrl(pathname) : undefined;
+  const imageUrl = image?.url
+    ? image.url
+    : image?.pathname
+      ? absoluteUrl(image.pathname)
+      : undefined;
+  const images = imageUrl ? [{ url: imageUrl, alt: image?.alt || title }] : undefined;
+
+  return {
+    title,
+    description,
+    alternates: canonicalUrl
+      ? {
+          canonical: canonicalUrl,
+        }
+      : undefined,
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      url: canonicalUrl,
+      title,
+      description,
+      images,
+    },
+    twitter: {
+      card: imageUrl ? "summary_large_image" : "summary",
+      title,
+      description,
+      images,
+    },
+  };
+}
+
+export const providersIndexMetadata = buildStaticMetadata({
+  title: "Providers | Primary Care Doctor at First Medical Associates",
+  description:
+    "Meet primary care doctors and family healthcare providers at First Medical Associates across Maryland.",
+  pathname: "/providers",
+});
+
+export const servicesIndexMetadata = buildStaticMetadata({
+  title: "Services | Primary Care Doctor at First Medical Associates",
+  description:
+    "Explore primary care, chronic care, telemedicine, and walk-in medical services from First Medical Associates in Maryland.",
+  pathname: "/services",
+});
+
+export const locationsIndexMetadata = buildStaticMetadata({
+  title: "First Medical Associates | Comprehensive Medical Centers Across Maryland",
+  description:
+    "Explore First Medical Associates' multiple locations throughout Maryland. Prioritizing your health, we offer a wide range of services and accept various insurances.",
+  pathname: "/locations",
+});
+
+export function getLocationSeoContent(location = {}) {
+  const slug = cleanText(location.slug).replace(/\/+$/, "");
+  const mapped = LOCATION_SEO_BY_SLUG[slug];
+  const placeName = cleanText(location.title) || "Maryland";
+  const baseDescription =
+    cleanText(location.intro) ||
+    cleanText(location.accent) ||
+    cleanText(location.displayAddress) ||
+    cleanText(location.address);
+
+  const h1 = mapped?.h1 || `Primary care Doctor in ${placeName}`;
+  const title = mapped?.title || `Primary Care Doctor in ${placeName} | First Medical Associates`;
+  const description =
+    truncateText(
+      `Visit First Medical Associates for primary care, family medicine, and walk-in clinic support in ${placeName}. ${baseDescription}`,
+      160
+    ) || `Visit First Medical Associates for primary care and walk-in clinic support in ${placeName}.`;
+
+  return { title, h1, description };
+}
+
+export function getProviderSeoContent(provider = {}) {
+  const slug = cleanText(provider.slug);
+  const overrides = PROVIDER_SEO_OVERRIDES[slug] || {};
+  const titleName = overrides.titleName || cleanText(provider.name) || "Provider";
+  const h1 = overrides.h1 || cleanText(provider.name) || "Provider";
+  const description =
+    truncateText(cleanText(provider.bio), 160) ||
+    `${titleName} is a primary care provider at First Medical Associates.`;
+
+  return {
+    title: `${titleName} | Primary Care Doctor at First Medical Associates`,
+    h1,
+    description,
+  };
+}
+
+export function getServiceSeoContent(service = {}) {
+  const slug = cleanText(service.slug);
+  const title = SERVICE_SEO_TITLES_BY_SLUG[slug] || `${cleanText(service.title)} | First Medical Associates`;
+  const h1 = cleanText(service.title) || "Service";
+  const description =
+    truncateText(cleanText(service.description), 160) ||
+    `${h1} care from First Medical Associates in Maryland.`;
+
+  return { title, h1, description };
+}

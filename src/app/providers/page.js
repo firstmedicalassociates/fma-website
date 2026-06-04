@@ -2,15 +2,13 @@ import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import { prisma } from "../lib/prisma";
 import { buildLocationTitleMap, mapProviderForDirectory } from "../lib/providers";
+import { providersIndexMetadata } from "../lib/seo";
 import ProvidersDirectory from "./providers-directory";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Providers",
-  description: "Browse providers by location and language.",
-};
+export const metadata = providersIndexMetadata;
 
 export default async function ProvidersPage() {
   const [providers, locations] = await Promise.all([

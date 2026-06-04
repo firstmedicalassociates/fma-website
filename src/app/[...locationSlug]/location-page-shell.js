@@ -302,7 +302,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
               <div className={styles.locationCopy}>
                 <div className={styles.locationIntro}>
                   <p className={styles.stageLabel}>{location.eyebrow || "Stage 01: Visit Our Hub"}</p>
-                  <h1 className={styles.locationTitle}>{location.title}</h1>
+                  <h1 className={styles.locationTitle}>{location.seoH1 || location.title}</h1>
                   <p className={styles.locationAccent}>
                     {location.accent || location.intro || "Personalized primary care close to home."}
                   </p>
@@ -579,7 +579,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
             <section className={styles.infoPanel}>
               <div className={styles.infoIntroSection}>
                 <div className={styles.infoIntroCopy}>
-                  <h1 className={styles.locationTitle}>{location.title}</h1>
+                  <h1 className={styles.locationTitle}>{location.seoH1 || location.title}</h1>
                   <p className={styles.locationAccent}>
                     {location.accent || location.intro || "Personalized primary care close to home."}
                   </p>
@@ -781,7 +781,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                       <br />
                       {location.title} Team
                     </h2>
-                    <p>We're here to answer your questions and help you schedule care.</p>
+                    <p>We&apos;re here to answer your questions and help you schedule care.</p>
                   </div>
 
                   <div className={styles.infoContactDetails}>

@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { buildStaticMetadata } from "../../lib/seo";
 import { 
   HeartHandshake, 
   ShieldCheck, 
@@ -6,6 +7,13 @@ import {
   Users, 
   Award
 } from 'lucide-react';
+
+export const metadata = buildStaticMetadata({
+  title: "Mission and Vision | First Medical Associates",
+  description:
+    "Read the mission, vision, and core values that guide patient care at First Medical Associates.",
+  pathname: "/about/mission",
+});
 
 export default function MissionPage() {
   return (

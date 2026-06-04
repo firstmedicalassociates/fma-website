@@ -8,6 +8,7 @@ import {
   joinLocationSegments,
 } from "../lib/locations";
 import { prisma } from "../lib/prisma";
+import { getLocationSeoContent } from "../lib/seo";
 import LocationPageShell from "./location-page-shell";
 
 export const runtime = "nodejs";
@@ -85,31 +86,26 @@ export async function generateMetadata({ params }) {
 
   if (!location) return {};
 
-  const description =
-    location.intro ||
-    location.accent ||
-    location.displayAddress ||
-    location.address ||
-    `Visit ${location.title}.`;
+  const seo = getLocationSeoContent(location);
   const imageUrl = resolveImageUrl(location.mapImageUrl);
 
   return {
-    title: `${location.title} | ${SITE_NAME}`,
-    description,
+    title: seo.title,
+    description: seo.description,
     alternates: {
       canonical: absoluteUrl(location.slug),
     },
     openGraph: {
       type: "website",
       url: absoluteUrl(location.slug),
-      title: `${location.title} | ${SITE_NAME}`,
-      description,
+      title: seo.title,
+      description: seo.description,
       images: imageUrl ? [{ url: imageUrl, alt: location.mapImageAlt || location.title }] : undefined,
     },
     twitter: {
       card: imageUrl ? "summary_large_image" : "summary",
-      title: `${location.title} | ${SITE_NAME}`,
-      description,
+      title: seo.title,
+      description: seo.description,
       images: imageUrl ? [{ url: imageUrl, alt: location.mapImageAlt || location.title }] : undefined,
     },
   };
@@ -179,6 +175,7 @@ export default async function LocationLandingPage({ params }) {
       : Array.isArray(location.services)
         ? location.services
         : [];
+  const seo = getLocationSeoContent(location);
   const publicPhone = location.hideOfficePhone
     ? location.callTextPhone || location.directPhone || ""
     : location.phone || location.callTextPhone || location.directPhone || "";
@@ -207,6 +204,7 @@ export default async function LocationLandingPage({ params }) {
       <LocationPageShell
         location={{
           ...location,
+          seoH1: seo.h1,
           mapImageUrl: location.mapImageUrl || "",
           mapImageAlt: location.mapImageAlt || location.title,
           officeHours: Array.isArray(location.officeHours) ? location.officeHours : [],

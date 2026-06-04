@@ -1,15 +1,13 @@
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import { prisma } from "../lib/prisma";
+import { servicesIndexMetadata } from "../lib/seo";
 import ServicesDirectory from "./services-directory";
 
 export const runtime = "nodejs";
 export const revalidate = 60;
 
-export const metadata = {
-  title: "Services",
-  description: "Browse all clinical services offered by First Medical Associates.",
-};
+export const metadata = servicesIndexMetadata;
 
 export default async function ServicesPage() {
   const services = await prisma.service.findMany({

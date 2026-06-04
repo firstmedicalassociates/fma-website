@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unescaped-entities, @next/next/no-img-element */
+import { buildStaticMetadata } from "../lib/seo";
 import { 
   Building2, 
   ArrowRight, 
@@ -10,6 +11,13 @@ import {
   ShieldCheck,
   Lightbulb
 } from 'lucide-react';
+
+export const metadata = buildStaticMetadata({
+  title: "About First Medical Associates | Primary Care Across Maryland",
+  description:
+    "Learn about First Medical Associates, our patient-first approach, and our regional primary care network across Maryland.",
+  pathname: "/about",
+});
 
 export default function AboutPage() {
   const values = [

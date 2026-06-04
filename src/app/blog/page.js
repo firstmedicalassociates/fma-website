@@ -2,14 +2,16 @@ import Link from "next/link";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import { isDatabaseConfigured, prisma } from "../lib/prisma";
+import { buildStaticMetadata } from "../lib/seo";
 import styles from "./blog.module.css";
 
 export const runtime = "nodejs";
 export const revalidate = 60;
-export const metadata = {
-  title: "Blog",
+export const metadata = buildStaticMetadata({
+  title: "Blog | First Medical Associates",
   description: "Articles, updates, and insights from First Medical Associates.",
-};
+  pathname: "/blog",
+});
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",

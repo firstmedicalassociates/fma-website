@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
+import { buildStaticMetadata } from "../../lib/seo";
 import { 
   CreditCard, 
   CheckCircle2, 
@@ -12,6 +13,13 @@ import {
   Activity
 } from 'lucide-react';
 import Link from 'next/link';
+
+export const metadata = buildStaticMetadata({
+  title: "Insurance Accepted | First Medical Associates",
+  description:
+    "Review accepted insurance plans, Medicare, Medicaid, and self-pay information for First Medical Associates.",
+  pathname: "/patient-resources/insurance",
+});
 
 export default function InsurancePage() {
   const nationalProviders = ["Aetna", "Blue Choice", "Blue Cross Blue Shield", "Cigna", "Humana", "United Healthcare (UHC)"];

@@ -1,53 +1,42 @@
+import { getSiteUrl } from "./lib/config/site";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function getSiteUrl() {
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL;
-  const normalized = envUrl ? envUrl.trim().replace(/\/+$/, "") : "";
-  return normalized || "http://localhost:3000";
+function createStaticRoute(siteUrl, pathname, changeFrequency, priority) {
+  return {
+    url: `${siteUrl}${pathname}`,
+    lastModified: new Date(),
+    changeFrequency,
+    priority,
+  };
 }
 
 export default async function sitemap() {
   const siteUrl = getSiteUrl();
   const staticRoutes = [
-    {
-      url: `${siteUrl}/`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: `${siteUrl}/blog`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${siteUrl}/providers`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${siteUrl}/services`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${siteUrl}/service`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${siteUrl}/location`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
+    createStaticRoute(siteUrl, "/", "weekly", 1),
+    createStaticRoute(siteUrl, "/locations", "weekly", 0.9),
+    createStaticRoute(siteUrl, "/providers", "weekly", 0.8),
+    createStaticRoute(siteUrl, "/services", "weekly", 0.8),
+    createStaticRoute(siteUrl, "/blog", "weekly", 0.7),
+    createStaticRoute(siteUrl, "/about", "monthly", 0.6),
+    createStaticRoute(siteUrl, "/about/careers", "monthly", 0.6),
+    createStaticRoute(siteUrl, "/about/leadership", "monthly", 0.5),
+    createStaticRoute(siteUrl, "/about/mission", "monthly", 0.5),
+    createStaticRoute(siteUrl, "/about/partners", "monthly", 0.5),
+    createStaticRoute(siteUrl, "/contact", "monthly", 0.6),
+    createStaticRoute(siteUrl, "/patient-resources", "monthly", 0.7),
+    createStaticRoute(siteUrl, "/patient-resources/education", "monthly", 0.5),
+    createStaticRoute(siteUrl, "/patient-resources/faq", "monthly", 0.5),
+    createStaticRoute(siteUrl, "/patient-resources/insurance", "monthly", 0.7),
+    createStaticRoute(siteUrl, "/patient-resources/patients", "monthly", 0.5),
+    createStaticRoute(siteUrl, "/patient-resources/press", "monthly", 0.5),
+    createStaticRoute(siteUrl, "/privacy-policy", "yearly", 0.3),
+    createStaticRoute(siteUrl, "/hipaa-notice", "yearly", 0.3),
+    createStaticRoute(siteUrl, "/accessibility", "yearly", 0.3),
+    createStaticRoute(siteUrl, "/terms", "yearly", 0.3),
   ];
 
   if (!isDatabaseConfigured) {

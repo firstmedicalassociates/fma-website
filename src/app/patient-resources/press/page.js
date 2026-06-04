@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unescaped-entities, @next/next/no-img-element */
+import { buildStaticMetadata } from "../../lib/seo";
 import { 
   Megaphone, 
   ArrowRight, 
@@ -11,6 +12,13 @@ import {
   Clock,
   Users
 } from 'lucide-react';
+
+export const metadata = buildStaticMetadata({
+  title: "Press Releases | First Medical Associates",
+  description:
+    "Read press releases, corporate updates, clinical news, and community announcements from First Medical Associates.",
+  pathname: "/patient-resources/press",
+});
 
 export default function PressPage() {
   const categories = [
