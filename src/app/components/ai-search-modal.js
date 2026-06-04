@@ -25,6 +25,56 @@ const FOLLOWUP_PILLS = [
   "Where are your offices located?",
 ];
 
+// Matches full URLs, www URLs, US phone numbers, and email addresses in AI-generated text.
+const LINK_PATTERN =
+  /(https?:\/\/[^\s<>"']+[^\s<>"'.,;:)!\][“”]|www\.[a-zA-Z0-9-]+\.[^\s<>"']+[^\s<>"'.,;:)!\][“”]]|\b\d{3}-\d{3}-\d{4}\b|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+
+function renderWithLinks(text) {
+  if (!text) return null;
+  const parts = [];
+  let lastIndex = 0;
+  let key = 0;
+  LINK_PATTERN.lastIndex = 0;
+  let match;
+
+  while ((match = LINK_PATTERN.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+
+    const raw = match[0];
+
+    if (/^\d{3}-\d{3}-\d{4}$/.test(raw)) {
+      parts.push(
+        <a key={key++} className={styles.answerLink} href={`tel:+1${raw.replace(/-/g, "")}`}>
+          {raw}
+        </a>
+      );
+    } else if (raw.includes("@") && !raw.startsWith("http")) {
+      parts.push(
+        <a key={key++} className={styles.answerLink} href={`mailto:${raw}`}>
+          {raw}
+        </a>
+      );
+    } else {
+      const href = raw.startsWith("www.") ? `https://${raw}` : raw;
+      parts.push(
+        <a key={key++} className={styles.answerLink} href={href} target="_blank" rel="noopener noreferrer">
+          {raw}
+        </a>
+      );
+    }
+
+    lastIndex = match.index + raw.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
+}
+
 const DEFAULT_SUMMARY =
   "First Medical Associates can help you find care by provider, service, or location. Based on your search, these are the most useful next steps for finding the right appointment path.";
 
@@ -108,6 +158,8 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
     summary: DEFAULT_SUMMARY,
     cards: MOCK_RESULT_CARDS,
     sources: [],
+    citations: [],
+    disclaimer: false,
   });
 
   const overlayClassName = [
@@ -137,6 +189,8 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
       summary: DEFAULT_SUMMARY,
       cards: MOCK_RESULT_CARDS,
       sources: [],
+      citations: [],
+      disclaimer: false,
     });
     stopLoadingTicker();
   }
@@ -192,8 +246,10 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
       const cards = mapApiCards(data?.results);
       const summary = data?.ai?.answer || DEFAULT_SUMMARY;
       const sources = Array.isArray(data?.ai?.sources) ? data.ai.sources.slice(0, 3) : [];
+      const citations = Array.isArray(data?.ai?.citations) ? data.ai.citations : [];
+      const disclaimer = Boolean(data?.ai?.disclaimer);
 
-      setResultPayload({ summary, cards, sources });
+      setResultPayload({ summary, cards, sources, citations, disclaimer });
       setHelperText("Refine your search or ask a follow-up question.");
       setErrorMessage(response.ok && data?.ok ? "" : "Live AI search is unavailable right now. Showing suggested paths.");
       setState("results");
@@ -404,7 +460,25 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                         AI Summary
                       </div>
                       <h3>Here&apos;s the best place to start.</h3>
-                      <p>{resultPayload.summary}</p>
+                      <p>{renderWithLinks(resultPayload.summary)}</p>
+
+                      {resultPayload.citations.length > 0 ? (
+                        <div className={styles.citationList}>
+                          <span className={styles.citationLabel}>Sources:</span>
+                          {resultPayload.citations.map((c) => (
+                            <span className={styles.citationChip} key={c}>{c}</span>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      {resultPayload.disclaimer ? (
+                        <div className={styles.disclaimerBanner}>
+                          <span className={styles.disclaimerIcon}>⚠</span>
+                          This answer is based on available information and may not be complete. Please call{" "}
+                          <a className={styles.answerLink} href="tel:+13015152901">301-515-2901</a> or email{" "}
+                          <a className={styles.answerLink} href="mailto:info@DrsFirst.com">info@DrsFirst.com</a> to confirm details with our team.
+                        </div>
+                      ) : null}
 
                       <div className={styles.quickActions}>
                         <Link className={`${styles.quickAction} ${styles.quickActionPrimary}`} href={GENERAL_BOOK_APPOINTMENT_URL}>

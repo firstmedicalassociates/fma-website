@@ -23,7 +23,8 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const query = normalizeSearchQuery(body?.query ?? body?.q ?? "");
+    const rawQuery = String(body?.query ?? body?.q ?? "").slice(0, 500);
+    const query = normalizeSearchQuery(rawQuery);
 
     if (query.length < 2) {
       return NextResponse.json(
@@ -31,6 +32,19 @@ export async function POST(request) {
           ok: false,
           error: "Query must be at least 2 characters",
           query,
+          results: [],
+          ai: null,
+        },
+        { status: 400 }
+      );
+    }
+
+    if (query.length > 300) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Query is too long. Please keep your question under 300 characters.",
+          query: query.slice(0, 300),
           results: [],
           ai: null,
         },
@@ -58,6 +72,10 @@ export async function POST(request) {
             answer: aiResult.value?.answer || "",
             sources: Array.isArray(aiResult.value?.sources) ? aiResult.value.sources : [],
             confidence: Number(aiResult.value?.confidence || 0),
+            aiConfidence: aiResult.value?.aiConfidence || "low",
+            grounded: aiResult.value?.grounded === true,
+            citations: Array.isArray(aiResult.value?.citations) ? aiResult.value.citations : [],
+            disclaimer: aiResult.value?.disclaimer === true,
             error: aiResult.value?.error || "",
           }
         : {
@@ -65,6 +83,10 @@ export async function POST(request) {
             answer: "",
             sources: [],
             confidence: 0,
+            aiConfidence: "low",
+            grounded: false,
+            citations: [],
+            disclaimer: true,
             error: aiResult.reason?.message || "AI search failed",
           };
 
