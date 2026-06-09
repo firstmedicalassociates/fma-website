@@ -351,7 +351,7 @@
 
 .heroTitleAccentInline,
 .heroTitleAccentLine {
-  color: #1aa0d6;
+  color: var(--gold);
 }
 
 .heroTitleAccentInline {

@@ -13,7 +13,7 @@
 }
 
 .directory {
-  width: min(1540px, calc(100% - 24px));
+  width: min(1200px, calc(100% - 48px));
   margin: 0 auto;
 }
 
@@ -44,8 +44,8 @@
   min-height: 36px;
   padding: 0 16px;
   border-radius: 999px;
-  background: #003a53;
-  color: #71a5c6;
+  background: #D9BA6C;
+  color: #fff;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.16em;
@@ -56,9 +56,10 @@
 .heroHeader h1 {
   margin: 0;
   color: var(--providers-primary);
-  font-size: clamp(3rem, 8.2vw, 6.8rem);
-  line-height: 0.9;
-  letter-spacing: -0.07em;
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .heroCopy {
@@ -411,7 +412,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -600,7 +601,7 @@
 
 @media (max-width: 1500px) {
   .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
@@ -615,7 +616,7 @@
   }
 
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -625,11 +626,11 @@
   }
 
   .directory {
-    width: min(100%, calc(100% - 16px));
+    width: min(100%, calc(100% - 32px));
   }
 
   .heroHeader h1 {
-    font-size: clamp(2.4rem, 11vw, 4rem);
+    font-size: 2.25rem;
   }
 
   .filterDock {

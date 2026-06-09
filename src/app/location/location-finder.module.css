@@ -131,7 +131,7 @@
 }
 
 .mapSearchLabel {
-  color: #173a88;
+  color: var(--gold-dark);
   font-size: 0.92rem;
   font-weight: 800;
 }
@@ -164,9 +164,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f2d8f 0%, #001d7a 100%);
+  background: var(--gold);
   color: #ffffff;
-  box-shadow: 0 16px 30px rgba(0, 29, 122, 0.24);
+  box-shadow: 0 16px 30px rgba(180, 138, 32, 0.28);
   cursor: pointer;
   transition:
     transform 180ms ease,
@@ -176,14 +176,14 @@
 
 .mapSearchButton:hover {
   transform: translateY(-1px);
-  box-shadow: 0 20px 34px rgba(0, 29, 122, 0.28);
+  box-shadow: 0 20px 34px rgba(180, 138, 32, 0.34);
 }
 
 .mapSearchButton:disabled {
   opacity: 0.58;
   cursor: default;
   transform: none;
-  box-shadow: 0 12px 24px rgba(0, 29, 122, 0.16);
+  box-shadow: 0 12px 24px rgba(180, 138, 32, 0.16);
 }
 
 .mapSearchButton svg {
@@ -479,12 +479,12 @@
   min-height: 42px;
   padding: 8px 14px 8px 10px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(230, 238, 252, 0.96), rgba(244, 247, 253, 0.94));
-  border: 1px solid rgba(23, 58, 136, 0.12);
+  background: linear-gradient(180deg, rgba(217, 186, 108, 0.18), rgba(217, 186, 108, 0.08));
+  border: 1px solid rgba(217, 186, 108, 0.35);
   box-shadow:
-    0 14px 30px rgba(15, 35, 88, 0.08),
+    0 14px 30px rgba(180, 140, 40, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.96);
-  color: #173a88;
+  color: #8a6a10;
 }
 
 .resultsTagIcon {
@@ -495,9 +495,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: linear-gradient(135deg, #0f2d8f 0%, #173a88 100%);
+  background: #D9BA6C;
   color: #ffffff;
-  box-shadow: 0 10px 18px rgba(15, 35, 88, 0.16);
+  box-shadow: 0 10px 18px rgba(180, 140, 40, 0.22);
 }
 
 .resultsTagIcon svg {

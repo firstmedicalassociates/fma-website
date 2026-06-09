@@ -1,6 +1,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Brand gold */
+  --gold: #D9BA6C;
+  --gold-dark: #8a6a10;
+  --gold-soft: rgba(217, 186, 108, 0.15);
+  --gold-border: rgba(217, 186, 108, 0.35);
 }
 
 @media (prefers-color-scheme: dark) {

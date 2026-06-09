@@ -480,47 +480,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                         </div>
                       ) : null}
 
-                      <div className={styles.quickActions}>
-                        <Link className={`${styles.quickAction} ${styles.quickActionPrimary}`} href={GENERAL_BOOK_APPOINTMENT_URL}>
-                          Schedule Appointment
-                        </Link>
-                        <Link className={styles.quickAction} href="/providers">
-                          Find a Doctor
-                        </Link>
-                        <Link className={styles.quickAction} href="/locations">
-                          View Locations
-                        </Link>
-                      </div>
-
-                      {resultPayload.sources.length > 0 ? (
-                        <div className={styles.sourceList}>
-                          {resultPayload.sources.map((source) => (
-                            <Link
-                              className={styles.sourcePill}
-                              href={source.url || "/search"}
-                              key={`${source.type || "source"}-${source.url || source.title}`}
-                              onClick={closeModal}
-                            >
-                              <span>{source.type || "Source"}</span>
-                              <strong>{source.title || "Website Page"}</strong>
-                            </Link>
-                          ))}
-                        </div>
-                      ) : null}
                     </article>
-
-                    <div className={styles.resultsGrid}>
-                      {resultPayload.cards.map((card) => (
-                        <article className={styles.resultCard} key={`${card.title}-${card.href}`}>
-                          <small>{card.categoryLabel}</small>
-                          <h4>{card.title}</h4>
-                          <p>{card.description}</p>
-                          <Link className={styles.cardLink} href={card.href} onClick={closeModal}>
-                            {card.actionLabel} -&gt;
-                          </Link>
-                        </article>
-                      ))}
-                    </div>
 
                     <div className={styles.followupSection}>
                       <p>Ask a follow-up</p>

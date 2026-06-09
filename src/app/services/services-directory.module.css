@@ -15,7 +15,7 @@
 .toolbarSection,
 .gridSection,
 .ctaSection {
-  width: min(1460px, calc(100% - 32px));
+  width: min(1200px, calc(100% - 48px));
   margin: 0 auto;
 }
 
@@ -43,8 +43,8 @@
   min-height: 36px;
   padding: 0 16px;
   border-radius: 999px;
-  background: #003a53;
-  color: #71a5c6;
+  background: #D9BA6C;
+  color: #fff;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.16em;
@@ -54,9 +54,10 @@
 .heroLeft h1 {
   margin: 0;
   color: var(--services-primary);
-  font-size: clamp(3rem, 8.5vw, 7rem);
-  line-height: 0.9;
-  letter-spacing: -0.07em;
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .heroRight p {
@@ -493,7 +494,7 @@
   .toolbarSection,
   .gridSection,
   .ctaSection {
-    width: min(100%, calc(100% - 18px));
+    width: min(100%, calc(100% - 32px));
   }
 
   .toolbarSection {
