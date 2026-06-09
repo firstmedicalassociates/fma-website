@@ -1,7 +1,7 @@
 import PublicInfoPage from "../components/public-info-page";
 
 export const metadata = {
-  title: "HIPAA Notice | Primary Care Doctor at First Medical Associates",
+  title: "HIPAA Notice | First Medical Associates",
   description:
     "Access the First Medical Associates HIPAA notice contact page for questions about patient privacy rights and protected health information.",
 };

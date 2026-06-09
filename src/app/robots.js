@@ -1,8 +1,4 @@
-function getSiteUrl() {
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL;
-  const normalized = envUrl ? envUrl.trim().replace(/\/+$/, "") : "";
-  return normalized || "http://localhost:3000";
-}
+import { getSiteUrl } from "./lib/config/site";
 
 export default function robots() {
   const siteUrl = getSiteUrl();
@@ -12,7 +8,7 @@ export default function robots() {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/api"],
+        disallow: ["/admin", "/api", "/search"],
       },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,

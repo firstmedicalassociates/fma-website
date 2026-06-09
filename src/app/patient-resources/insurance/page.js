@@ -15,9 +15,9 @@ import {
 import Link from 'next/link';
 
 export const metadata = buildStaticMetadata({
-  title: "Insurance Accepted | First Medical Associates",
+  title: "Accepted Insurance Plans in Maryland | First Medical Associates",
   description:
-    "Review accepted insurance plans, Medicare, Medicaid, and self-pay information for First Medical Associates.",
+    "Review accepted insurance plans, Medicare, Medicaid, and self-pay information for First Medical Associates locations in Maryland.",
   pathname: "/patient-resources/insurance",
 });
 

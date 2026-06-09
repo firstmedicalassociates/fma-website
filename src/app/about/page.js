@@ -13,9 +13,9 @@ import {
 } from 'lucide-react';
 
 export const metadata = buildStaticMetadata({
-  title: "About First Medical Associates | Primary Care Across Maryland",
+  title: "About First Medical Associates | Primary Care Team in Maryland",
   description:
-    "Learn about First Medical Associates, our patient-first approach, and our regional primary care network across Maryland.",
+    "Learn about First Medical Associates, our mission, leadership, and patient-first approach to primary care and coordinated healthcare in Maryland.",
   pathname: "/about",
 });
 

@@ -1,0 +1,329 @@
+{
+  "date": "2026-06-08",
+  "comparisons": [
+    {
+      "path": "/",
+      "live": {
+        "url": "https://drsfirst.com/",
+        "final_url": "https://drsfirst.com/",
+        "status": 200,
+        "redirects": [],
+        "title": "Primary Care & Urgent Care Services | First Medical Associates",
+        "meta_description": "First Medical Associates offers expert primary, family, and walk-in care in Maryland. Trusted doctors, quality service, and same-day appointments.",
+        "canonical": "https://drsfirst.com/",
+        "h1": "Trusted primary care with locations across Maryland"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/",
+        "final_url": "http://127.0.0.1:3027/",
+        "status": 200,
+        "redirects": [],
+        "title": "Primary Care & Urgent Care Services in Maryland | First Medical Associates",
+        "meta_description": "Primary care, urgent care, chronic care, and telehealth services across Maryland. Find doctors, locations, and same-day care at First Medical Associates.",
+        "canonical": "",
+        "h1": "Receive the  Care  and Treatment You Deserve"
+      }
+    },
+    {
+      "path": "/services",
+      "live": {
+        "url": "https://drsfirst.com/services",
+        "final_url": "https://drsfirst.com/services",
+        "status": 404,
+        "redirects": [],
+        "title": "Page not found | First Medical Associates",
+        "meta_description": "",
+        "canonical": "",
+        "h1": "No Results Found"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/services",
+        "final_url": "http://127.0.0.1:3027/services",
+        "status": 200,
+        "redirects": [],
+        "title": "Primary Care, Urgent Care & Telehealth Services in Maryland | First Medical Associates",
+        "meta_description": "Explore primary care, urgent care, chronic care, telehealth, and walk-in medical services from First Medical Associates across Maryland.",
+        "canonical": "https://drsfirst.com/services",
+        "h1": "Healthcare Services in Maryland."
+      }
+    },
+    {
+      "path": "/locations",
+      "live": {
+        "url": "https://drsfirst.com/locations",
+        "final_url": "https://drsfirst.com/locations",
+        "status": 404,
+        "redirects": [],
+        "title": "Page not found | First Medical Associates",
+        "meta_description": "",
+        "canonical": "",
+        "h1": "No Results Found"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/locations",
+        "final_url": "http://127.0.0.1:3027/locations",
+        "status": 200,
+        "redirects": [],
+        "title": "Primary Care & Walk-In Clinic Locations in Maryland | First Medical Associates",
+        "meta_description": "Find First Medical Associates primary care and walk-in clinic locations across Maryland, with office details, directions, and appointment access.",
+        "canonical": "https://drsfirst.com/locations",
+        "h1": ""
+      }
+    },
+    {
+      "path": "/providers",
+      "live": {
+        "url": "https://drsfirst.com/providers",
+        "final_url": "https://drsfirst.com/providers/",
+        "status": 200,
+        "redirects": [],
+        "title": "Providers | Primary Care Doctor at First Medical Associates",
+        "meta_description": "Providers - Trusted Primary & Family Healthcare at First Medical Associates. We provide top-notch care with experienced doctors. Visit us today for exceptional healthcare services.",
+        "canonical": "https://drsfirst.com/providers/",
+        "h1": ""
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/providers",
+        "final_url": "http://127.0.0.1:3027/providers",
+        "status": 200,
+        "redirects": [],
+        "title": "Find Doctors & Primary Care Providers in Maryland | First Medical Associates",
+        "meta_description": "Browse primary care doctors, family medicine providers, and clinicians across Maryland locations at First Medical Associates.",
+        "canonical": "https://drsfirst.com/providers",
+        "h1": "Find a Doctor"
+      }
+    },
+    {
+      "path": "/about",
+      "live": {
+        "url": "https://drsfirst.com/about",
+        "final_url": "https://drsfirst.com/about-us/",
+        "status": 200,
+        "redirects": [],
+        "title": "About First Medical Associates | Expert Walk-In Primary Care & Healthcare Professionals",
+        "meta_description": "At First Medical Associates, we provide high-quality walk-in primary care with a team of healthcare professionals who prioritize your health and comfort. Contact us today to receive treatment.",
+        "canonical": "https://drsfirst.com/about-us/",
+        "h1": "About Our Practice"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/about",
+        "final_url": "http://127.0.0.1:3027/about",
+        "status": 200,
+        "redirects": [],
+        "title": "About First Medical Associates | Primary Care Team in Maryland",
+        "meta_description": "Learn about First Medical Associates, our mission, leadership, and patient-first approach to primary care and coordinated healthcare in Maryland.",
+        "canonical": "https://drsfirst.com/about",
+        "h1": "The Clinical Curator of Modern Healthcare."
+      }
+    },
+    {
+      "path": "/contact",
+      "live": {
+        "url": "https://drsfirst.com/contact",
+        "final_url": "https://drsfirst.com/contact-us/",
+        "status": 200,
+        "redirects": [],
+        "title": "Contact Us at First Medical Associates | Expert Walk-In Primary Care Services",
+        "meta_description": "Contact First Medical Associates for expert walk-in primary care services in Maryland. Our team is here to provide prompt, reliable care for all your healthcare needs. Get in touch today!",
+        "canonical": "https://drsfirst.com/contact-us/",
+        "h1": "Contact Us"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/contact",
+        "final_url": "http://127.0.0.1:3027/contact",
+        "status": 200,
+        "redirects": [],
+        "title": "Contact First Medical Associates in Maryland",
+        "meta_description": "Contact First Medical Associates for appointments, patient support, office questions, and care-related inquiries across Maryland locations.",
+        "canonical": "https://drsfirst.com/contact",
+        "h1": "Let's Get You Connected to Care"
+      }
+    },
+    {
+      "path": "/patient-resources/insurance",
+      "live": {
+        "url": "https://drsfirst.com/patient-resources/insurance",
+        "final_url": "https://drsfirst.com/wp-content/uploads/2023/04/Insurance.png",
+        "status": 200,
+        "redirects": [],
+        "title": "",
+        "meta_description": "",
+        "canonical": "",
+        "h1": ""
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/patient-resources/insurance",
+        "final_url": "http://127.0.0.1:3027/patient-resources/insurance",
+        "status": 200,
+        "redirects": [],
+        "title": "Accepted Insurance Plans in Maryland | First Medical Associates",
+        "meta_description": "Review accepted insurance plans, Medicare, Medicaid, and self-pay information for First Medical Associates locations in Maryland.",
+        "canonical": "https://drsfirst.com/patient-resources/insurance",
+        "h1": "Accepted Insurance Plans"
+      }
+    },
+    {
+      "path": "/location/rockville",
+      "live": {
+        "url": "https://drsfirst.com/location/rockville",
+        "final_url": "https://drsfirst.com/location/rockville/",
+        "status": 200,
+        "redirects": [],
+        "title": "Primary Care Doctor in Rockville, MD | First Medical Associates",
+        "meta_description": "Looking for a primary care doctor in Rockville, MD? First Medical Associates offers comprehensive healthcare services with experienced family doctors and a convenient walk-in clinic. Visit us today for quality care and convenience.",
+        "canonical": "https://drsfirst.com/location/rockville/",
+        "h1": "Primary care Doctor in Rockville, MD"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/location/rockville",
+        "final_url": "http://127.0.0.1:3027/location/rockville",
+        "status": 200,
+        "redirects": [],
+        "title": "Primary Care Doctor in Rockville, MD | First Medical Associates",
+        "meta_description": "Visit First Medical Associates for primary care, family medicine, and walk-in clinic support in Rockville, MD. Visit our Rockville, MD location for primary c...",
+        "canonical": "https://drsfirst.com/location/rockville",
+        "h1": "Primary care Doctor in Rockville, MD"
+      }
+    },
+    {
+      "path": "/service/primary-care",
+      "live": {
+        "url": "https://drsfirst.com/service/primary-care",
+        "final_url": "https://drsfirst.com/service/primary-care/",
+        "status": 200,
+        "redirects": [],
+        "title": "Primary Care Doctor at First Medical Associates in Maryland | Trusted Healthcare",
+        "meta_description": "Find a trusted primary care doctor at First Medical Associates in Maryland. Our experienced healthcare professionals provide personalized care to keep you healthy and thriving.",
+        "canonical": "https://drsfirst.com/service/primary-care/",
+        "h1": "Primary"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/service/primary-care",
+        "final_url": "http://127.0.0.1:3027/service/primary-care",
+        "status": 200,
+        "redirects": [],
+        "title": "Primary Care Doctor at First Medical Associates in Maryland | Trusted Healthcare",
+        "meta_description": "Ongoing primary care for routine wellness, preventive services, and common acute or chronic conditions.",
+        "canonical": "https://drsfirst.com/service/primary-care",
+        "h1": "Primary Care"
+      }
+    },
+    {
+      "path": "/providers/quoc-anh-nguyen",
+      "live": {
+        "url": "https://drsfirst.com/providers/quoc-anh-nguyen",
+        "final_url": "https://drsfirst.com/providers/quoc-anh-nguyen/",
+        "status": 200,
+        "redirects": [],
+        "title": "Quoc Anh Nguyen | Primary Care Doctor at First Medical Associates",
+        "meta_description": "Quoc Anh Nguyen - Trusted Primary & Family Healthcare at First Medical Associates. We provide top-notch care with experienced doctors. Visit us today for exceptional healthcare services.",
+        "canonical": "https://drsfirst.com/providers/quoc-anh-nguyen/",
+        "h1": "Dr. Quinton Nguyen"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/providers/quoc-anh-nguyen",
+        "final_url": "http://127.0.0.1:3027/providers/quoc-anh-nguyen",
+        "status": 200,
+        "redirects": [],
+        "title": "Quoc Anh Nguyen | Primary Care Doctor at First Medical Associates",
+        "meta_description": "Quoc Anh \"Quinton\" Nguyen is a M.D. at First Medical Associates. Sees patients at Germantown. Languages: English and Vietnamese.",
+        "canonical": "https://drsfirst.com/providers/quoc-anh-nguyen",
+        "h1": "Quoc Anh \"Quinton\" Nguyen"
+      }
+    }
+  ],
+  "redirect_checks": [
+    {
+      "path": "/about-us",
+      "live": {
+        "url": "https://drsfirst.com/about-us",
+        "final_url": "https://drsfirst.com/about-us/",
+        "status": 200,
+        "redirects": [],
+        "title": "About First Medical Associates | Expert Walk-In Primary Care & Healthcare Professionals",
+        "meta_description": "At First Medical Associates, we provide high-quality walk-in primary care with a team of healthcare professionals who prioritize your health and comfort. Contact us today to receive treatment.",
+        "canonical": "https://drsfirst.com/about-us/",
+        "h1": "About Our Practice"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/about-us",
+        "final_url": "http://127.0.0.1:3027/about",
+        "status": 200,
+        "redirects": [],
+        "title": "About First Medical Associates | Primary Care Team in Maryland",
+        "meta_description": "Learn about First Medical Associates, our mission, leadership, and patient-first approach to primary care and coordinated healthcare in Maryland.",
+        "canonical": "https://drsfirst.com/about",
+        "h1": "The Clinical Curator of Modern Healthcare."
+      }
+    },
+    {
+      "path": "/contact-us",
+      "live": {
+        "url": "https://drsfirst.com/contact-us",
+        "final_url": "https://drsfirst.com/contact-us/",
+        "status": 200,
+        "redirects": [],
+        "title": "Contact Us at First Medical Associates | Expert Walk-In Primary Care Services",
+        "meta_description": "Contact First Medical Associates for expert walk-in primary care services in Maryland. Our team is here to provide prompt, reliable care for all your healthcare needs. Get in touch today!",
+        "canonical": "https://drsfirst.com/contact-us/",
+        "h1": "Contact Us"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/contact-us",
+        "final_url": "http://127.0.0.1:3027/contact",
+        "status": 200,
+        "redirects": [],
+        "title": "Contact First Medical Associates in Maryland",
+        "meta_description": "Contact First Medical Associates for appointments, patient support, office questions, and care-related inquiries across Maryland locations.",
+        "canonical": "https://drsfirst.com/contact",
+        "h1": "Let's Get You Connected to Care"
+      }
+    },
+    {
+      "path": "/service/adhd",
+      "live": {
+        "url": "https://drsfirst.com/service/adhd",
+        "final_url": "https://drsfirst.com/service/adhd/",
+        "status": 200,
+        "redirects": [],
+        "title": "ADHD | Primary Care Doctor at First Medical Associates",
+        "meta_description": "ADHD - Trusted Primary & Family Healthcare at First Medical Associates. We provide top-notch care with experienced doctors. Visit us today for exceptional healthcare services.",
+        "canonical": "https://drsfirst.com/service/adhd/",
+        "h1": "attention deficit hyperactivity disorder"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/service/adhd",
+        "final_url": "http://127.0.0.1:3027/service/primary-care",
+        "status": 200,
+        "redirects": [],
+        "title": "Primary Care Doctor at First Medical Associates in Maryland | Trusted Healthcare",
+        "meta_description": "Ongoing primary care for routine wellness, preventive services, and common acute or chronic conditions.",
+        "canonical": "https://drsfirst.com/service/primary-care",
+        "h1": "Primary Care"
+      }
+    },
+    {
+      "path": "/providers/angelique-ramirez",
+      "live": {
+        "url": "https://drsfirst.com/providers/angelique-ramirez",
+        "final_url": "https://drsfirst.com/providers/angelique-ramirez/",
+        "status": 200,
+        "redirects": [],
+        "title": "Angelique Ramirez | Primary Care Doctor at First Medical Associates",
+        "meta_description": "Angelique Ramirez - Trusted Primary & Family Healthcare at First Medical Associates. We provide top-notch care with experienced doctors. Visit us today for exceptional healthcare services.",
+        "canonical": "https://drsfirst.com/providers/angelique-ramirez/",
+        "h1": "Angelique Ramirez"
+      },
+      "local": {
+        "url": "http://127.0.0.1:3027/providers/angelique-ramirez",
+        "final_url": "http://127.0.0.1:3027/providers",
+        "status": 200,
+        "redirects": [],
+        "title": "Find Doctors & Primary Care Providers in Maryland | First Medical Associates",
+        "meta_description": "Browse primary care doctors, family medicine providers, and clinicians across Maryland locations at First Medical Associates.",
+        "canonical": "https://drsfirst.com/providers",
+        "h1": "Find a Doctor"
+      }
+    }
+  ]
+}

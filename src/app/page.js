@@ -31,8 +31,9 @@ export const runtime = "nodejs";
 export const revalidate = 60;
 
 export const metadata = {
+  title: "Primary Care & Urgent Care Services in Maryland | First Medical Associates",
   description:
-    "A modern First Medical Associates home page with provider access, location navigation, and patient-first primary care messaging.",
+    "Primary care, urgent care, chronic care, and telehealth services across Maryland. Find doctors, locations, and same-day care at First Medical Associates.",
 };
 
 const FALLBACK_LOCATION = {

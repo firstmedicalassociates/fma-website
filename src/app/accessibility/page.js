@@ -1,7 +1,7 @@
 import PublicInfoPage from "../components/public-info-page";
 
 export const metadata = {
-  title: "Accessibility Notice | Primary Care Doctor at First Medical Associates",
+  title: "Accessibility Notice | First Medical Associates",
   description:
     "Read the First Medical Associates accessibility notice and learn how to request assistance with website access or care-related accommodations.",
 };

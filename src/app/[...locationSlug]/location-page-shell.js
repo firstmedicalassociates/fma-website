@@ -167,6 +167,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
       })
       .filter(Boolean);
   }, [location.infoSections]);
+  const locationSeoPlaceLabel = location.seoPlaceLabel || location.title;
   const infoTemplateContent = useMemo(() => {
     const getSection = (matchers = []) => {
       return infoSections.find((section) => {
@@ -189,19 +190,19 @@ export default function LocationPageShell({ location, providers, serviceGroups }
 
     return {
       walkIn: {
-        title: walkIn?.title || `Walk-in Clinic in ${location.title}`,
+        title: walkIn?.title || `Walk-in Clinic in ${locationSeoPlaceLabel}`,
         description:
           walkIn?.paragraphs?.join(" ") ||
           "Our walk-in clinic delivers immediate care for urgent health needs with no appointment necessary.",
       },
       family: {
-        title: family?.title || `Family Doctor in ${location.title}`,
+        title: family?.title || `Family Doctor in ${locationSeoPlaceLabel}`,
         description:
           family?.paragraphs?.join(" ") ||
           "We provide dependable, family-centered care for all ages, from children to older adults.",
       },
       doctors: {
-        title: doctors?.title || `Doctors in ${location.title}`,
+        title: doctors?.title || `Doctors in ${locationSeoPlaceLabel}`,
         description:
           doctors?.paragraphs?.join(" ") ||
           "Our physicians focus on whole-person care with preventive services and modern clinical support.",
@@ -215,7 +216,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
         description: geriatricDescription,
       },
     };
-  }, [infoSections, location.title]);
+  }, [infoSections, location.title, locationSeoPlaceLabel]);
   const filteredServices = useMemo(() => {
     const query = serviceQuery.trim().toLowerCase();
     return serviceEntries.filter((service) => {

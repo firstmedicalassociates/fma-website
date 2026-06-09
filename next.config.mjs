@@ -2,8 +2,6 @@
 const nextConfig = {
   async redirects() {
     return [
-      { source: "/location", destination: "/locations", permanent: true },
-      { source: "/service", destination: "/services", permanent: true },
       { source: "/about-us", destination: "/about", permanent: true },
       { source: "/contact-us", destination: "/contact", permanent: true },
       { source: "/jobs", destination: "/about/careers", permanent: true },
@@ -26,12 +24,18 @@ const nextConfig = {
       { source: "/liu-manchang-2", destination: "/providers/liu-manchang-2", permanent: true },
       { source: "/monica-braland", destination: "/providers/monica-braland", permanent: true },
       { source: "/providers/anita-kunwar-md", destination: "/providers/anita-kunwar", permanent: true },
+      { source: "/providers/angelique-ramirez", destination: "/providers", permanent: true },
+      { source: "/providers/ashley-myatt", destination: "/providers", permanent: true },
+      { source: "/providers/eleanor-dzozomenyo-fnp", destination: "/providers", permanent: true },
+      { source: "/providers/kimaya-vaidya", destination: "/providers", permanent: true },
+      { source: "/providers/ronald-attanasio", destination: "/providers", permanent: true },
+      { source: "/providers/yvonne-tukei", destination: "/providers", permanent: true },
+      { source: "/service/adhd", destination: "/service/primary-care", permanent: true },
+      { source: "/service/anxiety", destination: "/service/depression", permanent: true },
+      { source: "/service/arthritis", destination: "/service/primary-care", permanent: true },
       { source: "/service/eczema", destination: "/service/skin-rash-and-eczema", permanent: true },
+      { source: "/service/migraines", destination: "/service/primary-care", permanent: true },
       { source: "/service/walk-in-services", destination: "/service/urgent-needs", permanent: true },
-      { source: "/service/adhd", destination: "/services", permanent: true },
-      { source: "/service/anxiety", destination: "/services", permanent: true },
-      { source: "/service/arthritis", destination: "/services", permanent: true },
-      { source: "/service/migraines", destination: "/services", permanent: true },
       { source: "/location/joppa", destination: "/locations", permanent: true },
       { source: "/location/columbia-oldie-oldie", destination: "/location/columbia", permanent: true },
     ];

@@ -11,6 +11,18 @@ function truncateText(value = "", maxLength = 160) {
   return `${normalized.slice(0, maxLength - 3)}...`;
 }
 
+function formatLocationSeoPlace(location = {}) {
+  const city = cleanText(location.addressCity);
+  const state = cleanText(location.addressState);
+  const title = cleanText(location.title) || "Maryland";
+
+  if (city && state) {
+    return `${city}, ${state}`;
+  }
+
+  return title;
+}
+
 const LOCATION_SEO_BY_SLUG = {
   "/location/annapolis": {
     title: "Walk-In Healthcare at First Medical Associates in Annapolis | Convenient Care",
@@ -156,30 +168,30 @@ export function buildStaticMetadata({ title, description, pathname, image } = {}
 }
 
 export const providersIndexMetadata = buildStaticMetadata({
-  title: "Providers | Primary Care Doctor at First Medical Associates",
+  title: "Find Doctors & Primary Care Providers in Maryland | First Medical Associates",
   description:
-    "Meet primary care doctors and family healthcare providers at First Medical Associates across Maryland.",
+    "Browse primary care doctors, family medicine providers, and clinicians across Maryland locations at First Medical Associates.",
   pathname: "/providers",
 });
 
 export const servicesIndexMetadata = buildStaticMetadata({
-  title: "Services | Primary Care Doctor at First Medical Associates",
+  title: "Primary Care, Urgent Care & Telehealth Services in Maryland | First Medical Associates",
   description:
-    "Explore primary care, chronic care, telemedicine, and walk-in medical services from First Medical Associates in Maryland.",
+    "Explore primary care, urgent care, chronic care, telehealth, and walk-in medical services from First Medical Associates across Maryland.",
   pathname: "/services",
 });
 
 export const locationsIndexMetadata = buildStaticMetadata({
-  title: "First Medical Associates | Comprehensive Medical Centers Across Maryland",
+  title: "Primary Care & Walk-In Clinic Locations in Maryland | First Medical Associates",
   description:
-    "Explore First Medical Associates' multiple locations throughout Maryland. Prioritizing your health, we offer a wide range of services and accept various insurances.",
+    "Find First Medical Associates primary care and walk-in clinic locations across Maryland, with office details, directions, and appointment access.",
   pathname: "/locations",
 });
 
 export function getLocationSeoContent(location = {}) {
   const slug = cleanText(location.slug).replace(/\/+$/, "");
   const mapped = LOCATION_SEO_BY_SLUG[slug];
-  const placeName = cleanText(location.title) || "Maryland";
+  const placeName = formatLocationSeoPlace(location);
   const baseDescription =
     cleanText(location.intro) ||
     cleanText(location.accent) ||
@@ -194,7 +206,7 @@ export function getLocationSeoContent(location = {}) {
       160
     ) || `Visit First Medical Associates for primary care and walk-in clinic support in ${placeName}.`;
 
-  return { title, h1, description };
+  return { title, h1, description, placeLabel: placeName };
 }
 
 export function getProviderSeoContent(provider = {}) {
@@ -215,8 +227,10 @@ export function getProviderSeoContent(provider = {}) {
 
 export function getServiceSeoContent(service = {}) {
   const slug = cleanText(service.slug);
-  const title = SERVICE_SEO_TITLES_BY_SLUG[slug] || `${cleanText(service.title)} | First Medical Associates`;
   const h1 = cleanText(service.title) || "Service";
+  const title =
+    SERVICE_SEO_TITLES_BY_SLUG[slug] ||
+    `${h1} Treatment in Maryland | First Medical Associates`;
   const description =
     truncateText(cleanText(service.description), 160) ||
     `${h1} care from First Medical Associates in Maryland.`;

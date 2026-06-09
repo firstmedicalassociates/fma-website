@@ -191,6 +191,7 @@ export async function generateMetadata({ params }) {
   const provider = await prisma.provider.findUnique({
     where: { slug },
     select: {
+      slug: true,
       name: true,
       title: true,
       bio: true,

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
 import { isDatabaseConfigured, prisma } from "../../lib/prisma";
+import { getSiteUrl } from "../../lib/config/site";
 import styles from "../blog.module.css";
 
 export const runtime = "nodejs";
@@ -98,12 +99,6 @@ export async function generateMetadata({ params }) {
       images: ogImageUrl ? [{ url: ogImageUrl, alt: ogImageAlt }] : undefined,
     },
   };
-}
-
-function getSiteUrl() {
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL;
-  const normalized = envUrl ? envUrl.trim().replace(/\/+$/, "") : "";
-  return normalized || "http://localhost:3000";
 }
 
 function extractPostBody(contentHtml = "") {

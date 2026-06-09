@@ -18,6 +18,7 @@ export async function generateMetadata({ params }) {
       isActive: true,
     },
     select: {
+      slug: true,
       title: true,
       description: true,
     },

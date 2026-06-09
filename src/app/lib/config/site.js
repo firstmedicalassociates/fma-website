@@ -1,4 +1,5 @@
 export const SITE_NAME = "First Medical Associates";
+export const DEFAULT_SITE_URL = "https://drsfirst.com";
 export const PATIENT_PORTAL_URL =
   process.env.NEXT_PUBLIC_PATIENT_PORTAL_URL?.trim() || "https://4332.portal.athenahealth.com/";
 export const SITE_CALL_HREF = process.env.NEXT_PUBLIC_SITE_CALL_HREF?.trim() || "";
@@ -12,7 +13,7 @@ export const GOOGLE_MAPS_MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID?.tr
 export function getSiteUrl() {
   const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL;
   const normalized = envUrl ? envUrl.trim().replace(/\/+$/, "") : "";
-  return normalized || "http://localhost:3000";
+  return normalized || DEFAULT_SITE_URL;
 }
 
 export function absoluteUrl(pathname = "/") {

@@ -205,6 +205,7 @@ export default async function LocationLandingPage({ params }) {
         location={{
           ...location,
           seoH1: seo.h1,
+          seoPlaceLabel: seo.placeLabel,
           mapImageUrl: location.mapImageUrl || "",
           mapImageAlt: location.mapImageAlt || location.title,
           officeHours: Array.isArray(location.officeHours) ? location.officeHours : [],

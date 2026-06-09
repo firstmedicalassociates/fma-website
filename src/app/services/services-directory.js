@@ -93,17 +93,17 @@ export default function ServicesDirectory({ services = [] }) {
       <section className={styles.heroSection}>
         <div className={styles.heroSplit}>
           <div className={styles.heroLeft}>
-            <span className={styles.kicker}>Interactive Portal</span>
+            <span className={styles.kicker}>Primary Care, Urgent Care &amp; Telehealth</span>
             <h1>
-              Service Finder
+              Healthcare Services
               <br />
-              Dashboard.
+              in Maryland.
             </h1>
           </div>
           <div className={styles.heroRight}>
             <p>
-              Seamlessly navigate our clinical offerings. Use the dashboard below to search,
-              filter, and discover the exact care you need.
+              Browse primary care, urgent care, telehealth, and chronic care services. Search,
+              filter, and find the right treatment options from First Medical Associates.
             </p>
             <div className={styles.heroLines} aria-hidden="true">
               <span />

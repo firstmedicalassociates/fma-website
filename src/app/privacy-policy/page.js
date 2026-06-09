@@ -1,7 +1,7 @@
 import PublicInfoPage from "../components/public-info-page";
 
 export const metadata = {
-  title: "Privacy Policy | Primary Care Doctor at First Medical Associates",
+  title: "Privacy Policy | First Medical Associates",
   description:
     "Learn how First Medical Associates handles website privacy questions, patient communications, and requests for more information.",
 };

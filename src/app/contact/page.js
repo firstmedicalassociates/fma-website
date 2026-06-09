@@ -6,8 +6,8 @@ import ContactPageShell from "./contact-page-shell";
 export const runtime = "nodejs";
 
 export const metadata = buildStaticMetadata({
-  title: "Contact | First Medical Associates",
-  description: "Contact First Medical Associates for appointments, questions, and patient support.",
+  title: "Contact First Medical Associates in Maryland",
+  description: "Contact First Medical Associates for appointments, patient support, office questions, and care-related inquiries across Maryland locations.",
   pathname: "/contact",
 });
 

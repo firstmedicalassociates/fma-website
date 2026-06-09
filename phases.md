@@ -1,241 +1,256 @@
 # SEO Remediation Phases
 
-This file breaks the SEO work into execution phases based on the findings in `audit.md`.
+Target production domain: `https://drsfirst.com`
 
-The order matters.
+This plan converts the audit into an execution sequence.
 
-Do not start with design or copy polish.
-Start with URL structure, indexation control, metadata parity, and redirects.
+The order matters:
+- fix host, canonicals, and URL rules first
+- preserve ranking URLs second
+- improve metadata and on-page SEO third
+- do launch QA last
+
+Reference audit:
+- `seo-audit-2026-06-08.md`
 
 ---
 
-## Phase 1: Lock URL Structure and Canonicals
+## Phase 1: Lock Production Host and Canonicals
+
+Status:
+- completed on `2026-06-08`
 
 Goal:
-
-- prevent authority splitting
-- prevent bad canonicals
-- make sure the replacement site has one clear public URL per SEO section
+- make every canonical SEO signal resolve to `https://drsfirst.com`
 
 Tasks:
-
-- Canonical decisions confirmed so far:
-  - locations hub stays `/locations/` in the new build
-  - `/location/` should redirect to `/locations/`
-  - services hub stays `/services/` in the new build
-  - `/service/` should redirect to `/services/`
-- Pending canonical decisions:
-  - `/about-us/` replacement
-  - `/contact-us/` replacement
-  - `/jobs/` replacement
-  - `/resources/` replacement
-  - `/insurances/` replacement
-- Ensure only one crawlable version exists for each hub page.
-- Add canonical tags consistent with the final chosen public URLs.
-- Set production `SITE_URL` / `NEXT_PUBLIC_SITE_URL` so canonicals and OG URLs do not fall back to `localhost`.
-- Add missing legal routes or temporarily remove links to broken legal pages.
+- Set `SITE_URL` / `NEXT_PUBLIC_SITE_URL` to `https://drsfirst.com`
+- Verify `metadataBase` resolves to `https://drsfirst.com`
+- Verify all canonicals stop falling back to `http://localhost:3000`
+- Verify `robots.txt` outputs:
+  - `Host: https://drsfirst.com`
+  - `Sitemap: https://drsfirst.com/sitemap.xml`
+- Verify `sitemap.xml` uses production URLs only
+- Confirm Open Graph and Twitter URLs use `https://drsfirst.com`
 
 Definition of done:
-
-- one canonical hub URL per section
-- no duplicate crawlable section URLs
-- canonical tags resolve to production domain
-- no broken footer legal links
+- no public page emits a `localhost` canonical
+- sitemap and robots advertise only `https://drsfirst.com`
 
 ---
 
-## Phase 2: Preserve Core SEO Templates
+## Phase 2: Finalize URL Architecture and Redirect Rules
+
+Status:
+- completed on `2026-06-08`
 
 Goal:
+- choose one crawlable public URL for each section
 
-- hold rankings on locations, providers, and services
-
-This is the most important SEO content phase.
-
-### 2.1 Locations
+Decisions already in place:
+- locations hub stays `/locations`
+- `/location` redirects to `/locations`
+- services hub is intended to stay `/services`
+- legacy `/service` hub must not conflict with a real page
+- `/about-us` redirects to `/about`
+- `/contact-us` redirects to `/contact`
+- `/jobs` redirects to `/about/careers`
+- `/resources` redirects to `/patient-resources`
+- `/insurances` redirects to `/patient-resources/insurance`
 
 Tasks:
+- Resolve the `/service` vs `/services` conflict cleanly
+- Decide whether `src/app/service/page.js` should exist at all
+- Keep only one indexable services hub
+- Confirm all public utility/legal pages have a final destination
+- Remove any route ambiguity that could split authority
 
-- Rewrite location `<title>` patterns to match current live keyword intent.
-- Rewrite location H1 patterns to preserve live city + service intent.
-- Preserve phrases currently carrying search value:
+Definition of done:
+- one canonical hub URL per section
+- no duplicate crawlable section roots
+- no contradictory route/page behavior
+
+---
+
+## Phase 3: Patch Migration Gaps and Legacy URL Coverage
+
+Status:
+- completed on `2026-06-08`
+
+Goal:
+- make sure current ranking URLs on `drsfirst.com` do not break
+
+Tasks:
+- Build a complete redirect inventory from the live sitemap
+- Fix missing live provider URLs that currently 404 locally
+- Review live service URLs and map each one to:
+  - a direct replacement page
+  - or a deliberate redirect target
+- Review live location URLs and confirm they resolve intentionally
+- Validate there are no important live URLs left orphaned
+
+Known current gaps from the audit:
+- missing providers:
+  - `angelique-ramirez`
+  - `ashley-myatt`
+  - `eleanor-dzozomenyo-fnp`
+  - `kimaya-vaidya`
+  - `ronald-attanasio`
+  - `yvonne-tukei`
+- missing or remapped services:
+  - `adhd`
+  - `anxiety`
+  - `arthritis`
+  - `eczema`
+  - `migraines`
+  - `walk-in-services`
+
+Definition of done:
+- every SEO-relevant live URL on `drsfirst.com` has a working final destination
+- no important legacy URL returns `404`
+
+---
+
+## Phase 4: Fix Title Templates and Meta Description Strategy
+
+Status:
+- completed on `2026-06-08`
+
+Goal:
+- stop wasting ranking and CTR potential in titles and descriptions
+
+Tasks:
+- Remove duplicated brand suffix behavior
+- Rewrite the global title strategy so pages do not end with:
+  - `| First Medical Associates | First Medical Associates`
+- Rewrite homepage title and meta description to target:
+  - `primary care`
+  - `urgent care`
+  - Maryland service/location intent
+- Review section hub titles and descriptions for:
+  - `/locations`
+  - `/providers`
+  - `/services`
+  - `/about`
+  - `/patient-resources/insurance`
+- Confirm every public page has a unique, intentional title and description
+
+Definition of done:
+- no duplicate brand suffixes
+- homepage metadata is stronger than the current live site
+- all core public pages have intentional metadata
+
+---
+
+## Phase 5: Preserve On-Page SEO on Core Ranking Templates
+
+Status:
+- completed on `2026-06-08`
+
+Goal:
+- maintain or improve rankings on locations, providers, and services
+
+Tasks:
+- Review every location page title, description, and H1 against the live equivalent
+- Keep keyword intent where it matters:
   - `primary care doctor`
   - `family doctor`
   - `walk-in clinic`
-  - `walk-in healthcare`
   - city + state combinations
-- Review each local location page against its live equivalent one by one.
+- Review provider detail titles, descriptions, H1s, and slug expectations
+- Review service detail titles, descriptions, H1s, and topical alignment
+- Improve weak hub H1s such as:
+  - `/services`
+  - `/patient-resources/insurance`
 
 Definition of done:
-
-- live and local location pages have equivalent keyword targeting
-- city pages do not downgrade to brand-only or city-only headings
-
-### 2.2 Providers
-
-Tasks:
-
-- Update provider detail `<title>` tags to preserve `Primary Care Doctor`.
-- Review provider H1 mismatches and normalize names where required.
-- Keep provider names, credentials, and canonical slugs aligned to current live expectations.
-
-Definition of done:
-
-- provider detail titles are SEO-equivalent to live
-- provider H1s are correct for all active profiles
-
-### 2.3 Services
-
-Tasks:
-
-- Update service detail `<title>` tags to preserve current live keyword modifiers.
-- Keep service H1s aligned to the service topic names.
-- Ensure `/service/` section structure supports service cluster relevance.
-
-Definition of done:
-
-- service detail titles target the same intent as live
-- service section supports the current indexed URL pattern
+- core ranking templates are SEO-equivalent or better than live
+- no important page downgrades from keyword-focused to brand-only language
 
 ---
 
-## Phase 3: Close Route and Content Gaps
+## Phase 6: Sitemap, Robots, Schema, and Indexation QA
+
+Status:
+- completed on `2026-06-08`
 
 Goal:
-
-- eliminate missing pages, slug drift, and unsupported live URLs
+- make the technical SEO layer internally consistent
 
 Tasks:
-
-- Add or redirect all live service URLs missing locally:
-  - `/service/eczema/`
-  - `/service/migraines/`
-  - `/service/adhd/`
-  - `/service/arthritis/`
-  - `/service/anxiety/`
-  - `/service/walk-in-services/`
-- Resolve location exceptions:
-  - `/columbia/`
-  - `/location/columbia/`
-  - `/bowie-dev/`
-  - `/columbia-dev/`
-  - `/location/joppa/`
-  - `/location/columbia-oldie-oldie/`
-- Resolve provider slug mismatches and legacy root-level provider URLs.
-- Add or map live utility/public pages still carrying search value:
-  - `/privacy-policy/`
-  - `/accessibility-notice/`
-  - `/terms/`
-  - `/billing-questions/`
-  - insurance/resources equivalents as needed
+- Revalidate `sitemap.xml` after URL and redirect work
+- Revalidate `robots.txt`
+- Confirm `noindex` stays on search and any utility pages that should not rank
+- Check schema output on:
+  - locations
+  - providers
+  - services
+  - blog
+- Confirm all public pages meant to rank are included in the sitemap
+- Confirm non-public pages are excluded from the sitemap
 
 Definition of done:
-
-- every live SEO-relevant URL has a local equivalent or a deliberate redirect target
-- no important live URL is left orphaned
+- sitemap reflects the real public site
+- robots behavior is intentional
+- schema remains present on key templates
 
 ---
 
-## Phase 4: Complete Metadata, Sitemap, and Structured Data
+## Phase 7: Launch QA Against `drsfirst.com`
 
 Goal:
-
-- make the whole site technically indexable and internally coherent
-
-Tasks:
-
-- Add unique metadata to all public `about/*` pages.
-- Add unique metadata to all public `patient-resources/*` pages.
-- Expand `src/app/sitemap.js` to include all public indexable pages.
-- Add missing canonical, Open Graph, and Twitter metadata where absent.
-- Add structured data to service detail pages.
-- Validate that search and utility pages remain noindex where appropriate.
-
-Pages currently needing metadata attention include:
-
-- `src/app/about/page.js`
-- `src/app/about/careers/page.js`
-- `src/app/about/leadership/page.js`
-- `src/app/about/mission/page.js`
-- `src/app/about/partners/page.js`
-- `src/app/patient-resources/page.js`
-- `src/app/patient-resources/education/page.js`
-- `src/app/patient-resources/faq/page.js`
-- `src/app/patient-resources/insurance/page.js`
-- `src/app/patient-resources/patients/page.js`
-- `src/app/patient-resources/press/page.js`
-
-Definition of done:
-
-- all public pages have intentional metadata
-- sitemap reflects the real public surface
-- structured data exists on all key detail templates
-
----
-
-## Phase 5: Redirects, QA, and Launch Validation
-
-Goal:
-
-- make launch safe
+- verify the replacement is safe before and after cutover
 
 Tasks:
-
-- Build a full redirect map from the live WordPress sitemap to the new site.
-- Validate provider, service, and location redirects one by one.
-- Confirm there are no redirect chains.
-- Crawl the new site and compare final URLs against live inventory.
-- Verify final rendered values for:
-  - `<title>`
+- Crawl a sample of live URLs and compare final destinations
+- Check final rendered values for:
+  - title
   - meta description
   - canonical
   - H1
-  - noindex where applicable
-- Validate sitemap and robots behavior before launch.
-- Keep a launch checklist for post-cutover verification in Search Console.
+  - status code
+  - redirect behavior
+- Check for redirect chains
+- Spot-check top locations, top providers, and top services
+- Keep a cutover checklist for Search Console and sitemap submission
 
 Definition of done:
+- no launch-blocking SEO issues remain
+- replacement behavior is stable enough to cut over
 
-- redirect map is complete
-- all core SEO pages resolve correctly
-- crawl findings are clean enough for launch
+Status:
+- Completed on 2026-06-08
+- Evidence captured in `launch-qa-2026-06-08.md` and `launch-qa-2026-06-08.json`
 
 ---
 
 ## Recommended Work Order
-
-Follow this order exactly:
 
 1. Phase 1
 2. Phase 2
 3. Phase 3
 4. Phase 4
 5. Phase 5
+6. Phase 6
+7. Phase 7
 
-If speed matters, the minimum safe path is:
+Minimum safe launch path:
 
 1. Phase 1
 2. Phase 2
-3. redirect-critical parts of Phase 3
-4. metadata/sitemap-critical parts of Phase 4
-5. Phase 5 QA
+3. Phase 3
+4. homepage and template-critical parts of Phase 4
+5. template-critical parts of Phase 5
+6. Phase 6
+7. Phase 7
 
 ---
 
 ## Immediate Next Step
 
-Start with Phase 1 and finalize the remaining canonical public URLs for:
+Start Phase 7.
 
-- about
-- contact
-- jobs/careers
-- insurance/resources
-
-Already confirmed:
-
-- `/locations/` remains canonical
-- `/location/` redirects to `/locations/`
-- `/services/` remains canonical
-- `/service/` redirects to `/services/`
-
-Without the remaining canonical decisions, the rest of the remediation work stays unstable.
+The next highest-value move is:
+- crawl a sample of live `drsfirst.com` URLs against final destinations
+- compare title, meta description, canonical, H1, and status code
+- check for redirect chains before cutover

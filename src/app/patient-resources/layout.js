@@ -23,21 +23,25 @@ export default function PatientResourceLayout({ children }) {
 
   const heroContent = {
     "/patient-resources": {
+      title: "Patient Resources",
       subtitle:
         "Streamlined access to insurance verification, clinical forms, and essential tools for managing your healthcare journey with First Medical Associates.",
       icon: FileText,
     },
     "/patient-resources/insurance": {
+      title: "Accepted Insurance Plans",
       subtitle:
-        "Streamlined access to insurance verification, clinical forms, and essential tools for managing your healthcare journey with First Medical Associates.",
-      icon: FileText,
+        "Review accepted insurance plans, Medicare, Medicaid, self-pay details, and related patient forms for First Medical Associates.",
+      icon: ShieldCheck,
     },
     "/patient-resources/education": {
+      title: "Patient Education",
       subtitle:
         "Expert medical insights, clinical guides, and essential tools curated by our specialists to empower your health journey.",
       icon: BookOpen,
     },
     "/patient-resources/press": {
+      title: "Press Releases",
       subtitle:
         "Expert medical insights, clinical updates, and important news from First Medical Associates.",
       icon: Megaphone,
@@ -64,7 +68,7 @@ export default function PatientResourceLayout({ children }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
                 <div className={styles.heroTag}>Central Hub</div>
-                <h1 className={styles.heroTitle}>Patient Resource Center</h1>
+                <h1 className={styles.heroTitle}>{currentHero.title || "Patient Resources"}</h1>
                 <p className={styles.heroSubtitle}>{currentHero.subtitle}</p>
               </div>
               <div style={{ background: "#e8f0fe", padding: "1.5rem", borderRadius: "12px" }}>

@@ -1,7 +1,7 @@
 import PublicInfoPage from "../components/public-info-page";
 
 export const metadata = {
-  title: "Terms | Primary Care Doctor at First Medical Associates",
+  title: "Terms & Conditions | First Medical Associates",
   description:
     "Review the website terms page for First Medical Associates and find the correct point of contact for questions about site use.",
 };
