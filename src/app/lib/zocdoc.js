@@ -1,0 +1,96 @@
+const PROVIDER_ZOCDOC_URLS = {
+  "alexander-jimenez":
+    "https://www.zocdoc.com/booking-link/doctor/alexander-alegria-jimenez-pa-pa-c-689900",
+  "alisha-singh":
+    "https://www.zocdoc.com/booking-link/doctor/alisha-singh-pa-c-424231",
+  "anita-kunwar":
+    "https://www.zocdoc.com/booking-link/doctor/anita-kunwar-md-503969",
+  "elesa-yihdego":
+    "https://www.zocdoc.com/booking-link/doctor/elesa-yihdego-do-702569",
+  "emily-velasquez-pa-c":
+    "https://www.zocdoc.com/booking-link/doctor/emily-velasquez-pa-c-450851",
+  "faith-kim":
+    "https://www.zocdoc.com/booking-link/doctor/faith-kim-pa-698042",
+  "grace-nzouatcham":
+    "https://www.zocdoc.com/booking-link/doctor/grace-nzouatcham-mpas-755381",
+  "ilan-kokotek-2":
+    "https://www.zocdoc.com/booking-link/doctor/ilan-kokotek-do-686471",
+  "james-wang":
+    "https://www.zocdoc.com/booking-link/doctor/james-wang-md-681709",
+  "janelle-dennis":
+    "https://www.zocdoc.com/booking-link/doctor/janelle-dennis-md-714569",
+  "janiah-lambert":
+    "https://www.zocdoc.com/booking-link/doctor/janiah-lambert-pa-pa-c-619080",
+  "jason-lowry":
+    "https://www.zocdoc.com/booking-link/doctor/jason-lowery-md-463049",
+  "jinkle-mody":
+    "https://www.zocdoc.com/booking-link/doctor/jinkle-mody-aprn-rn-np-570620",
+  "kahsu-tsehay":
+    "https://www.zocdoc.com/booking-link/doctor/kahsu-tsehay-md-510221",
+  "karen-lizarraga":
+    "https://www.zocdoc.com/booking-link/doctor/karen-lizarraga-pa-352077",
+  "katherine-lee":
+    "https://www.zocdoc.com/booking-link/doctor/katherine-lee-fnp-543328",
+  "leanne-antioquia":
+    "https://www.zocdoc.com/booking-link/doctor/leanne-antioquia-np-386358",
+  "lekh-poudel":
+    "https://www.zocdoc.com/booking-link/doctor/lekh-poudel-pa-c-pa-669802",
+  "lily-grainger-2":
+    "https://www.zocdoc.com/booking-link/doctor/lily-grainger-pa-c-709332",
+  "liu-manchang-2":
+    "https://www.zocdoc.com/booking-link/doctor/manchang-liu-pa-pa-c-740138",
+  "lizy-thomas":
+    "https://www.zocdoc.com/booking-link/doctor/lizy-thomas-md-681702",
+  "mahpara-qureshi":
+    "https://www.zocdoc.com/booking-link/doctor/mahpara-qureshi-md-298240",
+  "mamatha-chella":
+    "https://www.zocdoc.com/booking-link/doctor/mamatha-chella-md-611836",
+  "maria-borodatcheva":
+    "https://www.zocdoc.com/booking-link/doctor/maria-borodatcheva-md-509093",
+  "maria-munoz-md":
+    "https://www.zocdoc.com/booking-link/doctor/maria-rene-munoz-ritterbusch-md-446175",
+  "marili-lemus":
+    "https://www.zocdoc.com/booking-link/doctor/marili-lemus-pa-c-490371",
+  "matthew-bruntel":
+    "https://www.zocdoc.com/booking-link/doctor/matthew-bruntel-do-496685",
+  "meera-ramakrishnan":
+    "https://www.zocdoc.com/booking-link/doctor/meera-ramakrishnan-md-467023",
+  "melinda-jorge":
+    "https://www.zocdoc.com/booking-link/doctor/melinda-jorge-md-646592",
+  "molly-harrigan":
+    "https://www.zocdoc.com/booking-link/doctor/molly-harrigan-pa-c-330101",
+  "monica-braland":
+    "https://www.zocdoc.com/booking-link/doctor/monica-braland-pa-mpas-756408",
+  "natalie-jarian-morales":
+    "https://www.zocdoc.com/booking-link/doctor/natalie-jarian-morales-np-492162",
+  "nitika-bandara":
+    "https://www.zocdoc.com/booking-link/doctor/nitika-bandara-md-651560",
+  "paula-moon-2":
+    "https://www.zocdoc.com/booking-link/doctor/paula-moon-pa-690026",
+  "robin-codjoe":
+    "https://www.zocdoc.com/booking-link/doctor/robin-codjoe-md-698039",
+  "sheli-agarwal":
+    "https://www.zocdoc.com/booking-link/doctor/sheli-agarwal-md-463051",
+  "sharon-j-mccormack":
+    "https://www.zocdoc.com/booking-link/doctor/sharon-mccormack-md-463044",
+  "soma-mitra":
+    "https://www.zocdoc.com/booking-link/doctor/soma-mitra-md-698047",
+  "susana-beza-2":
+    "https://www.zocdoc.com/booking-link/doctor/susana-beza-pa-698045",
+  "tylisa-duckett":
+    "https://www.zocdoc.com/booking-link/doctor/tylisa-duckett-fnp-543180",
+  "victoria-thee":
+    "https://www.zocdoc.com/booking-link/doctor/victoria-thee-pa-472188",
+  "zainab-turay":
+    "https://www.zocdoc.com/booking-link/doctor/zainab-kebbie-turay-fnp-rn-637563",
+  "zahtasia-mcroy":
+    "https://www.zocdoc.com/booking-link/doctor/zahtasia-mcroy-pa-c-659297",
+};
+
+export function getProviderZocdocUrl(slug = "") {
+  return PROVIDER_ZOCDOC_URLS[String(slug || "").trim()] || "";
+}
+
+export function listProvidersMissingZocdoc(providerSlugs = []) {
+  return providerSlugs.filter((slug) => !getProviderZocdocUrl(slug));
+}

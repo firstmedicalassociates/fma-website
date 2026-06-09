@@ -56,7 +56,6 @@ export default function PatientResourceLayout({ children }) {
     { name: "Insurance", href: "/patient-resources/insurance", icon: ShieldCheck },
     { name: "Patients", href: "/patient-resources/patients", icon: Users },
     { name: "Education", href: "/patient-resources/education", icon: GraduationCap },
-    { name: "Press Releases", href: "/patient-resources/press", icon: Megaphone },
   ];
 
   return (

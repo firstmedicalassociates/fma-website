@@ -1,5 +1,6 @@
 import SiteFooter from "./site-footer";
 import SiteHeader from "./site-header";
+import InternalLinkHub from "./internal-link-hub";
 
 export default function PublicInfoPage({ eyebrow, title, intro, sections = [] }) {
   return (
@@ -92,6 +93,35 @@ export default function PublicInfoPage({ eyebrow, title, intro, sections = [] })
                 ))}
               </section>
             ))}
+          </div>
+
+          <div style={{ marginTop: "28px" }}>
+            <InternalLinkHub
+              title="Helpful next steps"
+              intro="Use these internal links to move from policy and legal pages into patient-facing care and support pages."
+              links={[
+                {
+                  href: "/patient-resources",
+                  label: "Patient Resources",
+                  description: "Review forms, insurance information, education, and support content.",
+                },
+                {
+                  href: "/providers",
+                  label: "Find a Doctor",
+                  description: "Browse provider profiles and choose the right care team.",
+                },
+                {
+                  href: "/locations",
+                  label: "Find a Location",
+                  description: "Open clinic pages for directions, hours, and appointment access.",
+                },
+                {
+                  href: "/contact",
+                  label: "Contact Us",
+                  description: "Reach the team directly if you need help with care or policy questions.",
+                },
+              ]}
+            />
           </div>
         </div>
       </main>

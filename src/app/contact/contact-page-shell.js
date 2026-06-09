@@ -48,7 +48,7 @@ export default function ContactPageShell() {
   const [formStatus, setFormStatus] = useState("idle");
   const [formMessage, setFormMessage] = useState("");
 
-  const callHref = SITE_CALL_HREF || "/location";
+  const callHref = SITE_CALL_HREF || "/locations";
   const callLabel = SITE_CALL_HREF ? SITE_CALL_LABEL : "Call our team";
   const portalHref = PATIENT_PORTAL_URL !== "#" ? PATIENT_PORTAL_URL : "";
   const portalExternal = PATIENT_PORTAL_URL !== "#";
@@ -120,8 +120,24 @@ export default function ContactPageShell() {
             <article className={styles.infoCard}>
               <h2>Find A Location</h2>
               <p>Explore Maryland clinics and choose the office that works best for you.</p>
-              <ActionLink className={styles.infoAction} href="/location">
+              <ActionLink className={styles.infoAction} href="/locations">
                 Browse Locations
+              </ActionLink>
+            </article>
+
+            <article className={styles.infoCard}>
+              <h2>Find a Doctor</h2>
+              <p>Review provider profiles and choose the right clinician for your care needs.</p>
+              <ActionLink className={styles.infoAction} href="/providers">
+                Browse Providers
+              </ActionLink>
+            </article>
+
+            <article className={styles.infoCard}>
+              <h2>Browse Services</h2>
+              <p>Compare primary care, urgent care, chronic care, and telehealth services.</p>
+              <ActionLink className={styles.infoAction} href="/services">
+                View Services
               </ActionLink>
             </article>
           </aside>

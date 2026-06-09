@@ -7,6 +7,7 @@ import WelcomeVideoCard from "./components/welcome-video-card";
 import HomeHeroAiSearch from "./components/home-hero-ai-search";
 import ServiceTypedWord from "./components/service-typed-word";
 import WhyChooseAccordion from "./components/why-choose-accordion";
+import { buildStaticMetadata } from "./lib/seo";
 import styles from "./page.module.css";
 import { PATIENT_PORTAL_URL } from "./lib/config/site";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
@@ -30,11 +31,12 @@ const welcomeVideoSource =
 export const runtime = "nodejs";
 export const revalidate = 60;
 
-export const metadata = {
+export const metadata = buildStaticMetadata({
   title: "Primary Care & Urgent Care Services in Maryland | First Medical Associates",
   description:
     "Primary care, urgent care, chronic care, and telehealth services across Maryland. Find doctors, locations, and same-day care at First Medical Associates.",
-};
+  pathname: "/",
+});
 
 const FALLBACK_LOCATION = {
   slug: "/locations",
@@ -559,13 +561,13 @@ export default async function Home() {
 
                   <h1 className={styles.heroTitle}>
                     <span className={styles.heroTitleLine}>
-                      Receive the{" "}
-                      <span className={styles.heroTitleAccentInline}>Care</span>
+                      Primary Care &{" "}
+                      <span className={styles.heroTitleAccentInline}>Urgent Care</span>
                     </span>
                     <span className={`${styles.heroTitleLine} ${styles.heroTitleAccentLine}`}>
-                      and Treatment
+                      Across Maryland
                     </span>
-                    <span className={styles.heroTitleLine}>You Deserve</span>
+                    <span className={styles.heroTitleLine}>From First Medical Associates</span>
                   </h1>
                 </div>
 

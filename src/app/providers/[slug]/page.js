@@ -4,10 +4,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
+import InternalLinkHub from "../../components/internal-link-hub";
 import { absoluteUrl } from "../../lib/config/site";
 import { buildDisplayAddress, splitLocationSlug } from "../../lib/locations";
 import { prisma } from "../../lib/prisma";
 import { getProviderSeoContent } from "../../lib/seo";
+import { getProviderZocdocUrl } from "../../lib/zocdoc";
 import {
   buildLocationTitleMap,
   formatLocationSlugFallback,
@@ -238,6 +240,7 @@ export default async function ProviderDetailPage({ params }) {
   const provider = await prisma.provider.findUnique({
     where: { slug },
     select: {
+      slug: true,
       name: true,
       title: true,
       bio: true,
@@ -308,6 +311,7 @@ export default async function ProviderDetailPage({ params }) {
   const bookingSource = String(provider.linkUrl || primaryLocation?.bookingUrl || "").trim();
   const bookingHref = bookingSource || primaryLocation?.href || "/locations";
   const bookingExternal = isExternalUrl(bookingSource);
+  const zocdocHref = getProviderZocdocUrl(provider.slug);
   const locationsHref =
     locationLinks.length > 1
       ? "#provider-locations"
@@ -428,6 +432,15 @@ export default async function ProviderDetailPage({ params }) {
                   </ActionLink>
 
                   <ActionLink
+                    className={`${styles.actionButton} ${styles.actionZocdoc}`}
+                    external={Boolean(zocdocHref)}
+                    href={zocdocHref}
+                    icon={<span className={styles.zocdocMark}>Z</span>}
+                  >
+                    {zocdocHref ? "Book on Zocdoc" : "Zocdoc Coming Soon"}
+                  </ActionLink>
+
+                  <ActionLink
                     className={`${styles.actionButton} ${styles.actionSecondary}`}
                     href={locationsHref}
                     icon={renderInlineIcon("map")}
@@ -530,6 +543,30 @@ export default async function ProviderDetailPage({ params }) {
                   />
                 </div>
               </section>
+            </div>
+
+            <div style={{ padding: "0 42px 42px" }}>
+              <InternalLinkHub
+                title="Continue your search"
+                intro={`Use ${provider.name}'s profile as a starting point to explore services, locations, and patient resources.`}
+                links={[
+                  {
+                    href: "/services",
+                    label: "Browse Services",
+                    description: "See primary care, urgent care, chronic care, and telehealth options.",
+                  },
+                  {
+                    href: primaryLocation?.href || "/locations",
+                    label: locationLinks.length > 1 ? "View Provider Locations" : "Visit This Location",
+                    description: "Open the clinic page for directions, hours, and location-specific care details.",
+                  },
+                  {
+                    href: "/patient-resources",
+                    label: "Patient Resources",
+                    description: "Access forms, insurance information, education, and support resources.",
+                  },
+                ]}
+              />
             </div>
           </section>
         </div>

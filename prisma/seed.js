@@ -250,7 +250,7 @@ function mergeProvider(existingProvider, seededProvider) {
     locations: seededProvider.locations,
     languages: seededProvider.languages,
     sortOrder: seededProvider.sortOrder,
-    isActive: typeof existingProvider.isActive === "boolean" ? existingProvider.isActive : true,
+    isActive: seededProvider.isActive,
   };
 }
 
@@ -429,8 +429,11 @@ async function main() {
     });
   }
 
+  const seededProviderSlugs = new Set();
+
   for (const [index, entry] of providerSeedData.entries()) {
     const seededProvider = buildSeedProvider(entry, index);
+    seededProviderSlugs.add(seededProvider.slug);
     const existingProvider = await prisma.provider.findUnique({
       where: { slug: seededProvider.slug },
     });
@@ -447,6 +450,17 @@ async function main() {
       data: seededProvider,
     });
   }
+
+  await prisma.provider.updateMany({
+    where: {
+      slug: {
+        notIn: [...seededProviderSlugs],
+      },
+    },
+    data: {
+      isActive: false,
+    },
+  });
 }
 
 main()

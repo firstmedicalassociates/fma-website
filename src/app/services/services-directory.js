@@ -201,7 +201,8 @@ export default function ServicesDirectory({ services = [] }) {
             </p>
             <div className={styles.ctaActions}>
               <Link href="/providers">Find a Clinician</Link>
-              <Link href="/location">Emergency Portal</Link>
+              <Link href="/locations">Find a Location</Link>
+              <Link href="/patient-resources">Patient Resources</Link>
             </div>
           </div>
         </div>

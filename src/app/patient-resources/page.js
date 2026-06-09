@@ -23,9 +23,9 @@ export const metadata = buildStaticMetadata({
 
 export default function ResourcesOverview() {
   const sidebarActions = [
-    { title: 'Find Location', sub: '12 Clinics Nationwide', icon: MapPin },
-    { title: 'Patient Portal', sub: 'Access Records & Results', icon: Users },
-    { title: 'Schedule Walk-in', sub: 'Same-day Appointments', icon: Clock },
+    { title: 'Find Location', sub: 'Maryland clinic locations', icon: MapPin, href: '/locations' },
+    { title: 'Patient Portal', sub: 'Access records and results', icon: Users, href: '/patient-resources/patients' },
+    { title: 'Schedule Walk-in', sub: 'Same-day appointment options', icon: Clock, href: '/services' },
   ];
 
   return (
@@ -172,7 +172,7 @@ export default function ResourcesOverview() {
           {sidebarActions.map((action, i) => {
             const Icon = action.icon;
             return (
-              <button key={i} className="action-card">
+              <Link key={i} href={action.href} className="action-card">
                 <div className="action-icon">
                   <Icon size={20} color="white" />
                 </div>
@@ -180,7 +180,7 @@ export default function ResourcesOverview() {
                   <h4>{action.title}</h4>
                   <p>{action.sub}</p>
                 </div>
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -191,9 +191,9 @@ export default function ResourcesOverview() {
             Our patient care team is available 24/7 for 
             urgent inquiries and navigation help.
           </p>
-          <button className="call-btn">
+          <Link href="/contact" className="call-btn">
             <Phone size={18} fill="currentColor" /> Call Support
-          </button>
+          </Link>
           <div className="bg-pattern">
              <PlusSquare size={120} />
           </div>
@@ -260,9 +260,9 @@ export default function ResourcesOverview() {
               </div>
               <h3>New Patient Paperwork</h3>
               <p>Save 15 minutes at check-in by completing your initial intake online.</p>
-              <div className="lite-link">
+              <Link href="/patient-resources/patients" className="lite-link">
                  Start Form <span>PDF / WEB</span>
-              </div>
+              </Link>
            </div>
            <div className="form-lite-card">
               <div style={{ background: '#e8f0fe', width: '48px', height: '48px', borderRadius: '12px', display: 'grid', placeItems: 'center', color: '#001c55' }}>
@@ -270,9 +270,9 @@ export default function ResourcesOverview() {
               </div>
               <h3>Medical Records Release</h3>
               <p>HIPAA-compliant authorization to transfer your health history safely.</p>
-              <div className="lite-link">
+              <Link href="/hipaa-notice" className="lite-link">
                  Request Access <span>Docusign</span>
-              </div>
+              </Link>
            </div>
         </section>
 
@@ -285,14 +285,17 @@ export default function ResourcesOverview() {
               <div className="right-item">
                  <h5>Privacy Policy</h5>
                  <p>How we protect and use your confidential medical data under HIPAA.</p>
+                 <Link href="/privacy-policy" className="lite-link">Read policy <span>Internal Link</span></Link>
               </div>
               <div className="right-item">
                  <h5>Patient Code</h5>
                  <p>Our commitment to respectful, high-quality care for every visitor.</p>
+                 <Link href="/patient-resources/patients" className="lite-link">View patient forms <span>Internal Link</span></Link>
               </div>
               <div className="right-item">
                  <h5>No Surprises Act</h5>
                  <p>Clear pricing and protection against unexpected medical bills.</p>
+                 <Link href="/patient-resources/insurance" className="lite-link">Review insurance info <span>Internal Link</span></Link>
               </div>
            </div>
         </section>

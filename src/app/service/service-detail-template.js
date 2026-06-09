@@ -12,6 +12,7 @@ import {
   User,
   Users,
 } from "lucide-react";
+import InternalLinkHub from "../components/internal-link-hub";
 import { getServiceSeoContent } from "../lib/seo";
 import { normalizeServicePageContent } from "../lib/services";
 
@@ -685,7 +686,7 @@ export default function ServiceDetailTemplate({ service }) {
             <p className="hero-desc">{content.heroDescription}</p>
 
             <div className="hero-actions">
-              <Link href="/location" className="button-primary">
+              <Link href="/locations" className="button-primary">
                 <Calendar size={18} /> Schedule an Appointment
               </Link>
               <Link href="/providers" className="button-outline">
@@ -766,6 +767,33 @@ export default function ServiceDetailTemplate({ service }) {
           </div>
         </section>
 
+        <InternalLinkHub
+          title="Explore related care paths"
+          intro={`Continue from ${service.title} to the most relevant next-step pages on the site.`}
+          links={[
+            {
+              href: "/providers",
+              label: "Find a Doctor",
+              description: "Browse primary care doctors and providers who can help with this service.",
+            },
+            {
+              href: "/locations",
+              label: "Find a Location",
+              description: "See Maryland clinic locations where you can book care or visit a nearby office.",
+            },
+            {
+              href: "/services",
+              label: "Browse All Services",
+              description: "Compare related treatment options, chronic care, urgent care, and telehealth.",
+            },
+            {
+              href: "/patient-resources/insurance",
+              label: "Check Insurance",
+              description: "Review accepted insurance plans before scheduling your appointment.",
+            },
+          ]}
+        />
+
         <section className="cta-banner">
           <div className="cta-copy">
             <h2>{content.ctaTitle}</h2>
@@ -773,7 +801,7 @@ export default function ServiceDetailTemplate({ service }) {
           </div>
 
           <div className="cta-actions">
-            <Link href="/location" className="cta-btn-primary">
+            <Link href="/locations" className="cta-btn-primary">
               <Calendar size={18} /> Schedule an Appointment
             </Link>
             <Link href="/providers" className="cta-btn-outline">

@@ -155,6 +155,7 @@ export default async function LocationLandingPage({ params }) {
           },
           select: {
             id: true,
+            slug: true,
             category: true,
             title: true,
             description: true,

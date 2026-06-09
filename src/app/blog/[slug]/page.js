@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import InternalLinkHub from "../../components/internal-link-hub";
 import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
 import { isDatabaseConfigured, prisma } from "../../lib/prisma";
@@ -205,6 +206,33 @@ export default async function BlogPostPage({ params }) {
               dangerouslySetInnerHTML={{ __html: cleanedHtml }}
             />
           </article>
+
+          <InternalLinkHub
+            title="Keep exploring First Medical Associates"
+            intro="Move from this article into core patient-facing pages that support booking, provider discovery, and care planning."
+            links={[
+              {
+                href: "/services",
+                label: "Browse Services",
+                description: "Explore primary care, urgent care, chronic care, and telehealth services.",
+              },
+              {
+                href: "/providers",
+                label: "Find a Doctor",
+                description: "Compare provider profiles and choose the right clinician for your needs.",
+              },
+              {
+                href: "/locations",
+                label: "Find a Location",
+                description: "View Maryland clinic locations, hours, and directions.",
+              },
+              {
+                href: "/patient-resources",
+                label: "Patient Resources",
+                description: "Access insurance details, forms, and support resources.",
+              },
+            ]}
+          />
         </div>
       </main>
       <SiteFooter />

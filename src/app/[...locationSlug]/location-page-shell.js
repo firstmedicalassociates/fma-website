@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import InternalLinkHub from "../components/internal-link-hub";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import { PATIENT_PORTAL_URL } from "../lib/config/site";
@@ -382,6 +383,30 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                         </span>
                       )}
                     </div>
+
+                    <div style={{ marginTop: "18px" }}>
+                      <InternalLinkHub
+                        title="Continue from this location"
+                        intro={`Use ${location.title} as your starting point to explore doctors, services, and patient resources.`}
+                        links={[
+                          {
+                            href: "/providers",
+                            label: "Find a Doctor",
+                            description: "Browse provider profiles and compare doctors across Maryland locations.",
+                          },
+                          {
+                            href: "/services",
+                            label: "Browse Services",
+                            description: "See primary care, urgent care, chronic care, and telehealth options.",
+                          },
+                          {
+                            href: "/patient-resources",
+                            label: "Patient Resources",
+                            description: "Access forms, insurance details, and patient support information.",
+                          },
+                        ]}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -528,6 +553,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                       {filteredServices.map((service) => {
                         const telehealth = isTelehealthService(service);
                         const categoryPillClass = getCategoryPillClass(styles, service.category);
+                        const serviceHref = service.slug ? `/service/${service.slug}` : "";
                         return (
                           <article
                             key={`${service.category}-${service.title}`}
@@ -542,13 +568,20 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                                   {service.category}
                                 </p>
                               </div>
-                              <h3>{service.title}</h3>
+                              <h3>{serviceHref ? <Link href={serviceHref}>{service.title}</Link> : service.title}</h3>
                               <p>{service.description}</p>
                             </div>
-                            <div className={styles.serviceFinderAction}>
-                              {telehealth ? "Launch Visit" : "Learn More"}
-                              <span className="material-symbols-outlined">arrow_forward</span>
-                            </div>
+                            {serviceHref ? (
+                              <Link href={serviceHref} className={styles.serviceFinderAction}>
+                                {telehealth ? "Launch Visit" : "Learn More"}
+                                <span className="material-symbols-outlined">arrow_forward</span>
+                              </Link>
+                            ) : (
+                              <div className={styles.serviceFinderAction}>
+                                {telehealth ? "Launch Visit" : "Learn More"}
+                                <span className="material-symbols-outlined">arrow_forward</span>
+                              </div>
+                            )}
                           </article>
                         );
                       })}

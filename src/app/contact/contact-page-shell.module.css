@@ -128,6 +128,7 @@
 
 .formCard {
   display: grid;
+  align-content: start;
   gap: 14px;
   padding: 28px;
 }
@@ -185,6 +186,7 @@
 
 .field textarea {
   resize: vertical;
+  min-height: 160px;
 }
 
 .fieldFull {

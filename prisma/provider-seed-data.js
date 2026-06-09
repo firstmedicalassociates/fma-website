@@ -1,3 +1,11 @@
+const excludedProviderSlugs = new Set([
+  "rakesh-malik",
+  "ronald-thomas",
+  "quoc-anh-nguyen",
+  "emma-feeney",
+  "aniruddha-bhattacharyya",
+]);
+
 module.exports = [
   {
     name: "Robin Codjoe",
@@ -383,4 +391,4 @@ module.exports = [
     imageUrl: "https://drsfirst.com/wp-content/uploads/2026/04/monica-b.png",
     slug: "monica-braland",
   },
-];
+].filter((provider) => !excludedProviderSlugs.has(provider.slug));
