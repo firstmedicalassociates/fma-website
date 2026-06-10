@@ -17,6 +17,9 @@ const FOCUSED_MAP_ZOOM = 11;
 const MAP_BOUNDS_PADDING = 96;
 const DEFAULT_SEARCH_RADIUS_MILES = 25;
 const MOBILE_BREAKPOINT_PX = 720;
+const DEFAULT_MARKER_SIZE_PX = 18;
+const SELECTED_MARKER_SIZE_PX = 22;
+const FMA_MAP_MARKER_URL = "/fma-cross-marker.svg";
 const WEEKDAY_LABELS = [
   "Sunday",
   "Monday",
@@ -255,13 +258,12 @@ function getLocationStatus(officeHours = []) {
 }
 
 function getMarkerIcon(googleMaps, isSelected) {
+  const markerSize = isSelected ? SELECTED_MARKER_SIZE_PX : DEFAULT_MARKER_SIZE_PX;
+
   return {
-    path: googleMaps.maps.SymbolPath.CIRCLE,
-    fillColor: isSelected ? "#1b4ec9" : "#0f2358",
-    fillOpacity: 1,
-    strokeColor: "#ffffff",
-    strokeWeight: isSelected ? 4 : 3,
-    scale: isSelected ? 10 : 8,
+    url: FMA_MAP_MARKER_URL,
+    scaledSize: new googleMaps.maps.Size(markerSize, markerSize),
+    anchor: new googleMaps.maps.Point(markerSize / 2, markerSize / 2),
   };
 }
 
