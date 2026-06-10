@@ -222,26 +222,6 @@ export default function EducationPage() {
          </div>
       </div>
 
-      {/* Browse Topics */}
-      <section className="browse-topics-sec">
-         <h3>Browse by Topic</h3>
-         <div className="topics-scroller">
-            {topics.map((t, i) => {
-              const Icon = t.icon;
-              return (
-                <div key={i} className="topic-item">
-                  <div className="topic-round-icon"><Icon size={18} /></div>
-                  <span className="topic-name">{t.name}</span>
-                </div>
-              );
-            })}
-            <div className="topic-item">
-               <div className="topic-round-icon"><MoreHorizontal size={18} /></div>
-               <span className="topic-name">View All Topics</span>
-            </div>
-         </div>
-      </section>
-
       {/* Search Banner */}
       <div className="search-full-width">
          <h2>Can't find a specific guide?</h2>
