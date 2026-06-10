@@ -265,8 +265,11 @@
 
 .needCareCard {
   margin-top: 50px;
-  min-height: 420px;
+  min-height: 360px;
   padding: 22px;
+  padding-top: 80px;
+  display: grid;
+  align-content: start;
   border-radius: 24px;
   border: 1px solid rgba(216, 229, 247, 0.88);
   box-shadow: var(--footer-shadow);
@@ -277,32 +280,20 @@
   background-position: center;
 }
 
-.needCareIconWrap {
-  width: 78px;
-  height: 78px;
-  margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 10px 26px rgba(14, 36, 95, 0.12);
-}
-
 .needCareTitle {
-  margin: 0 0 12px;
-  color: #0b1f76;
-  font-size: clamp(1.8rem, 2vw, 1.25rem);
-  line-height: 1.08;
+  margin: 0 0 18px;
+  color: black;
+  display: grid;
+  gap: 2px;
+  font-size: clamp(1.55rem, 1.2vw, 2.2rem);
+  line-height: 1.02;
   letter-spacing: -0.03em;
-}
-
-.needCareCopy {
-  margin: 0 0 20px;
-  color: #4f5b7c;
-  font-size: clamp(0.8rem, 1.2vw, 1rem);
-  line-height: 1.3;
 }
 
 .needCareActions {
   display: grid;
   gap: 12px;
+  margin-top: auto;
 }
 
 .needCareAction {

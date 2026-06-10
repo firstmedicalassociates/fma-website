@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import path from "path";
 import { promises as fs } from "fs";
 import { imageSize } from "image-size";
+import { put } from "@vercel/blob";
 import { requireAdminRequest } from "../../../lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -61,6 +62,22 @@ export async function POST(request) {
     .replace(/[^a-z0-9.-]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+
+  if (blobToken) {
+    const safePath = kind === "provider" ? `providers/${safeName}` : `uploads/${safeName}`;
+    const blob = await put(safePath, buffer, {
+      access: "public",
+      addRandomSuffix: true,
+      contentType: file.type || undefined,
+      token: blobToken,
+    });
+
+    return NextResponse.json({
+      ok: true,
+      url: blob.url,
+    });
+  }
 
   const uploadDir = path.join(process.cwd(), "public", "uploads");
 

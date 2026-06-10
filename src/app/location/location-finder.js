@@ -19,7 +19,7 @@ const DEFAULT_SEARCH_RADIUS_MILES = 25;
 const MOBILE_BREAKPOINT_PX = 720;
 const DEFAULT_MARKER_SIZE_PX = 18;
 const SELECTED_MARKER_SIZE_PX = 22;
-const FMA_MAP_MARKER_URL = "/fma-cross-marker.svg";
+const FMA_MAP_MARKER_URL = "./uploads/FMAicon.svg";
 const WEEKDAY_LABELS = [
   "Sunday",
   "Monday",

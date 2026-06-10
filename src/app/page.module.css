@@ -227,7 +227,7 @@
 .heroShell {
   position: relative;
   width: 100%;
-  min-height: 720px;
+  min-height: 660px;
   overflow: visible;
 }
 
@@ -266,15 +266,15 @@
 .heroCopy {
   position: relative;
   z-index: 1;
-  min-height: 720px;
-  width: min(620px, 56%);
+  min-height: 660px;
+  width: min(580px, 54%);
   display: grid;
   align-content: center;
-  gap: 24px;
+  gap: 18px;
   padding:
-    clamp(48px, 6vw, 86px)
+    clamp(40px, 5vw, 72px)
     clamp(18px, 2.6vw, 30px)
-    clamp(48px, 6vw, 86px)
+    clamp(40px, 5vw, 72px)
     clamp(24px, 4vw, 40px);
 }
 
@@ -336,11 +336,11 @@
 
 .heroTitle {
   margin: 0;
-  max-width: none;
-  font-size: clamp(2.4rem, 4.4vw, 3.85rem);
+  max-width: 14ch;
+  font-size: clamp(2.35rem, 4.1vw, 3.55rem);
   font-weight: 800;
   letter-spacing: 0;
-  line-height: 0.98;
+  line-height: 0.95;
   color: #102b95;
   padding-left: 0;
 }
@@ -384,14 +384,14 @@
 }
 
 .heroLead {
-  max-width: 34rem;
-  font-size: 1rem;
-  line-height: 1.72;
+  max-width: 31rem;
+  font-size: 0.98rem;
+  line-height: 1.64;
   color: #5c6882;
 }
 
 .heroScheduler {
-  width: min(760px, calc(100% + 80px));
+  width: min(720px, calc(100% + 64px));
   display: grid;
   gap: 10px;
 }
@@ -2264,6 +2264,21 @@
   align-items: start;
 }
 
+.contactModernSimple {
+  position: relative;
+  z-index: 1;
+  width: min(760px, 100%);
+  margin: 0 auto;
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  padding: clamp(28px, 3.6vw, 44px) clamp(20px, 3vw, 34px);
+  border: 1px solid rgba(24, 33, 47, 0.1);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.5));
+  text-align: center;
+}
+
 .contactModernContent {
   display: grid;
   gap: 22px;
@@ -2324,6 +2339,32 @@
 .contactModernTitle em {
   color: #179fcb;
   font-style: normal;
+}
+
+.contactModernAction {
+  min-width: 210px;
+  min-height: 52px;
+  padding: 0 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0d2c72 0%, #1d5fa8 100%);
+  color: #ffffff;
+  font-family: var(--font-home-display), sans-serif;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  box-shadow: 0 18px 38px rgba(13, 44, 114, 0.16);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+.contactModernAction:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 42px rgba(13, 44, 114, 0.2);
 }
 
 .contactModernDetails {
@@ -2614,6 +2655,10 @@
   .contactModernLayout {
     width: 100%;
     gap: 24px;
+  }
+
+  .contactModernSimple {
+    width: min(720px, 100%);
   }
 
   .contactModernContent {
@@ -2955,6 +3000,13 @@
     gap: 18px;
   }
 
+  .contactModernSimple {
+    width: 100%;
+    gap: 14px;
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
+
   .contactModernContent {
     gap: 16px;
   }
@@ -2968,6 +3020,12 @@
 
   .contactModernTitle {
     font-size: clamp(1.3rem, 6.2vw, 2.05rem);
+  }
+
+  .contactModernAction {
+    width: 100%;
+    min-height: 50px;
+    font-size: 0.94rem;
   }
 
   .contactModernDetails > p {

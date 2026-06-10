@@ -280,16 +280,14 @@ function BrandBlock({ portalHref }) {
 function NeedCareCard() {
   return (
     <aside className={styles.needCareCard}>
-      <span className={styles.needCareIconWrap}>
-        <FooterIcon name="calendar" className={styles.needCareIcon} />
-      </span>
-      <h2 className={styles.needCareTitle}>Need care today?</h2>
-      <p className={styles.needCareCopy}>Schedule an appointment or find the right provider near you.</p>
+      <h2 className={styles.needCareTitle}>
+        <span>Book an Appointment</span>
+        <span>Now For A Healthier You.</span>
+      </h2>
       <div className={styles.needCareActions}>
         <SmartFooterLink href={GENERAL_BOOK_APPOINTMENT_URL} className={`${styles.needCareAction} ${styles.needCareActionPrimary}`}>
           <span className={styles.needCareActionInner}>
-            <FooterIcon name="calendar" className={styles.needCareActionIcon} />
-            Schedule Appointment
+            Book Appointment
           </span>
           <FooterIcon name="arrow" className={styles.needCareActionArrow} />
         </SmartFooterLink>

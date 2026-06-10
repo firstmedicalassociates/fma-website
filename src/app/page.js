@@ -9,7 +9,6 @@ import ServiceTypedWord from "./components/service-typed-word";
 import WhyChooseAccordion from "./components/why-choose-accordion";
 import { buildStaticMetadata } from "./lib/seo";
 import styles from "./page.module.css";
-import { PATIENT_PORTAL_URL } from "./lib/config/site";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
 
 const displayFont = Manrope({
@@ -206,35 +205,6 @@ const SERVICE_TYPED_WIDTH_CH = Math.max(12, SERVICE_TYPED_LONGEST_WORD.length + 
 
 function isExternalUrl(url = "") {
   return /^https?:\/\//i.test(url);
-}
-
-function buildPublicPhone(location) {
-  if (!location) return "";
-
-  return location.hideOfficePhone
-    ? location.callTextPhone || location.directPhone || ""
-    : location.phone || location.callTextPhone || location.directPhone || "";
-}
-
-function splitAddressLines(location) {
-  const raw = String(location?.displayAddress || location?.address || "").trim();
-
-  if (!raw) return [];
-  if (raw.includes("\n")) {
-    return raw
-      .split(/\n+/)
-      .map((line) => line.trim())
-      .filter(Boolean);
-  }
-
-  const parts = raw
-    .split(/,\s*/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (parts.length <= 2) return parts;
-
-  return [parts.slice(0, -2).join(", "), parts.slice(-2).join(", ")];
 }
 
 async function getHomeData() {
@@ -516,13 +486,7 @@ export default async function Home() {
   const { featuredLocation, providerCount, locationCount, heroSearchLocations, heroSearchProviders } =
     await getHomeData();
 
-  const featuredPhone = buildPublicPhone(featuredLocation) || FALLBACK_LOCATION.phone;
-  const addressLines = splitAddressLines(featuredLocation);
-  const portalIsConfigured = PATIENT_PORTAL_URL !== "#";
-  const contactEmail = "care@firstmedical.com";
-  const formNote = portalIsConfigured
-    ? `Prefer a faster answer? Call ${featuredPhone} or use the patient portal to reach the team directly.`
-    : `Prefer a faster answer? Call ${featuredPhone} and our team will help you choose the right next step.`;
+  const contactBookingHref = featuredLocation?.bookingUrl || "/locations";
 
   return (
     <div className={`${displayFont.variable} ${bodyFont.variable} ${styles.page}`}>
@@ -561,19 +525,17 @@ export default async function Home() {
 
                   <h1 className={styles.heroTitle}>
                     <span className={styles.heroTitleLine}>
-                      Primary Care &{" "}
-                      <span className={styles.heroTitleAccentInline}>Urgent Care</span>
+                      Primary Care &amp; Urgent Care
                     </span>
                     <span className={`${styles.heroTitleLine} ${styles.heroTitleAccentLine}`}>
                       Across Maryland
                     </span>
-                    <span className={styles.heroTitleLine}>From First Medical Associates</span>
                   </h1>
                 </div>
 
                 <p className={styles.heroLead}>
-                  First Medical Associates professionals focus on providing superior medical care
-                  in a respectful, patient-centered environment.
+                  First Medical Associates delivers patient-centered primary care, urgent visits,
+                  and coordinated support across Maryland.
                 </p>
 
                 <div className={styles.heroScheduler}>
@@ -813,100 +775,6 @@ export default async function Home() {
                 <p className={styles.faqAnswer}>{item.answer}</p>
               </details>
             ))}
-          </div>
-        </section>
-
-        <section className={`${styles.section} ${styles.sectionSoft} ${styles.contactSection}`} id="contact">
-          <div className={styles.contactModernLayout}>
-            <div className={styles.contactModernContent}>
-              <div className={styles.contactModernPill} aria-label="Contact support">
-                <span className={styles.contactModernPillActive}>Contact Us</span>
-                <span className={styles.contactModernPillText}>We&rsquo;re Here to Help</span>
-              </div>
-
-              <h2 className={styles.contactModernTitle}>
-                <span>Book an Appointment</span>
-                <span>
-                  Now <em>For A Healthier You.</em>
-                </span>
-              </h2>
-
-              <div className={styles.contactModernDetails}>
-                <article className={styles.contactRow}>
-                  <span className={styles.contactIcon} aria-hidden="true">
-                    <Icon name="phone" className={styles.contactIconSvg} />
-                  </span>
-                  <div>
-                    <p className={styles.metaLabel}>Phone</p>
-                    <p className={styles.metaValue}>{featuredPhone}</p>
-                  </div>
-                </article>
-
-                <article className={styles.contactRow}>
-                  <span className={styles.contactIcon} aria-hidden="true">
-                    <Icon name="location" className={styles.contactIconSvg} />
-                  </span>
-                  <div>
-                    <p className={styles.metaLabel}>Address</p>
-                    <p className={styles.metaValue}>
-                      {addressLines.length > 0
-                        ? addressLines.map((line) => (
-                            <span key={line} className={styles.addressLine}>
-                              {line}
-                            </span>
-                          ))
-                        : FALLBACK_LOCATION.displayAddress.split("\n").map((line) => (
-                            <span key={line} className={styles.addressLine}>
-                              {line}
-                            </span>
-                          ))}
-                    </p>
-                  </div>
-                </article>
-
-                <article className={styles.contactRow}>
-                  <span className={styles.contactIcon} aria-hidden="true">
-                    <Icon name="mail" className={styles.contactIconSvg} />
-                  </span>
-                  <div>
-                    <p className={styles.metaLabel}>Email</p>
-                    <p className={styles.metaValue}>{contactEmail}</p>
-                  </div>
-                </article>
-              </div>
-
-              <div className={styles.contactSocialRow} aria-label="Social media links">
-                <a href="#" className={styles.contactSocialIcon} aria-label="Facebook">
-                  f
-                </a>
-                <a href="#" className={styles.contactSocialIcon} aria-label="X">
-                  x
-                </a>
-                <a href="#" className={styles.contactSocialIcon} aria-label="LinkedIn">
-                  in
-                </a>
-                <a href="#" className={styles.contactSocialIcon} aria-label="Instagram">
-                  o
-                </a>
-              </div>
-            </div>
-
-            <div className={styles.contactModernCard}>
-              <h3 className={styles.contactModernCardTitle}>Get In Touch</h3>
-              <p className={styles.contactModernCardText}>
-                Fill the form out below to get in touch with a representative.
-              </p>
-
-              <form className={styles.contactModernForm} action="#">
-                <input className={styles.contactModernInput} name="name" placeholder="Name" type="text" />
-                <input className={styles.contactModernInput} name="email" placeholder="Email" type="email" />
-                <input className={styles.contactModernInput} name="phone" placeholder="Phone" type="tel" />
-                <button className={styles.contactModernSubmit} type="button">
-                  Get In Touch
-                </button>
-                <p className={styles.contactModernNote}>{formNote}</p>
-              </form>
-            </div>
           </div>
         </section>
       </main>

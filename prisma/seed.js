@@ -196,6 +196,8 @@ const locationSlugByProviderLabel = new Map(
 
 locationSlugByProviderLabel.set("Bowie (Health Center Dr)", "/bowie-dev");
 locationSlugByProviderLabel.set("Bowie (Gallant Fox Ln)", "/location/bowie");
+locationSlugByProviderLabel.set("Columbia (Snowden River Pkwy)", "/location/columbia");
+locationSlugByProviderLabel.set("Columbia (Broken Land Dr)", "/columbia-dev");
 locationSlugByProviderLabel.set("Columbia I", "/location/columbia");
 locationSlugByProviderLabel.set("Columbia II", "/columbia-dev");
 
@@ -226,10 +228,10 @@ function buildSeedProvider(entry, sortOrder) {
     slug: String(entry.slug || "").trim().toLowerCase(),
     name: cleanText(entry.name),
     title: cleanText(entry.title),
-    bio: buildProviderBio(entry),
+    bio: cleanText(entry.bio) || buildProviderBio(entry),
     imageUrl: cleanText(entry.imageUrl),
-    imageAlt: `${cleanText(entry.name)} headshot`,
-    linkUrl: null,
+    imageAlt: cleanText(entry.imageAlt) || `${cleanText(entry.name)} headshot`,
+    linkUrl: cleanText(entry.linkUrl),
     locations: cleanStringList(entry.locations)
       .map((locationLabel) => normalizeProviderLocationSlug(locationLabel))
       .filter(Boolean),
@@ -243,10 +245,10 @@ function mergeProvider(existingProvider, seededProvider) {
   return {
     name: seededProvider.name,
     title: seededProvider.title,
-    bio: cleanText(existingProvider.bio) || seededProvider.bio,
+    bio: seededProvider.bio,
     imageUrl: seededProvider.imageUrl,
-    imageAlt: cleanText(existingProvider.imageAlt) || seededProvider.imageAlt,
-    linkUrl: cleanText(existingProvider.linkUrl),
+    imageAlt: seededProvider.imageAlt,
+    linkUrl: seededProvider.linkUrl,
     locations: seededProvider.locations,
     languages: seededProvider.languages,
     sortOrder: seededProvider.sortOrder,
@@ -451,14 +453,11 @@ async function main() {
     });
   }
 
-  await prisma.provider.updateMany({
+  await prisma.provider.deleteMany({
     where: {
       slug: {
         notIn: [...seededProviderSlugs],
       },
-    },
-    data: {
-      isActive: false,
     },
   });
 }
