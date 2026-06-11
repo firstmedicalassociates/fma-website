@@ -1,9 +1,10 @@
 "use client";
 
 import { Inter } from "next/font/google";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Briefcase, Handshake, Info, Target, Users } from "lucide-react";
+import HeroEyebrow from "../components/hero-eyebrow";
+import { PillToggleNav } from "../components/pill-toggles";
 import styles from "../components/brandon-route-shell.module.css";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
@@ -63,7 +64,7 @@ export default function AboutLayout({ children }) {
           <section className={styles.aboutHero}>
             <div className={styles.heroGrid}>
               <div>
-                <div className={styles.heroTag}>{currentHero.tag}</div>
+                <HeroEyebrow>{currentHero.tag}</HeroEyebrow>
                 <h1 className={styles.aboutHeroTitle}>{currentHero.title}</h1>
               </div>
               <div className={styles.heroSubtitleBox}>
@@ -72,22 +73,12 @@ export default function AboutLayout({ children }) {
             </div>
           </section>
 
-          <nav className={styles.tabsBar}>
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = pathname === tab.href;
-              return (
-                <Link
-                  key={tab.href}
-                  href={tab.href}
-                  className={`${styles.tabItem} ${isActive ? styles.tabItemActive : ""}`}
-                >
-                  <Icon size={18} />
-                  {tab.name}
-                </Link>
-              );
-            })}
-          </nav>
+          <PillToggleNav
+            items={tabs}
+            activeHref={pathname}
+            ariaLabel="About navigation"
+            fullBleedMobile
+          />
 
           <div>{children}</div>
         </div>

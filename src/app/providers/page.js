@@ -1,3 +1,4 @@
+import { Inter } from "next/font/google";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import { prisma } from "../lib/prisma";
@@ -9,6 +10,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const metadata = providersIndexMetadata;
+
+const inter = Inter({ subsets: ["latin"] });
 
 export default async function ProvidersPage() {
   const [providers, locations] = await Promise.all([
@@ -41,9 +44,11 @@ export default async function ProvidersPage() {
   return (
     <>
       <SiteHeader />
-      <ProvidersDirectory
-        providers={providers.map((provider) => mapProviderForDirectory(provider, locationTitleBySlug))}
-      />
+      <div className={inter.className}>
+        <ProvidersDirectory
+          providers={providers.map((provider) => mapProviderForDirectory(provider, locationTitleBySlug))}
+        />
+      </div>
       <SiteFooter />
     </>
   );

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Inter, Manrope } from "next/font/google";
 import SiteHeader from "./components/site-header";
 import SiteFooter from "./components/site-footer";
+import HeroEyebrow from "./components/hero-eyebrow";
 import WelcomeVideoCard from "./components/welcome-video-card";
 import HomeHeroAiSearch from "./components/home-hero-ai-search";
 import ServiceTypedWord from "./components/service-typed-word";
@@ -518,10 +519,7 @@ export default async function Home() {
             <div className={styles.container}>
               <div className={styles.heroCopy}>
                 <div className={styles.heroHeading}>
-                  <p className={styles.heroBadge}>
-                    <span className={styles.heroBadgeDot} aria-hidden="true" />
-                    Patient-Centered Primary Care
-                  </p>
+                  <HeroEyebrow>Patient-Centered Primary Care</HeroEyebrow>
 
                   <h1 className={styles.heroTitle}>
                     <span className={styles.heroTitleLine}>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeroEyebrow from "../components/hero-eyebrow";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import { isDatabaseConfigured, prisma } from "../lib/prisma";
@@ -66,7 +67,7 @@ export default async function BlogIndexPage() {
       <main className={styles.page}>
         <div className={styles.shell}>
           <section className={styles.hero}>
-            <p className={styles.kicker}>Insights</p>
+            <HeroEyebrow>Insights</HeroEyebrow>
             <h1 className={styles.heroTitle}>Blog &amp; Health Perspectives</h1>
             <p className={styles.heroCopy}>
               Explore updates from our clinicians, patient resources, and practical guidance for

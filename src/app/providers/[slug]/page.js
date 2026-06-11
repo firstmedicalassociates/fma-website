@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import HeroEyebrow from "../../components/hero-eyebrow";
 import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
 import InternalLinkHub from "../../components/internal-link-hub";
@@ -395,10 +396,7 @@ export default async function ProviderDetailPage({ params }) {
               </div>
 
               <div className={styles.heroCopy}>
-                <span className={styles.heroBadge}>
-                  <span className={styles.heroBadgeIcon}>{renderInlineIcon("stack")}</span>
-                  <span>{heroBadgeLabel}</span>
-                </span>
+                <HeroEyebrow>{heroBadgeLabel}</HeroEyebrow>
 
                 <div className={styles.heroHeading}>
                   <h1>{seo.h1}</h1>

@@ -6,6 +6,8 @@
   --providers-secondary: #006591;
   --providers-muted: #444652;
   --providers-border: rgba(117, 118, 131, 0.26);
+  --providers-page-width: 1200px;
+  --providers-page-gutter: 1.5rem;
   min-height: 100vh;
   background: var(--providers-bg);
   color: #181c1e;
@@ -13,7 +15,7 @@
 }
 
 .directory {
-  width: min(1540px, calc(100% - 24px));
+  width: min(var(--providers-page-width), calc(100% - (var(--providers-page-gutter) * 2)));
   margin: 0 auto;
 }
 
@@ -37,28 +39,13 @@
   align-items: end;
 }
 
-.kicker {
-  width: fit-content;
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
-  padding: 0 16px;
-  border-radius: 999px;
-  background: #003a53;
-  color: #71a5c6;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin: 0 0 14px;
-}
-
 .heroHeader h1 {
   margin: 0;
   color: var(--providers-primary);
-  font-size: clamp(3rem, 8.2vw, 6.8rem);
-  line-height: 0.9;
-  letter-spacing: -0.07em;
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .heroCopy {
@@ -631,17 +618,13 @@
     padding: 22px 0 48px;
   }
 
-  .directory {
-    width: min(100%, calc(100% - 16px));
-  }
-
-  .heroHeader h1 {
-    font-size: clamp(2.4rem, 11vw, 4rem);
-  }
-
   .filterDock {
     top: 8px;
     padding: 12px 0;
+  }
+
+  .heroHeader h1 {
+    font-size: 2.5rem;
   }
 
   .filterGroup {

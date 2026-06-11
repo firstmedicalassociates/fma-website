@@ -6,6 +6,8 @@
   --services-secondary: #006591;
   --services-muted: #444652;
   --services-border: rgba(117, 118, 131, 0.26);
+  --services-page-width: 1200px;
+  --services-page-gutter: 1.5rem;
   background: var(--services-bg);
   color: #181c1e;
   padding: 34px 0 78px;
@@ -15,7 +17,7 @@
 .toolbarSection,
 .gridSection,
 .ctaSection {
-  width: min(1460px, calc(100% - 32px));
+  width: min(var(--services-page-width), calc(100% - (var(--services-page-gutter) * 2)));
   margin: 0 auto;
 }
 
@@ -36,27 +38,13 @@
   gap: 16px;
 }
 
-.kicker {
-  width: fit-content;
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
-  padding: 0 16px;
-  border-radius: 999px;
-  background: #003a53;
-  color: #71a5c6;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
 .heroLeft h1 {
   margin: 0;
   color: var(--services-primary);
-  font-size: clamp(3rem, 8.5vw, 7rem);
-  line-height: 0.9;
-  letter-spacing: -0.07em;
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .heroRight p {
@@ -146,93 +134,17 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: none;
-}
-
-.filterRow::-webkit-scrollbar {
-  display: none;
+  min-width: 0;
 }
 
 .filterLabel {
-  margin: 0 6px 0 0;
+  margin: 0;
   color: #5b6982;
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   white-space: nowrap;
-}
-
-.filterPill {
-  flex: 0 0 auto;
-  min-height: 42px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: 1px solid var(--services-border);
-  background: #ffffff;
-  color: var(--services-muted);
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease;
-}
-
-.filterPillDefault {
-  background: #ffffff;
-  color: #475569;
-  border-color: rgba(148, 163, 184, 0.45);
-}
-
-.filterPillPrimary {
-  background: #e8f0fe;
-  color: #1756d0;
-  border-color: rgba(23, 86, 208, 0.28);
-}
-
-.filterPillChronic {
-  background: #ecfdf3;
-  color: #198754;
-  border-color: rgba(25, 135, 84, 0.28);
-}
-
-.filterPillSpecialized {
-  background: #fef3f2;
-  color: #c2410c;
-  border-color: rgba(194, 65, 12, 0.28);
-}
-
-.filterPillGeneral {
-  background: #f5f3ff;
-  color: #6d28d9;
-  border-color: rgba(109, 40, 217, 0.26);
-}
-
-.filterPillTelehealth {
-  background: #fef9c3;
-  color: #a16207;
-  border-color: rgba(161, 98, 7, 0.3);
-}
-
-.filterPill:hover {
-  transform: translateY(-1px);
-  border-color: rgba(0, 22, 98, 0.34);
-  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
-}
-
-.filterPillActive {
-  border-color: transparent;
-  background: var(--services-primary);
-  color: #ffffff;
-  box-shadow: 0 12px 24px rgba(0, 22, 98, 0.14);
 }
 
 .gridSection {
@@ -489,11 +401,8 @@
     padding: 22px 0 48px;
   }
 
-  .heroSection,
-  .toolbarSection,
-  .gridSection,
-  .ctaSection {
-    width: min(100%, calc(100% - 18px));
+  .heroLeft h1 {
+    font-size: 2.5rem;
   }
 
   .toolbarSection {

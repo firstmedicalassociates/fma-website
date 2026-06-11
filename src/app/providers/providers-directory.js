@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import HeroEyebrow from "../components/hero-eyebrow";
 import styles from "./providers-directory.module.css";
 
 function slugify(value) {
@@ -103,7 +104,7 @@ export default function ProvidersDirectory({ providers }) {
         <section className={styles.hero}>
           <div className={styles.heroHeader}>
             <div>
-              <p className={styles.kicker}>Clinical Team</p>
+              <HeroEyebrow>Clinical Team</HeroEyebrow>
               <h1>
                 Find a Doctor
               </h1>

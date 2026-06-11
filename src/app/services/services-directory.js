@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import HeroEyebrow from "../components/hero-eyebrow";
+import { PillToggleButtons } from "../components/pill-toggles";
 import { normalizeServiceIcon } from "../lib/services";
 import styles from "./services-directory.module.css";
 
@@ -88,12 +90,22 @@ export default function ServicesDirectory({ services = [] }) {
       });
   }, [activeCategory, query, services]);
 
+  const filterItems = useMemo(() => {
+    return [
+      { value: "all", label: "All Services" },
+      ...categories.map((category) => ({
+        value: normalizeCategory(category),
+        label: category,
+      })),
+    ];
+  }, [categories]);
+
   return (
     <main className={styles.page}>
       <section className={styles.heroSection}>
         <div className={styles.heroSplit}>
           <div className={styles.heroLeft}>
-            <span className={styles.kicker}>Primary Care, Urgent Care &amp; Telehealth</span>
+            <HeroEyebrow as="span">Primary Care, Urgent Care &amp; Telehealth</HeroEyebrow>
             <h1>
               Healthcare Services
               <br />
@@ -129,27 +141,12 @@ export default function ServicesDirectory({ services = [] }) {
 
           <div className={styles.filterRow}>
             <span className={styles.filterLabel}>Filter By:</span>
-            <button
-              type="button"
-              className={`${styles.filterPill} ${activeCategory === "all" ? styles.filterPillActive : ""}`}
-              onClick={() => setActiveCategory("all")}
-            >
-              All Services
-            </button>
-            {categories.map((category) => {
-              const key = normalizeCategory(category);
-              const isActive = key === activeCategory;
-              return (
-                <button
-                  key={category}
-                  type="button"
-                  className={`${styles.filterPill} ${isActive ? styles.filterPillActive : ""}`}
-                  onClick={() => setActiveCategory(key)}
-                >
-                  {category}
-                </button>
-              );
-            })}
+            <PillToggleButtons
+              items={filterItems}
+              activeValue={activeCategory}
+              onSelect={setActiveCategory}
+              ariaLabel="Service category filters"
+            />
           </div>
         </div>
       </section>

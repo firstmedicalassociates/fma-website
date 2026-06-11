@@ -192,14 +192,6 @@ function formatDistanceMiles(value) {
   return `${Math.round(value)} mi away`;
 }
 
-function parseOfficeHoursRow(row = "") {
-  const [dayPart, ...rest] = String(row || "").split(":");
-  return {
-    day: String(dayPart || "").trim(),
-    hours: String(rest.join(":") || "").trim() || "Closed",
-  };
-}
-
 function getLocationStatus(officeHours = []) {
   const normalized = normalizeOfficeHours(officeHours);
   const today = WEEKDAY_LABELS[new Date().getDay()];
@@ -786,7 +778,6 @@ export default function LocationFinder({ locations = [] }) {
     setIsSheetExpanded(false);
   }
 
-  const selectedLocationStatus = activeLocation ? getLocationStatus(activeLocation.officeHours) : null;
   const selectedLocationCallHref = buildCallHref(activeLocation?.publicPhone);
   const emptyResults = filteredLocations.length === 0;
   const resultsTagLabel = hasActiveFinderSearch
@@ -804,23 +795,24 @@ export default function LocationFinder({ locations = [] }) {
   const shouldShowFooter = pathname !== "/locations";
   const detailAddressPrimary = activeLocation?.addressLines?.[0] || activeLocation?.address || "Address pending";
   const detailAddressSecondary =
-    activeLocation?.addressLines?.slice(1).join(", ") || selectedLocationStatus?.detail || "Address details";
-  const previewOfficeHours = (activeLocation?.officeHourRows || []).slice(0, 3).map(parseOfficeHoursRow);
+    activeLocation?.addressLines?.slice(1).join(", ") || "Address details";
 
   const renderLocationDetailCard = ({ onBack, backLabel }) => (
     <>
       <div className={styles.detailHero}>
-        {activeLocation?.mapImageUrl ? (
-          <img
-            className={styles.detailHeroImage}
-            src={activeLocation.mapImageUrl}
-            alt={activeLocation.mapImageAlt}
-          />
-        ) : (
-          <div className={styles.detailHeroPlaceholder}>
-            <span>{activeLocation?.title}</span>
-          </div>
-        )}
+        <ActionLink className={styles.detailHeroLink} href={activeLocation?.slug}>
+          {activeLocation?.mapImageUrl ? (
+            <img
+              className={styles.detailHeroImage}
+              src={activeLocation.mapImageUrl}
+              alt={activeLocation.mapImageAlt}
+            />
+          ) : (
+            <div className={styles.detailHeroPlaceholder}>
+              <span>{activeLocation?.title}</span>
+            </div>
+          )}
+        </ActionLink>
       </div>
 
       <div className={styles.detailBody}>
@@ -839,85 +831,41 @@ export default function LocationFinder({ locations = [] }) {
         </button>
 
         <div className={styles.detailHeader}>
-          <span className={styles.panelEyebrow}>Selected Location</span>
           <h2>{activeLocation?.title}</h2>
           <p>{activeLocation?.intro || activeLocation?.accent || "Location details and provider availability."}</p>
         </div>
 
-        <ActionLink className={styles.detailAddressCard} href={activeLocation?.slug}>
-          <span className={styles.detailAddressIcon} aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M12 21s-6-5.25-6-11a6 6 0 1 1 12 0c0 5.75-6 11-6 11Z"
-                fill="currentColor"
-              />
-              <circle cx="12" cy="10" r="2.6" fill="#ffffff" />
-            </svg>
-          </span>
-          <span className={styles.detailAddressCopy}>
-            <strong>{detailAddressPrimary}</strong>
-            <span>{detailAddressSecondary}</span>
-          </span>
-          <span className={styles.detailAddressChevron} aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M9.5 6.5 15 12l-5.5 5.5"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.2"
-              />
-            </svg>
-          </span>
-        </ActionLink>
-
-        <div className={styles.detailGrid}>
-          <div className={styles.detailStat}>
-            <span className={styles.detailStatLabel}>
-              <span className={styles.detailStatIcon} aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <path
-                    d="M7.6 3.5h2.7l1.2 3.1-1.7 1.8a14.3 14.3 0 0 0 5.8 5.8l1.8-1.7 3.1 1.2v2.7a2 2 0 0 1-2 2C10.3 18.4 5.6 13.7 5.6 8.5a2 2 0 0 1 2-2Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </span>
-              <span>Phone</span>
+        <div className={styles.detailQuickActions}>
+          <ActionLink className={styles.detailAddressCard} href={activeLocation?.slug}>
+            <span className={styles.detailAddressIcon} aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 21s-6-5.25-6-11a6 6 0 1 1 12 0c0 5.75-6 11-6 11Z"
+                  fill="currentColor"
+                />
+                <circle cx="12" cy="10" r="2.6" fill="#ffffff" />
+              </svg>
             </span>
-            <strong>{activeLocation?.publicPhone || "Call for details"}</strong>
-          </div>
-          <div className={styles.detailStat}>
-            <span className={styles.detailStatLabel}>
-              <span className={styles.detailStatIcon} aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <path
-                    d="M12 6v6l3.8 2.2"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                  />
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="7.4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                </svg>
-              </span>
-              <span>Status</span>
+            <span className={styles.detailAddressCopy}>
+              <strong>{detailAddressPrimary}</strong>
+              <span>{detailAddressSecondary}</span>
             </span>
-            <strong>{selectedLocationStatus?.label || "Hours unavailable"}</strong>
-          </div>
-        </div>
+            <span className={styles.detailAddressChevron} aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M9.5 6.5 15 12l-5.5 5.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.2"
+                />
+              </svg>
+            </span>
+          </ActionLink>
 
-        <div className={styles.actionGrid}>
-          <ActionLink className={styles.detailActionPrimary} href={selectedLocationCallHref} external>
-            <span className={styles.detailActionIcon} aria-hidden="true">
+          <ActionLink className={styles.detailAddressCard} href={selectedLocationCallHref} external>
+            <span className={styles.detailAddressIcon} aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <path
                   d="M7.6 3.5h2.7l1.2 3.1-1.7 1.8a14.3 14.3 0 0 0 5.8 5.8l1.8-1.7 3.1 1.2v2.7a2 2 0 0 1-2 2C10.3 18.4 5.6 13.7 5.6 8.5a2 2 0 0 1 2-2Z"
@@ -925,77 +873,37 @@ export default function LocationFinder({ locations = [] }) {
                 />
               </svg>
             </span>
-            Call clinic
-          </ActionLink>
-          <ActionLink className={styles.detailActionSecondary} href={activeLocation?.directionsUrl} external>
-            <span className={styles.detailActionIcon} aria-hidden="true">
+            <span className={styles.detailAddressCopy}>
+              <strong>{activeLocation?.publicPhone || "Call for details"}</strong>
+              <span>Tap to call</span>
+            </span>
+            <span className={styles.detailAddressChevron} aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <path
-                  d="m7 17 10-10"
+                  d="M9.5 6.5 15 12l-5.5 5.5"
                   fill="none"
                   stroke="currentColor"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="2"
-                />
-                <path
-                  d="m10 7 7-.2-.2 7"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
+                  strokeWidth="2.2"
                 />
               </svg>
             </span>
-            Directions
+          </ActionLink>
+
+          <ActionLink className={`${styles.detailActionPrimary} ${styles.detailActionFull}`} href={activeLocation?.slug}>
+            <span className={styles.detailActionIcon} aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 21s-6-5.25-6-11a6 6 0 1 1 12 0c0 5.75-6 11-6 11Z"
+                  fill="currentColor"
+                />
+                <circle cx="12" cy="10" r="2.6" fill="#ffffff" />
+              </svg>
+            </span>
+            View location
           </ActionLink>
         </div>
-
-        <ActionLink className={`${styles.detailActionSecondary} ${styles.detailActionFull}`} href={activeLocation?.slug}>
-          <span className={styles.detailActionIcon} aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M12 21s-6-5.25-6-11a6 6 0 1 1 12 0c0 5.75-6 11-6 11Z"
-                fill="currentColor"
-              />
-              <circle cx="12" cy="10" r="2.6" fill="#ffffff" />
-            </svg>
-          </span>
-          View location
-        </ActionLink>
-
-        <section className={styles.detailSection}>
-          <div className={styles.sectionHeading}>
-            <h3>Office hours</h3>
-            <span>{selectedLocationStatus?.detail || "Check the location page for updates."}</span>
-          </div>
-          <div className={styles.hoursList}>
-            {previewOfficeHours.length > 0 ? (
-              previewOfficeHours.map((entry) => (
-                <div className={styles.hoursRow} key={`${activeLocation?.slug}-${entry.day}-${entry.hours}`}>
-                  <span>{entry.day}</span>
-                  <strong>{entry.hours}</strong>
-                </div>
-              ))
-            ) : (
-              <p className={styles.emptyCopy}>Office hours will appear here once added in the CMS.</p>
-            )}
-          </div>
-          <ActionLink className={styles.hoursViewLink} href={activeLocation?.slug}>
-            <span>View full hours</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="m7 10 5 5 5-5"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-              />
-            </svg>
-          </ActionLink>
-        </section>
       </div>
     </>
   );

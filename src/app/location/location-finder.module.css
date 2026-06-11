@@ -30,10 +30,10 @@
 }
 
 .panelEyebrow {
-  color: #3358b7;
-  font-size: 0.72rem;
+  color: #4a67b7;
+  font-size: 0.66rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
 }
 
@@ -44,10 +44,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
+  min-height: 50px;
   padding: 0 18px;
   border-radius: 999px;
-  font-weight: 700;
+  font-weight: 800;
   transition:
     transform 180ms ease,
     box-shadow 180ms ease,
@@ -59,13 +59,14 @@
 .bottomAction {
   background: linear-gradient(135deg, #0f2358 0%, #1b4ec9 100%);
   color: #ffffff;
-  box-shadow: 0 20px 40px rgba(15, 35, 88, 0.22);
+  box-shadow: 0 14px 28px rgba(15, 35, 88, 0.18);
 }
 
 .detailActionSecondary {
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(19, 36, 73, 0.14);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(19, 36, 73, 0.1);
   color: #132449;
+  box-shadow: 0 10px 22px rgba(15, 35, 88, 0.06);
 }
 
 .actionDisabled {
@@ -312,92 +313,134 @@
 }
 
 .searchPanelDetailView .detailHero {
-  min-height: 134px;
-  border-radius: 16px;
-  margin: 8px 8px 0;
+  min-height: 180px;
+  border-radius: 26px;
+  margin: 10px 10px 0;
   overflow: hidden;
 }
 
 .searchPanelDetailView .detailBody {
-  gap: 10px;
-  padding: 12px 12px 14px;
+  gap: 8px;
+  padding: 10px 12px 16px;
 }
 
 .searchPanelDetailView .detailHeader {
-  gap: 2px;
+  gap: 3px;
 }
 
 .searchPanelDetailView .detailHeader h2 {
-  font-size: 2.15rem;
-  line-height: 1.01;
+  font-size: 2.2rem;
+  line-height: 0.98;
 }
 
 .searchPanelDetailView .detailHeader p {
-  font-size: 0.95rem;
-  line-height: 1.35;
+  font-size: 0.94rem;
+  line-height: 1.38;
 }
 
 .searchPanelDetailView .panelEyebrow {
-  font-size: 0.56rem;
+  font-size: 0.58rem;
   letter-spacing: 0.24em;
 }
 
-.searchPanelDetailView .detailGrid {
+.searchPanelDetailView .detailQuickActions {
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
+  align-items: stretch;
 }
 
-.searchPanelDetailView .detailStat {
-  gap: 4px;
+.searchPanelDetailView .detailAddressCard {
+  min-height: 70px;
   padding: 12px;
   border-radius: 16px;
 }
 
-.searchPanelDetailView .detailStat span {
+.searchPanelDetailView .detailAddressIcon {
+  width: 28px;
+  height: 28px;
+}
+
+.searchPanelDetailView .detailAddressIcon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.searchPanelDetailView .detailAddressCopy strong {
   font-size: 0.9rem;
+  line-height: 1.22;
+}
+
+.searchPanelDetailView .detailAddressCopy span {
+  font-size: 0.78rem;
+}
+
+.searchPanelDetailView .detailAddressChevron svg {
+  width: 14px;
+  height: 14px;
+}
+
+.searchPanelDetailView .detailGrid {
+  gap: 10px;
+}
+
+.searchPanelDetailView .detailStat {
+  gap: 6px;
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.searchPanelDetailView .detailStat span {
+  font-size: 0.88rem;
 }
 
 .searchPanelDetailView .detailStat strong {
-  font-size: 1.15rem;
-  line-height: 1.35;
+  font-size: 1rem;
+  line-height: 1.4;
 }
 
 .searchPanelDetailView .actionGrid {
-  gap: 8px;
+  gap: 10px;
 }
 
 .searchPanelDetailView .detailActionPrimary,
 .searchPanelDetailView .detailActionSecondary {
-  min-height: 40px;
-  padding: 0 12px;
-  font-size: 0.95rem;
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 0.9rem;
+}
+
+.searchPanelDetailView .detailActionFull {
+  width: 100%;
+  min-width: 0;
+  border-radius: 16px;
 }
 
 .searchPanelDetailView .detailSection {
-  border: 1px solid rgba(19, 36, 73, 0.1);
-  border-radius: 14px;
-  background: rgba(248, 250, 255, 0.84);
-  padding: 10px 12px 8px;
-  gap: 4px;
+  border: 1px solid rgba(207, 219, 237, 0.92);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(246, 249, 255, 0.98), rgba(240, 245, 253, 0.94));
+  padding: 14px 16px 12px;
+  gap: 8px;
 }
 
 .searchPanelDetailView .hoursRow {
-  padding: 7px 0;
+  padding: 10px 0;
 }
 
 .searchPanelDetailView .hoursViewLink {
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .detailBackLink {
   border: none;
   background: transparent;
-  color: #26439c;
+  color: #234ea5;
   font: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 800;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   padding: 0;
   cursor: pointer;
 }
@@ -411,34 +454,40 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   width: 100%;
-  padding: 10px 11px;
-  border-radius: 12px;
-  border: 1px solid rgba(19, 36, 73, 0.1);
-  background: rgba(248, 250, 255, 0.86);
+  padding: 14px 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(206, 218, 236, 0.95);
+  background: linear-gradient(180deg, rgba(243, 247, 253, 0.98), rgba(236, 242, 251, 0.95));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .detailAddressCard:hover {
   border-color: rgba(27, 78, 201, 0.28);
-  box-shadow: 0 10px 24px rgba(15, 35, 88, 0.08);
+  box-shadow: 0 12px 26px rgba(15, 35, 88, 0.08);
+}
+
+.detailQuickActions {
+  display: grid;
+  gap: 12px;
 }
 
 .detailAddressIcon {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: rgba(27, 78, 201, 0.1);
+  background: rgba(27, 78, 201, 0.12);
   color: #1b4ec9;
 }
 
 .detailAddressIcon svg {
-  width: 13px;
-  height: 13px;
+  width: 15px;
+  height: 15px;
 }
 
 .detailAddressCopy {
@@ -455,14 +504,14 @@
 
 .detailAddressCopy strong {
   color: #10203e;
-  font-size: 0.89rem;
-  font-weight: 700;
-  line-height: 1.25;
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.3;
 }
 
 .detailAddressCopy span {
   color: #5c6b84;
-  font-size: 0.8rem;
+  font-size: 0.84rem;
   line-height: 1.3;
 }
 
@@ -532,8 +581,8 @@
 
 .panelHeader h2,
 .detailHeader h2 {
-  font-size: 1.9rem;
-  line-height: 1.02;
+  font-size: 2.2rem;
+  line-height: 0.98;
 }
 
 .panelHeader p,
@@ -736,7 +785,7 @@
 
 .detailHero {
   position: relative;
-  min-height: 160px;
+  min-height: 180px;
   background: linear-gradient(135deg, #0f2358 0%, #1b4ec9 100%);
 }
 
@@ -763,11 +812,11 @@
 
 .detailBody {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   min-height: 0;
   flex: 1 1 auto;
   overflow: auto;
-  padding: 12px;
+  padding: 14px;
   scrollbar-width: thin;
   scrollbar-color: rgba(23, 58, 136, 0.3) rgba(15, 35, 88, 0.08);
 }
@@ -797,12 +846,12 @@
 
 .detailHeader {
   display: grid;
-  gap: 2px;
+  gap: 6px;
 }
 
 .detailSection {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .detailMetaBlock {
@@ -823,16 +872,16 @@
 .detailGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
 }
 
 .detailStat {
   display: grid;
-  gap: 4px;
-  padding: 9px 10px;
-  border: 1px solid rgba(19, 36, 73, 0.1);
-  border-radius: 12px;
-  background: rgba(248, 250, 255, 0.9);
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid rgba(206, 218, 236, 0.94);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(248, 250, 255, 0.96), rgba(241, 246, 253, 0.94));
 }
 
 .detailStatLabel {
@@ -842,8 +891,8 @@
 }
 
 .detailStatIcon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 999px;
   background: rgba(27, 78, 201, 0.12);
   color: #1b4ec9;
@@ -853,22 +902,22 @@
 }
 
 .detailStatIcon svg {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
 }
 
 .detailStatLabel > span:last-child {
   color: #61708d;
-  font-size: 0.64rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
 .detailStat strong {
   color: #10203e;
-  line-height: 1.3;
-  font-size: 1.05rem;
+  line-height: 1.4;
+  font-size: 1rem;
 }
 
 .actionGrid {
@@ -878,8 +927,8 @@
 }
 
 .detailActionFull {
-  min-height: 40px;
-  font-size: 0.92rem;
+  min-height: 46px;
+  font-size: 0.94rem;
 }
 
 .detailActionIcon {
@@ -900,7 +949,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
   border-bottom: 1px solid rgba(19, 36, 73, 0.08);
 }
 
@@ -911,8 +960,8 @@
 
 .sectionHeading h3 {
   margin: 0;
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
@@ -935,7 +984,7 @@
 .hoursList,
 .providerList {
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .hoursRow {
@@ -943,7 +992,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 9px 0;
+  padding: 11px 0;
   border-bottom: 1px solid rgba(19, 36, 73, 0.08);
 }
 
@@ -954,20 +1003,20 @@
 
 .hoursRow span {
   color: #5c6b84;
-  font-size: 0.84rem;
+  font-size: 0.9rem;
 }
 
 .hoursRow strong {
   color: #132449;
   text-align: right;
-  font-size: 0.84rem;
+  font-size: 0.9rem;
 }
 
 .hoursViewLink {
   justify-self: center;
   color: #2e56bc;
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: 0.84rem;
+  font-weight: 800;
   min-height: auto;
   padding: 0;
   background: transparent;
@@ -1113,15 +1162,15 @@
 .mobileSheetDetail {}
 
 .mobileSheetDetail .detailHero {
-  min-height: 126px;
-  border-radius: 14px;
-  margin: 0 2px 3px;
+  min-height: 160px;
+  border-radius: 22px;
+  margin: 2px 2px 4px;
   overflow: hidden;
 }
 
 .mobileSheetDetail .detailBody {
-  padding: 0 2px 6px;
-  gap: 8px;
+  padding: 2px 2px 8px;
+  gap: 10px;
 }
 
 .mobileSheetDetail .detailBackLink {
@@ -1129,13 +1178,13 @@
 }
 
 .mobileSheetDetail .detailHeader h2 {
-  font-size: 2.05rem;
-  line-height: 1.02;
+  font-size: 2.3rem;
+  line-height: 0.98;
 }
 
 .mobileSheetDetail .detailHeader p {
-  font-size: 0.9rem;
-  line-height: 1.35;
+  font-size: 0.94rem;
+  line-height: 1.42;
 }
 
 .mobileSheetDetail .panelEyebrow {
@@ -1145,12 +1194,12 @@
 
 .mobileSheetDetail .detailActionPrimary,
 .mobileSheetDetail .detailActionSecondary {
-  min-height: 38px;
-  font-size: 0.9rem;
+  min-height: 44px;
+  font-size: 0.92rem;
 }
 
 .mobileSheetDetail .detailActionFull {
-  min-height: 36px;
+  min-height: 44px;
 }
 
 .mobileSheetDetail .sectionHeading span {

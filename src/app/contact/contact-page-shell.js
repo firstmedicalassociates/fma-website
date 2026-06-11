@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import HeroEyebrow from "../components/hero-eyebrow";
 import { PATIENT_PORTAL_URL, SITE_CALL_HREF, SITE_CALL_LABEL } from "../lib/config/site";
 import styles from "./contact-page-shell.module.css";
 
@@ -89,7 +90,7 @@ export default function ContactPageShell() {
     <main className={styles.page}>
       <section className={styles.hero}>
         <div className={styles.heroInner}>
-          <p className={styles.kicker}>Contact First Medical Associates</p>
+          <HeroEyebrow>Contact First Medical Associates</HeroEyebrow>
           <h1>Let&apos;s Get You Connected to Care</h1>
           <p>
             Whether you need help finding a location, booking an appointment, or reaching

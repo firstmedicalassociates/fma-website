@@ -17,7 +17,6 @@ const PROMPT_PILLS = [
   "Which doctors are accepting new patients?",
   "How do I book an appointment?",
   "What primary care services do you offer?",
-  "Where is the nearest FMA location?",
 ];
 const FOLLOWUP_PILLS = [
   "Which doctors are accepting new patients?",
@@ -462,15 +461,6 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                       <h3>Here&apos;s the best place to start.</h3>
                       <p>{renderWithLinks(resultPayload.summary)}</p>
 
-                      {resultPayload.citations.length > 0 ? (
-                        <div className={styles.citationList}>
-                          <span className={styles.citationLabel}>Sources:</span>
-                          {resultPayload.citations.map((c) => (
-                            <span className={styles.citationChip} key={c}>{c}</span>
-                          ))}
-                        </div>
-                      ) : null}
-
                       {resultPayload.disclaimer ? (
                         <div className={styles.disclaimerBanner}>
                           <span className={styles.disclaimerIcon}>⚠</span>
@@ -492,35 +482,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                         </Link>
                       </div>
 
-                      {resultPayload.sources.length > 0 ? (
-                        <div className={styles.sourceList}>
-                          {resultPayload.sources.map((source) => (
-                            <Link
-                              className={styles.sourcePill}
-                              href={source.url || "/search"}
-                              key={`${source.type || "source"}-${source.url || source.title}`}
-                              onClick={closeModal}
-                            >
-                              <span>{source.type || "Source"}</span>
-                              <strong>{source.title || "Website Page"}</strong>
-                            </Link>
-                          ))}
-                        </div>
-                      ) : null}
                     </article>
-
-                    <div className={styles.resultsGrid}>
-                      {resultPayload.cards.map((card) => (
-                        <article className={styles.resultCard} key={`${card.title}-${card.href}`}>
-                          <small>{card.categoryLabel}</small>
-                          <h4>{card.title}</h4>
-                          <p>{card.description}</p>
-                          <Link className={styles.cardLink} href={card.href} onClick={closeModal}>
-                            {card.actionLabel} -&gt;
-                          </Link>
-                        </article>
-                      ))}
-                    </div>
 
                     <div className={styles.followupSection}>
                       <p>Ask a follow-up</p>

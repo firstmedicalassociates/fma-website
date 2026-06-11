@@ -38,15 +38,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
-.kicker {
-  margin: 0;
-  color: var(--contact-accent);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
 .heroInner h1 {
   margin: 0;
   color: var(--contact-strong);

@@ -1,17 +1,15 @@
 "use client";
 
 import { Inter } from "next/font/google";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BookOpen,
-  FileText,
   GraduationCap,
   LayoutDashboard,
-  Megaphone,
   ShieldCheck,
   Users,
 } from "lucide-react";
+import HeroEyebrow from "../components/hero-eyebrow";
+import { PillToggleNav } from "../components/pill-toggles";
 import styles from "../components/brandon-route-shell.module.css";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
@@ -26,30 +24,25 @@ export default function PatientResourceLayout({ children }) {
       title: "Patient Resources",
       subtitle:
         "Streamlined access to insurance verification, clinical forms, and essential tools for managing your healthcare journey with First Medical Associates.",
-      icon: FileText,
     },
     "/patient-resources/insurance": {
       title: "Accepted Insurance Plans",
       subtitle:
         "Review accepted insurance plans, Medicare, Medicaid, self-pay details, and related patient forms for First Medical Associates.",
-      icon: ShieldCheck,
     },
     "/patient-resources/education": {
       title: "Patient Education",
       subtitle:
         "Expert medical insights, clinical guides, and essential tools curated by our specialists to empower your health journey.",
-      icon: BookOpen,
     },
     "/patient-resources/press": {
       title: "Press Releases",
       subtitle:
         "Expert medical insights, clinical updates, and important news from First Medical Associates.",
-      icon: Megaphone,
     },
   };
 
   const currentHero = heroContent[pathname] || heroContent["/patient-resources"];
-  const HeroIcon = currentHero.icon;
 
   const tabs = [
     { name: "Overview", href: "/patient-resources", icon: LayoutDashboard },
@@ -64,34 +57,19 @@ export default function PatientResourceLayout({ children }) {
       <main className={`${styles.routeRoot} ${inter.className}`}>
         <div className={styles.container}>
           <section className={styles.resourceHero}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div>
-                <div className={styles.heroTag}>Central Hub</div>
-                <h1 className={styles.heroTitle}>{currentHero.title || "Patient Resources"}</h1>
-                <p className={styles.heroSubtitle}>{currentHero.subtitle}</p>
-              </div>
-              <div style={{ background: "#e8f0fe", padding: "1.5rem", borderRadius: "12px" }}>
-                <HeroIcon size={40} color="#001c55" />
-              </div>
+            <div>
+              <HeroEyebrow>Central Hub</HeroEyebrow>
+              <h1 className={styles.heroTitle}>{currentHero.title || "Patient Resources"}</h1>
+              <p className={styles.heroSubtitle}>{currentHero.subtitle}</p>
             </div>
           </section>
 
-          <nav className={styles.tabsBar}>
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = pathname === tab.href;
-              return (
-                <Link
-                  key={tab.href}
-                  href={tab.href}
-                  className={`${styles.tabItem} ${isActive ? styles.tabItemActive : ""}`}
-                >
-                  <Icon size={18} />
-                  {tab.name}
-                </Link>
-              );
-            })}
-          </nav>
+          <PillToggleNav
+            items={tabs}
+            activeHref={pathname}
+            ariaLabel="Patient resources navigation"
+            fullBleedMobile
+          />
 
           <div>{children}</div>
         </div>

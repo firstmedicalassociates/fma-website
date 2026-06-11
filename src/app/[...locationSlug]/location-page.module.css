@@ -132,29 +132,23 @@
 }
 
 .main {
-  width: min(1280px, calc(100% - 32px));
+  width: min(1200px, calc(100% - 48px));
   margin: 0 auto;
   padding: 24px 0 48px;
 }
 
 .tabShell {
-  border-radius: 34px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.68);
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow:
-    0 28px 80px rgba(15, 31, 87, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  display: grid;
+  gap: 24px;
 }
 
 .tabNavWrap {
   position: sticky;
   top: 0;
   z-index: 20;
-  padding: 22px 18px;
-  border-bottom: 1px solid rgba(17, 33, 74, 0.08);
+  padding: 0;
   backdrop-filter: blur(18px);
-  background: rgba(245, 248, 252, 0.86);
+  background: transparent;
 }
 
 .tabNav {
@@ -200,27 +194,16 @@
 
 .locationPanel {
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(340px, 1.08fr);
-  min-height: calc(100vh - 210px);
+  gap: 22px;
+  padding: 0;
+  background: transparent;
 }
 
 .locationCopy,
 .doctorsPanel,
 .servicesPanel,
 .infoPanel {
-  padding: 40px;
-}
-
-.locationCopy {
-  display: grid;
-  align-content: center;
-  gap: 28px;
-  background: linear-gradient(180deg, rgba(228, 236, 246, 0.88), rgba(214, 226, 240, 0.92));
-}
-
-.locationIntro {
-  display: grid;
-  gap: 12px;
+  padding: 0;
 }
 
 .stageLabel,
@@ -242,7 +225,7 @@
 }
 
 .locationTitle {
-  font-size: clamp(2.8rem, 5vw, 5.3rem);
+  font-size: clamp(2.5rem, 4.6vw, 3.5rem);
 }
 
 .locationAccent,
@@ -257,23 +240,156 @@
   line-height: 1.7;
 }
 
-.infoStack {
+.locationHero {
   display: grid;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.92fr);
+  gap: 24px;
+  align-items: start;
 }
 
-.infoCard {
+.locationHeroCopy {
   display: grid;
-  grid-template-columns: 60px minmax(0, 1fr);
-  gap: 18px;
-  padding: 24px;
-  border-radius: 28px;
-  border: 1px solid rgba(17, 33, 74, 0.08);
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 18px 42px rgba(15, 31, 87, 0.06);
+  gap: 12px;
+  padding: 14px 6px 0 0;
 }
 
-.infoCard h2,
+.locationHeroTitle {
+  margin: 0;
+  max-width: 11ch;
+  color: #06195f;
+  font-size: clamp(2.5rem, 4.6vw, 3.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.06em;
+}
+
+.locationHeroAccent {
+  margin: 0;
+  color: #5470b2;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.locationHeroLead {
+  margin: 0;
+  max-width: 34rem;
+  color: #475569;
+  line-height: 1.72;
+}
+
+.locationHeroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding-top: 10px;
+}
+
+.locationHeroPrimaryButton,
+.locationHeroSecondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex: 1 1 220px;
+  min-height: 56px;
+  padding: 0 22px;
+  border-radius: 16px;
+  font-weight: 700;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    background-color 180ms ease;
+}
+
+.locationHeroPrimaryButton {
+  background: linear-gradient(135deg, #06195f 0%, #0e2d8f 100%);
+  color: #fff;
+  box-shadow: 0 18px 34px rgba(6, 25, 95, 0.18);
+}
+
+.locationHeroSecondaryButton {
+  border: 1px solid rgba(0, 92, 255, 0.34);
+  background: rgba(255, 255, 255, 0.92);
+  color: #005cff;
+  box-shadow: 0 12px 24px rgba(6, 25, 95, 0.06);
+}
+
+.locationHeroPrimaryButton:hover,
+.locationHeroSecondaryButton:hover,
+.locationHeroPhotoButton:hover,
+.locationInfoLink:hover,
+.locationInfoCard:hover {
+  transform: translateY(-2px);
+}
+
+.locationHeroMedia {
+  display: grid;
+}
+
+.locationHeroMediaCard {
+  position: relative;
+  min-height: 460px;
+  border-radius: 34px;
+  overflow: hidden;
+  border: 1px solid rgba(6, 25, 95, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 249, 255, 0.96));
+  box-shadow:
+    0 26px 52px rgba(6, 25, 95, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88);
+}
+
+.locationHeroImage,
+.providerAvatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.locationHeroPhotoButton {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #005cff;
+  font-weight: 700;
+  box-shadow: 0 16px 34px rgba(6, 25, 95, 0.14);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
+}
+
+.locationInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.locationInfoCard {
+  display: grid;
+  gap: 12px;
+  padding: 18px 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(6, 25, 95, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(251, 253, 255, 0.94));
+  box-shadow: 0 16px 30px rgba(6, 25, 95, 0.07);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.locationInfoCardHeader h2,
 .parkingCard h3,
 .providerCard h3,
 .serviceCard h3,
@@ -282,142 +398,103 @@
   letter-spacing: -0.04em;
 }
 
-.infoIcon {
-  width: 60px;
-  height: 60px;
+.locationInfoCardHeader {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.locationInfoCardHeader h2 {
+  color: #06195f;
+  font-size: 1.16rem;
+}
+
+.locationInfoIconWrap {
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(15, 31, 87, 0.1), rgba(17, 44, 122, 0.16));
-  color: var(--accent);
-  font-weight: 800;
+  border-radius: 999px;
+  background: rgba(0, 107, 255, 0.1);
+  color: #006bff;
 }
 
-.addressBlock,
-.hoursList {
+.locationInfoIconWrap .material-symbols-outlined {
+  font-size: 22px;
+}
+
+.locationAddressBlock {
   display: grid;
-  gap: 4px;
-  margin-top: 10px;
+  gap: 2px;
+  color: #50607c;
+  font-size: 0.92rem;
+  line-height: 1.48;
 }
 
-.infoCard a {
-  display: inline-block;
-  margin-top: 14px;
-  color: var(--accent);
-  font-weight: 700;
+.locationAddressBlock p {
+  margin: 0;
 }
 
-.resourceLinks {
+.locationHoursTable {
   display: grid;
+  gap: 6px;
+}
+
+.locationHoursRow {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
   gap: 12px;
-  margin-top: 16px;
+  color: #50607c;
+  font-size: 0.84rem;
+  line-height: 1.4;
 }
 
-.resourceLink {
+.locationHoursRow span:first-child {
+  color: #6a7894;
+  font-weight: 600;
+}
+
+.locationHoursRow span:last-child {
+  color: #24375e;
+  font-weight: 600;
+  text-align: right;
+}
+
+.locationResourceLinks {
+  display: grid;
+  gap: 10px;
+}
+
+.locationInfoLink {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 12px;
   width: 100%;
-  min-height: 48px;
-  padding: 0 18px;
-  margin-top: 0;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: linear-gradient(135deg, var(--surface-strong) 0%, var(--surface-strong-2) 100%);
-  box-shadow: 0 18px 36px rgba(15, 31, 87, 0.14);
-  color: #fff;
+  color: #005cff;
+  font-size: 0.92rem;
   font-weight: 700;
-  text-align: center;
-  text-decoration: none;
   transition:
     transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease,
     color 180ms ease,
     opacity 180ms ease;
 }
 
-.resourceLinkPrimary {
-  background: linear-gradient(135deg, var(--surface-strong) 0%, var(--surface-strong-2) 100%);
-  color: #fff;
+.locationInfoLink .material-symbols-outlined {
+  font-size: 18px;
 }
 
-.resourceLinkSecondary {
-  background: linear-gradient(135deg, var(--surface-strong) 0%, var(--surface-strong-2) 100%);
-  color: #fff;
+.locationInfoLink:hover {
+  color: #0046c9;
 }
 
-.resourceLinkDisabled {
+.locationInfoLinkDisabled {
   opacity: 0.46;
-  cursor: default;
   pointer-events: none;
 }
 
-.infoCard a.resourceLink {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 48px;
-  margin-top: 0;
-  color: #fff;
-  line-height: 1.1;
-}
-
-.resourceLink:hover {
-  transform: translateY(-1px);
-}
-
-.parkingCard {
-  display: grid;
-  gap: 12px;
-  padding: 28px;
-  border-radius: 30px;
-  background: linear-gradient(135deg, var(--surface-strong) 0%, var(--surface-strong-2) 100%);
-  color: #fff;
-  box-shadow: 0 30px 60px rgba(15, 31, 87, 0.24);
-}
-
-.parkingCard p {
-  color: rgba(255, 255, 255, 0.76);
-}
-
-.parkingKicker {
-  color: rgba(199, 220, 255, 0.82);
-}
-
-.locationMedia {
-  position: relative;
-  display: grid;
-  align-items: center;
-  padding: 30px;
-  min-height: 480px;
-  background: linear-gradient(180deg, rgba(228, 236, 246, 0.88), rgba(214, 226, 240, 0.92));
-}
-
-.locationMediaCard {
-  position: relative;
-  width: 100%;
-  min-height: 420px;
-  height: 100%;
-  border-radius: 30px;
-  overflow: hidden;
-  border: 1px solid rgba(17, 33, 74, 0.12);
-  background: #ffffff;
-  box-shadow:
-    0 26px 56px rgba(15, 31, 87, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86);
-}
-
-.mediaImage,
-.providerAvatar {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.mediaImage {
+.locationHeroImage {
   position: absolute;
   inset: 0;
 }
@@ -1098,10 +1175,10 @@
   display: grid;
   gap: 14px;
   padding: 24px;
-  border-radius: 28px;
-  border: 1px solid rgba(17, 33, 74, 0.08);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 18px 42px rgba(15, 31, 87, 0.06);
+  border-radius: 22px;
+  border: 1px solid rgba(197, 197, 212, 0.5);
+  background: #fff;
+  box-shadow: 0 14px 30px rgba(0, 22, 98, 0.05);
 }
 
 .serviceCardHeader {
@@ -1136,29 +1213,55 @@
 }
 
 .providerCard {
-  justify-items: center;
-  text-align: center;
+  align-content: start;
+  justify-items: start;
+  text-align: left;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.providerCard:hover {
+  border-color: rgba(0, 101, 145, 0.28);
+  box-shadow: 0 20px 38px rgba(0, 22, 98, 0.1);
+  transform: translateY(-2px);
+}
+
+.providerCard h3 {
+  color: #001662;
+  font-size: 1.08rem;
+  line-height: 1.2;
 }
 
 .providerCard p {
   margin: 0;
-  color: var(--muted);
+  color: #5b6982;
+  line-height: 1.55;
 }
 
 .providerAvatarWrap {
-  width: 180px;
-  height: 180px;
-  border-radius: 999px;
+  width: 100%;
+  height: 220px;
+  border-radius: 18px;
   overflow: hidden;
-  border: 6px solid #fff;
+  border: 1px solid rgba(17, 33, 74, 0.08);
   box-shadow:
-    0 18px 34px rgba(15, 31, 87, 0.12),
-    0 0 0 1px rgba(17, 33, 74, 0.08);
+    0 14px 28px rgba(15, 31, 87, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .providerActions {
+  width: 100%;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.providerActions a {
+  min-height: 42px;
+  padding: 0 16px;
+  font-size: 0.88rem;
 }
 
 .servicesHero {
@@ -1602,16 +1705,19 @@
   }
 
   .locationPanel {
+    padding: 0;
+  }
+
+  .locationHero {
     grid-template-columns: 1fr;
   }
 
-  .locationMedia {
-    min-height: 420px;
-    padding: 24px;
+  .locationHeroMediaCard {
+    min-height: 380px;
   }
 
-  .locationMediaCard {
-    min-height: 360px;
+  .locationInfoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .providerGrid,
@@ -1641,14 +1747,18 @@
 
   .tabNavWrap {
     top: 0;
-    padding: 18px 12px;
+    padding: 10px 0 0;
   }
 
   .locationCopy,
   .doctorsPanel,
   .servicesPanel,
   .infoPanel {
-    padding: 26px 20px;
+    padding: 0;
+  }
+
+  .main {
+    width: min(100%, calc(100% - 24px));
   }
 
   .utilityNav {
@@ -1666,7 +1776,8 @@
   .providerGrid,
   .serviceGrid,
   .serviceFinderGrid,
-  .infoSectionGrid {
+  .infoSectionGrid,
+  .locationInfoGrid {
     grid-template-columns: 1fr;
   }
 
@@ -1686,13 +1797,33 @@
     gap: 6px;
   }
 
-  .locationMedia {
-    padding: 18px;
+  .locationHeroTitle {
+    font-size: 2.5rem;
   }
 
-  .locationMediaCard {
+  .locationHeroMediaCard {
     min-height: 320px;
-    border-radius: 24px;
+    border-radius: 28px;
+  }
+
+  .locationHeroActions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .locationHeroPrimaryButton,
+  .locationHeroSecondaryButton {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .locationHoursRow {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .locationHoursRow span:last-child {
+    text-align: left;
   }
 
   .servicesHero {
@@ -1712,10 +1843,6 @@
     padding: 16px 0 28px;
   }
 
-  .tabShell {
-    border-radius: 24px;
-  }
-
   .tabNav {
     justify-content: flex-start;
   }
@@ -1724,12 +1851,8 @@
     padding: 12px 18px;
   }
 
-  .locationTitle {
-    font-size: 2.8rem;
-  }
-
-  .infoCard {
-    grid-template-columns: 1fr;
+  .locationHeroTitle {
+    font-size: 2rem;
   }
 
   .providerAvatarWrap {

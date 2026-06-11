@@ -4,11 +4,15 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import InternalLinkHub from "../components/internal-link-hub";
+import HeroEyebrow from "../components/hero-eyebrow";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
-import { PATIENT_PORTAL_URL } from "../lib/config/site";
-import { buildDisplayAddress, formatOfficeHoursForDisplay, resolveLocationAddressParts } from "../lib/locations";
+import { GENERAL_BOOK_APPOINTMENT_URL, PATIENT_PORTAL_URL } from "../lib/config/site";
+import {
+  buildDisplayAddress,
+  formatOfficeHoursForDisplay,
+  resolveLocationAddressParts,
+} from "../lib/locations";
 import { normalizeServiceIcon } from "../lib/services";
 import styles from "./location-page.module.css";
 
@@ -105,6 +109,31 @@ function getCategoryPillClass(stylesModule, category = "") {
   return map[variant] || stylesModule.serviceFinderCategoryDefault;
 }
 
+function buildLocationHeroHours(officeHours = []) {
+  const rows = Array.isArray(officeHours) ? officeHours : [];
+  const findRow = (label) =>
+    rows.find((row) => String(row || "").trim().toLowerCase().startsWith(label.toLowerCase()));
+
+  const weekdayRow = findRow("Mon") || findRow("Monday");
+  const saturdayRow = findRow("Saturday");
+  const sundayRow = findRow("Sunday");
+
+  return [
+    {
+      label: "Mon - Fri",
+      value: weekdayRow ? String(weekdayRow).replace(/^.*?:\s*/, "") : "Hours unavailable",
+    },
+    {
+      label: "Saturday",
+      value: saturdayRow ? String(saturdayRow).replace(/^.*?:\s*/, "") : "Closed",
+    },
+    {
+      label: "Sunday",
+      value: sundayRow ? String(sundayRow).replace(/^.*?:\s*/, "") : "Closed",
+    },
+  ];
+}
+
 export default function LocationPageShell({ location, providers, serviceGroups }) {
   const [activeTab, setActiveTab] = useState("location");
   const [serviceQuery, setServiceQuery] = useState("");
@@ -123,6 +152,10 @@ export default function LocationPageShell({ location, providers, serviceGroups }
   const addressLines = useMemo(() => formatAddressLines(location), [location]);
   const officeHourRows = useMemo(
     () => formatOfficeHoursForDisplay(location.officeHours),
+    [location.officeHours]
+  );
+  const locationHeroHours = useMemo(
+    () => buildLocationHeroHours(formatOfficeHoursForDisplay(location.officeHours)),
     [location.officeHours]
   );
   const serviceEntries = useMemo(() => {
@@ -217,7 +250,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
         description: geriatricDescription,
       },
     };
-  }, [infoSections, location.title, locationSeoPlaceLabel]);
+  }, [infoSections, locationSeoPlaceLabel]);
   const filteredServices = useMemo(() => {
     const query = serviceQuery.trim().toLowerCase();
     return serviceEntries.filter((service) => {
@@ -238,7 +271,8 @@ export default function LocationPageShell({ location, providers, serviceGroups }
   const publicPhone = location.publicPhone || "";
   const patientPortalUrl = PATIENT_PORTAL_URL;
   const hasPatientPortalLink = Boolean(patientPortalUrl && patientPortalUrl !== "#");
-
+  const bookingUrl = location.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL || "";
+  const hasBookingLink = Boolean(bookingUrl && bookingUrl !== "#");
   async function handleInfoFormSubmit(event) {
     event.preventDefault();
     setInfoFormStatus("sending");
@@ -301,128 +335,147 @@ export default function LocationPageShell({ location, providers, serviceGroups }
 
           {activeTab === "location" ? (
             <section className={styles.locationPanel}>
-              <div className={styles.locationCopy}>
-                <div className={styles.locationIntro}>
-                  <p className={styles.stageLabel}>{location.eyebrow || "Stage 01: Visit Our Hub"}</p>
-                  <h1 className={styles.locationTitle}>{location.seoH1 || location.title}</h1>
-                  <p className={styles.locationAccent}>
-                    {location.accent || location.intro || "Personalized primary care close to home."}
+              <div className={styles.locationHero}>
+                <div className={styles.locationHeroCopy}>
+                  <HeroEyebrow>{locationSeoPlaceLabel}</HeroEyebrow>
+                  <h1 className={styles.locationHeroTitle}>{location.seoH1 || location.title}</h1>
+                  <p className={styles.locationHeroAccent}>
+                    {location.accent || `Primary care in ${locationSeoPlaceLabel}`}
                   </p>
+                  <p className={styles.locationHeroLead}>
+                    {location.intro ||
+                      "Compassionate, patient-centered primary care for you and your family. Our team is here to keep you healthy today and for years to come."}
+                  </p>
+
+                  <div className={styles.locationHeroActions}>
+                    {hasBookingLink ? (
+                      <a
+                        href={bookingUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.locationHeroPrimaryButton}
+                      >
+                        <span className="material-symbols-outlined">calendar_month</span>
+                        <span>Book Appointment</span>
+                      </a>
+                    ) : null}
+
+                    {hasPatientPortalLink ? (
+                      <a
+                        href={patientPortalUrl}
+                        target={patientPortalUrl.startsWith("http") ? "_blank" : undefined}
+                        rel={patientPortalUrl.startsWith("http") ? "noreferrer" : undefined}
+                        className={styles.locationHeroSecondaryButton}
+                      >
+                        <span className="material-symbols-outlined">person</span>
+                        <span>Patient Portal</span>
+                      </a>
+                    ) : null}
+                  </div>
                 </div>
 
-                <div className={styles.infoStack}>
-                  <div className={styles.infoCard}>
-                    <div className={styles.infoIcon}>01</div>
+                <div className={styles.locationHeroMedia}>
+                  <div className={styles.locationHeroMediaCard}>
+                    {location.imageUrl ? (
+                      <img
+                        className={styles.locationHeroImage}
+                        src={location.imageUrl}
+                        alt={location.mapImageAlt}
+                      />
+                    ) : (
+                      <div className={styles.mediaPlaceholder}>Location image is currently unavailable.</div>
+                    )}
+
+                    {location.imageUrl ? (
+                      <a
+                        href={location.imageUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.locationHeroPhotoButton}
+                      >
+                        <span className="material-symbols-outlined">imagesmode</span>
+                        <span>View photos</span>
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.locationInfoGrid}>
+                <article className={styles.locationInfoCard}>
+                  <div className={styles.locationInfoCardHeader}>
+                    <div className={styles.locationInfoIconWrap}>
+                      <span className="material-symbols-outlined">location_on</span>
+                    </div>
                     <div>
                       <h2>Clinic Address</h2>
-                      <div className={styles.addressBlock}>
+                      <div className={styles.locationAddressBlock}>
                         {addressLines.length > 0 ? (
                           addressLines.map((line) => <p key={line}>{line}</p>)
                         ) : (
                           <p>Address information is currently unavailable.</p>
                         )}
                       </div>
-                      {location.directionsUrl ? (
-                        <a href={location.directionsUrl} target="_blank" rel="noreferrer">
-                          Get Directions
-                        </a>
-                      ) : null}
                     </div>
                   </div>
+                </article>
 
-                  <div className={styles.infoCard}>
-                    <div className={styles.infoIcon}>02</div>
+                <article className={styles.locationInfoCard}>
+                  <div className={styles.locationInfoCardHeader}>
+                    <div className={styles.locationInfoIconWrap}>
+                      <span className="material-symbols-outlined">schedule</span>
+                    </div>
                     <div>
                       <h2>Patient Hours</h2>
-                      <div className={styles.hoursList}>
-                        {officeHourRows.length > 0 ? (
-                          officeHourRows.map((hours) => <p key={hours}>{hours}</p>)
-                        ) : (
-                          <p>Office hours are currently unavailable.</p>
-                        )}
+                      <div className={styles.locationHoursTable}>
+                        {locationHeroHours.map((row) => (
+                          <div key={`${row.label}-${row.value}`} className={styles.locationHoursRow}>
+                            <span>{row.label}</span>
+                            <span>{row.value}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
-                </div>
+                </article>
 
-                <div className={styles.infoCard}>
-                  <div className={styles.infoIcon}>03</div>
-                  <div>
-                    <h2>Resources</h2>
-                    <div className={styles.resourceLinks}>
-                      {location.bookingUrl ? (
-                        <a className={`${styles.resourceLink} ${styles.resourceLinkPrimary}`} href={location.bookingUrl} target="_blank" rel="noreferrer">
-                          Book Appointment
-                        </a>
-                      ) : (
-                        <span className={`${styles.resourceLink} ${styles.resourceLinkPrimary} ${styles.resourceLinkDisabled}`}>
-                          Book Appointment
-                        </span>
-                      )}
-                      {hasPatientPortalLink ? (
-                        <a
-                          className={`${styles.resourceLink} ${styles.resourceLinkSecondary}`}
-                          href={patientPortalUrl}
-                          target={patientPortalUrl.startsWith("http") ? "_blank" : undefined}
-                          rel={patientPortalUrl.startsWith("http") ? "noreferrer" : undefined}
-                        >
-                          Patient Portal
-                        </a>
-                      ) : (
-                        <span className={`${styles.resourceLink} ${styles.resourceLinkSecondary} ${styles.resourceLinkDisabled}`}>
-                          Patient Portal
-                        </span>
-                      )}
-                      {location.reviewUrl ? (
-                        <a className={`${styles.resourceLink} ${styles.resourceLinkSecondary}`} href={location.reviewUrl} target="_blank" rel="noreferrer">
-                          Leave a Review
-                        </a>
-                      ) : (
-                        <span className={`${styles.resourceLink} ${styles.resourceLinkSecondary} ${styles.resourceLinkDisabled}`}>
-                          Leave a Review
-                        </span>
-                      )}
+                <article className={styles.locationInfoCard}>
+                  <div className={styles.locationInfoCardHeader}>
+                    <div className={styles.locationInfoIconWrap}>
+                      <span className="material-symbols-outlined">description</span>
                     </div>
-
-                    <div style={{ marginTop: "18px" }}>
-                      <InternalLinkHub
-                        title="Continue from this location"
-                        intro={`Use ${location.title} as your starting point to explore doctors, services, and patient resources.`}
-                        links={[
-                          {
-                            href: "/providers",
-                            label: "Find a Doctor",
-                            description: "Browse provider profiles and compare doctors across Maryland locations.",
-                          },
-                          {
-                            href: "/services",
-                            label: "Browse Services",
-                            description: "See primary care, urgent care, chronic care, and telehealth options.",
-                          },
-                          {
-                            href: "/patient-resources",
-                            label: "Patient Resources",
-                            description: "Access forms, insurance details, and patient support information.",
-                          },
-                        ]}
-                      />
+                    <div>
+                      <h2>Resources</h2>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              <div className={styles.locationMedia}>
-                <div className={styles.locationMediaCard}>
-                  {location.imageUrl ? (
-                    <img
-                      className={styles.mediaImage}
-                      src={location.imageUrl}
-                      alt={location.mapImageAlt}
-                    />
-                  ) : (
-                    <div className={styles.mediaPlaceholder}>Location image is currently unavailable.</div>
-                  )}
-                </div>
+                  <div className={styles.locationResourceLinks}>
+                    <Link href="/patient-resources/patients" className={styles.locationInfoLink}>
+                      <span>Patient Forms</span>
+                      <span className="material-symbols-outlined">arrow_forward</span>
+                    </Link>
+                    <Link href="/patient-resources/education" className={styles.locationInfoLink}>
+                      <span>Education</span>
+                      <span className="material-symbols-outlined">arrow_forward</span>
+                    </Link>
+                    {location.reviewUrl ? (
+                      <a
+                        href={location.reviewUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.locationInfoLink}
+                      >
+                        <span>Leave a Review</span>
+                        <span className="material-symbols-outlined">arrow_forward</span>
+                      </a>
+                    ) : (
+                      <span className={`${styles.locationInfoLink} ${styles.locationInfoLinkDisabled}`}>
+                        <span>Leave a Review</span>
+                        <span className="material-symbols-outlined">arrow_forward</span>
+                      </span>
+                    )}
+                  </div>
+                </article>
               </div>
             </section>
           ) : null}
@@ -807,7 +860,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                 </div>
               </section>
 
-              <section className={styles.infoContactSection}>
+              <section className={styles.infoContactSection} id="location-hours">
                 <div className={styles.infoContactInfo}>
                   <div className={styles.infoContactIntro}>
                     <h2>

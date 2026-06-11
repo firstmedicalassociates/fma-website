@@ -49,17 +49,14 @@ export default function EducationPage() {
   return (
     <div className="education-content">
       <style>{`
-        .education-content { width: 100%; display: flex; flex-direction: column; gap: 2rem; }
-        
-        .edu-stats { display: flex; justify-content: flex-end; align-items: center; gap: 1.5rem; margin-bottom: 0.5rem; }
-        .edu-stats h4 { font-size: 1.5rem; font-weight: 800; color: #001c55; }
-        .edu-stats span { font-size: 0.75rem; color: #64748b; font-weight: 600; }
+        .education-content { width: 100%; display: flex; flex-direction: column; gap: 1.5rem; }
 
         .cat-hero-row {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
           gap: 1.25rem;
-          margin-bottom: 1rem;
+          margin-top: 0;
+          margin-bottom: 0.5rem;
         }
         .edu-cat-card {
            background: #f1f5f9;
@@ -218,14 +215,6 @@ export default function EducationPage() {
           .grid-main { grid-template-columns: 1fr; }
         }
       `}</style>
-
-      {/* Header Stats */}
-      <div className="edu-stats">
-         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-            <span>Updated weekly</span>
-            <h4>840+ Medical Guides</h4>
-         </div>
-      </div>
 
       {/* Top Categories Navigation */}
       <div className="cat-hero-row">
