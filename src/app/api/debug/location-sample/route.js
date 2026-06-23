@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
+import { requireAdminRequest } from '../../../lib/admin-auth';
 import { prisma } from '../../../lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request) {
+  const auth = requireAdminRequest(request);
+  if (!auth.ok) return auth.response;
+
   try {
     const location = await prisma.location.findFirst();
 

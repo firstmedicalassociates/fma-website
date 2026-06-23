@@ -17,6 +17,7 @@ export default function PrivacyPolicyPage() {
           heading: "Website and communication privacy",
           body: [
             "If you submit a form, request information, or contact our team through this website, First Medical Associates may use the information you provide to respond to your request and support patient service needs.",
+            "Do not submit protected health information, symptoms, diagnoses, medications, test results, insurance ID numbers, dates of birth, or urgent medical concerns through public website forms or AI search. Use the patient portal or call the office for medical or patient-specific questions.",
             "For questions about how your information is handled through this website or patient communications, contact our team directly so we can route your request appropriately.",
           ],
         },

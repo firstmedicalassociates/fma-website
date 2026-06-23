@@ -17,6 +17,7 @@ export default function TermsPage() {
           heading: "Website use",
           body: [
             "Website content is provided for general informational purposes and should not be treated as a substitute for direct medical advice, diagnosis, or treatment.",
+            "Do not submit protected health information or patient-specific medical details through public website forms or AI search. Use the patient portal or call the office for medical questions, records, prescriptions, results, or urgent concerns.",
             "If you need urgent medical guidance, contact the office directly or seek emergency care where appropriate.",
           ],
         },

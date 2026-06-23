@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { OpenAI } from 'openai';
+import { requireAdminRequest } from '../../../lib/admin-auth';
 import { prisma } from '../../../lib/prisma';
 
 export const runtime = 'nodejs';
@@ -298,6 +299,9 @@ async function indexBlogPosts(db) {
 }
 
 export async function POST(request) {
+  const auth = requireAdminRequest(request);
+  if (!auth.ok) return auth.response;
+
   const logs = [];
   const errors = { locations: [], providers: [], services: [], posts: [] };
 

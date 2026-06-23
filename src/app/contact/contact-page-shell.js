@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import HeroEyebrow from "../components/hero-eyebrow";
 import { PATIENT_PORTAL_URL, SITE_CALL_HREF, SITE_CALL_LABEL } from "../lib/config/site";
+import { NO_PHI_NOTICE } from "../lib/no-phi-guard";
 import styles from "./contact-page-shell.module.css";
 
 const INITIAL_FORM_VALUES = {
@@ -149,6 +150,11 @@ export default function ContactPageShell() {
               <p>We usually respond within one business day.</p>
             </div>
 
+            <div className={styles.privacyNotice}>
+              <strong>Please keep this message general.</strong>
+              <span>{NO_PHI_NOTICE}</span>
+            </div>
+
             <form className={styles.form} onSubmit={handleSubmit}>
               <label className={styles.field}>
                 <span>First Name</span>
@@ -203,11 +209,16 @@ export default function ContactPageShell() {
                 <textarea
                   rows={6}
                   required
+                  aria-describedby="contactNoPhiHelp"
+                  placeholder="Example: I need help finding the right office or appointment path."
                   value={formValues.message}
                   onChange={(event) =>
                     setFormValues((current) => ({ ...current, message: event.target.value }))
                   }
                 />
+                <small id="contactNoPhiHelp">
+                  For symptoms, records, prescriptions, results, or urgent concerns, use the patient portal or call.
+                </small>
               </label>
 
               <button

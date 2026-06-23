@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getNoPhiError, hasPotentialPhi } from "../../lib/no-phi-guard";
 
 export const runtime = "nodejs";
 
@@ -43,6 +44,13 @@ export async function POST(request) {
 
   if (!isValidEmail(email)) {
     return NextResponse.json({ ok: false, error: "Please provide a valid email address." }, { status: 400 });
+  }
+
+  if (hasPotentialPhi(message)) {
+    return NextResponse.json(
+      { ok: false, error: getNoPhiError("the contact form") },
+      { status: 400 }
+    );
   }
 
   const sendLayerApiKey = process.env.SENDLAYER_API_KEY;

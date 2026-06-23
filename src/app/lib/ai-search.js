@@ -2,6 +2,7 @@ import { OpenAI } from "openai";
 import { normalizeSearchQuery } from "./site-search";
 import { prisma } from "./prisma";
 import { FMA_KNOWLEDGE_BASE } from "./fma-knowledge-base";
+import { getNoPhiError, hasPotentialPhi } from "./no-phi-guard";
 
 const EMBEDDING_MODEL = "text-embedding-3-small";
 const ANSWER_MODEL = "gpt-4-turbo";
@@ -288,6 +289,21 @@ export async function runAiSearch(rawQuery, options = {}) {
       answer: "",
       sources: [],
       confidence: 0,
+    };
+  }
+
+  if (hasPotentialPhi(query)) {
+    return {
+      ok: false,
+      error: getNoPhiError("AI search"),
+      query,
+      answer: "",
+      sources: [],
+      confidence: 0,
+      aiConfidence: "low",
+      grounded: false,
+      citations: [],
+      disclaimer: true,
     };
   }
 

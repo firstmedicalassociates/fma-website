@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GENERAL_BOOK_APPOINTMENT_URL } from "../lib/config/site";
 import { AI_SEARCH_REQUEST_EVENT } from "../lib/ai-search-events";
+import { getNoPhiError, hasPotentialPhi, NO_PHI_NOTICE } from "../lib/no-phi-guard";
 import styles from "./ai-search-modal.module.css";
 
 const SEARCH_MIN_CHARACTERS = 2;
@@ -222,6 +223,21 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
       return;
     }
 
+    if (hasPotentialPhi(nextQuery)) {
+      setResultPayload({
+        summary: getNoPhiError("AI search"),
+        cards: MOCK_RESULT_CARDS,
+        sources: [],
+        citations: [],
+        disclaimer: false,
+      });
+      setErrorMessage("");
+      setHelperText("Remove medical details and try a general FMA question.");
+      setState("results");
+      inputRef.current?.focus();
+      return;
+    }
+
     stopLoadingTicker();
     setErrorMessage("");
     setStatusIndex(0);
@@ -243,7 +259,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
 
       const data = await response.json().catch(() => ({}));
       const cards = mapApiCards(data?.results);
-      const summary = data?.ai?.answer || DEFAULT_SUMMARY;
+      const summary = data?.ai?.answer || data?.ai?.error || DEFAULT_SUMMARY;
       const sources = Array.isArray(data?.ai?.sources) ? data.ai.sources.slice(0, 3) : [];
       const citations = Array.isArray(data?.ai?.citations) ? data.ai.citations : [];
       const disclaimer = Boolean(data?.ai?.disclaimer);
@@ -417,6 +433,10 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                     <button className={styles.submitButton} type="submit">
                       Search
                     </button>
+                  </div>
+
+                  <div className={styles.privacyHint}>
+                    {NO_PHI_NOTICE}
                   </div>
                 </div>
               </form>

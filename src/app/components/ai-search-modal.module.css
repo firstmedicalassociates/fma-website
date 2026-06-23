@@ -432,6 +432,18 @@
   font-size: 13px;
 }
 
+.privacyHint {
+  margin-top: 13px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(252, 189, 0, 0.22);
+  background: rgba(252, 189, 0, 0.06);
+  color: rgba(255, 228, 151, 0.88);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: left;
+}
+
 .suggestionChips {
   display: flex;
   flex-wrap: wrap;
@@ -925,6 +937,11 @@
 
   .helperText {
     display: none;
+  }
+
+  .privacyHint {
+    margin-top: 11px;
+    font-size: 0.76rem;
   }
 
   .suggestionChips {

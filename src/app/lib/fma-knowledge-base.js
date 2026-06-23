@@ -1,6 +1,7 @@
-// Static knowledge base built from official FMA/DrsFirst website content.
+// Static knowledge base built from official FMA/DrsFirst website content and operations scripts.
 // Sources: drsfirst.com homepage, about page, insurance page, contact page,
 // Late Arrival Policy PDF, FMLA/Disability Forms Policy PDF,
+// Contact Center Operations Script Document.
 // GLP-1 Insurance Coverage PDF, HIPAA Privacy Notice PDF (all April 2023 / 2025–2026 revisions).
 
 export const FMA_KNOWLEDGE_BASE = `
@@ -42,6 +43,184 @@ SCHEDULING APPOINTMENTS
 - ZocDoc: Available for appointment scheduling
 - Phone: 301-515-2901
 - Walk-in services available for non-emergency issues
+
+---
+
+CONTACT CENTER OPERATIONS SCRIPT DOCUMENT
+Use this section for appointment, refill, referral, prior authorization, billing, records, portal,
+forms, and contact-center policy questions. Source name for citations: Contact Center Operations Script.
+
+New patient booking:
+- Confirm the appointment and tell new patients: "Your appointment has been scheduled. Please
+  arrive 30 minutes before your appointment time with your insurance card and a photo ID."
+- New patients must first schedule and complete an Establish Care appointment with a provider.
+- A physical / H&P (History & Physical) should be scheduled approximately two weeks after the
+  initial establish-care appointment. This gap allows the clinic to pull and review the patient's
+  prior medical records.
+- If asked why the physical cannot be booked immediately, explain that the separation is for
+  safety and quality of care because the provider needs the complete medical history during the
+  physical.
+- If asked why there may be a copay for an establish-care visit, explain that it is billed as a
+  formal medical consultation because the provider reviews health history, performs medication
+  reconciliation, and establishes the care plan.
+
+Pre-operative physicals:
+- Patients must have their pre-op orders before or on the day of the appointment.
+- Without pre-op orders, the appointment will be canceled and rescheduled for another day.
+
+Telehealth / virtual appointments:
+- Patients receive two links.
+- The first link is for pre-check-in. It must be completed before the appointment or the patient
+  will not be seen. Any copay can be paid through that link.
+- The second link is for the appointment connection.
+- Patients should connect 10 minutes before the appointment to avoid technical difficulties.
+- A nurse will triage the patient before the provider joins.
+
+Lab orders and referrals:
+- If patients request copies of physical paperwork, lab orders, or referral documents, FMA can
+  mail them, fax them, or print them at the office for pickup.
+
+UnitedHealthcare (UHC) portal referral protocol:
+- Before generating a UHC portal submission, verify that the patient has been seen recently and
+  that an official referral order has already been sent or documented in the chart.
+- If the patient has not seen an FMA provider in more than 3 months, a new referral cannot be
+  created until the patient books an appointment so the diagnosis can be documented properly.
+- If the patient was seen within the last 3 months but the referral expired or all approved visits
+  were used, the patient does not need another appointment solely for renewal.
+- To process a UHC referral, collect the specialist doctor's full name, NPI number, diagnosis /
+  ICD code, office address, and office fax number.
+
+Prior authorization (PA) timelines and limits:
+- Standard medication PA requests process within 48 to 72 business hours from the exact time the
+  formal prescription is submitted to the pharmacy network.
+- Denied and appealed PAs require at least 3 business days from the time the appeal is transmitted
+  to receive an insurance-carrier response.
+- If a patient has not been evaluated in office or by telehealth within the past 3 months, inbound
+  pharmacy PA requests are rejected until an appointment is booked.
+- The pharmacy must formally initiate and transmit the PA paperwork thread. If the pharmacy does
+  not transmit the official PA request, FMA will not complete it.
+- First Medical Associates does not handle prior authorizations for diagnostic imaging such as
+  MRI or CT scans, or for surgical procedures. Patients should contact the ordering specialist or
+  outpatient facility for those authorizations.
+
+GLP-1 medications under contact-center script:
+- Per clinic management guidelines, First Medical Associates only authorizes refills or prior
+  authorizations for GLP-1 medications when they are explicitly used to treat Type II Diabetes.
+- FMA no longer manages or prescribes GLP-1 medications for weight loss, even for patients who
+  received them through FMA in the past.
+- For weight-loss management, FMA defers care to bariatric or endocrinology specialists and can
+  submit a referral when appropriate.
+
+Billing coordination:
+- If an H&P / physical visit includes discussion of other medical issues, insurance may process
+  part of the visit with a copay because the physical is covered completely only when the visit is
+  dedicated solely to the History and Physical.
+- If a patient has a different PCP assigned with insurance, an FMA provider must be assigned as
+  PCP for billing purposes so FMA can bill insurance without issues.
+
+Medication refill triage:
+- If it has been more than 3 months since the patient was last seen, the patient must schedule an
+  appointment before FMA can help with the refill. The provider may need to recheck levels and
+  confirm whether changes are needed.
+- Controlled substances require a monthly appointment for refills. The appointment may be
+  in-person or virtual.
+
+Attendance, lateness, and fees:
+- Established patients have a strict 5-minute grace period after the scheduled appointment time.
+- Arriving more than 5 minutes late is classified as a missed appointment, triggers a $50 fee, and
+  requires rescheduling.
+- If the patient is past the 5-minute window, staff may check whether the original provider or
+  another provider at that location has a later same-day opening.
+- If the patient is successfully rescheduled for the same day into an available slot, the $50 fee
+  may be waived.
+- New patients must arrive at least 30 minutes before the scheduled time to complete required
+  paperwork. If that window has passed, the appointment must be rescheduled.
+- Same-day cancellation or same-day rescheduling incurs a $50 administrative fee.
+- No-show or missed appointments incur a $50 missed appointment fee.
+
+Motor vehicle accident (MVA) and PIP scheduling:
+- MVA appointments cannot be scheduled until all Personal Injury Protection (PIP) details are
+  collected and verified.
+- Required PIP details: car insurance carrier name, claim number, date of accident, state and city
+  where the accident occurred, injured body part(s), insurance adjuster's full name, and adjuster's
+  direct phone number.
+- Motorcycle accidents are handled differently from standard car accidents. Medical coverage goes
+  through the patient's standard health insurance and does not require PIP details.
+
+Core scheduling constraints:
+- Patients must be 18 years of age or older to be scheduled or treated at FMA.
+- Medicaid Managed Care Organization (MCO) patients must have Dr. Malik designated as their
+  assigned PCP with the insurer.
+- New patient intakes, annual physicals / H&Ps, Medicare Annual Wellness visits, and pre-operative
+  clearance evaluations must be booked at least 1 hour before lunch and/or 1 hour before end of day.
+- Medicare Annual Wellness (MAW) exams require 40 minutes total and generally must be scheduled
+  as two back-to-back 20-minute slots, such as follow-up plus sick visit, H&P plus follow-up, or
+  telehealth plus sick visit.
+- Never convert a New Patient slot into a Medicare Annual Wellness exam slot.
+- For Dr. Qureshi, Medicare Annual Wellness visits require only one slot because her appointments
+  are already set to 30-minute slots.
+- Certain complex appointments must be scheduled with an MD only.
+
+Provider relocations and transitions:
+- If a patient asks for a provider who has left the practice, explain that the provider has
+  relocated and no longer works at the practice, then offer scheduling with the replacement
+  provider.
+- If asked for details about the departed provider's whereabouts, say the provider relocated out
+  of town and that FMA does not have specific information about their current whereabouts.
+
+Patient portal blocks:
+- FMA may block portal or text messaging access for misuse or abuse, including using the portal as
+  a substitute for seeing a provider, inappropriate language, or over-messaging providers.
+- Even if portal access is blocked, patients retain the right to request medical records.
+- Records can be transferred digitally, faxed to the patient or another physician, or mailed, with
+  printing fees of $0.75 per page when applicable.
+
+Document fulfillment and urgent-result workflows:
+- Medical records requests have a 5 to 7 business day turnaround baseline.
+- Physical hardcopy records have a copying / printing charge of $0.75 per page.
+- Prescription refill requests have a 48 to 72 business hour turnaround baseline.
+- If an external lab or imaging office calls about STAT, abnormal, or critical results, the message
+  must be routed urgently to the most recent provider who saw the patient.
+- For radiologist external authorization calls, agents may provide verbal authorization directly
+  to imaging networks such as Community Radiology, then document and forward the case to the
+  provider.
+
+Clinical scope:
+- FMA can treat or schedule same-day / routine concerns such as common acute illnesses, sore
+  throat, fever, urine infections, unexplained rashes, acute allergies, vaginitis, routine or
+  critical medication refills, blood pressure and chronic maintenance adjustments, annual
+  preventive physicals, school physicals, and same-day primary care intake configurations.
+- FMA does not perform stitch application or removal, wound suturing or advanced soft-tissue
+  repair, orthopedic cast placement or removal for fractures, joint-dislocation manipulation or
+  reduction, surgical lancing or draining of abscesses, in-office diagnostic X-rays, official
+  immigration physicals, specialized exotic travel vaccines such as Yellow Fever, clinical ear
+  cleaning / cerumen impaction removal, or medical marijuana cards / certifications.
+- Patients with chest pain or shortness of breath should be directed to urgent care or the ER.
+
+Clinical forms and fees:
+- Unless a clinic exception applies, patients who need provider-signed forms must schedule an
+  appointment so the provider can evaluate and sign the paperwork.
+- Forms requiring an appointment include FMLA paperwork, short-term disability documentation,
+  general physical / school / college health forms, MVA reinstate license forms, pre-employment
+  physical forms, Metro Bus forms, and assisted-living admission forms.
+- Forms completed free of charge include Medical Report of Child Care, MVA handicapped license
+  plate application, biometric screening / insurance health forms, employee physical health form
+  for work, medical necessity forms, and health certificate forms.
+- FMA providers cannot sign Class 3 medical forms. Patients should be advised to seek an
+  authorized specialist.
+- Sports physical form exception: if a patient had a comprehensive routine physical at FMA within
+  the last 30 to 60 days and only needs a sports physical form signed, they do not need a new
+  appointment. They may drop the form off at the front desk for provider review.
+
+Clinical protocol:
+- H. pylori breath or stool testing requires fasting with no food or drink for at least 1 hour
+  before the test.
+- Patients must not have taken antibiotics or stomach / acid-reducing medication for at least
+  2 weeks before H. pylori testing, or the results will not be accurate.
+
+Interpretation support:
+- First Medical Associates maintains an active corporate subscription for live American Sign
+  Language (ASL) video interpretation through Boostlingo.
 
 SERVICES OFFERED
 Primary Care:
@@ -288,13 +467,17 @@ export const FMA_AUTHORIZED_TOPICS = [
   "location", "address", "directions", "parking", "hours", "open", "close",
   "insurance", "billing", "payment", "cost", "fee", "copay", "self-pay", "medicaid", "medicare",
   "provider", "doctor", "physician", "nurse", "staff",
-  "service", "physical", "urgent care", "telemedicine", "telehealth",
+  "service", "physical", "h&p", "history and physical", "annual wellness", "maw", "urgent care", "telemedicine", "telehealth",
   "diabetes", "asthma", "depression", "geriatric", "uti", "std", "eczema", "men's health", "women's health",
   "late", "arrival", "grace period", "rescheduling",
-  "fmla", "disability", "form", "paperwork", "medical records", "records request",
-  "glp-1", "ozempic", "wegovy", "prior authorization", "weight loss",
+  "same-day cancellation", "no-show", "missed appointment",
+  "fmla", "disability", "form", "paperwork", "medical records", "records request", "sports physical",
+  "pre-op", "preoperative", "pre-operative", "lab order", "referral", "uhc", "unitedhealthcare",
+  "mva", "motor vehicle accident", "pip", "personal injury protection", "motorcycle accident",
+  "glp-1", "ozempic", "wegovy", "mounjaro", "prior authorization", "pa", "weight loss",
+  "refill", "controlled substance", "pharmacy", "h pylori", "h. pylori",
   "hipaa", "privacy", "phi", "health information", "hie",
-  "patient portal", "athenahealth", "portal",
+  "patient portal", "athenahealth", "portal", "portal block", "asl", "boostlingo",
   "contact", "phone", "email", "fax",
   "new patient", "established patient", "referral",
   "first medical", "fma", "drsfirst", "doctors first",

@@ -17,6 +17,7 @@ export default function HipaaNoticePage() {
           heading: "Protected health information",
           body: [
             "Questions about protected health information, disclosure practices, or privacy rights should be submitted directly to First Medical Associates so the appropriate team can respond.",
+            "Public website forms and AI search are for general website and service-routing questions only. Please do not include protected health information in those tools.",
             "If your request is time-sensitive, please contact the office by phone instead of relying on a general web inquiry.",
           ],
         },

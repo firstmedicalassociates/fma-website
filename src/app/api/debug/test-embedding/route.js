@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { OpenAI } from 'openai';
+import { requireAdminRequest } from '../../../lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request) {
+  const auth = requireAdminRequest(request);
+  if (!auth.ok) return auth.response;
+
   try {
     const { text } = await request.json();
 

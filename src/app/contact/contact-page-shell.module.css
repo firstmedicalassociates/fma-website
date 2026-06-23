@@ -135,6 +135,26 @@
   color: var(--contact-muted);
 }
 
+.privacyNotice {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(159, 44, 44, 0.18);
+  background: rgba(159, 44, 44, 0.06);
+  color: #5f2630;
+  line-height: 1.5;
+}
+
+.privacyNotice strong {
+  font-size: 0.88rem;
+}
+
+.privacyNotice span {
+  color: #6f3a42;
+  font-size: 0.88rem;
+}
+
 .form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -152,6 +172,12 @@
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.field small {
+  color: var(--contact-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .field input,
