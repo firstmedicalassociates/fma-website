@@ -21,6 +21,7 @@ model BlogPost {
   metaTitle     String?
   metaDescription String?
   slug          String    @unique
+  category      String    @default("Uncategorized")
   excerpt       String?
   contentHtml   String
   coverImageUrl String?
@@ -31,6 +32,7 @@ model BlogPost {
   createdAt     DateTime  @default(now())
 
   @@index([status, publishedAt])
+  @@index([status, category, publishedAt])
 }
 
 model Provider {

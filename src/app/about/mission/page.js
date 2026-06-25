@@ -3,13 +3,13 @@ import { buildStaticMetadata } from "../../lib/seo";
 import { 
   HeartHandshake, 
   ShieldCheck, 
-  Lightbulb, 
   Users, 
-  Award
+  Award,
+  CircleCheck
 } from 'lucide-react';
 
 export const metadata = buildStaticMetadata({
-  title: "Mission and Vision | First Medical Associates",
+  title: "Mission, Vision, and Values | First Medical Associates",
   description:
     "Read the mission, vision, and core values that guide patient care at First Medical Associates.",
   pathname: "/about/mission",
@@ -32,7 +32,7 @@ export default function MissionPage() {
         .sec-header h2 { font-size: 2rem; font-weight: 800; color: #001c55; margin-bottom: 0.5rem; }
         .sec-header p { color: #64748b; font-size: 1rem; }
 
-        .values-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+        .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 2rem; }
         .value-card { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px rgba(0,0,0,0.03); padding: 2.5rem; border-radius: 24px; display: flex; flex-direction: column; gap: 1rem; }
         .v-icon { background: #eef4ff; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: #0070f3; }
         .value-card h4 { font-size: 1rem; font-weight: 800; color: #001c55; }
@@ -67,12 +67,12 @@ export default function MissionPage() {
         <div className="m-left">
           <div className="m-block">
             <h2>Our Mission</h2>
-            <p>To be the clinical curator of modern healthcare—delivering patient-first care through intentional clinical precision, compassion, and innovation.</p>
+            <p>To improve the health of our communities with high-quality, accessible care that patients trust and our team is proud to deliver.</p>
           </div>
           <div className="m-divider"></div>
           <div className="m-block">
             <h2>Our Vision</h2>
-            <p>Healthier communities. Better tomorrows. Together.</p>
+            <p>We envision healthcare experiences that are more accessible, more connected, and more personal, for every patient we serve.</p>
           </div>
         </div>
         <div className="m-right">
@@ -89,23 +89,28 @@ export default function MissionPage() {
         <div className="values-grid">
           <div className="value-card">
             <div className="v-icon"><HeartHandshake size={20} /></div>
-            <h4>Patient First</h4>
-            <p>Every decision starts with the patient. We prioritize compassion, respect, and exceptional care.</p>
+            <h4>PATIENT FOCUS</h4>
+            <p>We put patients at the center of every decision and exceed their expectations at every opportunity.</p>
+          </div>
+          <div className="value-card">
+            <div className="v-icon"><Award size={20} /></div>
+            <h4>EXCELLENCE</h4>
+            <p>We commit ourselves to high standards and continuous improvement.</p>
           </div>
           <div className="value-card">
             <div className="v-icon"><ShieldCheck size={20} /></div>
-            <h4>Integrity</h4>
-            <p>We do the right thing, every time—holding ourselves to the highest ethical standards.</p>
-          </div>
-          <div className="value-card">
-            <div className="v-icon"><Lightbulb size={20} /></div>
-            <h4>Excellence</h4>
-            <p>We pursue excellence in all we do, continuously raising the bar for clinical and operational performance.</p>
+            <h4>INTEGRITY</h4>
+            <p>We do what we say we will do - every time - with honesty and transparency.</p>
           </div>
           <div className="value-card">
             <div className="v-icon"><Users size={20} /></div>
-            <h4>Community</h4>
-            <p>We are stronger together. We build trusted relationships that create healthier communities.</p>
+            <h4>COMPASSION</h4>
+            <p>We lead with empathy and humanity, recognizing that every person deserves respect.</p>
+          </div>
+          <div className="value-card">
+            <div className="v-icon"><CircleCheck size={20} /></div>
+            <h4>ACCOUNTABILITY</h4>
+            <p>We celebrate our successes, take ownership of our mistakes and always deliver on our commitments.</p>
           </div>
         </div>
       </section>

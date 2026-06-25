@@ -43,11 +43,6 @@ export default function CareersPage() {
       description: 'Help power growth across operations, technology, recruiting, and administration.',
       icon: Building2,
     },
-    {
-      name: 'Mission-Driven Work',
-      description: 'Every role contributes to better care, stronger teams, and better outcomes.',
-      icon: Target,
-    },
   ];
 
   const cultureValues = [
@@ -57,22 +52,22 @@ export default function CareersPage() {
       icon: Activity,
     },
     {
-      title: 'Professional Growth',
+      title: 'Professional Growth Opportunities',
       desc: 'Team members gain mentorship, development opportunities, and room to advance.',
       icon: GraduationCap,
     },
     {
-      title: 'Supportive Teams',
+      title: 'Supportive Team Environment',
       desc: 'Providers and staff work in collaborative environments where support is built in.',
       icon: Users,
     },
     {
-      title: 'Modern Facilities',
-      desc: 'Our practices include state-of-the-art diagnostic tools and on-site laboratories.',
+      title: 'State-of-the-Art Facilities',
+      desc: 'Our practices include state-of-the-art diagnostic tools and on-site phlebotomy services.',
       icon: ShieldCheck,
     },
     {
-      title: 'Employee Perks',
+      title: 'Employee Discounts and Perks',
       desc: 'We aim to provide practical benefits and workplace perks that add value beyond pay.',
       icon: Award,
     },
@@ -88,7 +83,7 @@ export default function CareersPage() {
     { name: 'Dental and Vision', icon: Heart },
     { name: '401K with Employer Match', icon: Target },
     { name: 'Identity Protection', icon: ShieldCheck },
-    { name: 'Peloton Membership', icon: Activity },
+    { name: 'Peloton\u00ae Membership', icon: Activity },
     { name: 'No Nights, No Weekends', icon: Calendar },
     { name: 'Scholarship Opportunities', icon: GraduationCap },
   ];
@@ -125,6 +120,7 @@ export default function CareersPage() {
           transform: translateY(-2px);
           box-shadow: 0 16px 32px rgba(15, 35, 88, 0.08);
         }
+        .feat-item:last-child:nth-child(odd) { grid-column: 1 / -1; }
         .feat-icon {
           background: #eef4ff; width: 44px; height: 44px; border-radius: 12px;
           display: grid; place-items: center; color: #0070f3; flex-shrink: 0;
@@ -168,18 +164,58 @@ export default function CareersPage() {
         .benefit-icon { background: #f1f5f9; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: #001c55; flex-shrink: 0; }
         .benefit-name { font-size: 0.875rem; font-weight: 700; color: #475569; }
 
-        .join-sec { display: grid; grid-template-columns: 1fr 1fr; background: #003049; border-radius: 24px; overflow: hidden; color: white; }
-        .join-left { padding: 4rem; display: flex; flex-direction: column; gap: 1.5rem; }
+        .join-sec {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          background: #001689;
+          border: 1px solid rgba(0, 22, 137, 0.18);
+          border-radius: 24px;
+          overflow: hidden;
+          color: white;
+          box-shadow: 0 24px 54px rgba(0, 22, 137, 0.16);
+        }
+        .join-left {
+          background:
+            linear-gradient(145deg, rgba(255, 255, 255, 0.05), transparent 42%),
+            linear-gradient(135deg, #001689 0%, #001c55 100%);
+          padding: 4rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
         .join-left h2 { font-size: 2.25rem; font-weight: 800; }
-        .join-left h3 { font-size: 1.125rem; font-weight: 800; color: #b9d8ff; }
-        .join-left p { opacity: 0.8; font-size: 1rem; line-height: 1.7; }
-        .quote-right { background: rgba(255,255,255,0.05); padding: 4rem; display: flex; flex-direction: column; justify-content: center; }
-        .quote-text { font-size: 1.125rem; font-weight: 600; line-height: 1.6; margin-bottom: 1.5rem; }
-        .quote-author { font-size: 0.875rem; color: #94a3b8; }
+        .join-left h3 { font-size: 1.125rem; font-weight: 800; color: #ffffff; }
+        .join-left p { color: rgba(255,255,255,0.82); font-size: 1rem; line-height: 1.7; }
+        .join-left .view-jobs-btn {
+          align-self: flex-start;
+          min-width: min(100%, 280px);
+          justify-content: center;
+          box-shadow: 0 14px 30px rgba(0, 0, 0, 0.14);
+        }
+        .quote-right {
+          background:
+            linear-gradient(145deg, rgba(66, 152, 204, 0.12), rgba(255, 255, 255, 0.96) 48%),
+            #ffffff;
+          color: #001c55;
+          padding: 4rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          border-left: 1px solid rgba(0, 22, 137, 0.12);
+        }
+        .quote-text { color: #001c55; font-size: 1.125rem; font-weight: 800; line-height: 1.6; margin-bottom: 1.5rem; }
+        .quote-author { font-size: 0.875rem; color: #5a6d87; }
         .fact-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
         .fact-item { display: flex; align-items: flex-start; gap: 0.875rem; }
-        .fact-item svg { flex-shrink: 0; color: #9dd2ff; margin-top: 0.125rem; }
-        .fact-item span { color: rgba(255,255,255,0.84); line-height: 1.6; }
+        .fact-item svg {
+          flex-shrink: 0;
+          color: #001689;
+          background: rgba(66, 152, 204, 0.14);
+          box-shadow: 0 0 0 4px rgba(66, 152, 204, 0.08);
+          border-radius: 999px;
+          margin-top: 0.125rem;
+        }
+        .fact-item span { color: #273b59; line-height: 1.6; }
 
         @media (max-width: 1024px) {
           .main-promo-grid, .join-sec { grid-template-columns: 1fr; }
@@ -189,6 +225,7 @@ export default function CareersPage() {
           .cta-banner-dark div { flex-direction: column; gap: 1rem; }
           .promo-img-wrap { height: 350px; }
           .join-left, .quote-right { padding: 2.5rem; }
+          .quote-right { border-left: none; border-top: 1px solid rgba(0, 22, 137, 0.12); }
         }
         @media (max-width: 640px) {
           .culture-grid, .feature-grid, .benefits-row { grid-template-columns: 1fr; }
@@ -262,8 +299,8 @@ export default function CareersPage() {
           <h3>FMA Offers Innovation and Empowerment</h3>
           <p>
             Our modern practices are equipped with state-of-the-art diagnostic tools and on-site
-            laboratories. We empower our providers by valuing clinician autonomy and helping them
-            to provide innovative and personalized health care in a patient-trusted environment
+            phlebotomy services. We empower our providers by valuing clinician autonomy and helping
+            them to provide innovative and personalized health care in a patient-trusted environment
             within their community. Regardless of which roles you are interested in, the high-level
             cultural values we provide make us a top choice medical group for those seeking to
             advance their career.
@@ -308,14 +345,14 @@ export default function CareersPage() {
 
       <div className="join-sec">
         <div className="join-left">
-          <h2>A Step Above</h2>
           <h3>FMA Offers More Opportunities</h3>
+          <h2>A Step Above</h2>
           <p>
             Founded in 2004 by one doctor, First Medical Associates has grown from a single
             community clinic to a leading regional healthcare network with 17 locations throughout
-            Maryland. We offer a strong supportive infrastructure, allowing our providers to focus
-            on patient care, with an amazing support team that ensures our offices run smoothly and
-            efficiently.
+            Maryland, expanding into Virginia in 2026. We offer a strong supportive infrastructure,
+            allowing our providers to focus on patient care, with an amazing support team that
+            ensures our offices run smoothly and efficiently.
           </p>
           <p>
             Enhance your professional growth through our proven mentorship and networking

@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import { requireAdminRequest } from "../../../../lib/admin-auth";
+import {
+  isBlogCategoryCompatibilityError,
+  normalizeBlogCategory,
+} from "../../../../lib/blog-categories";
 import { buildContentHtml, normalizeSlug } from "../../../../lib/post-builder";
 
 export const runtime = "nodejs";
@@ -23,6 +27,7 @@ export async function PUT(request, { params }) {
 
   const {
     title,
+    category,
     metaTitle,
     metaDescription,
     header,
@@ -70,21 +75,26 @@ export async function PUT(request, { params }) {
     sections,
   });
 
+  const postData = {
+    title,
+    metaTitle: metaTitle ? String(metaTitle).trim() : null,
+    metaDescription: metaDescription ? String(metaDescription).trim() : null,
+    slug: normalizedSlug,
+    contentHtml,
+    coverImageUrl: featuredImageUrl,
+    coverImageAlt: featuredImageAlt ? String(featuredImageAlt).trim() : null,
+    publishedAt:
+      existingPost.status === "PUBLISHED"
+        ? existingPost.publishedAt || new Date()
+        : null,
+  };
+
   try {
     const updatedPost = await prisma.blogPost.update({
       where: { id },
       data: {
-        title,
-        metaTitle: metaTitle ? String(metaTitle).trim() : null,
-        metaDescription: metaDescription ? String(metaDescription).trim() : null,
-        slug: normalizedSlug,
-        contentHtml,
-        coverImageUrl: featuredImageUrl,
-        coverImageAlt: featuredImageAlt ? String(featuredImageAlt).trim() : null,
-        publishedAt:
-          existingPost.status === "PUBLISHED"
-            ? existingPost.publishedAt || new Date()
-            : null,
+        ...postData,
+        category: normalizeBlogCategory(category),
       },
     });
 
@@ -95,6 +105,22 @@ export async function PUT(request, { params }) {
         { ok: false, error: "Slug already exists. Choose another." },
         { status: 409 }
       );
+    }
+    if (isBlogCategoryCompatibilityError(error)) {
+      try {
+        const updatedPost = await prisma.blogPost.update({
+          where: { id },
+          data: postData,
+        });
+        return NextResponse.json({ ok: true, slug: updatedPost.slug });
+      } catch (fallbackError) {
+        if (String(fallbackError?.message || "").includes("Unique constraint failed")) {
+          return NextResponse.json(
+            { ok: false, error: "Slug already exists. Choose another." },
+            { status: 409 }
+          );
+        }
+      }
     }
     return NextResponse.json({ ok: false, error: "Failed to update post." }, { status: 500 });
   }

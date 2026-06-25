@@ -16,10 +16,10 @@ export default function AboutLayout({ children }) {
 
   const heroContent = {
     "/about": {
-      tag: "Our Legacy of Care",
-      title: "The Clinical Curator of Modern Healthcare.",
+      tag: "About First Medical Associates",
+      title: "Healthcare With a Purpose",
       subtitle:
-        "Redefining medical excellence through intentional clinical precision and compassionate patient stewardship for over two decades.",
+        "Innovative Healthcare focused on Your Health Goals.",
     },
     "/about/careers": {
       tag: "Careers",
@@ -34,10 +34,10 @@ export default function AboutLayout({ children }) {
         "We collaborate with organizations that share our commitment to improving health outcomes and strengthening the communities we serve.",
     },
     "/about/mission": {
-      tag: "Mission & Values",
-      title: "Our Mission.\nOur Commitment.",
+      tag: "Mission, Vision, & Values",
+      title: "Mission, Vision, & Values",
       subtitle:
-        "Guided by purpose and driven by core values, we are committed to transforming healthcare through patient-first care.",
+        "High-quality, accessible care that patients trust and our team is proud to deliver.",
     },
     "/about/leadership": {
       tag: "Leadership",
@@ -50,9 +50,9 @@ export default function AboutLayout({ children }) {
   const currentHero = heroContent[pathname] || heroContent["/about"];
   const tabs = [
     { name: "About", href: "/about", icon: Info },
+    { name: "Mission & Values", href: "/about/mission", icon: Target },
     { name: "Careers", href: "/about/careers", icon: Briefcase },
     { name: "Partner With Us", href: "/about/partners", icon: Handshake },
-    { name: "Mission & Values", href: "/about/mission", icon: Target },
     { name: "Leadership", href: "/about/leadership", icon: Users },
   ];
 

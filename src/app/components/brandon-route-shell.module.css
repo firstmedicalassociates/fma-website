@@ -16,12 +16,14 @@
   background: var(--white);
   line-height: 1.5;
   width: 100%;
+  display: flow-root;
 }
 
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 1.5rem;
+  display: flow-root;
 }
 
 .resourceHero {

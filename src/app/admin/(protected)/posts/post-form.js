@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { BLOG_CATEGORY_OPTIONS, DEFAULT_BLOG_CATEGORY } from "../../../lib/blog-categories";
 
 const ELEMENT_TYPES = [
   { value: "h2", label: "Heading 2" },
@@ -107,7 +108,13 @@ function DragHandle() {
 }
 
 export default function PostForm({ mode, initialPost }) {
+  const initialCategory = BLOG_CATEGORY_OPTIONS.some(
+    (option) => option.value === initialPost?.category
+  )
+    ? initialPost.category
+    : DEFAULT_BLOG_CATEGORY;
   const [pageTitle, setPageTitle] = useState(initialPost?.pageTitle || "");
+  const [category, setCategory] = useState(initialCategory);
   const [metaTitle, setMetaTitle] = useState(initialPost?.metaTitle || "");
   const [metaDescription, setMetaDescription] = useState(initialPost?.metaDescription || "");
   const [header, setHeader] = useState(initialPost?.header || "");
@@ -263,6 +270,7 @@ export default function PostForm({ mode, initialPost }) {
 
     const payload = {
       title: pageTitle,
+      category,
       metaTitle,
       metaDescription,
       header,
@@ -384,6 +392,21 @@ export default function PostForm({ mode, initialPost }) {
                 placeholder="Page title"
                 required
               />
+            </div>
+
+            <div className="builder-field">
+              <label>Blog category</label>
+              <select
+                className="builder-select"
+                value={category}
+                onChange={(event) => setCategory(event.target.value)}
+              >
+                {BLOG_CATEGORY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.value}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="builder-field">

@@ -63,7 +63,7 @@ export default function PartnersPage() {
   return (
     <div className="partners-content">
       <style>{`
-        .partners-content { width: 100%; display: flex; flex-direction: column; gap: 4rem; margin-bottom: 4rem; }
+        .partners-content { width: 100%; display: flex; flex-direction: column; gap: 4rem; margin-bottom: 0; padding-bottom: 4rem; }
         
         .promo-split { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: flex-start; }
         .promo-left h2 { font-size: 2.25rem; font-weight: 800; color: #001c55; margin-bottom: 1.5rem; line-height: 1.2; }
@@ -108,14 +108,50 @@ export default function PartnersPage() {
         .benefit-card h4 { font-size: 1rem; font-weight: 800; color: #001c55; }
         .benefit-card p { font-size: 0.8125rem; color: #64748b; line-height: 1.5; }
 
-        .final-cta { display: grid; grid-template-columns: 1fr 1fr; background: #003049; border-radius: 24px; overflow: hidden; color: white; }
-        .cta-left { padding: 4rem; display: flex; flex-direction: column; gap: 1.5rem; }
-        .cta-left h2 { font-size: 2.25rem; font-weight: 800; }
-        .cta-left p { opacity: 0.8; font-size: 1rem; line-height: 1.6; }
-        .quote-side { background: rgba(255,255,255,0.05); padding: 4rem; display: flex; flex-direction: column; justify-content: center; position: relative; }
-        .quote-icon { opacity: 0.3; margin-bottom: 1.5rem; }
-        .quote-main { font-size: 1.25rem; font-weight: 600; line-height: 1.6; margin-bottom: 1.5rem; }
-        .quote-sig { font-size: 0.875rem; color: #94a3b8; }
+        .final-cta {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          background: #001689;
+          border: 1px solid rgba(0, 22, 137, 0.55);
+          border-radius: 24px;
+          overflow: hidden;
+          color: white;
+          box-shadow: 0 24px 54px rgba(0, 22, 137, 0.14);
+        }
+        .cta-left {
+          background:
+            linear-gradient(145deg, rgba(255, 255, 255, 0.05), transparent 42%),
+            linear-gradient(135deg, #001689 0%, #001c55 100%);
+          padding: 4rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+        .cta-left h2 { font-size: 2.25rem; font-weight: 800; color: #ffffff; }
+        .cta-left p { color: rgba(255,255,255,0.82); font-size: 1rem; line-height: 1.6; }
+        .final-cta .white-btn {
+          align-self: flex-start;
+          min-width: min(100%, 280px);
+          justify-content: center;
+          border-radius: 12px;
+          font-weight: 800;
+          box-shadow: 0 14px 30px rgba(0, 0, 0, 0.14);
+        }
+        .quote-side {
+          background:
+            linear-gradient(145deg, rgba(66, 152, 204, 0.12), rgba(255, 255, 255, 0.96) 48%),
+            #ffffff;
+          color: #001c55;
+          padding: 4rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          position: relative;
+          border-left: 1px solid rgba(0, 22, 137, 0.12);
+        }
+        .quote-icon { color: #001689; opacity: 0.22; margin-bottom: 1.5rem; }
+        .quote-main { color: #001c55; font-size: 1.25rem; font-weight: 800; line-height: 1.6; margin-bottom: 1.5rem; }
+        .quote-sig { font-size: 0.875rem; font-weight: 700; color: #5a6d87; }
 
         @media (max-width: 1024px) {
           .promo-split, .partners-row, .final-cta { grid-template-columns: 1fr; }
@@ -126,6 +162,7 @@ export default function PartnersPage() {
           .cta-dark-left { flex-direction: column; gap: 1.5rem; }
           .promo-right img { height: 350px; }
           .cta-left, .quote-side { padding: 2.5rem; }
+          .quote-side { border-left: none; border-top: 1px solid rgba(0, 22, 137, 0.12); }
         }
         @media (max-width: 640px) {
           .benefits-grid { grid-template-columns: 1fr; }

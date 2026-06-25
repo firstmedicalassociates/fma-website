@@ -1,5 +1,6 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Activity, Clock3, FileText } from "../admin-icons";
+import { isBlogCategoryCompatibilityError } from "../../../lib/blog-categories";
 import { prisma } from "../../../lib/prisma";
 import PostActions from "./post-actions";
 
@@ -19,19 +20,42 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-export default async function AdminPostsPage() {
-  const [posts, totalPosts, publishedPosts] = await Promise.all([
-    prisma.blogPost.findMany({
+async function loadPosts() {
+  try {
+    return await prisma.blogPost.findMany({
       orderBy: { updatedAt: "desc" },
       select: {
         id: true,
         title: true,
+        category: true,
         slug: true,
         status: true,
         updatedAt: true,
         publishedAt: true,
       },
-    }),
+    });
+  } catch (error) {
+    if (!isBlogCategoryCompatibilityError(error)) throw error;
+  }
+
+  const posts = await prisma.blogPost.findMany({
+    orderBy: { updatedAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      status: true,
+      updatedAt: true,
+      publishedAt: true,
+    },
+  });
+
+  return posts.map((post) => ({ ...post, category: "Uncategorized" }));
+}
+
+export default async function AdminPostsPage() {
+  const [posts, totalPosts, publishedPosts] = await Promise.all([
+    loadPosts(),
     prisma.blogPost.count(),
     prisma.blogPost.count({ where: { status: "PUBLISHED" } }),
   ]);
@@ -73,7 +97,7 @@ export default async function AdminPostsPage() {
                       </div>
                       <div>
                         <h3 className="admin-record-title">{post.title}</h3>
-                        <p className="admin-record-path">/{post.slug}</p>
+                        <p className="admin-record-path">/{post.slug} - {post.category}</p>
                       </div>
                     </div>
                     <span
