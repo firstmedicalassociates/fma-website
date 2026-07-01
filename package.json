@@ -9,7 +9,8 @@
     "lint": "eslint",
     "prisma:generate": "prisma generate",
     "import:live-blogs": "node scripts/import-live-blogs.js",
-    "sync:providers": "node scripts/sync-live-providers.js"
+    "sync:providers": "node scripts/sync-live-providers.js",
+    "migrate:provider-images": "node scripts/migrate-provider-images-to-blob.js"
   },
   "dependencies": {
     "@fontsource/material-symbols-outlined": "^5.2.42",
