@@ -15,6 +15,7 @@ import {
   buildLocationTitleMap,
   formatLocationSlugFallback,
   formatProviderList,
+  resolveProviderImageSrc,
   resolveLocationTitles,
 } from "../../lib/providers";
 import styles from "./provider-detail.module.css";
@@ -208,9 +209,10 @@ export async function generateMetadata({ params }) {
 
   const canonicalUrl = absoluteUrl(`/providers/${slug}`);
   const seo = getProviderSeoContent(provider);
-  const imageUrl = provider.imageUrl.startsWith("http")
-    ? provider.imageUrl
-    : absoluteUrl(provider.imageUrl);
+  const providerImageSrc = resolveProviderImageSrc(provider);
+  const imageUrl = providerImageSrc.startsWith("http")
+    ? providerImageSrc
+    : absoluteUrl(providerImageSrc);
 
   return {
     title: seo.title,
@@ -347,9 +349,10 @@ export default async function ProviderDetailPage({ params }) {
   ].filter(Boolean);
 
   const canonicalUrl = absoluteUrl(`/providers/${slug}`);
-  const imageUrl = provider.imageUrl.startsWith("http")
-    ? provider.imageUrl
-    : absoluteUrl(provider.imageUrl);
+  const providerImageSrc = resolveProviderImageSrc(provider);
+  const imageUrl = providerImageSrc.startsWith("http")
+    ? providerImageSrc
+    : absoluteUrl(providerImageSrc);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -389,7 +392,7 @@ export default async function ProviderDetailPage({ params }) {
                 <div className={styles.imageFrame}>
                   <img
                     className={styles.image}
-                    src={provider.imageUrl}
+                    src={providerImageSrc}
                     alt={provider.imageAlt || provider.name}
                   />
                 </div>

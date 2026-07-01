@@ -8,6 +8,7 @@ import {
   formatProviderList,
   normalizeProviderSlug,
   normalizeStringList,
+  resolveProviderImageSrc,
   resolveLocationTitles,
 } from "../../../lib/providers";
 
@@ -82,6 +83,10 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
   }, [locationTitleBySlug, selectedLocations]);
 
   const languages = useMemo(() => normalizeStringList(languagesInput), [languagesInput]);
+  const previewImageSrc = useMemo(
+    () => resolveProviderImageSrc({ imageUrl, slug }),
+    [imageUrl, slug]
+  );
 
   function handleNameChange(event) {
     const value = event.target.value;
@@ -431,10 +436,10 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
           <p className="builder-preview-kicker">Live preview</p>
           <h2>Provider card</h2>
           <article className="location-preview-card">
-            {imageUrl ? (
+            {previewImageSrc ? (
               <img
                 className="builder-preview-image"
-                src={imageUrl}
+                src={previewImageSrc}
                 alt={imageAlt || name || "Provider image"}
               />
             ) : (

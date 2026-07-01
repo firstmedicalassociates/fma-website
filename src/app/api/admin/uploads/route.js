@@ -66,8 +66,9 @@ export async function POST(request) {
 
   if (blobToken) {
     const safePath = kind === "provider" ? `providers/${safeName}` : `uploads/${safeName}`;
+    const access = kind === "provider" ? "private" : "public";
     const blob = await put(safePath, buffer, {
-      access: "public",
+      access,
       addRandomSuffix: true,
       contentType: file.type || undefined,
       token: blobToken,

@@ -16,6 +16,16 @@ function hasFlag(name) {
   return process.argv.includes(name);
 }
 
+function getBlobUploadAccess() {
+  if (hasFlag("--public")) return "public";
+  if (hasFlag("--private")) return "private";
+
+  const envAccess = cleanText(process.env.BLOB_UPLOAD_ACCESS).toLowerCase();
+  if (envAccess === "public" || envAccess === "private") return envAccess;
+
+  return "private";
+}
+
 function cleanText(value = "") {
   return String(value || "").trim();
 }
@@ -69,10 +79,10 @@ async function buildProviderImageWebp(provider) {
     .toBuffer();
 }
 
-async function uploadProviderImage(provider, token) {
+async function uploadProviderImage(provider, token, access) {
   const webpBuffer = await buildProviderImageWebp(provider);
   const blob = await put(`providers/${provider.slug}.webp`, webpBuffer, {
-    access: "public",
+    access,
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: "image/webp",
@@ -164,6 +174,7 @@ async function main() {
   const dryRun = hasFlag("--dry-run");
   const includeInactive = hasFlag("--all");
   const skipSeedUpdate = hasFlag("--skip-seed-update");
+  const blobUploadAccess = getBlobUploadAccess();
   const token = cleanText(process.env.BLOB_READ_WRITE_TOKEN);
   const prisma = createPrismaClient();
 
@@ -177,6 +188,7 @@ async function main() {
     console.log(`Other remote URLs: ${counts.otherRemote}`);
     console.log(`Local URLs: ${counts.local}`);
     console.log(`Missing URLs: ${counts.missing}`);
+    console.log(`Blob upload access: ${blobUploadAccess}`);
 
     if (targets.length === 0) {
       console.log("No WordPress provider images found.");
@@ -206,7 +218,7 @@ async function main() {
       try {
         console.log(`${label}: uploading`);
         const oldUrl = provider.imageUrl;
-        const newUrl = await uploadProviderImage(provider, token);
+        const newUrl = await uploadProviderImage(provider, token, blobUploadAccess);
 
         await prisma.provider.update({
           where: { id: provider.id },

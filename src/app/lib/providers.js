@@ -73,13 +73,32 @@ export function normalizeProviderPayload(value) {
   };
 }
 
+export function isPrivateBlobUrl(value = "") {
+  try {
+    const url = new URL(String(value || "").trim());
+    return url.hostname.endsWith(".private.blob.vercel-storage.com");
+  } catch {
+    return false;
+  }
+}
+
+export function resolveProviderImageSrc(provider = {}) {
+  const imageUrl = String(provider.imageUrl || "").trim();
+  const slug = String(provider.slug || "").trim();
+
+  if (!imageUrl) return "";
+  if (slug && isPrivateBlobUrl(imageUrl)) return `/api/provider-images/${slug}`;
+
+  return imageUrl;
+}
+
 export function mapProviderForDirectory(provider, locationTitleBySlug = {}) {
   const locationTitles = resolveLocationTitles(provider.locations, locationTitleBySlug);
   const languages = normalizeStringList(provider.languages);
 
   return {
     ...provider,
-    image: provider.imageUrl,
+    image: resolveProviderImageSrc(provider),
     imageAlt: provider.imageAlt || provider.name,
     link: `/providers/${provider.slug}`,
     role: provider.title,
