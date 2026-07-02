@@ -1239,6 +1239,113 @@
   color: #ffd7d7;
 }
 
+.athena-test-shell {
+  display: grid;
+  gap: 18px;
+}
+
+.athena-test-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.athena-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.athena-provider-panel {
+  display: grid;
+  gap: 16px;
+  border: 1px solid rgba(232, 242, 220, 0.12);
+  border-radius: 8px;
+  padding: 16px;
+  background:
+    linear-gradient(180deg, rgba(var(--admin-accent-rgb), 0.08), rgba(255, 255, 255, 0.025)),
+    rgba(255, 255, 255, 0.025);
+}
+
+.athena-provider-heading {
+  display: grid;
+  gap: 6px;
+}
+
+.athena-provider-heading p {
+  margin: 0;
+  color: rgba(245, 248, 241, 0.76);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.athena-test-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.athena-test-actions .status-message {
+  margin: 0;
+}
+
+.athena-warning {
+  border: 1px solid rgba(232, 242, 220, 0.12);
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: rgba(var(--admin-accent-rgb), 0.1);
+  color: rgba(245, 248, 241, 0.84);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.athena-result {
+  width: 100%;
+  max-height: 460px;
+  overflow: auto;
+  margin: 0;
+  border: 1px solid rgba(232, 242, 220, 0.12);
+  border-radius: 8px;
+  padding: 16px;
+  background: #101412;
+  color: #edf7e8;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.athena-config-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.athena-config-item {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid rgba(232, 242, 220, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.athena-config-item span {
+  color: var(--admin-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.athena-config-item strong {
+  min-width: 0;
+  color: var(--admin-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
 .builder-element {
   display: grid;
   gap: 14px;
@@ -2963,5 +3070,16 @@
 
   .admin-nav-overlay {
     background: rgba(0, 22, 98, 0.18);
+  }
+}
+
+@media (max-width: 760px) {
+  .athena-test-grid,
+  .athena-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .athena-test-actions .builder-button {
+    width: 100%;
   }
 }

@@ -25,7 +25,7 @@ export default function ResourcesOverview() {
   const sidebarActions = [
     { title: 'Find Location', sub: 'Maryland clinic locations', icon: MapPin, href: '/locations' },
     { title: 'Patient Portal', sub: 'Access records and results', icon: Users, href: '/patient-resources/patients' },
-    { title: 'Schedule Walk-in', sub: 'Same-day appointment options', icon: Clock, href: '/services' },
+    { title: 'Schedule Same-Day', sub: 'Same-day appointment options', icon: Clock, href: '/services' },
   ];
 
   return (

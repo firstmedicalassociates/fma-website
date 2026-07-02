@@ -25,12 +25,12 @@ const TABS = [
 
 const INFO_FAQS = [
   {
-    q: "What services are available at the walk-in clinic?",
+    q: "What services are available for same-day appointments?",
     a: "We offer treatment for acute illnesses, minor injuries, and preventative care.",
   },
   {
-    q: "Do I need an appointment for urgent care?",
-    a: "No appointment is necessary for our walk-in urgent care services.",
+    q: "Can I schedule specialized care for a same-day visit?",
+    a: "Yes. Same-day appointment options are available for many non-emergency concerns.",
   },
   {
     q: "Do you offer family medicine for children and adults?",
@@ -213,7 +213,11 @@ export default function LocationPageShell({ location, providers, serviceGroups }
       });
     };
 
-    const walkIn = getSection(["walk-in clinic", "walk in clinic", "walk-in"]);
+    const walkIn = getSection([
+      "same-day appointments",
+      "same-day clinic",
+      "same-day",
+    ]);
     const family = getSection(["family doctor", "family"]);
     const doctors = getSection(["doctors in", "doctors"]);
     const primary = getSection(["primary care", "primary"]);
@@ -226,10 +230,10 @@ export default function LocationPageShell({ location, providers, serviceGroups }
 
     return {
       walkIn: {
-        title: walkIn?.title || `Walk-in Clinic in ${locationSeoPlaceLabel}`,
+        title: walkIn?.title || `Same-Day Appointments in ${locationSeoPlaceLabel}`,
         description:
           walkIn?.paragraphs?.join(" ") ||
-          "Our walk-in clinic delivers immediate care for urgent health needs with no appointment necessary.",
+          "Our same-day care provides timely support for non-emergency health needs, with scheduling options designed around fast access.",
       },
       family: {
         title: family?.title || `Family Doctor in ${locationSeoPlaceLabel}`,
@@ -764,8 +768,8 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                         <span className="material-symbols-outlined">calendar_month</span>
                       </div>
                       <div>
-                        <h3>Walk-In Clinic</h3>
-                        <p>No appointment needed for urgent care</p>
+                        <h3>Same-Day Appointments</h3>
+                        <p>Same-day options for specialized care</p>
                       </div>
                     </div>
 

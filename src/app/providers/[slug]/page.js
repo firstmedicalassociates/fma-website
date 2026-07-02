@@ -554,7 +554,7 @@ export default async function ProviderDetailPage({ params }) {
                   {
                     href: "/services",
                     label: "Browse Services",
-                    description: "See primary care, urgent care, chronic care, and telehealth options.",
+                    description: "See primary care, specialized care, chronic care, and telehealth options.",
                   },
                   {
                     href: primaryLocation?.href || "/locations",

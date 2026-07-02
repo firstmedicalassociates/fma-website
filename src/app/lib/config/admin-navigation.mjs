@@ -65,6 +65,13 @@ export const ADMIN_QUICK_LINKS = [
     icon: "new-provider",
     smokeText: "Add Provider",
   },
+  {
+    key: "athena-test",
+    href: "/admin/athena-test",
+    label: "Athena Test",
+    icon: "athena-test",
+    smokeText: "Athena API Test",
+  },
 ];
 
 export const ADMIN_NAV_SECTIONS = [

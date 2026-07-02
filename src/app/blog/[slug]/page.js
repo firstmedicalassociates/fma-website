@@ -214,7 +214,7 @@ export default async function BlogPostPage({ params }) {
               {
                 href: "/services",
                 label: "Browse Services",
-                description: "Explore primary care, urgent care, chronic care, and telehealth services.",
+                description: "Explore primary care, specialized care, chronic care, and telehealth services.",
               },
               {
                 href: "/providers",

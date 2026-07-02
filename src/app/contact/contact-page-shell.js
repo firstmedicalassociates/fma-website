@@ -137,7 +137,7 @@ export default function ContactPageShell() {
 
             <article className={styles.infoCard}>
               <h2>Browse Services</h2>
-              <p>Compare primary care, urgent care, chronic care, and telehealth services.</p>
+              <p>Compare primary care, specialized care, chronic care, and telehealth services.</p>
               <ActionLink className={styles.infoAction} href="/services">
                 View Services
               </ActionLink>

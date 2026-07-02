@@ -105,7 +105,7 @@ export default function ServicesDirectory({ services = [] }) {
       <section className={styles.heroSection}>
         <div className={styles.heroSplit}>
           <div className={styles.heroLeft}>
-            <HeroEyebrow as="span">Primary Care, Urgent Care &amp; Telehealth</HeroEyebrow>
+            <HeroEyebrow as="span">Primary Care, Specialized Care &amp; Telehealth</HeroEyebrow>
             <h1>
               Healthcare Services
               <br />
@@ -114,7 +114,7 @@ export default function ServicesDirectory({ services = [] }) {
           </div>
           <div className={styles.heroRight}>
             <p>
-              Browse primary care, urgent care, telehealth, and chronic care services. Search,
+              Browse primary care, specialized care, telehealth, and chronic care services. Search,
               filter, and find the right treatment options from First Medical Associates.
             </p>
             <div className={styles.heroLines} aria-hidden="true">

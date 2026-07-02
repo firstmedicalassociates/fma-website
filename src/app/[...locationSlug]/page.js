@@ -12,6 +12,7 @@ import {
   resolveLocationPrimaryImage,
 } from "../lib/location-photos";
 import { prisma } from "../lib/prisma";
+import { resolveProviderImageSrc } from "../lib/providers";
 import { getLocationSeoContent } from "../lib/seo";
 import LocationPageShell from "./location-page-shell";
 
@@ -228,6 +229,7 @@ export default async function LocationLandingPage({ params }) {
         }}
         providers={providers.map((provider) => ({
           ...provider,
+          imageUrl: resolveProviderImageSrc(provider),
           imageAlt: provider.imageAlt || provider.name,
           profileHref: `/providers/${provider.slug}`,
           ctaHref: provider.linkUrl || `/providers/${provider.slug}`,

@@ -21,19 +21,19 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/columbia-dev/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Columbia, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Columbia, MD",
         paragraphs: [
-          "At First Medical Associates, our walk-in clinic in Columbia, MD, is here to offer reliable and immediate medical care for your urgent health needs. We understand that life can be unpredictable, which is why our clinic is designed to provide fast, professional care without the need for prior appointments. Whether you are experiencing sudden symptoms or need immediate attention for a minor health issue, we are prepared to assist you with expert care and efficiency.",
-          "Our walk-in clinic in Columbia, MD, features a dedicated team of healthcare professionals who are committed to delivering high-quality care in a timely manner. We offer a range of services, including treatment for acute illnesses, injuries, and minor medical procedures. Our aim is to provide a seamless experience, ensuring that you receive prompt medical attention and comprehensive follow-up care if needed.",
-          "Choosing First Medical Associates means you have access to a walk-in clinic in Columbia, MD, that values both your time and your health. We strive to create a positive and supportive environment where you can receive the care you need without unnecessary delays.",
+          "At First Medical Associates, our same-day care in Columbia, MD, is here to offer reliable and immediate medical care for your time-sensitive health needs. We understand that life can be unpredictable, which is why our clinic is designed to provide fast, professional care with same-day appointment options. Whether you are experiencing sudden symptoms or need immediate attention for a minor health issue, we are prepared to assist you with expert care and efficiency.",
+          "Our same-day care in Columbia, MD, features a dedicated team of healthcare professionals who are committed to delivering high-quality care in a timely manner. We offer a range of services, including treatment for acute illnesses, injuries, and minor medical procedures. Our aim is to provide a seamless experience, ensuring that you receive prompt medical attention and comprehensive follow-up care if needed.",
+          "Choosing First Medical Associates means you have access to same-day care in Columbia, MD, that values both your time and your health. We strive to create a positive and supportive environment where you can receive the care you need without unnecessary delays.",
         ],
       },
       {
         key: "family-doctor",
         title: "Family doctor in Columbia, MD",
         paragraphs: [
-          "At First Medical Associates, we recognize the significance of having a dependable family doctor in Columbia, MD, who truly understands the dynamics of family health. Our approach to care is designed to be as inclusive and accommodating as possible, addressing the health concerns of each family member with expertise and empathy. Whether it is a routine wellness visit or a more urgent medical issue, we provide the comprehensive care your family needs to stay healthy and thrive.",
+          "At First Medical Associates, we recognize the significance of having a dependable family doctor in Columbia, MD, who truly understands the dynamics of family health. Our approach to care is designed to be as inclusive and accommodating as possible, addressing the health concerns of each family member with expertise and empathy. Whether it is a routine wellness visit or a more time-sensitive medical issue, we provide the comprehensive care your family needs to stay healthy and thrive.",
           "As your chosen family doctor in Columbia, MD, we are committed to fostering a supportive and trusting relationship with you and your loved ones. Our dedicated team offers a range of services, from preventive care and screenings to the management of chronic conditions, ensuring that all aspects of your family's health are covered. We aim to be a reliable source of medical guidance and support, helping you navigate the complexities of healthcare with confidence and ease.",
           "When you select First Medical Associates, you are choosing a family doctor in Columbia, MD, who prioritizes your family's well-being and provides high-quality care tailored to your unique needs. We invite you to experience a personalized approach to healthcare that emphasizes long-term health and wellness.",
         ],
@@ -55,12 +55,12 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/crofton/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinics in Crofton, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Crofton, MD",
         paragraphs: [
-          "At First Medical Associates, we proudly offer a top-notch walk-in clinic in Crofton, MD, designed to meet your urgent healthcare needs efficiently and effectively. Our clinic is equipped to handle a variety of medical concerns without requiring an appointment, allowing you to receive the care you need quickly and conveniently.",
-          "Our walk-in clinic in Crofton, MD, is staffed by experienced doctors and medical professionals who are committed to delivering high-quality care in a compassionate and responsive manner. We understand that waiting for an appointment can be challenging when you are not feeling well, so we strive to minimize wait times and offer prompt service.",
-          "Choosing First Medical Associates means you are opting for a reliable walk-in clinic in Crofton, MD, where you can trust to receive comprehensive care tailored to your specific needs. We are here to support your health journey with a focus on delivering exceptional service.",
+          "At First Medical Associates, we proudly offer top-notch same-day care in Crofton, MD, designed to meet your time-sensitive healthcare needs efficiently and effectively. Our clinic is equipped to handle a variety of medical concerns with same-day appointment options, allowing you to receive the care you need quickly and conveniently.",
+          "Our same-day care in Crofton, MD, is staffed by experienced doctors and medical professionals who are committed to delivering high-quality care in a compassionate and responsive manner. We understand that waiting for an appointment can be challenging when you are not feeling well, so we strive to minimize wait times and offer prompt service.",
+          "Choosing First Medical Associates means you are opting for reliable same-day care in Crofton, MD, where you can receive comprehensive care tailored to your specific needs. We are here to support your health journey with a focus on delivering exceptional service.",
         ],
       },
       {
@@ -87,10 +87,10 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/greenbelt/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Greenbelt, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Greenbelt, MD",
         paragraphs: [
-          "At First Medical Associates, we provide accessible same-day primary care in Greenbelt, MD, with a patient-centered approach focused on urgent needs and long-term wellness. Our team is committed to delivering responsive care when new symptoms or health concerns come up unexpectedly.",
+          "At First Medical Associates, we provide accessible same-day primary care in Greenbelt, MD, with a patient-centered approach focused on new symptoms and long-term wellness. Our team is committed to delivering responsive care when new symptoms or health concerns come up unexpectedly.",
           "Our Greenbelt team combines compassionate care with modern diagnostics and treatment planning, helping patients address concerns quickly while maintaining continuity of care.",
           "Whether you are seeking immediate evaluation or guidance on next steps, our clinic in Greenbelt is designed to provide reliable care close to home.",
         ],
@@ -109,7 +109,7 @@ module.exports = {
         title: "Doctors in Greenbelt, MD",
         paragraphs: [
           "At First Medical Associates, our experienced doctors in Greenbelt, MD, are dedicated to helping you achieve lasting health and wellness. We go beyond treating symptoms by focusing on your overall well-being.",
-          "Our Greenbelt doctors use modern diagnostic tools and treatment methods to address both urgent and preventive healthcare needs. Whether you are managing a chronic condition or seeking routine check-ups, we offer comprehensive services designed to keep you feeling your best.",
+          "Our Greenbelt doctors use modern diagnostic tools and treatment methods to address both same-day and preventive healthcare needs. Whether you are managing a chronic condition or seeking routine check-ups, we offer comprehensive services designed to keep you feeling your best.",
           "We are committed to excellence, transparency, and patient satisfaction in every visit. Schedule an appointment today and experience personalized, high-quality medical care close to home.",
         ],
       },
@@ -121,12 +121,12 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/laurel/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinics in Laurel, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Laurel, MD",
         paragraphs: [
-          "At First Medical Associates, we proudly offer a top-notch walk-in clinic in Laurel, MD, designed to meet your urgent healthcare needs efficiently and effectively. Our clinic is equipped to handle a variety of medical concerns without requiring an appointment, allowing you to receive the care you need quickly and conveniently.",
-          "Our walk-in clinic in Laurel, MD, is staffed by experienced doctors and medical professionals who are committed to delivering high-quality care in a compassionate and responsive manner. We understand that waiting for an appointment can be challenging when you are not feeling well, so we strive to minimize wait times and offer prompt service.",
-          "Choosing First Medical Associates means you are opting for a reliable walk-in clinic in Laurel, MD, where you can trust to receive comprehensive care tailored to your specific needs. We are here to support your health journey with exceptional service and dependable care.",
+          "At First Medical Associates, we proudly offer top-notch same-day care in Laurel, MD, designed to meet your time-sensitive healthcare needs efficiently and effectively. Our clinic is equipped to handle a variety of medical concerns with same-day appointment options, allowing you to receive the care you need quickly and conveniently.",
+          "Our same-day care in Laurel, MD, is staffed by experienced doctors and medical professionals who are committed to delivering high-quality care in a compassionate and responsive manner. We understand that waiting for an appointment can be challenging when you are not feeling well, so we strive to minimize wait times and offer prompt service.",
+          "Choosing First Medical Associates means you are opting for reliable same-day care in Laurel, MD, where you can receive comprehensive care tailored to your specific needs. We are here to support your health journey with exceptional service and dependable care.",
         ],
       },
       {
@@ -153,12 +153,12 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/columbia/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Columbia, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Columbia, MD",
         paragraphs: [
-          "At First Medical Associates, our walk-in clinic in Columbia, MD, is here to offer reliable and immediate medical care for your urgent health needs. We understand that life can be unpredictable, which is why our clinic is designed to provide fast, professional care without the need for prior appointments.",
-          "Our walk-in clinic in Columbia, MD, features a dedicated team of healthcare professionals who are committed to delivering high-quality care in a timely manner. We offer a range of services, including treatment for acute illnesses, injuries, and minor medical procedures.",
-          "Choosing First Medical Associates means you have access to a walk-in clinic in Columbia, MD, that values both your time and your health. We strive to create a positive and supportive environment where you can receive the care you need without unnecessary delays.",
+          "At First Medical Associates, our same-day care in Columbia, MD, is here to offer reliable and immediate medical care for your time-sensitive health needs. We understand that life can be unpredictable, which is why our clinic is designed to provide fast, professional care with same-day appointment options.",
+          "Our same-day care in Columbia, MD, features a dedicated team of healthcare professionals who are committed to delivering high-quality care in a timely manner. We offer a range of services, including treatment for acute illnesses, injuries, and minor medical procedures.",
+          "Choosing First Medical Associates means you have access to same-day care in Columbia, MD, that values both your time and your health. We strive to create a positive and supportive environment where you can receive the care you need without unnecessary delays.",
         ],
       },
       {
@@ -187,12 +187,12 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/germantown/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Germantown, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Germantown, MD",
         paragraphs: [
-          "At First Medical Associates, our walk-in clinic in Germantown, MD, is designed to offer immediate medical care without the need for an appointment. We provide quick access to professional services for acute illnesses, minor injuries, and urgent health concerns.",
-          "Our walk-in clinic in Germantown, MD, is staffed by experienced healthcare professionals dedicated to addressing urgent medical needs efficiently. Our streamlined process helps you receive high-quality care with minimal wait times.",
-          "Choosing our walk-in clinic in Germantown, MD, means you have access to reliable and compassionate care at your convenience. We prioritize your comfort and health and provide care that fits into your busy life.",
+          "At First Medical Associates, our same-day care in Germantown, MD, is designed to offer immediate medical care with same-day appointment options. We provide quick access to professional services for acute illnesses, minor injuries, and time-sensitive health concerns.",
+          "Our same-day care in Germantown, MD, is staffed by experienced healthcare professionals dedicated to addressing time-sensitive medical needs efficiently. Our streamlined process helps you receive high-quality care with minimal wait times.",
+          "Choosing our same-day care in Germantown, MD, means you have access to reliable and compassionate care at your convenience. We prioritize your comfort and health and provide care that fits into your busy life.",
         ],
       },
       {
@@ -221,19 +221,19 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/annapolis/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Annapolis, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Annapolis, MD",
         paragraphs: [
-          "At First Medical Associates, our walk-in clinic in Annapolis, MD, is here to offer reliable and immediate medical care for your urgent health needs. We understand that life can be unpredictable, which is why our clinic is designed to provide fast, professional care without the need for prior appointments. Whether you are experiencing sudden symptoms or need immediate attention for a minor health issue, we are prepared to assist you with expert care and efficiency.",
-          "Our walk-in clinic in Annapolis, MD, features a dedicated team of healthcare professionals who are committed to delivering high-quality care in a timely manner. We offer a range of services, including treatment for acute illnesses, injuries, and minor medical procedures. Our aim is to provide a seamless experience, ensuring that you receive prompt medical attention and comprehensive follow-up care if needed.",
-          "Choosing First Medical Associates means you have access to a walk-in clinic in Annapolis, MD, that values both your time and your health. We strive to create a positive and supportive environment where you can receive the care you need without unnecessary delays.",
+          "At First Medical Associates, our same-day care in Annapolis, MD, is here to offer reliable and immediate medical care for your time-sensitive health needs. We understand that life can be unpredictable, which is why our clinic is designed to provide fast, professional care with same-day appointment options. Whether you are experiencing sudden symptoms or need immediate attention for a minor health issue, we are prepared to assist you with expert care and efficiency.",
+          "Our same-day care in Annapolis, MD, features a dedicated team of healthcare professionals who are committed to delivering high-quality care in a timely manner. We offer a range of services, including treatment for acute illnesses, injuries, and minor medical procedures. Our aim is to provide a seamless experience, ensuring that you receive prompt medical attention and comprehensive follow-up care if needed.",
+          "Choosing First Medical Associates means you have access to same-day care in Annapolis, MD, that values both your time and your health. We strive to create a positive and supportive environment where you can receive the care you need without unnecessary delays.",
         ],
       },
       {
         key: "family-doctor",
         title: "Family doctor in Annapolis, MD",
         paragraphs: [
-          "At First Medical Associates, we recognize the significance of having a dependable family doctor in Annapolis, MD, who truly understands the dynamics of family health. Our approach to care is designed to be as inclusive and accommodating as possible, addressing the health concerns of each family member with expertise and empathy. Whether it is a routine wellness visit or a more urgent medical issue, we provide the comprehensive care your family needs to stay healthy and thrive.",
+          "At First Medical Associates, we recognize the significance of having a dependable family doctor in Annapolis, MD, who truly understands the dynamics of family health. Our approach to care is designed to be as inclusive and accommodating as possible, addressing the health concerns of each family member with expertise and empathy. Whether it is a routine wellness visit or a more time-sensitive medical issue, we provide the comprehensive care your family needs to stay healthy and thrive.",
           "As your chosen family doctor in Annapolis, MD, we are committed to fostering a supportive and trusting relationship with you and your loved ones. Our dedicated team offers a range of services, from preventive care and screenings to the management of chronic conditions, ensuring that all aspects of your family's health are covered. We aim to be a reliable source of medical guidance and support, helping you navigate the complexities of healthcare with confidence and ease.",
           "When you select First Medical Associates, you are choosing a family doctor in Annapolis, MD, who prioritizes your family's well-being and provides high-quality care tailored to your unique needs. We invite you to experience a personalized approach to healthcare that emphasizes long-term health and wellness.",
         ],
@@ -255,19 +255,19 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/bowie/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinics in Bowie, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Bowie, MD",
         paragraphs: [
-          "At First Medical Associates, we proudly offer a top-notch walk-in clinic in Bowie, MD, designed to meet your urgent healthcare needs efficiently and effectively. Our clinic is equipped to handle a variety of medical concerns without requiring an appointment, allowing you to receive the care you need quickly and conveniently. Whether you are dealing with a sudden illness or a minor injury, our skilled healthcare professionals are here to provide immediate attention.",
-          "Our walk-in clinic in Bowie, MD, is staffed by experienced doctors and medical professionals who are committed to delivering high-quality care in a compassionate and responsive manner. We understand that waiting for an appointment can be challenging when you are not feeling well, so we strive to minimize wait times and offer prompt service. Your health and comfort are our top priorities, and we are dedicated to addressing your medical needs with expertise and efficiency.",
-          "Choosing First Medical Associates means you are opting for a reliable walk-in clinic in Bowie, MD, where you can trust to receive comprehensive care tailored to your specific needs. We are here to support your health journey, with a focus on delivering exceptional service and building lasting relationships with our patients.",
+          "At First Medical Associates, we proudly offer top-notch same-day care in Bowie, MD, designed to meet your time-sensitive healthcare needs efficiently and effectively. Our clinic is equipped to handle a variety of medical concerns with same-day appointment options, allowing you to receive the care you need quickly and conveniently. Whether you are dealing with a sudden illness or a minor injury, our skilled healthcare professionals are here to provide immediate attention.",
+          "Our same-day care in Bowie, MD, is staffed by experienced doctors and medical professionals who are committed to delivering high-quality care in a compassionate and responsive manner. We understand that waiting for an appointment can be challenging when you are not feeling well, so we strive to minimize wait times and offer prompt service. Your health and comfort are our top priorities, and we are dedicated to addressing your medical needs with expertise and efficiency.",
+          "Choosing First Medical Associates means you are opting for reliable same-day care in Bowie, MD, where you can receive comprehensive care tailored to your specific needs. We are here to support your health journey, with a focus on delivering exceptional service and building lasting relationships with our patients.",
         ],
       },
       {
         key: "family-doctor",
         title: "Family doctor in Bowie, MD",
         paragraphs: [
-          "At First Medical Associates, we recognize the significance of having a dependable family doctor in Bowie, MD, who truly understands the dynamics of family health. Our approach to care is designed to be as inclusive and accommodating as possible, addressing the health concerns of each family member with expertise and empathy. Whether it is a routine wellness visit or a more urgent medical issue, we provide the comprehensive care your family needs to stay healthy and thrive.",
+          "At First Medical Associates, we recognize the significance of having a dependable family doctor in Bowie, MD, who truly understands the dynamics of family health. Our approach to care is designed to be as inclusive and accommodating as possible, addressing the health concerns of each family member with expertise and empathy. Whether it is a routine wellness visit or a more time-sensitive medical issue, we provide the comprehensive care your family needs to stay healthy and thrive.",
           "As your chosen family doctor in Bowie, MD, we are committed to fostering a supportive and trusting relationship with you and your loved ones. Our dedicated team offers a range of services, from preventive care and screenings to the management of chronic conditions, ensuring that all aspects of your family's health are covered.",
           "When you select First Medical Associates, you are choosing a family doctor in Bowie, MD, who prioritizes your family's well-being and provides high-quality care tailored to your unique needs.",
         ],
@@ -289,19 +289,19 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/bowie-dev/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinics in Bowie, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Bowie, MD",
         paragraphs: [
-          "At First Medical Associates, we proudly offer a top-notch walk-in clinic in Bowie, MD, designed to meet your urgent healthcare needs efficiently and effectively. Our clinic is equipped to handle a variety of medical concerns without requiring an appointment, allowing you to receive the care you need quickly and conveniently. Whether you are dealing with a sudden illness or a minor injury, our skilled healthcare professionals are here to provide immediate attention.",
-          "Our walk-in clinic in Bowie, MD, is staffed by experienced doctors and medical professionals who are committed to delivering high-quality care in a compassionate and responsive manner. We understand that waiting for an appointment can be challenging when you are not feeling well, so we strive to minimize wait times and offer prompt service. Your health and comfort are our top priorities, and we are dedicated to addressing your medical needs with expertise and efficiency.",
-          "Choosing First Medical Associates means you are opting for a reliable walk-in clinic in Bowie, MD, where you can trust to receive comprehensive care tailored to your specific needs. We are here to support your health journey, with a focus on delivering exceptional service and building lasting relationships with our patients.",
+          "At First Medical Associates, we proudly offer top-notch same-day care in Bowie, MD, designed to meet your time-sensitive healthcare needs efficiently and effectively. Our clinic is equipped to handle a variety of medical concerns with same-day appointment options, allowing you to receive the care you need quickly and conveniently. Whether you are dealing with a sudden illness or a minor injury, our skilled healthcare professionals are here to provide immediate attention.",
+          "Our same-day care in Bowie, MD, is staffed by experienced doctors and medical professionals who are committed to delivering high-quality care in a compassionate and responsive manner. We understand that waiting for an appointment can be challenging when you are not feeling well, so we strive to minimize wait times and offer prompt service. Your health and comfort are our top priorities, and we are dedicated to addressing your medical needs with expertise and efficiency.",
+          "Choosing First Medical Associates means you are opting for reliable same-day care in Bowie, MD, where you can receive comprehensive care tailored to your specific needs. We are here to support your health journey, with a focus on delivering exceptional service and building lasting relationships with our patients.",
         ],
       },
       {
         key: "family-doctor",
         title: "Family doctor in Bowie, MD",
         paragraphs: [
-          "At First Medical Associates, we recognize the significance of having a dependable family doctor in Bowie, MD, who truly understands the dynamics of family health. Our approach to care is designed to be as inclusive and accommodating as possible, addressing the health concerns of each family member with expertise and empathy. Whether it is a routine wellness visit or a more urgent medical issue, we provide the comprehensive care your family needs to stay healthy and thrive.",
+          "At First Medical Associates, we recognize the significance of having a dependable family doctor in Bowie, MD, who truly understands the dynamics of family health. Our approach to care is designed to be as inclusive and accommodating as possible, addressing the health concerns of each family member with expertise and empathy. Whether it is a routine wellness visit or a more time-sensitive medical issue, we provide the comprehensive care your family needs to stay healthy and thrive.",
           "As your chosen family doctor in Bowie, MD, we are committed to fostering a supportive and trusting relationship with you and your loved ones. Our dedicated team offers a range of services, from preventive care and screenings to the management of chronic conditions, ensuring that all aspects of your family's health are covered.",
           "When you select First Medical Associates, you are choosing a family doctor in Bowie, MD, who prioritizes your family's well-being and provides high-quality care tailored to your unique needs.",
         ],
@@ -323,12 +323,12 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/frederick/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Frederick, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Frederick, MD",
         paragraphs: [
-          "At First Medical Associates, our walk-in clinic in Frederick, MD, provides a reliable solution for immediate healthcare needs. We understand that medical concerns do not always fit within regular office hours, which is why our clinic is designed to offer convenient access to quality care whenever you need it. Whether you are dealing with a sudden illness or a minor injury, our experienced team is here to offer prompt and effective treatment.",
-          "Our walk-in clinic in Frederick, MD, is equipped to handle a wide range of urgent health issues, from routine illnesses and minor injuries to basic diagnostic tests and preventive services. We are committed to delivering efficient and compassionate care in a welcoming setting so you can get the attention you need quickly.",
-          "Choosing First Medical Associates means you have access to a trusted walk-in clinic in Frederick, MD, where your health and comfort are top priorities. We focus on timely, professional care and practical follow-up guidance to support your recovery.",
+          "At First Medical Associates, our same-day care in Frederick, MD, provides a reliable solution for immediate healthcare needs. We understand that medical concerns do not always fit within regular office hours, which is why our clinic is designed to offer convenient access to quality care whenever you need it. Whether you are dealing with a sudden illness or a minor injury, our experienced team is here to offer prompt and effective treatment.",
+          "Our same-day care in Frederick, MD, is equipped to handle a wide range of time-sensitive health issues, from routine illnesses and minor injuries to basic diagnostic tests and preventive services. We are committed to delivering efficient and compassionate care in a welcoming setting so you can get the attention you need quickly.",
+          "Choosing First Medical Associates means you have access to trusted same-day care in Frederick, MD, where your health and comfort are top priorities. We focus on timely, professional care and practical follow-up guidance to support your recovery.",
         ],
       },
       {
@@ -357,10 +357,10 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/gaithersburg/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Gaithersburg, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Gaithersburg, MD",
         paragraphs: [
-          "At First Medical Associates, we provide same-day, patient-centered care in Gaithersburg, MD, for urgent non-emergency concerns. Our team is focused on helping patients get timely evaluations and treatment in a professional, supportive environment.",
+          "At First Medical Associates, we provide same-day, patient-centered care in Gaithersburg, MD, for non-emergency concerns. Our team is focused on helping patients get timely evaluations and treatment in a professional, supportive environment.",
           "Whether you are dealing with sudden symptoms, minor injuries, or a flare-up of an ongoing condition, we work to deliver efficient care with clear next steps and follow-up recommendations.",
           "Our Gaithersburg team is committed to convenient access, quality care, and continuity so you can get the help you need quickly and confidently.",
         ],
@@ -391,12 +391,12 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/glen-burnie/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Glen Burnie, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Glen Burnie, MD",
         paragraphs: [
-          "At First Medical Associates, our walk-in clinic in Glen Burnie, MD, is here to offer reliable and immediate medical care for your urgent health needs. We understand that life can be unpredictable, which is why our clinic is designed to provide fast, professional care without the need for prior appointments. Whether you are experiencing sudden symptoms or need immediate attention for a minor health issue, we are prepared to assist you with expert care and efficiency.",
-          "Our walk-in clinic in Glen Burnie, MD, features a dedicated team of healthcare professionals who are committed to delivering high-quality care in a timely manner. We offer a range of services, including treatment for acute illnesses, injuries, and minor medical procedures.",
-          "Choosing First Medical Associates means you have access to a walk-in clinic in Glen Burnie, MD, that values both your time and your health. We strive to create a positive and supportive environment where you can receive the care you need without unnecessary delays.",
+          "At First Medical Associates, our same-day care in Glen Burnie, MD, is here to offer reliable and immediate medical care for your time-sensitive health needs. We understand that life can be unpredictable, which is why our clinic is designed to provide fast, professional care with same-day appointment options. Whether you are experiencing sudden symptoms or need immediate attention for a minor health issue, we are prepared to assist you with expert care and efficiency.",
+          "Our same-day care in Glen Burnie, MD, features a dedicated team of healthcare professionals who are committed to delivering high-quality care in a timely manner. We offer a range of services, including treatment for acute illnesses, injuries, and minor medical procedures.",
+          "Choosing First Medical Associates means you have access to same-day care in Glen Burnie, MD, that values both your time and your health. We strive to create a positive and supportive environment where you can receive the care you need without unnecessary delays.",
         ],
       },
       {
@@ -425,10 +425,10 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/lutherville/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Lutherville, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Lutherville, MD",
         paragraphs: [
-          "At First Medical Associates, we provide same-day primary care support in Lutherville, MD, with a focus on responsive, patient-centered treatment for urgent non-emergency concerns.",
+          "At First Medical Associates, we provide same-day primary care support in Lutherville, MD, with a focus on responsive, patient-centered treatment for non-emergency concerns.",
           "Our care team delivers timely evaluations, practical treatment plans, and clear follow-up guidance so patients can address symptoms quickly and safely.",
           "Whether you need immediate medical attention or coordinated ongoing care, our Lutherville location is designed to provide reliable access and high-quality support close to home.",
         ],
@@ -459,12 +459,12 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/nottingham/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Nottingham, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Nottingham, MD",
         paragraphs: [
-          "At First Medical Associates, our walk-in clinic in Nottingham, MD, offers immediate access to quality medical care without the need for an appointment. Whether you are dealing with a sudden illness, minor injury, or need a quick health assessment, our experienced team is here to provide the care you need.",
-          "Our walk-in clinic in Nottingham, MD, combines advanced medical support with a compassionate approach. We are committed to minimizing wait times and delivering thorough evaluations and treatments that address your specific health concerns.",
-          "By choosing our walk-in clinic in Nottingham, MD, you are selecting a healthcare provider that values both efficiency and excellence. We provide professional and personable care that meets your immediate needs.",
+          "At First Medical Associates, our same-day care in Nottingham, MD, offers immediate access to quality medical care with same-day appointment options. Whether you are dealing with a sudden illness, minor injury, or need a quick health assessment, our experienced team is here to provide the care you need.",
+          "Our same-day care in Nottingham, MD, combines advanced medical support with a compassionate approach. We are committed to minimizing wait times and delivering thorough evaluations and treatments that address your specific health concerns.",
+          "By choosing our same-day care in Nottingham, MD, you are selecting a healthcare provider that values both efficiency and excellence. We provide professional and personable care that meets your immediate needs.",
         ],
       },
       {
@@ -493,12 +493,12 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/rockville/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Rockville, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Rockville, MD",
         paragraphs: [
-          "At First Medical Associates, our walk-in clinic in Rockville, MD, is designed to deliver immediate, high-quality care for a variety of urgent health concerns. We recognize that you may need prompt medical attention without prior scheduling, which is why our clinic is equipped to handle your needs swiftly and efficiently.",
-          "Our walk-in clinic in Rockville, MD, offers a seamless healthcare experience with minimal wait times and thorough medical evaluations. Our skilled professionals are committed to diagnosing and treating a range of conditions promptly, ensuring that you receive accurate care without unnecessary delays.",
-          "Visiting our walk-in clinic in Rockville, MD, means accessing expert medical care designed for convenience and efficiency. Trust First Medical Associates for reliable care that you can count on in urgent situations.",
+          "At First Medical Associates, our same-day care in Rockville, MD, is designed to deliver immediate, high-quality care for a variety of time-sensitive health concerns. We recognize that you may need prompt medical attention without prior scheduling, which is why our clinic is equipped to handle your needs swiftly and efficiently.",
+          "Our same-day care in Rockville, MD, offers a seamless healthcare experience with minimal wait times and thorough medical evaluations. Our skilled professionals are committed to diagnosing and treating a range of conditions promptly, ensuring that you receive accurate care without unnecessary delays.",
+          "Visiting our same-day care in Rockville, MD, means accessing expert medical care designed for convenience and efficiency. Trust First Medical Associates for reliable care that you can count on in time-sensitive situations.",
         ],
       },
       {
@@ -527,12 +527,12 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/silver-spring/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Silver Spring, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Silver Spring, MD",
         paragraphs: [
-          "At First Medical Associates, our walk-in clinic in Silver Spring, MD, is designed to offer timely and effective medical care right when you need it. We recognize that urgent concerns do not always fit into a convenient schedule, which is why we provide a seamless walk-in experience focused on fast access and quality treatment.",
-          "Our walk-in clinic in Silver Spring, MD, features a team of highly trained healthcare professionals equipped to handle a broad range of urgent medical concerns. From unexpected injuries to acute illnesses, our clinic is prepared to deliver comprehensive care with a focus on your comfort and well-being.",
-          "Choosing our walk-in clinic in Silver Spring, MD, means you have access to responsive, patient-centered care without unnecessary delays. We are committed to helping you recover quickly and safely with clear guidance and follow-up support.",
+          "At First Medical Associates, our same-day care in Silver Spring, MD, is designed to offer timely and effective medical care right when you need it. We recognize that urgent concerns do not always fit into a convenient schedule, which is why we provide a seamless same-day experience focused on fast access and quality treatment.",
+          "Our same-day care in Silver Spring, MD, features a team of highly trained healthcare professionals equipped to handle a broad range of urgent medical concerns. From unexpected injuries to acute illnesses, our clinic is prepared to deliver comprehensive care with a focus on your comfort and well-being.",
+          "Choosing our same-day care in Silver Spring, MD, means you have access to responsive, patient-centered care without unnecessary delays. We are committed to helping you recover quickly and safely with clear guidance and follow-up support.",
         ],
       },
       {
@@ -561,12 +561,12 @@ module.exports = {
     sourceUrl: "https://drsfirst.com/location/severna-park/",
     sections: [
       {
-        key: "walk-in-clinic",
-        title: "Walk-in Clinic in Severna Park, MD",
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Severna Park, MD",
         paragraphs: [
-          "At First Medical Associates, our walk-in clinic in Severna Park, MD, is here to offer reliable and immediate medical care for your urgent health needs. We understand that life can be unpredictable, which is why our clinic is designed to provide fast, professional care without the need for prior appointments. Whether you are experiencing sudden symptoms or need immediate attention for a minor health issue, we are prepared to assist you with expert care and efficiency.",
-          "Our walk-in clinic in Severna Park, MD, features a dedicated team of healthcare professionals who are committed to delivering high-quality care in a timely manner. We offer a range of services, including treatment for acute illnesses, injuries, and minor medical procedures. Our aim is to provide a seamless experience, ensuring that you receive prompt medical attention and comprehensive follow-up care if needed.",
-          "Choosing First Medical Associates means you have access to a walk-in clinic in Severna Park, MD, that values both your time and your health. We strive to create a positive and supportive environment where you can receive the care you need without unnecessary delays.",
+          "At First Medical Associates, our same-day care in Severna Park, MD, is here to offer reliable and immediate medical care for your time-sensitive health needs. We understand that life can be unpredictable, which is why our clinic is designed to provide fast, professional care with same-day appointment options. Whether you are experiencing sudden symptoms or need immediate attention for a minor health issue, we are prepared to assist you with expert care and efficiency.",
+          "Our same-day care in Severna Park, MD, features a dedicated team of healthcare professionals who are committed to delivering high-quality care in a timely manner. We offer a range of services, including treatment for acute illnesses, injuries, and minor medical procedures. Our aim is to provide a seamless experience, ensuring that you receive prompt medical attention and comprehensive follow-up care if needed.",
+          "Choosing First Medical Associates means you have access to same-day care in Severna Park, MD, that values both your time and your health. We strive to create a positive and supportive environment where you can receive the care you need without unnecessary delays.",
         ],
       },
       {

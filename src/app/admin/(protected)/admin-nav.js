@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Database,
   FileText,
   LayoutDashboard,
   LogOut,
@@ -26,6 +27,7 @@ const ICONS_BY_KEY = {
   "new-location": MapPin,
   "new-service": Layers3,
   "new-provider": UserPlus,
+  "athena-test": Database,
 };
 
 function getDisplayName(email) {

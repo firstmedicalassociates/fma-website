@@ -32,9 +32,9 @@ export const runtime = "nodejs";
 export const revalidate = 60;
 
 export const metadata = buildStaticMetadata({
-  title: "Primary Care & Urgent Care Services in Maryland | First Medical Associates",
+  title: "Primary Care & Specialized Care Services in Maryland | First Medical Associates",
   description:
-    "Primary care, urgent care, chronic care, and telehealth services across Maryland. Find doctors, locations, and same-day care at First Medical Associates.",
+    "Primary care, specialized care, chronic care, and telehealth services across Maryland. Find doctors, locations, and same-day care at First Medical Associates.",
   pathname: "/",
 });
 
@@ -85,7 +85,7 @@ const STORIES = [
     quote:
       "Getting a same-day appointment was a lifesaver. The process felt organized, efficient, and surprisingly low-stress.",
     name: "Michael Rodriguez",
-    role: "Urgent Visit Patient",
+    role: "Same-Day Visit Patient",
   },
   {
     quote:
@@ -532,7 +532,7 @@ export default async function Home() {
                 </div>
 
                 <p className={styles.heroLead}>
-                  First Medical Associates delivers patient-centered primary care, urgent visits,
+                  First Medical Associates delivers patient-centered primary care, same-day visits,
                   and coordinated support across Maryland.
                 </p>
 

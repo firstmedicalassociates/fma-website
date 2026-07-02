@@ -149,16 +149,16 @@ module.exports = [
   },
   {
     category: "Primary Care",
-    title: "Urgent Needs",
-    slug: "urgent-needs",
+    title: "Same-Day Care",
+    slug: "same-day-care",
     description:
-      "Same-day assessment and treatment for urgent, non-life-threatening illnesses and minor injuries.",
+      "Same-day assessment and treatment for non-emergency illnesses and minor injuries.",
     icon: "emergency",
     pageContent: {
       eyebrow: "Primary Care",
-      heroSubtitle: "Fast, Reliable Help for Urgent Non-Emergency Concerns",
+      heroSubtitle: "Fast, Reliable Help for Non-Emergency Concerns",
       heroDescription:
-        "When symptoms cannot wait, our walk-in and same-day urgent primary care services provide rapid evaluation and treatment.",
+        "When symptoms cannot wait, our same-day primary care services provide rapid evaluation and treatment.",
       features: [
         {
           title: "Rapid Assessment",
@@ -166,59 +166,59 @@ module.exports = [
             "Prompt intake and focused evaluation help determine treatment needs without emergency-room delays.",
         },
         {
-          title: "Walk-In Access",
-          description: "No appointment is required for many urgent but non-life-threatening concerns.",
+          title: "Same-Day Access",
+          description: "Same-day scheduling is available for many non-life-threatening concerns.",
         },
         {
           title: "Targeted Treatment",
           description:
-            "We treat common urgent illnesses and minor injuries with clear plans and practical follow-up guidance.",
+            "We treat common illnesses and minor injuries with clear plans and practical follow-up guidance.",
         },
         {
           title: "Continuity of Care",
           description:
-            "Urgent visits are documented and coordinated with your broader primary care history.",
+            "Same-day visits are documented and coordinated with your broader primary care history.",
         },
       ],
       infoParagraphs: [
-        "Urgent primary care is designed for immediate concerns that are serious enough to need same-day attention.",
+        "Same-day primary care is designed for immediate concerns that need timely attention.",
         "Our team evaluates symptoms quickly and recommends treatment based on clinical findings and medical history.",
         "If additional monitoring is needed, we provide next-step guidance and follow-up recommendations.",
       ],
       commitmentTitle: "What You Can Expect",
       commitmentItems: [
         "Fast clinical triage",
-        "Compassionate urgent treatment",
+        "Compassionate same-day treatment",
         "Clear discharge instructions",
         "Follow-up planning when needed",
       ],
-      detailHeading: "When Should You Use Urgent Primary Care?",
+      detailHeading: "When Should You Use Same-Day Primary Care?",
       detailParagraphs: [
-        "Use urgent care for non-emergency problems such as sudden infections, symptom flare-ups, and minor trauma.",
+        "Use same-day care for non-emergency problems such as sudden infections, symptom flare-ups, and minor trauma.",
         "For chest pain, severe breathing difficulty, stroke symptoms, or other emergencies, call 911 immediately.",
       ],
       detailLinkLabel: "Find a Location",
       detailLinkHref: "/location",
       faqItems: [
         {
-          question: "What if my issue feels urgent but not life-threatening?",
+          question: "What if my issue needs attention but is not life-threatening?",
           answer:
-            "Walk in or call for same-day evaluation. Our team can assess your symptoms and start treatment quickly.",
+            "Schedule online or call for same-day evaluation. Our team can assess your symptoms and start treatment quickly.",
         },
         {
-          question: "How do I choose urgent care vs. my regular PCP visit?",
+          question: "How do I choose same-day specialized care vs. my regular PCP visit?",
           answer:
-            "Use urgent care for immediate problems. Ongoing issues and long-term planning are best managed in routine PCP follow-up.",
+            "Use same-day care for immediate problems. Ongoing issues and long-term planning are best managed in routine PCP follow-up.",
         },
         {
-          question: "What happens during an urgent visit?",
+          question: "What happens during a same-day visit?",
           answer:
             "We review symptoms and history, perform an exam, start treatment, and provide instructions for recovery and follow-up.",
         },
       ],
       ctaTitle: "Need Care Today?",
       ctaDescription:
-        "Get fast support for urgent symptoms with same-day or walk-in primary care access.",
+        "Get fast support for new symptoms with same-day primary care access.",
     },
   },
   {
@@ -782,7 +782,7 @@ module.exports = [
       infoParagraphs: [
         "Routine screening is an important part of preventive care and early detection.",
         "Our team provides a supportive and stigma-free environment for discussing concerns and results.",
-        "Walk-in and scheduled testing options make access easier when you need timely care.",
+        "Same-day and scheduled testing options make access easier when you need timely care.",
       ],
       commitmentTitle: "STD Testing Standards",
       commitmentItems: [
@@ -812,7 +812,7 @@ module.exports = [
         {
           question: "Do I need an appointment?",
           answer:
-            "Many patients use walk-in access, and scheduled visits are also available depending on location.",
+            "Many patients use same-day access, and scheduled visits are also available depending on location.",
         },
       ],
       ctaTitle: "Take Charge of Your Sexual Health",

@@ -25,7 +25,7 @@ Online Bill Pay: Available at www.DrsFirst.com
 
 HOURS OF OPERATION
 Office Hours: Monday–Friday, 8:00 AM – 5:00 PM (lunch break 12:00 PM – 1:00 PM)
-Urgent/After-Hours: Available 24/7 — call 301-515-2901 for urgent needs
+After-Hours Support: Available 24/7 — call 301-515-2901 for time-sensitive needs
 
 LOCATIONS (14 Maryland locations)
 - Germantown: 12800 Middlebrook Rd, Suite 400, Germantown, MD 20874
@@ -42,7 +42,7 @@ SCHEDULING APPOINTMENTS
 - Online: https://first-medical-associates.inquicker.com/
 - ZocDoc: Available for appointment scheduling
 - Phone: 301-515-2901
-- Walk-in services available for non-emergency issues
+- Same-day services available for non-emergency issues
 
 ---
 
@@ -195,7 +195,7 @@ Clinical scope:
   reduction, surgical lancing or draining of abscesses, in-office diagnostic X-rays, official
   immigration physicals, specialized exotic travel vaccines such as Yellow Fever, clinical ear
   cleaning / cerumen impaction removal, or medical marijuana cards / certifications.
-- Patients with chest pain or shortness of breath should be directed to urgent care or the ER.
+- Patients with chest pain or shortness of breath should be directed to specialized care or the ER.
 
 Clinical forms and fees:
 - Unless a clinic exception applies, patients who need provider-signed forms must schedule an
@@ -226,7 +226,7 @@ SERVICES OFFERED
 Primary Care:
 - Annual physicals and routine check-ups
 - Primary care for all ages
-- Urgent care needs (non-emergency walk-in)
+- Specialized care needs (non-emergency same-day)
 
 Chronic Condition Management:
 - Asthma
@@ -467,7 +467,7 @@ export const FMA_AUTHORIZED_TOPICS = [
   "location", "address", "directions", "parking", "hours", "open", "close",
   "insurance", "billing", "payment", "cost", "fee", "copay", "self-pay", "medicaid", "medicare",
   "provider", "doctor", "physician", "nurse", "staff",
-  "service", "physical", "h&p", "history and physical", "annual wellness", "maw", "urgent care", "telemedicine", "telehealth",
+  "service", "physical", "h&p", "history and physical", "annual wellness", "maw", "specialized care", "telemedicine", "telehealth",
   "diabetes", "asthma", "depression", "geriatric", "uti", "std", "eczema", "men's health", "women's health",
   "late", "arrival", "grace period", "rescheduling",
   "same-day cancellation", "no-show", "missed appointment",

@@ -13,8 +13,8 @@ const BLOG_IMPORT_DIR = path.join(process.cwd(), "public", "uploads", "blog-impo
 const BLOG_IMPORT_URL_PREFIX = "/uploads/blog-import";
 const GENERIC_LEADING_HEADINGS = new Set([
   "family doctor in maryland",
-  "walk-in clinics in maryland",
-  "walk-in clinic in maryland",
+  "same-day appointments in maryland",
+  "same-day appointments in maryland",
 ]);
 const ROUTE_REWRITE_MAP = new Map([
   ["/contact-us", "/contact"],

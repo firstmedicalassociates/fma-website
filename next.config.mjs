@@ -9,6 +9,16 @@ const nextConfig = {
       { source: "/insurances", destination: "/patient-resources/insurance", permanent: true },
       { source: "/billing-questions", destination: "/patient-resources/insurance", permanent: true },
       { source: "/accessibility-notice", destination: "/accessibility", permanent: true },
+      {
+        source: "/blog/navigating-healthcare-choices-in-maryland-er-urgent-care-and-primary-doctor",
+        destination: "/blog/navigating-healthcare-choices-in-maryland-er-specialized-care-and-primary-doctor",
+        permanent: true,
+      },
+      {
+        source: "/blog/why-first-medical-associates-is-your-go-to-walk-in-clinic-for-convenient-quality-care",
+        destination: "/blog/why-first-medical-associates-is-your-go-to-for-same-day-appointments",
+        permanent: true,
+      },
       { source: "/columbia", destination: "/location/columbia", permanent: true },
       { source: "/robin-codjoe", destination: "/providers/robin-codjoe", permanent: true },
       { source: "/elesa-yihdego", destination: "/providers/elesa-yihdego", permanent: true },
@@ -35,7 +45,8 @@ const nextConfig = {
       { source: "/service/arthritis", destination: "/service/primary-care", permanent: true },
       { source: "/service/eczema", destination: "/service/skin-rash-and-eczema", permanent: true },
       { source: "/service/migraines", destination: "/service/primary-care", permanent: true },
-      { source: "/service/walk-in-services", destination: "/service/urgent-needs", permanent: true },
+      { source: "/service/walk-in-services", destination: "/service/same-day-care", permanent: true },
+      { source: "/service/urgent-needs", destination: "/service/same-day-care", permanent: true },
       { source: "/location/joppa", destination: "/locations", permanent: true },
       { source: "/location/columbia-oldie-oldie", destination: "/location/columbia", permanent: true },
     ];

@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unescaped-entities */
+import Link from "next/link";
 import { buildStaticMetadata } from "../lib/seo";
 import { 
   Building2, 
@@ -50,7 +50,7 @@ export default function AboutPage() {
   ];
 
   const timelineItems = [
-    { year: '2008', event: 'First urgent care center opened in Olney, Maryland' },
+    { year: '2008', event: 'First same-day care center opened in Olney, Maryland' },
     { year: '2009', event: 'Relocated to Germantown' },
     { year: '2011', event: 'Transitioned to a primary care model' },
     { year: '2014', event: 'Second location opened in Gaithersburg' },
@@ -383,9 +383,9 @@ export default function AboutPage() {
           <div>
             <h4 style={{ fontWeight: 800, color: '#001c55', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Advance Your Career</h4>
             <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>Build your career with a network that values clinician autonomy and patient satisfaction above all else.</p>
-            <a className="cta-link-btn" href="/about/careers">
+            <Link className="cta-link-btn" href="/about/careers">
               View Career Opportunities <ExternalLink size={14} />
-            </a>
+            </Link>
           </div>
         </div>
         <div className="cta-card dark-cta">
@@ -393,9 +393,9 @@ export default function AboutPage() {
            <div>
             <h4 style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.5rem' }}>Partnering With Our Community</h4>
             <p style={{ fontSize: '0.875rem', opacity: 0.7, marginBottom: '1rem' }}>Empowering independent practitioners through a shared community focus.</p>
-            <a className="cta-link-btn" href="/about/partners">
+            <Link className="cta-link-btn" href="/about/partners">
               Learn About Growth <ArrowRight size={14} />
-            </a>
+            </Link>
            </div>
         </div>
       </div>
@@ -406,7 +406,7 @@ export default function AboutPage() {
             <div className="section-eyebrow">Our Timeline</div>
             <h3 className="section-title">Our Story</h3>
             <p className="section-intro">
-              From one urgent care center in Olney to a growing regional primary care network,
+              From one same-day care center in Olney to a growing regional primary care network,
               these milestones reflect the communities, providers, and patients that shaped First Medical Associates.
             </p>
             <div className="timeline-panel">
@@ -431,7 +431,7 @@ export default function AboutPage() {
             </div>
             <div className="history-copy">
               <p>
-                Dr. Malik opened his first clinic in 2008 in Olney, Maryland, relocating to Germantown in 2009. The clinic began as an urgent care center operating seven days per week with just Dr. Malik, one front desk staff member, and one medical assistant. We transitioned to a primary care model and added a full-time Physician Assistant in 2011, operating six days a week for several years before moving to five days per week in 2015.
+                Dr. Malik opened his first clinic in 2008 in Olney, Maryland, relocating to Germantown in 2009. The clinic began as a same-day care center operating seven days per week with just Dr. Malik, one front desk staff member, and one medical assistant. We transitioned to a primary care model and added a full-time Physician Assistant in 2011, operating six days a week for several years before moving to five days per week in 2015.
               </p>
               <p>
                 Our second location opened in Gaithersburg, Maryland in 2014. Another PA was hired and Dr. Malik split his time between the two locations for the next four years. Expansion and growth has continued at a rapid rate with new locations opening every year since 2019 and three locations opening in 2025. We have expanded to over 15 locations in Maryland and our first Virginia location opened in 2026.
