@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import HeroEyebrow from "../components/hero-eyebrow";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
@@ -148,6 +148,8 @@ export default function LocationPageShell({ location, providers, serviceGroups }
     phone: "",
     message: "",
   });
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
   const addressLines = useMemo(() => formatAddressLines(location), [location]);
   const officeHourRows = useMemo(
@@ -268,11 +270,83 @@ export default function LocationPageShell({ location, providers, serviceGroups }
       );
     });
   }, [serviceEntries, serviceFilter, serviceQuery]);
+  const galleryImages = useMemo(() => {
+    const images = Array.isArray(location.galleryImages) ? location.galleryImages : [];
+    const normalizedImages = images
+      .map((image) => ({
+        src: String(image?.src || "").trim(),
+        alt: String(image?.alt || location.mapImageAlt || location.title || "Location photo").trim(),
+      }))
+      .filter((image) => image.src);
+
+    if (normalizedImages.length > 0) return normalizedImages;
+    if (!location.imageUrl) return [];
+
+    return [
+      {
+        src: location.imageUrl,
+        alt: location.mapImageAlt || location.title || "Location photo",
+      },
+    ];
+  }, [location.galleryImages, location.imageUrl, location.mapImageAlt, location.title]);
+  const safeActivePhotoIndex =
+    galleryImages.length > 0 ? Math.min(activePhotoIndex, galleryImages.length - 1) : 0;
+  const activeGalleryImage = galleryImages[safeActivePhotoIndex] || null;
+  const heroImageSrc = location.imageUrl || activeGalleryImage?.src || "";
+  const heroImageAlt = location.mapImageAlt || activeGalleryImage?.alt || location.title;
   const publicPhone = location.publicPhone || "";
   const patientPortalUrl = PATIENT_PORTAL_URL;
   const hasPatientPortalLink = Boolean(patientPortalUrl && patientPortalUrl !== "#");
   const bookingUrl = location.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL || "";
   const hasBookingLink = Boolean(bookingUrl && bookingUrl !== "#");
+
+  function openPhotoModal(index = 0) {
+    if (galleryImages.length === 0) return;
+    setActivePhotoIndex(Math.max(0, Math.min(index, galleryImages.length - 1)));
+    setIsPhotoModalOpen(true);
+  }
+
+  function showPreviousPhoto() {
+    if (galleryImages.length <= 1) return;
+    setActivePhotoIndex((current) => (current - 1 + galleryImages.length) % galleryImages.length);
+  }
+
+  function showNextPhoto() {
+    if (galleryImages.length <= 1) return;
+    setActivePhotoIndex((current) => (current + 1) % galleryImages.length);
+  }
+
+  useEffect(() => {
+    if (!isPhotoModalOpen) return undefined;
+
+    const galleryCount = galleryImages.length;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        setIsPhotoModalOpen(false);
+      }
+
+      if (galleryCount <= 1) return;
+
+      if (event.key === "ArrowLeft") {
+        setActivePhotoIndex((current) => (current - 1 + galleryCount) % galleryCount);
+      }
+
+      if (event.key === "ArrowRight") {
+        setActivePhotoIndex((current) => (current + 1) % galleryCount);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [galleryImages.length, isPhotoModalOpen]);
+
   async function handleInfoFormSubmit(event) {
     event.preventDefault();
     setInfoFormStatus("sending");
@@ -376,26 +450,25 @@ export default function LocationPageShell({ location, providers, serviceGroups }
 
                 <div className={styles.locationHeroMedia}>
                   <div className={styles.locationHeroMediaCard}>
-                    {location.imageUrl ? (
+                    {heroImageSrc ? (
                       <img
                         className={styles.locationHeroImage}
-                        src={location.imageUrl}
-                        alt={location.mapImageAlt}
+                        src={heroImageSrc}
+                        alt={heroImageAlt}
                       />
                     ) : (
                       <div className={styles.mediaPlaceholder}>Location image is currently unavailable.</div>
                     )}
 
-                    {location.imageUrl ? (
-                      <a
-                        href={location.imageUrl}
-                        target="_blank"
-                        rel="noreferrer"
+                    {galleryImages.length > 0 ? (
+                      <button
+                        type="button"
                         className={styles.locationHeroPhotoButton}
+                        onClick={() => openPhotoModal(0)}
                       >
                         <span className="material-symbols-outlined">imagesmode</span>
                         <span>View photos</span>
-                      </a>
+                      </button>
                     ) : null}
                   </div>
                 </div>
@@ -999,6 +1072,93 @@ export default function LocationPageShell({ location, providers, serviceGroups }
           ) : null}
         </section>
       </main>
+
+      {isPhotoModalOpen && activeGalleryImage ? (
+        <div
+          className={styles.photoModalOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${location.title} photos`}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setIsPhotoModalOpen(false);
+            }
+          }}
+        >
+          <div className={styles.photoModalPanel}>
+            <div className={styles.photoModalTopBar}>
+              <div>
+                <p className={styles.photoModalKicker}>{location.title}</p>
+                <h2>Office Photos</h2>
+              </div>
+              <button
+                type="button"
+                className={styles.photoModalClose}
+                aria-label="Close photos"
+                onClick={() => setIsPhotoModalOpen(false)}
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className={styles.photoModalStage}>
+              {galleryImages.length > 1 ? (
+                <button
+                  type="button"
+                  className={`${styles.photoModalArrow} ${styles.photoModalArrowPrevious}`}
+                  aria-label="Previous photo"
+                  onClick={showPreviousPhoto}
+                >
+                  <span className="material-symbols-outlined">chevron_left</span>
+                </button>
+              ) : null}
+
+              <img
+                className={styles.photoModalImage}
+                src={activeGalleryImage.src}
+                alt={activeGalleryImage.alt}
+              />
+
+              {galleryImages.length > 1 ? (
+                <button
+                  type="button"
+                  className={`${styles.photoModalArrow} ${styles.photoModalArrowNext}`}
+                  aria-label="Next photo"
+                  onClick={showNextPhoto}
+                >
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+              ) : null}
+            </div>
+
+            <div className={styles.photoModalFooter}>
+              <p>
+                Photo {safeActivePhotoIndex + 1} of {galleryImages.length}
+              </p>
+
+              {galleryImages.length > 1 ? (
+                <div className={styles.photoModalThumbs} aria-label="Choose photo">
+                  {galleryImages.map((image, index) => (
+                    <button
+                      key={image.src}
+                      type="button"
+                      className={`${styles.photoModalThumb} ${
+                        index === safeActivePhotoIndex ? styles.photoModalThumbActive : ""
+                      }`}
+                      aria-label={`Show photo ${index + 1}`}
+                      aria-current={index === safeActivePhotoIndex}
+                      onClick={() => setActivePhotoIndex(index)}
+                    >
+                      <img src={image.src} alt="" />
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <SiteFooter />
     </div>
   );

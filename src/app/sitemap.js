@@ -23,7 +23,6 @@ export default async function sitemap() {
     createStaticRoute(siteUrl, "/blog", "weekly", 0.7),
     createStaticRoute(siteUrl, "/about", "monthly", 0.6),
     createStaticRoute(siteUrl, "/about/careers", "monthly", 0.6),
-    createStaticRoute(siteUrl, "/about/leadership", "monthly", 0.5),
     createStaticRoute(siteUrl, "/about/mission", "monthly", 0.5),
     createStaticRoute(siteUrl, "/about/partners", "monthly", 0.5),
     createStaticRoute(siteUrl, "/contact", "monthly", 0.6),

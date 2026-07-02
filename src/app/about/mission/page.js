@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { buildStaticMetadata } from "../../lib/seo";
+import { getSiteImageSrc } from "../../lib/site-images";
 import { 
   HeartHandshake, 
   ShieldCheck, 
@@ -16,6 +17,8 @@ export const metadata = buildStaticMetadata({
 });
 
 export default function MissionPage() {
+  const missionImageSrc = getSiteImageSrc("first-medical-associates-doctors-5");
+
   return (
     <div className="mission-content">
       <style>{`
@@ -76,7 +79,7 @@ export default function MissionPage() {
           </div>
         </div>
         <div className="m-right">
-          <img src="https://picsum.photos/seed/doctor_child/1000/1000" alt="Doctor with child" />
+          <img src={missionImageSrc} alt="First Medical Associates doctor reviewing care information" />
         </div>
       </div>
 
@@ -131,7 +134,7 @@ export default function MissionPage() {
           <p>Our mission and values guide our culture, our decisions, and the care we deliver—creating lasting impact for patients, providers, and communities.</p>
         </div>
         <div className="imp-right">
-          <img src="https://picsum.photos/seed/medical_facility/1000/800" alt="Medical Facility" />
+          <img src={missionImageSrc} alt="First Medical Associates care team using clinical technology" />
         </div>
       </div>
 

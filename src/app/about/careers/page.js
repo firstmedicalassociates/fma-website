@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { buildStaticMetadata } from "../../lib/seo";
+import { getSiteImageSrc } from "../../lib/site-images";
 import {
   Briefcase,
   ArrowRight,
@@ -27,6 +28,8 @@ export const metadata = buildStaticMetadata({
 });
 
 export default function CareersPage() {
+  const careersImageSrc = getSiteImageSrc("first-medical-associates-doctors-9");
+
   const opportunities = [
     {
       name: 'Provider Roles',
@@ -271,7 +274,7 @@ export default function CareersPage() {
           </div>
         </div>
         <div className="promo-img-wrap">
-          <img src="https://picsum.photos/seed/medical_team/1000/1000" alt="First Medical Associates team members" />
+          <img src={careersImageSrc} alt="First Medical Associates team members collaborating with a patient" />
         </div>
       </div>
 

@@ -523,7 +523,7 @@ export default async function Home() {
 
                   <h1 className={styles.heroTitle}>
                     <span className={styles.heroTitleLine}>
-                      Primary Care &amp; Urgent Care
+                      Primary Care &amp; Specialized Care
                     </span>
                     <span className={`${styles.heroTitleLine} ${styles.heroTitleAccentLine}`}>
                       Across Maryland

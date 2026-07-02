@@ -1,4 +1,5 @@
 import { buildStructuredAddress, formatOfficeHoursForDisplay, resolveLocationAddressParts } from "../lib/locations";
+import { resolveLocationPrimaryImage } from "../lib/location-photos";
 import { isDatabaseConfigured, prisma } from "../lib/prisma";
 import { locationsIndexMetadata } from "../lib/seo";
 import LocationFinder from "./location-finder";
@@ -112,6 +113,7 @@ export default async function LocationFinderPage() {
     const assignedProviders = providersByLocationSlug[location.slug] || [];
     const addressLines = normalizeAddressLines(location);
     const { geocodeQuery, fallbackGeocodeQuery } = buildGeocodeQuery(location);
+    const primaryImage = resolveLocationPrimaryImage(location);
 
     return {
       id: location.id,
@@ -126,8 +128,8 @@ export default async function LocationFinderPage() {
       postalCode: location.postalCode || "",
       directionsUrl: location.directionsUrl || "",
       bookingUrl: location.bookingUrl || "",
-      mapImageUrl: location.mapImageUrl || "",
-      mapImageAlt: location.mapImageAlt || location.title,
+      mapImageUrl: primaryImage?.src || location.mapImageUrl || "",
+      mapImageAlt: primaryImage?.alt || location.mapImageAlt || location.title,
       officeHours: Array.isArray(location.officeHours) ? location.officeHours : [],
       officeHourRows: formatOfficeHoursForDisplay(location.officeHours),
       publicPhone: buildPublicPhone(location),

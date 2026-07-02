@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unescaped-entities, @next/next/no-img-element */
 import { buildStaticMetadata } from "../../lib/seo";
+import { getSiteImageSrc } from "../../lib/site-images";
 import { 
   Handshake, 
   ArrowRight, 
@@ -25,6 +26,8 @@ export const metadata = buildStaticMetadata({
 });
 
 export default function PartnersPage() {
+  const partnersImageSrc = getSiteImageSrc("first-medical-associates-doctors-4");
+
   const partnerTypes = [
     { 
       title: 'Health Systems & Hospitals', 
@@ -211,7 +214,7 @@ export default function PartnersPage() {
           </div>
         </div>
         <div className="promo-right">
-          <img src="https://picsum.photos/seed/partnership_handshake/1000/1000" alt="Partnership Handshake" />
+          <img src={partnersImageSrc} alt="First Medical Associates doctors reviewing patient care information" />
         </div>
       </div>
 
