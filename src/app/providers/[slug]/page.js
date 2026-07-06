@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import HeroEyebrow from "../../components/hero-eyebrow";
 import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
 import InternalLinkHub from "../../components/internal-link-hub";
@@ -325,7 +324,6 @@ export default async function ProviderDetailPage({ params }) {
       : primaryLocation?.href
         ? "View Location"
         : "Back to Providers";
-  const heroBadgeLabel = primaryLocation?.label || "Provider Profile";
   const subtitle = provider.title
     ? `${provider.title} at First Medical Associates`
     : "First Medical Associates provider";
@@ -399,8 +397,6 @@ export default async function ProviderDetailPage({ params }) {
               </div>
 
               <div className={styles.heroCopy}>
-                <HeroEyebrow>{heroBadgeLabel}</HeroEyebrow>
-
                 <div className={styles.heroHeading}>
                   <h1>{seo.h1}</h1>
                   <p>{subtitle}</p>

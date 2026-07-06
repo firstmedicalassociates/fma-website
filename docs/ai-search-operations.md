@@ -33,6 +33,19 @@ Required for shared production rate limiting:
 
 Production AI search, AI feedback, and health-adjacent contact form routes fail closed if the shared limiter is unavailable. Local development still falls back to in-memory rate limiting.
 
+If the browser console shows `/api/search` returning `503` in Vercel, check the Function logs for:
+
+```text
+Shared rate limiter is required but not configured.
+```
+
+That means production is missing one or both shared limiter variables:
+
+- `UPSTASH_REDIS_REST_URL`
+- `UPSTASH_REDIS_REST_TOKEN`
+
+Add them in Vercel Project Settings -> Environment Variables for the Production environment, then redeploy. The public AI search route intentionally fails closed in production instead of falling back to local memory because serverless instances do not share in-memory rate-limit state.
+
 Required before enabling the email contact form in production:
 
 - `CONTACT_FORM_VENDOR_REVIEWED=true`
