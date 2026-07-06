@@ -1,20 +1,45 @@
 import { NextResponse } from 'next/server';
 import { OpenAI } from 'openai';
 import { requireAdminRequest } from '../../../lib/admin-auth';
+import {
+  getNoPhiError,
+  hasPotentialPhi,
+  normalizePublicSearchQuery,
+} from '../../../lib/no-phi-guard';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request) {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ ok: false, error: 'Not found.' }, { status: 404 });
+  }
+
   const auth = requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   try {
     const { text } = await request.json();
+    const input = normalizePublicSearchQuery(text).slice(0, 2000);
 
-    if (!text) {
+    if (!input) {
       return NextResponse.json(
         { ok: false, error: 'text field required' },
         { status: 400 }
+      );
+    }
+
+    if (hasPotentialPhi(input)) {
+      return NextResponse.json(
+        { ok: false, error: getNoPhiError('embedding diagnostics') },
+        { status: 400 }
+      );
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json(
+        { ok: false, error: 'OPENAI_API_KEY is not configured.' },
+        { status: 500 }
       );
     }
 
@@ -22,14 +47,10 @@ export async function POST(request) {
       apiKey: process.env.OPENAI_API_KEY,
     });
 
-    console.log('Requesting embedding for:', text.substring(0, 50));
-
     const response = await openai.embeddings.create({
       model: 'text-embedding-3-small',
-      input: text,
+      input,
     });
-
-    console.log('Embedding response:', response.data[0] ? 'Success' : 'No data');
 
     return NextResponse.json({
       ok: true,

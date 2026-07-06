@@ -29,10 +29,9 @@ export default function AthenaTestPage() {
       <header className="admin-top">
         <div>
           <span className="admin-kicker">Athena API</span>
-          <h1 className="admin-title">Athena Test</h1>
+          <h1 className="admin-title">Athena Departments</h1>
           <p className="admin-subtitle">
-            Test the server-side Athena OAuth flow and simple GET requests from the protected admin
-            area.
+            View the departments available from the configured Athena Preview environment.
           </p>
         </div>
         <span className={`admin-pill ${isReady ? "admin-live-pill" : ""}`}>
@@ -44,8 +43,8 @@ export default function AthenaTestPage() {
         <div className="admin-panel">
           <div className="admin-panel-header">
             <div>
-              <h2>Request tester</h2>
-              <p>Credentials stay on the server; access tokens are not shown in the browser.</p>
+              <h2>Department list</h2>
+              <p>Departments load automatically from Athena using the server-side credentials.</p>
             </div>
           </div>
 
@@ -90,9 +89,9 @@ export default function AthenaTestPage() {
           <article className="admin-panel admin-side-metric">
             <span className="admin-kicker">Guardrails</span>
             <div className="admin-side-list">
-              <p>Use relative Athena API paths only.</p>
-              <p>Provider details come from /providers and slot data comes from /appointments/open.</p>
-              <p>Do not test patient or PHI endpoints here unless the workflow is approved.</p>
+              <p>Credentials and access tokens stay on the server.</p>
+              <p>Department data comes from the configured Preview practice.</p>
+              <p>Patient and PHI endpoints are intentionally not shown here.</p>
             </div>
           </article>
         </aside>

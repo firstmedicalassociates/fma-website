@@ -504,6 +504,48 @@ async function runProviderAvailabilityLookup(config, tokenResult, body) {
   };
 }
 
+async function runDepartmentsLookup(config, tokenResult) {
+  const practiceId = normalizePracticeId(config.defaultPracticeId);
+  if (!practiceId) {
+    return NextResponse.json(
+      { ok: false, error: "ATHENA_DEFAULT_PRACTICE_ID is required to load departments." },
+      { status: 400 }
+    );
+  }
+
+  const departmentsPath = addQueryParams(`/v1/${encodeURIComponent(practiceId)}/departments`, {
+    limit: 100,
+  });
+  const departmentsResponse = await fetchAthenaJson(
+    config,
+    tokenResult.accessToken,
+    departmentsPath
+  );
+
+  if (!departmentsResponse.ok) {
+    return NextResponse.json(
+      {
+        ok: false,
+        step: "departments",
+        athenaStatus: departmentsResponse.status,
+        endpoint: departmentsResponse.endpoint,
+        error: departmentsResponse.error || "Athena departments lookup failed.",
+        response: departmentsResponse.body,
+      },
+      { status: 502 }
+    );
+  }
+
+  return NextResponse.json({
+    ok: true,
+    step: "departments",
+    practiceId,
+    endpoint: departmentsResponse.endpoint,
+    token: tokenResult.summary,
+    departments: (departmentsResponse.body?.departments || []).map(normalizeDepartment),
+  });
+}
+
 export async function POST(request) {
   const auth = requireAdminRequest(request);
   if (!auth.ok) return auth.response;
@@ -549,51 +591,12 @@ export async function POST(request) {
     return providerAvailabilityResult.response;
   }
 
-  if (action !== "get") {
-    return NextResponse.json(
-      { ok: false, error: "Unsupported Athena test action." },
-      { status: 400 }
-    );
+  if (action === "departments") {
+    return runDepartmentsLookup(config, tokenResult);
   }
 
-  const endpoint = buildAthenaEndpointUrl(config.baseUrl, body?.practiceId, body?.endpointPath);
-  if (!endpoint.ok) {
-    return NextResponse.json({ ok: false, error: endpoint.error }, { status: 400 });
-  }
-
-  try {
-    const response = await fetchWithTimeout(endpoint.url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${tokenResult.accessToken}`,
-      },
-    });
-
-    const responseBody = await parseResponseBody(response);
-
-    return NextResponse.json(
-      {
-        ok: response.ok,
-        step: "get",
-        athenaStatus: response.status,
-        endpoint: endpoint.displayPath,
-        token: tokenResult.summary,
-        response: responseBody,
-      },
-      { status: response.ok ? 200 : 502 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        step: "get",
-        error:
-          error?.name === "AbortError"
-            ? "Athena API request timed out."
-            : "Athena API request could not be completed.",
-      },
-      { status: 502 }
-    );
-  }
+  return NextResponse.json(
+    { ok: false, error: "Unsupported Athena test action." },
+    { status: 400 }
+  );
 }

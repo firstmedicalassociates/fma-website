@@ -45,6 +45,9 @@ function getInitialValues(initialProvider) {
     imageUrl: initialProvider?.imageUrl || "",
     imageAlt: initialProvider?.imageAlt || "",
     linkUrl: initialProvider?.linkUrl || "",
+    athenaProviderId: initialProvider?.athenaProviderId || "",
+    athenaDepartmentId: initialProvider?.athenaDepartmentId || "",
+    athenaSchedulingName: initialProvider?.athenaSchedulingName || "",
     locations: Array.isArray(initialProvider?.locations) ? initialProvider.locations : [],
     languages: Array.isArray(initialProvider?.languages) ? initialProvider.languages : [],
     sortOrder: String(initialProvider?.sortOrder ?? 0),
@@ -64,6 +67,9 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
   const [imageUrl, setImageUrl] = useState(initialValues.imageUrl);
   const [imageAlt, setImageAlt] = useState(initialValues.imageAlt);
   const [linkUrl, setLinkUrl] = useState(initialValues.linkUrl);
+  const [athenaProviderId, setAthenaProviderId] = useState(initialValues.athenaProviderId);
+  const [athenaDepartmentId, setAthenaDepartmentId] = useState(initialValues.athenaDepartmentId);
+  const [athenaSchedulingName, setAthenaSchedulingName] = useState(initialValues.athenaSchedulingName);
   const [imageStatus, setImageStatus] = useState("idle");
   const [selectedLocations, setSelectedLocations] = useState(initialValues.locations);
   const [languagesInput, setLanguagesInput] = useState(formatProviderList(initialValues.languages));
@@ -169,6 +175,9 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
           imageUrl,
           imageAlt,
           linkUrl,
+          athenaProviderId,
+          athenaDepartmentId,
+          athenaSchedulingName,
           locations: selectedLocations,
           languages,
           sortOrder,
@@ -334,6 +343,41 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
               </p>
             </div>
 
+            <div className="builder-grid-three">
+              <div className="builder-field">
+                <label>Athena provider ID</label>
+                <input
+                  className="builder-input"
+                  type="text"
+                  value={athenaProviderId}
+                  onChange={(event) => setAthenaProviderId(event.target.value)}
+                  placeholder="104"
+                />
+              </div>
+
+              <div className="builder-field">
+                <label>Athena department ID</label>
+                <input
+                  className="builder-input"
+                  type="text"
+                  value={athenaDepartmentId}
+                  onChange={(event) => setAthenaDepartmentId(event.target.value)}
+                  placeholder="Optional"
+                />
+              </div>
+
+              <div className="builder-field">
+                <label>Athena scheduling name</label>
+                <input
+                  className="builder-input"
+                  type="text"
+                  value={athenaSchedulingName}
+                  onChange={(event) => setAthenaSchedulingName(event.target.value)}
+                  placeholder="Optional display override"
+                />
+              </div>
+            </div>
+
             <div className="builder-field">
               <label>Locations (required)</label>
               {locationOptions.length === 0 ? (
@@ -473,6 +517,10 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
                 <div className="location-preview-meta-item">
                   <span>Booking CTA</span>
                   <strong>{linkUrl || "Uses provider detail page"}</strong>
+                </div>
+                <div className="location-preview-meta-item">
+                  <span>Athena mapping</span>
+                  <strong>{athenaProviderId || "Name-matched"}</strong>
                 </div>
               </div>
 

@@ -1,9 +1,22 @@
 import { NextResponse } from "next/server";
 import { getNoPhiError, hasPotentialPhi } from "../../lib/no-phi-guard";
+import { checkRateLimit, getRateLimitHeaders, getRateLimitIdentity } from "../../lib/rate-limit";
 
 export const runtime = "nodejs";
 
 const SENDLAYER_ENDPOINT = "https://console.sendlayer.com/api/v1/email";
+const CONTACT_RATE_LIMIT = {
+  windowMs: 60 * 1000,
+  max: 8,
+  requireShared: process.env.NODE_ENV === "production",
+};
+const MAX_FIELD_LENGTHS = {
+  firstName: 80,
+  lastName: 80,
+  email: 160,
+  phone: 40,
+  message: 1000,
+};
 
 function cleanText(value) {
   const normalized = String(value ?? "").trim();
@@ -19,6 +32,26 @@ function isValidEmail(value) {
 }
 
 export async function POST(request) {
+  const rateLimit = await checkRateLimit(
+    getRateLimitIdentity(request, "api-location-info-contact"),
+    CONTACT_RATE_LIMIT
+  );
+  if (!rateLimit.ok) {
+    const limiterUnavailable = rateLimit.unavailable === true;
+    return NextResponse.json(
+      {
+        ok: false,
+        error: limiterUnavailable
+          ? "Contact form is temporarily unavailable. Please call the office."
+          : "Too many contact requests. Please wait a moment and try again.",
+      },
+      {
+        status: limiterUnavailable ? 503 : 429,
+        headers: getRateLimitHeaders(rateLimit),
+      }
+    );
+  }
+
   let payload;
 
   try {
@@ -46,6 +79,19 @@ export async function POST(request) {
     return NextResponse.json({ ok: false, error: "Please provide a valid email address." }, { status: 400 });
   }
 
+  if (
+    firstName.length > MAX_FIELD_LENGTHS.firstName ||
+    lastName.length > MAX_FIELD_LENGTHS.lastName ||
+    email.length > MAX_FIELD_LENGTHS.email ||
+    phone.length > MAX_FIELD_LENGTHS.phone ||
+    message.length > MAX_FIELD_LENGTHS.message
+  ) {
+    return NextResponse.json(
+      { ok: false, error: "Please shorten your message and contact details." },
+      { status: 400 }
+    );
+  }
+
   if (hasPotentialPhi(message)) {
     return NextResponse.json(
       { ok: false, error: getNoPhiError("the contact form") },
@@ -57,13 +103,23 @@ export async function POST(request) {
   const fromEmail = process.env.SENDLAYER_FROM_EMAIL;
   const fromName = process.env.SENDLAYER_FROM_NAME || "First Medical Associates";
   const toEmail = process.env.SENDLAYER_TO_EMAIL;
+  const vendorReviewed = process.env.CONTACT_FORM_VENDOR_REVIEWED === "true";
+
+  if (process.env.NODE_ENV === "production" && !vendorReviewed) {
+    return NextResponse.json(
+      { ok: false, error: "Contact form is temporarily unavailable. Please call the office." },
+      { status: 503 }
+    );
+  }
 
   if (!sendLayerApiKey || !fromEmail || !toEmail) {
     return NextResponse.json(
       {
         ok: false,
         error:
-          "Contact form is not configured. Set SENDLAYER_API_KEY, SENDLAYER_FROM_EMAIL, and SENDLAYER_TO_EMAIL.",
+          process.env.NODE_ENV === "production"
+            ? "Contact form is temporarily unavailable. Please call the office."
+            : "Contact form is not configured. Set SENDLAYER_API_KEY, SENDLAYER_FROM_EMAIL, and SENDLAYER_TO_EMAIL.",
       },
       { status: 500 }
     );

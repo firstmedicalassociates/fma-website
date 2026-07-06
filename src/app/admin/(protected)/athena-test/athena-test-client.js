@@ -1,40 +1,23 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const DEFAULT_ENDPOINT_PATH = "departments?limit=1";
-
-function toInputDate(date) {
-  return date.toISOString().slice(0, 10);
+function getDepartmentLabel(department) {
+  return department.name || `Department ${department.departmentid}`;
 }
 
-function addDays(date, days) {
-  const nextDate = new Date(date);
-  nextDate.setDate(nextDate.getDate() + days);
-  return nextDate;
-}
-
-function formatResult(result) {
-  if (!result) {
-    return "Run a token test, GET request, or provider availability lookup to see the Athena response here.";
-  }
-
-  return JSON.stringify(result, null, 2);
+function getLocationText(department) {
+  return [department.city, department.state].filter(Boolean).join(", ");
 }
 
 export default function AthenaTestClient({ configStatus }) {
-  const [scope, setScope] = useState(configStatus.defaultScope || "");
-  const [practiceId, setPracticeId] = useState(configStatus.defaultPracticeId || "");
-  const [endpointPath, setEndpointPath] = useState(DEFAULT_ENDPOINT_PATH);
-  const [departmentId, setDepartmentId] = useState(configStatus.defaultDepartmentId || "");
-  const [providerId, setProviderId] = useState("");
-  const [appointmentTypeId, setAppointmentTypeId] = useState("");
-  const [startDate, setStartDate] = useState(() => toInputDate(new Date()));
-  const [endDate, setEndDate] = useState(() => toInputDate(addDays(new Date(), 14)));
-  const [limit, setLimit] = useState("25");
+  const [departments, setDepartments] = useState([]);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
-  const [result, setResult] = useState(null);
+  const [practiceId, setPracticeId] = useState(configStatus.defaultPracticeId || "");
+  const [endpoint, setEndpoint] = useState("");
+  const hasLoadedRef = useRef(false);
+  const isLoadingRef = useRef(false);
 
   const isConfigured = configStatus.clientIdConfigured && configStatus.clientSecretConfigured;
   const statusClassName = useMemo(
@@ -42,18 +25,12 @@ export default function AthenaTestClient({ configStatus }) {
     [status]
   );
 
-  async function runAthenaTest(action) {
-    if (!isConfigured || status === "loading") return;
+  const loadDepartments = useCallback(async () => {
+    if (!isConfigured || isLoadingRef.current) return;
 
+    isLoadingRef.current = true;
     setStatus("loading");
-    setMessage(
-      action === "token"
-        ? "Requesting Athena token..."
-        : action === "providerAvailability"
-          ? "Loading provider availability..."
-          : "Running Athena GET request..."
-    );
-    setResult(null);
+    setMessage("Loading Athena departments...");
 
     try {
       const response = await fetch("/api/admin/athena-test", {
@@ -61,18 +38,7 @@ export default function AthenaTestClient({ configStatus }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          action,
-          scope,
-          practiceId,
-          endpointPath,
-          departmentId,
-          providerId,
-          appointmentTypeId,
-          startDate,
-          endDate,
-          limit,
-        }),
+        body: JSON.stringify({ action: "departments" }),
       });
 
       const data = await response.json().catch(() => ({
@@ -80,189 +46,116 @@ export default function AthenaTestClient({ configStatus }) {
         error: "The server returned a non-JSON response.",
       }));
 
-      setResult(data);
-
       if (!response.ok || !data.ok) {
+        setDepartments([]);
         setStatus("error");
-        setMessage(data.error || "Athena test failed.");
+        setMessage(data.error || "Could not load Athena departments.");
         return;
       }
 
+      const nextDepartments = Array.isArray(data.departments) ? data.departments : [];
+      setDepartments(nextDepartments);
+      setPracticeId(data.practiceId || configStatus.defaultPracticeId || "");
+      setEndpoint(data.endpoint || "");
       setStatus("success");
-      setMessage(
-        action === "token"
-          ? "Token request succeeded."
-          : action === "providerAvailability"
-            ? "Provider availability lookup succeeded."
-            : "Athena GET request succeeded."
-      );
+      setMessage(`Loaded ${nextDepartments.length} Athena departments.`);
     } catch {
+      setDepartments([]);
       setStatus("error");
       setMessage("Unable to reach the Athena test route.");
+    } finally {
+      isLoadingRef.current = false;
     }
-  }
+  }, [configStatus.defaultPracticeId, isConfigured]);
+
+  useEffect(() => {
+    if (!isConfigured || hasLoadedRef.current) return undefined;
+
+    hasLoadedRef.current = true;
+    const timeoutId = window.setTimeout(() => {
+      loadDepartments();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isConfigured, loadDepartments]);
 
   return (
     <div className="builder-shell athena-test-shell">
-      <div className="athena-warning">
-        This page is for connection testing. Access tokens are requested server-side and removed from
-        the response before the result is displayed.
-      </div>
-
-      <div className="athena-test-grid">
-        <div className="builder-field">
-          <label htmlFor="athena-scope">Scope</label>
-          <input
-            id="athena-scope"
-            className="builder-input"
-            value={scope}
-            onChange={(event) => setScope(event.target.value)}
-            placeholder={configStatus.defaultScope || "Required Athena OAuth scope"}
-            autoComplete="off"
-          />
-        </div>
-
-        <div className="builder-field">
-          <label htmlFor="athena-practice-id">Practice ID</label>
-          <input
-            id="athena-practice-id"
-            className="builder-input"
-            value={practiceId}
-            onChange={(event) => setPracticeId(event.target.value)}
-            placeholder="Required for paths like departments"
-            autoComplete="off"
-          />
-        </div>
-      </div>
-
-      <div className="athena-provider-panel">
-        <div className="athena-provider-heading">
-          <span className="admin-kicker">Provider availability</span>
+      <div className="athena-departments-header">
+        <div>
+          <span className="admin-kicker">Departments</span>
+          <h2>All Athena departments</h2>
           <p>
-            Pull provider details, departments, appointment types, and open appointment slots
-            together.
+            This uses the server-side Athena credentials and the configured Preview practice. No
+            OAuth scope, practice ID, or endpoint path needs to be entered here.
           </p>
         </div>
 
-        <div className="athena-filter-grid">
-          <div className="builder-field">
-            <label htmlFor="athena-department-id">Department ID</label>
-            <input
-              id="athena-department-id"
-              className="builder-input"
-              value={departmentId}
-              onChange={(event) => setDepartmentId(event.target.value)}
-              placeholder="Required for open slots"
-              autoComplete="off"
-            />
-          </div>
+        <button
+          type="button"
+          className="builder-button athena-refresh-button"
+          onClick={loadDepartments}
+          disabled={!isConfigured || status === "loading"}
+        >
+          {status === "loading" ? "Loading..." : "Refresh"}
+        </button>
+      </div>
 
-          <div className="builder-field">
-            <label htmlFor="athena-provider-id">Provider ID</label>
-            <input
-              id="athena-provider-id"
-              className="builder-input"
-              value={providerId}
-              onChange={(event) => setProviderId(event.target.value)}
-              placeholder="Optional"
-              autoComplete="off"
-            />
-          </div>
-
-          <div className="builder-field">
-            <label htmlFor="athena-appointment-type-id">Appointment Type ID</label>
-            <input
-              id="athena-appointment-type-id"
-              className="builder-input"
-              value={appointmentTypeId}
-              onChange={(event) => setAppointmentTypeId(event.target.value)}
-              placeholder="Optional"
-              autoComplete="off"
-            />
-          </div>
-
-          <div className="builder-field">
-            <label htmlFor="athena-availability-limit">Result limit</label>
-            <input
-              id="athena-availability-limit"
-              className="builder-input"
-              type="number"
-              min="1"
-              max="100"
-              value={limit}
-              onChange={(event) => setLimit(event.target.value)}
-            />
-          </div>
-
-          <div className="builder-field">
-            <label htmlFor="athena-start-date">Start date</label>
-            <input
-              id="athena-start-date"
-              className="builder-input"
-              type="date"
-              value={startDate}
-              onChange={(event) => setStartDate(event.target.value)}
-            />
-          </div>
-
-          <div className="builder-field">
-            <label htmlFor="athena-end-date">End date</label>
-            <input
-              id="athena-end-date"
-              className="builder-input"
-              type="date"
-              value={endDate}
-              onChange={(event) => setEndDate(event.target.value)}
-            />
-          </div>
+      <div className="athena-summary-row">
+        <div className="athena-summary-item">
+          <span>Practice ID</span>
+          <strong>{practiceId || "Not set"}</strong>
+        </div>
+        <div className="athena-summary-item">
+          <span>Endpoint</span>
+          <strong>{endpoint || "Waiting to load"}</strong>
+        </div>
+        <div className="athena-summary-item">
+          <span>Departments</span>
+          <strong>{departments.length}</strong>
         </div>
       </div>
 
-      <div className="builder-field">
-        <label htmlFor="athena-endpoint-path">GET endpoint path</label>
-        <input
-          id="athena-endpoint-path"
-          className="builder-input"
-          value={endpointPath}
-          onChange={(event) => setEndpointPath(event.target.value)}
-          placeholder={DEFAULT_ENDPOINT_PATH}
-          autoComplete="off"
-        />
-      </div>
+      {!isConfigured ? (
+        <p className="status-message is-error">Set the Athena client ID and secret first.</p>
+      ) : message ? (
+        <p className={statusClassName}>{message}</p>
+      ) : null}
 
-      <div className="athena-test-actions">
-        <button
-          type="button"
-          className="builder-button"
-          onClick={() => runAthenaTest("token")}
-          disabled={!isConfigured || status === "loading"}
-        >
-          Test token
-        </button>
-        <button
-          type="button"
-          className="builder-button secondary"
-          onClick={() => runAthenaTest("providerAvailability")}
-          disabled={!isConfigured || status === "loading"}
-        >
-          Load availability
-        </button>
-        <button
-          type="button"
-          className="builder-button secondary"
-          onClick={() => runAthenaTest("get")}
-          disabled={!isConfigured || status === "loading"}
-        >
-          Run GET
-        </button>
-        {!isConfigured ? (
-          <p className="status-message is-error">Set the Athena client ID and secret first.</p>
-        ) : message ? (
-          <p className={statusClassName}>{message}</p>
-        ) : null}
-      </div>
+      {status === "loading" && departments.length === 0 ? (
+        <div className="athena-loading-panel">Loading departments...</div>
+      ) : null}
 
-      <pre className="athena-result">{formatResult(result)}</pre>
+      {status !== "loading" && departments.length === 0 && isConfigured ? (
+        <div className="athena-loading-panel">No departments were returned by Athena.</div>
+      ) : null}
+
+      {departments.length > 0 ? (
+        <div className="athena-department-grid">
+          {departments.map((department) => (
+            <article className="athena-department-card" key={department.departmentid}>
+              <div>
+                <span className="athena-department-id">ID {department.departmentid}</span>
+                <h3>{getDepartmentLabel(department)}</h3>
+              </div>
+              <dl>
+                <div>
+                  <dt>Location</dt>
+                  <dd>{getLocationText(department) || "Not listed"}</dd>
+                </div>
+                <div>
+                  <dt>Phone</dt>
+                  <dd>{department.phone || "Not listed"}</dd>
+                </div>
+                <div>
+                  <dt>Timezone</dt>
+                  <dd>{department.timezone || "Not listed"}</dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

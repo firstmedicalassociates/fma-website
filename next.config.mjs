@@ -1,5 +1,60 @@
 /** @type {import('next').NextConfig} */
+const securityHeaders = [
+  { key: "Referrer-Policy", value: "no-referrer" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()",
+  },
+  {
+    key: "Content-Security-Policy",
+    value: [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "form-action 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "connect-src 'self' https: ws: wss:",
+      "frame-src https:",
+    ].join("; "),
+  },
+];
+
+const noStoreHeaders = [
+  ...securityHeaders,
+  { key: "Cache-Control", value: "no-store, max-age=0" },
+];
+
 const nextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+      {
+        source: "/search",
+        headers: noStoreHeaders,
+      },
+      {
+        source: "/api/search",
+        headers: noStoreHeaders,
+      },
+      {
+        source: "/api/ai-search",
+        headers: noStoreHeaders,
+      },
+      {
+        source: "/api/ai-search/:path*",
+        headers: noStoreHeaders,
+      },
+    ];
+  },
   async redirects() {
     return [
       { source: "/about-us", destination: "/about", permanent: true },

@@ -65,7 +65,12 @@ function QuickActionIcon({ name }) {
 
 export default function SiteHeader() {
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileMenuState, setMobileMenuState] = useState({
+    isOpen: false,
+    pathname: null,
+  });
+  const isMobileMenuOpen =
+    mobileMenuState.isOpen && mobileMenuState.pathname === pathname;
 
   const headerActionHref = GENERAL_BOOK_APPOINTMENT_URL;
   const headerActionExternal = isExternalUrl(headerActionHref);
@@ -108,10 +113,6 @@ export default function SiteHeader() {
   ];
 
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     if (!isMobileMenuOpen) return undefined;
 
     const previousOverflow = document.body.style.overflow;
@@ -119,7 +120,7 @@ export default function SiteHeader() {
 
     function handleEscape(event) {
       if (event.key === "Escape") {
-        setIsMobileMenuOpen(false);
+        setMobileMenuState((current) => ({ ...current, isOpen: false }));
       }
     }
 
@@ -131,11 +132,14 @@ export default function SiteHeader() {
   }, [isMobileMenuOpen]);
 
   function toggleMobileMenu() {
-    setIsMobileMenuOpen((current) => !current);
+    setMobileMenuState((current) => ({
+      isOpen: current.pathname === pathname ? !current.isOpen : true,
+      pathname,
+    }));
   }
 
   function closeMobileMenu() {
-    setIsMobileMenuOpen(false);
+    setMobileMenuState((current) => ({ ...current, isOpen: false }));
   }
 
   const headerClassName = `${styles.siteHeader}${isMobileMenuOpen ? ` ${styles.siteHeaderMenuOpen}` : ""}`;

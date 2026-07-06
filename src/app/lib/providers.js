@@ -64,6 +64,9 @@ export function normalizeProviderPayload(value) {
     imageUrl: String(value?.imageUrl || "").trim(),
     imageAlt: String(value?.imageAlt || "").trim() || null,
     linkUrl: String(value?.linkUrl || "").trim() || null,
+    athenaProviderId: String(value?.athenaProviderId || "").trim() || null,
+    athenaDepartmentId: String(value?.athenaDepartmentId || "").trim() || null,
+    athenaSchedulingName: String(value?.athenaSchedulingName || "").trim() || null,
     locations: normalizeStringList(value?.locations).map((location) =>
       location.startsWith("/") ? location : `/${location.replace(/^\/+/, "")}`
     ),

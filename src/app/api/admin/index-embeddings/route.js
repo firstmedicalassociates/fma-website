@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { OpenAI } from 'openai';
 import { requireAdminRequest } from '../../../lib/admin-auth';
+import { getPublicContentPhiRisk } from '../../../lib/no-phi-guard';
 import { prisma } from '../../../lib/prisma';
 
 export const runtime = 'nodejs';
@@ -83,6 +84,11 @@ async function generateEmbedding(text) {
   }
 }
 
+function getEmbeddingPhiRisk(content) {
+  const risk = getPublicContentPhiRisk(content);
+  return risk.hasPotentialPhi ? risk : null;
+}
+
 async function indexLocations(db) {
   const locations = await db.location.findMany();
   let count = 0;
@@ -104,6 +110,12 @@ async function indexLocations(db) {
     }
 
     try {
+      const phiRisk = getEmbeddingPhiRisk(content);
+      if (phiRisk) {
+        errors.push(`${location.title}: skipped potential PHI in public content (${phiRisk.categories.join(', ')})`);
+        continue;
+      }
+
       const embedding = await generateEmbedding(content);
       if (!embedding) {
         errors.push(`${location.title}: no embedding generated`);
@@ -140,7 +152,10 @@ async function indexLocations(db) {
 }
 
 async function indexProviders(db) {
-  const providers = await db.provider.findMany();
+  const providers = await db.provider.findMany({
+    where: { isActive: true },
+    orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+  });
   let count = 0;
   const errors = [];
 
@@ -152,6 +167,12 @@ async function indexProviders(db) {
     if (!content.trim()) continue;
 
     try {
+      const phiRisk = getEmbeddingPhiRisk(content);
+      if (phiRisk) {
+        errors.push(`${provider.name}: skipped potential PHI in public content (${phiRisk.categories.join(', ')})`);
+        continue;
+      }
+
       const embedding = await generateEmbedding(content);
       if (!embedding) {
         errors.push(`${provider.name}: no embedding generated`);
@@ -189,7 +210,10 @@ async function indexProviders(db) {
 }
 
 async function indexServices(db) {
-  const services = await db.service.findMany();
+  const services = await db.service.findMany({
+    where: { isActive: true },
+    orderBy: [{ sortOrder: 'asc' }, { title: 'asc' }],
+  });
   let count = 0;
   const errors = [];
 
@@ -212,6 +236,12 @@ async function indexServices(db) {
     content = content.substring(0, 2000);
 
     try {
+      const phiRisk = getEmbeddingPhiRisk(content);
+      if (phiRisk) {
+        errors.push(`${service.title}: skipped potential PHI in public content (${phiRisk.categories.join(', ')})`);
+        continue;
+      }
+
       const embedding = await generateEmbedding(content);
       if (!embedding) {
         errors.push(`${service.title}: no embedding generated`);
@@ -263,6 +293,12 @@ async function indexBlogPosts(db) {
     if (!content.trim()) continue;
 
     try {
+      const phiRisk = getEmbeddingPhiRisk(content);
+      if (phiRisk) {
+        errors.push(`${post.title}: skipped potential PHI in public content (${phiRisk.categories.join(', ')})`);
+        continue;
+      }
+
       const embedding = await generateEmbedding(content);
       if (!embedding) {
         errors.push(`${post.title}: no embedding generated`);
