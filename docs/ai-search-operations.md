@@ -69,6 +69,13 @@ Required for live Athena appointment availability:
 
 Do not log, expose, or return secret values from API responses. Readiness checks should only report whether a value is present.
 
+Required for the public location finder map:
+
+- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`
+- `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` if using a Google cloud map style
+
+If Google Maps fails in production, verify that the API key is present in Vercel, Maps JavaScript API and Geocoding API are enabled, billing is active, the production domain is allowed as an HTTP referrer, and the CSP in `next.config.mjs` allows `https://maps.googleapis.com` and `https://maps.gstatic.com` in `script-src`.
+
 ## Deployment Checks
 
 Run these before promoting a build:
