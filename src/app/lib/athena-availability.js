@@ -66,7 +66,7 @@ const EXPLICIT_GLOBAL_APPOINTMENT_PATTERN = AI_SEARCH_PATTERNS.globalAppointment
 const PROVIDER_SCOPE_LANGUAGE_PATTERN =
   /\b(?:for|with)\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b|\b(?:does|do)\s+(?!(?:i|we|you|they|anyone|anybody|someone|somebody|fma|first medical|first medical associates|office|clinic|location|locations)\b)[a-z][a-z0-9 .'-]{1,80}\s+(?:have|show|offer|take|accept|available|openings?|appointments?)\b|\bwhen\s+(?:can|could|may)\s+i\s+(?:see|visit|book|schedule)\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b|\b(?:book|schedule)\s+with\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b/i;
 const DATE_OR_RANGE_LANGUAGE_PATTERN =
-  /\b(today|tomorrow|this\s+week|next\s+week|next\s+\d{1,3}\s+days?|mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?|jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i;
+  /\b(today|tomorrow|this\s+week|next\s+week|next\s+\d{1,3}\s+days?|mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?|\d{1,2}(?:st|nd|rd|th)|jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i;
 const LOCATION_PATTERN = AI_SEARCH_PATTERNS.locationAlias;
 const REQUESTED_TIME_PATTERN =
   /\b(?:at\s*)?(?:(\d{1,2})(?::([0-5]\d))?\s*(a\.?m\.?|p\.?m\.?)|([01]?\d|2[0-3]):([0-5]\d))\b/i;
@@ -79,6 +79,7 @@ const DAY_MONTH_PATTERN =
 const NUMERIC_DATE_PATTERN = /\b(\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?\b/;
 const ISO_DATE_PATTERN = /\b(\d{4})-(\d{1,2})-(\d{1,2})\b/;
 const NEXT_DAYS_PATTERN = /\bnext\s+(\d{1,3})\s+days?\b/i;
+const ORDINAL_DAY_OF_MONTH_PATTERN = /\b(?:on|for)?\s*(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\b/i;
 const WEEKDAY_INDEX_BY_TOKEN = {
   sun: 0,
   sunday: 0,
@@ -1251,6 +1252,38 @@ function parseRequestedDateRange(query, baseDate = new Date()) {
     if (range) return range;
   }
 
+  const ordinalDayMatch = text.match(ORDINAL_DAY_OF_MONTH_PATTERN);
+  if (ordinalDayMatch) {
+    const currentMonthRange = buildSpecificDateRange(
+      today.getMonth(),
+      ordinalDayMatch[1],
+      today.getFullYear(),
+      today
+    );
+
+    if (currentMonthRange && currentMonthRange.start >= today) {
+      return {
+        ...currentMonthRange,
+        explicit: true,
+      };
+    }
+
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    const nextMonthRange = buildSpecificDateRange(
+      nextMonth.getMonth(),
+      ordinalDayMatch[1],
+      nextMonth.getFullYear(),
+      today
+    );
+
+    if (nextMonthRange) {
+      return {
+        ...nextMonthRange,
+        explicit: true,
+      };
+    }
+  }
+
   const weekdayMatch = normalized.match(REQUESTED_WEEKDAY_PATTERN);
   const weekdayIndex = WEEKDAY_INDEX_BY_TOKEN[weekdayMatch?.[1] || ""];
   if (Number.isInteger(weekdayIndex)) {
@@ -1544,6 +1577,8 @@ export function isAppointmentAvailabilityQuery(query) {
     (APPOINTMENT_INTENT_PATTERN.test(normalized) &&
     (LOCATION_PATTERN.test(normalized) ||
       FAST_APPOINTMENT_PATTERN.test(normalized) ||
+      DATE_OR_RANGE_LANGUAGE_PATTERN.test(normalized) ||
+      Boolean(parseRequestedDateRange(query)) ||
       Boolean(parseRequestedTime(query)) ||
       AVAILABILITY_REQUEST_PATTERN.test(normalized) ||
       PROVIDER_APPOINTMENT_REQUEST_PATTERN.test(normalized) ||

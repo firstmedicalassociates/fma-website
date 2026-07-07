@@ -24,6 +24,12 @@
     "appointmentAvailability": true
   },
   {
+    "id": "provider_appointments_codjoe_day_only_date",
+    "query": "dr codjoes availability on the 10th",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
     "id": "provider_appointments_robin_conversational",
     "query": "give me appointment times for robin",
     "expectedIntent": "appointment_availability",

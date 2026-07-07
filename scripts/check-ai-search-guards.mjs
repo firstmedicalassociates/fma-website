@@ -129,6 +129,16 @@ check("parses explicit public appointment date requests", () => {
     ...expected,
     label: "July 20, 2026",
   });
+  assert.deepEqual(parseRequestedDateRangeForTest("dr codjoes availability on the 10th", baseDate), {
+    label: "July 10, 2026",
+    startdate: "07/10/2026",
+    enddate: "07/10/2026",
+  });
+  assert.deepEqual(parseRequestedDateRangeForTest("appointments on the 10th", baseDate), {
+    label: "July 10, 2026",
+    startdate: "07/10/2026",
+    enddate: "07/10/2026",
+  });
 });
 
 check("flags street addresses, geographies, record IDs, devices, and older ages", () => {
@@ -165,6 +175,8 @@ check("routes provider time availability wording to appointment availability", (
     "what available times does Anita Kunwar have",
     "what available times does Robin Codjoe have available",
     "what appointments does Robin Codjoe have",
+    "dr codjoes availability on the 10th",
+    "appointments on the 10th",
     "give me appointment times for robin",
     "give me appts for codjoe",
     "what availabilities does Lekh have",
