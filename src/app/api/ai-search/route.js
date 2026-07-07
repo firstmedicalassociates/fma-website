@@ -64,12 +64,22 @@ export async function POST(request) {
     const sessionContext = body?.sessionContext && typeof body.sessionContext === "object"
       ? body.sessionContext
       : null;
+    const clarificationResponse = body?.clarificationResponse === true;
     const result = await runAiSearch(query, { limit: 8, pageContext, sessionContext });
+    const analyticsCode = result.appointmentMeta?.providerResolution?.monitoringCode || result.code || "";
+    const analyticsStatus =
+      result.clarification
+        ? "clarification"
+        : result.appointmentMeta?.availabilityStatus === "no_open_slots"
+          ? "no_results"
+          : result.ok
+            ? "answered"
+            : "blocked";
     const eventId = await logAiSearchEvent({
       query,
-      surface: "api_ai_search",
-      status: result.ok ? "answered" : "blocked",
-      code: result.code || "",
+      surface: clarificationResponse ? "api_ai_search_clarification" : "api_ai_search",
+      status: analyticsStatus,
+      code: analyticsCode,
       resultCount: 0,
       sourceCount: Array.isArray(result.sources) ? result.sources.length : 0,
       appointmentOptionCount: Array.isArray(result.appointmentOptions) ? result.appointmentOptions.length : 0,

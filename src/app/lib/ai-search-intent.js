@@ -61,7 +61,7 @@ export function classifyAiSearchIntent(query = "", options = {}) {
   if (has(appointmentPattern, normalized)) {
     const bookingOnly =
       has(bookingHelpPattern, normalized) &&
-      !/\b(available|availability|availabilities|openings?|slots?|times?|soonest|earliest|today|tomorrow|next\s+week|this\s+week)\b/.test(
+      !/\b(available|availability|availabilities|openings?|slots?|times?|soonest|earliest|today|tomorrow|next\s+week|this\s+week|mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b/.test(
         normalized
       );
     return {

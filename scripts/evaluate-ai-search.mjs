@@ -6,9 +6,12 @@ import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import { getPhiRisk } from "../src/app/lib/no-phi-guard.js";
 import { inferAiSearchIntent } from "../src/app/lib/ai-search-analytics.js";
+import { buildAiSearchClarification } from "../src/app/lib/ai-search-clarification.js";
 import {
   shouldCheckAppointmentAvailability,
   getAppointmentAvailabilityForQuery,
+  findRequestedSiteProvidersForTest,
+  resolveAppointmentProviderResolutionForTest,
 } from "../src/app/lib/athena-availability.js";
 import {
   buildFmaDomainGraphAnswer,
@@ -123,8 +126,59 @@ async function loadActiveProviderNames() {
     select: {
       name: true,
       slug: true,
+      title: true,
+      locations: true,
     },
   });
+}
+
+function buildTypoName(name = "") {
+  const tokens = normalizeNameTokens(name);
+  const typoTokenIndex = tokens.findIndex((token) => token.length >= 5);
+  if (typoTokenIndex < 0) return "";
+
+  const typoTokens = [...tokens];
+  const token = typoTokens[typoTokenIndex];
+  const removeIndex = Math.min(3, token.length - 2);
+  typoTokens[typoTokenIndex] = `${token.slice(0, removeIndex)}${token.slice(removeIndex + 1)}`;
+  return typoTokens.join(" ");
+}
+
+function isNearNameTokenMatch(first = "", second = "") {
+  if (!first || !second) return false;
+  if (first === second) return true;
+  if (first.length < 4 || second.length < 4) return false;
+  if (Math.abs(first.length - second.length) > 1) return false;
+
+  let edits = 0;
+  let firstIndex = 0;
+  let secondIndex = 0;
+  while (firstIndex < first.length && secondIndex < second.length) {
+    if (first[firstIndex] === second[secondIndex]) {
+      firstIndex += 1;
+      secondIndex += 1;
+      continue;
+    }
+
+    edits += 1;
+    if (edits > 1) return false;
+
+    if (first.length > second.length) {
+      firstIndex += 1;
+    } else if (second.length > first.length) {
+      secondIndex += 1;
+    } else {
+      firstIndex += 1;
+      secondIndex += 1;
+    }
+  }
+
+  return true;
+}
+
+function isNearUniqueNameToken(token = "", tokens = []) {
+  if (!token) return false;
+  return tokens.filter((candidate) => isNearNameTokenMatch(token, candidate)).length === 1;
 }
 
 async function evaluateStaticCase(testCase) {
@@ -132,6 +186,9 @@ async function evaluateStaticCase(testCase) {
   const blocked = phiRisk.hasPotentialPhi;
   const intent = blocked ? "privacy_blocked" : inferAiSearchIntent(testCase.query);
   const appointmentAvailability = await shouldCheckAppointmentAvailability(testCase.query);
+  const clarification = blocked
+    ? null
+    : await buildAiSearchClarification(testCase.query, { intent });
   const failures = [];
 
   if (Boolean(testCase.expectedBlocked) !== blocked) {
@@ -157,6 +214,24 @@ async function evaluateStaticCase(testCase) {
     }
   }
 
+  if (
+    typeof testCase.expectedClarification === "boolean" &&
+    testCase.expectedClarification !== Boolean(clarification)
+  ) {
+    failures.push(
+      `expected clarification=${testCase.expectedClarification} got ${Boolean(clarification)}`
+    );
+  }
+
+  if (
+    testCase.expectedClarificationType &&
+    clarification?.type !== testCase.expectedClarificationType
+  ) {
+    failures.push(
+      `expected clarification type=${testCase.expectedClarificationType} got ${clarification?.type || "none"}`
+    );
+  }
+
   return {
     id: testCase.id,
     query: testCase.query,
@@ -164,6 +239,8 @@ async function evaluateStaticCase(testCase) {
     phiCategories: phiRisk.categories,
     intent,
     appointmentAvailability,
+    clarificationType: clarification?.type || "",
+    clarificationChoiceCount: clarification?.choices?.length || 0,
     failures,
   };
 }
@@ -220,6 +297,118 @@ async function evaluateAllProviderPromptCoverage() {
       ...testCase,
       intent,
       appointmentAvailability,
+      failures,
+    };
+  });
+}
+
+async function evaluateProviderExtractionMatrix() {
+  const providers = await loadActiveProviderNames();
+  const { firstNameCounts, lastNameCounts } = countProviderNameParts(providers);
+  const providerNameParts = providers.map((provider) => normalizeNameTokens(provider.name));
+  const firstNameValues = providerNameParts.map((tokens) => tokens[0]).filter(Boolean);
+  const lastNameValues = providerNameParts.map((tokens) => tokens[tokens.length - 1]).filter(Boolean);
+  const cases = [];
+
+  for (const provider of providers) {
+    const tokens = normalizeNameTokens(provider.name);
+    const firstName = tokens[0] || "";
+    const lastName = tokens[tokens.length - 1] || "";
+    const typoName = buildTypoName(provider.name);
+
+    cases.push(
+      {
+        id: `provider-extraction:full-dr:${provider.slug}`,
+        provider: provider.name,
+        slug: provider.slug,
+        query: `appointments with dr ${provider.name}`,
+      },
+      {
+        id: `provider-extraction:filler-full:${provider.slug}`,
+        provider: provider.name,
+        slug: provider.slug,
+        query: `please show me appointment times for ${provider.name}`,
+      },
+      {
+        id: `provider-extraction:book-near:${provider.slug}`,
+        provider: provider.name,
+        slug: provider.slug,
+        query: `book with ${provider.name} near Rockville`,
+      }
+    );
+
+    if (
+      firstName &&
+      firstName.length >= 3 &&
+      firstNameCounts.get(firstName) === 1 &&
+      isNearUniqueNameToken(firstName, firstNameValues)
+    ) {
+      cases.push(
+        {
+          id: `provider-extraction:first-filler:${provider.slug}`,
+          provider: provider.name,
+          slug: provider.slug,
+          query: `give me appointment times for ${firstName}`,
+        },
+        {
+          id: `provider-extraction:first-tomorrow:${provider.slug}`,
+          provider: provider.name,
+          slug: provider.slug,
+          query: `does ${firstName} have anything tomorrow`,
+        }
+      );
+    }
+
+    if (
+      lastName &&
+      lastName.length >= 3 &&
+      lastNameCounts.get(lastName) === 1 &&
+      isNearUniqueNameToken(lastName, lastNameValues)
+    ) {
+      cases.push({
+        id: `provider-extraction:last-openings:${provider.slug}`,
+        provider: provider.name,
+        slug: provider.slug,
+        query: `show me openings for ${lastName}`,
+      });
+    }
+
+    if (typoName) {
+      cases.push({
+        id: `provider-extraction:typo:${provider.slug}`,
+        provider: provider.name,
+        slug: provider.slug,
+        query: `when can I see ${typoName}`,
+      });
+    }
+  }
+
+  return runWithConcurrency(cases, 16, async (testCase) => {
+    const matches = findRequestedSiteProvidersForTest(testCase.query, providers);
+    const resolution = resolveAppointmentProviderResolutionForTest(testCase.query, providers);
+    const matchedExpectedProvider = matches.some((match) => match.slug === testCase.slug);
+    const failures = [];
+
+    if (!matchedExpectedProvider) {
+      failures.push(
+        `expected provider extraction match for ${testCase.provider}, got ${
+          matches.map((match) => match.name).join(", ") || "none"
+        }`
+      );
+    }
+
+    if (resolution.scope !== "provider" || resolution.resolvedProvider?.slug !== testCase.slug) {
+      failures.push(
+        `expected provider resolution for ${testCase.provider}, got scope=${resolution.scope} provider=${
+          resolution.resolvedProvider?.name || "none"
+        }`
+      );
+    }
+
+    return {
+      ...testCase,
+      matchCount: matches.length,
+      resolutionScope: resolution.scope,
       failures,
     };
   });
@@ -361,12 +550,27 @@ async function evaluateAllProviderLiveCases() {
       const matches = expectedTokens.filter((token) => actualTokens.has(token)).length;
       return matches >= Math.min(2, expectedTokens.length);
     });
+    const options = Array.isArray(result?.options) ? result.options : [];
+    const allOptionsMatchExpectedProvider =
+      options.length === 0 ||
+      options.every((option) => {
+        const actualTokens = new Set(
+          String(option?.providerName || "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, " ")
+            .split(/\s+/)
+            .filter(Boolean)
+        );
+        const matches = expectedTokens.filter((token) => actualTokens.has(token)).length;
+        return matches >= Math.min(2, expectedTokens.length);
+      });
     const ok =
       result?.ok === true &&
       result?.code !== "appointment_availability_unavailable" &&
       result?.code !== "appointment_availability_not_configured" &&
       result?.code !== "provider_schedule_not_confirmed" &&
-      matchedExpectedProvider;
+      matchedExpectedProvider &&
+      allOptionsMatchExpectedProvider;
 
     return {
       id: `provider:${provider.slug}`,
@@ -376,12 +580,13 @@ async function evaluateAllProviderLiveCases() {
       code: result?.code || "",
       availabilityStatus: result?.meta?.availabilityStatus || "",
       requestedProviderNames: requestedNames,
-      appointmentOptionCount: Array.isArray(result?.options) ? result.options.length : 0,
+      appointmentOptionCount: options.length,
       failures: ok
         ? []
         : [
             `expected live provider-aware availability result for ${provider.name}, got code=${result?.code || "none"}`,
-          ],
+            allOptionsMatchExpectedProvider ? "" : "appointment options included a different provider",
+          ].filter(Boolean),
     };
   });
 }
@@ -396,10 +601,12 @@ for (const testCase of cases) {
 }
 
 const providerPromptCoverageResults = await evaluateAllProviderPromptCoverage();
+const providerExtractionResults = await evaluateProviderExtractionMatrix();
 const domainGraphResults = await evaluateDomainGraphCases();
 const providerLiveResults = await evaluateAllProviderLiveCases();
 const failed = results.filter((result) => result.failures.length > 0);
 const failedProviderPromptCoverage = providerPromptCoverageResults.filter((result) => result.failures.length > 0);
+const failedProviderExtraction = providerExtractionResults.filter((result) => result.failures.length > 0);
 const failedDomainGraph = domainGraphResults.filter((result) => result.failures.length > 0);
 const failedProviderLive = providerLiveResults.filter((result) => result.failures.length > 0);
 const report = {
@@ -411,11 +618,14 @@ const report = {
   providerLiveTotal: providerLiveResults.length,
   providerPromptCoverageTotal: providerPromptCoverageResults.length,
   providerPromptCoverageFailed: failedProviderPromptCoverage.length,
+  providerExtractionTotal: providerExtractionResults.length,
+  providerExtractionFailed: failedProviderExtraction.length,
   domainGraphTotal: domainGraphResults.length,
   domainGraphFailed: failedDomainGraph.length,
   providerLiveFailed: failedProviderLive.length,
   results,
   providerPromptCoverageResults,
+  providerExtractionResults,
   domainGraphResults,
   providerLiveResults,
 };
@@ -450,8 +660,22 @@ if (failedProviderPromptCoverage.length > 25) {
   console.error(`... ${failedProviderPromptCoverage.length - 25} more provider prompt coverage failure(s)`);
 }
 
+for (const result of failedProviderExtraction.slice(0, 25)) {
+  console.error(`FAIL ${result.id}`);
+  console.error(`  query: ${result.query}`);
+  for (const failure of result.failures) {
+    console.error(`  ${failure}`);
+  }
+}
+if (failedProviderExtraction.length > 25) {
+  console.error(`... ${failedProviderExtraction.length - 25} more provider extraction failure(s)`);
+}
+
 console.log(
   `Provider prompt coverage: ${providerPromptCoverageResults.length - failedProviderPromptCoverage.length}/${providerPromptCoverageResults.length} passed`
+);
+console.log(
+  `Provider extraction matrix: ${providerExtractionResults.length - failedProviderExtraction.length}/${providerExtractionResults.length} passed`
 );
 for (const result of domainGraphResults) {
   const prefix = result.failures.length ? "FAIL" : "PASS";
@@ -467,6 +691,11 @@ assert.equal(
   failedProviderPromptCoverage.length,
   0,
   `${failedProviderPromptCoverage.length} provider prompt coverage case(s) failed`
+);
+assert.equal(
+  failedProviderExtraction.length,
+  0,
+  `${failedProviderExtraction.length} provider extraction case(s) failed`
 );
 assert.equal(failedDomainGraph.length, 0, `${failedDomainGraph.length} domain graph case(s) failed`);
 assert.equal(

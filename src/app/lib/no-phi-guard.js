@@ -61,6 +61,10 @@ const RELATION_HEALTH_STATEMENT_PATTERN =
   /\b(?:my\s+(?:son|daughter|child|wife|husband|mother|father|mom|dad|parent|spouse|partner|friend)|patient)\s+(?:has|had|needs|takes|is taking|was diagnosed with|is diagnosed with)\s+([^?.!,;]{0,80})/i;
 const APPOINTMENT_DETAIL_PATTERN =
   /\b(?:my|our|i|we|patient)\b.{0,40}\b(?:appointment|appt|visit|scheduled|booking)\b.{0,80}\b(?:today|tomorrow|yesterday|tonight|(?:next|this)\s+(?:week|mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)|(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?|\d{4}-\d{2}-\d{2}|(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+\d{1,2}|\d{1,2}(?::[0-5]\d)?\s*(?:a\.?m\.?|p\.?m\.?))\b/i;
+const GENERIC_APPOINTMENT_BOOKING_REQUEST_PATTERN =
+  /\b(?:can|could|may|how|where|when|do|does|is|are)\b.{0,50}\b(?:book|schedule|make|get|find|see|visit)\b.{0,60}\b(?:appointment|appt|visit|doctor|provider)\b|\b(?:i|we)\b.{0,30}\b(?:want|need|would like|can|could|may)\b.{0,40}\b(?:book|schedule|make|get)\b.{0,50}\b(?:appointment|appt|visit)\b/i;
+const EXISTING_APPOINTMENT_REFERENCE_PATTERN =
+  /\b(?:my|our|patient)\b.{0,20}\b(?:appointment|appt|visit|booking)\b/i;
 
 const NAMED_HEALTH_STATEMENT_PATTERN =
   /\b([a-z][a-z' -]{1,40})\s+(?:has|had|needs|takes|is taking|was diagnosed with|is diagnosed with)\s+([^?.!,;]{0,80})/gi;
@@ -101,6 +105,16 @@ function hasThirdPartyMedicalDetail(text) {
   return false;
 }
 
+function hasAppointmentDetail(text) {
+  if (!APPOINTMENT_DETAIL_PATTERN.test(text)) return false;
+
+  const isGenericBookingRequest =
+    GENERIC_APPOINTMENT_BOOKING_REQUEST_PATTERN.test(text) &&
+    !EXISTING_APPOINTMENT_REFERENCE_PATTERN.test(text);
+
+  return !isGenericBookingRequest;
+}
+
 export function getPhiRisk(value = "") {
   const text = normalizePublicSearchQuery(value);
   if (!text) {
@@ -116,14 +130,14 @@ export function getPhiRisk(value = "") {
   const hasPatientSpecificMedicalDetail =
     SELF_REFERENCE_PATTERN.test(text) && MEDICAL_DETAIL_PATTERN.test(text);
   const hasNamedOrThirdPartyMedicalDetail = hasThirdPartyMedicalDetail(text);
-  const hasAppointmentDetail = APPOINTMENT_DETAIL_PATTERN.test(text);
+  const hasAppointmentDetailRisk = hasAppointmentDetail(text);
 
   const categories = [
     ...directIdentifierCategories,
     ...healthValueCategories,
     ...(hasPatientSpecificMedicalDetail ? ["patient_specific_medical_detail"] : []),
     ...(hasNamedOrThirdPartyMedicalDetail ? ["third_party_medical_detail"] : []),
-    ...(hasAppointmentDetail ? ["appointment_detail"] : []),
+    ...(hasAppointmentDetailRisk ? ["appointment_detail"] : []),
   ];
   const uniqueCategories = [...new Set(categories)];
 

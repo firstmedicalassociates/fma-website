@@ -36,6 +36,8 @@ function buildAiError(error, code = "invalid_query") {
     appointmentOptions: [],
     appointmentMeta: null,
     structuredCards: [],
+    clarification: null,
+    recoveryActions: [],
     resolution: null,
     error,
   };
@@ -121,6 +123,7 @@ export async function POST(request) {
     const sessionContext = body?.sessionContext && typeof body.sessionContext === "object"
       ? body.sessionContext
       : null;
+    const clarificationResponse = body?.clarificationResponse === true;
 
     if (query.length < PUBLIC_SEARCH_MIN_CHARACTERS) {
       return await buildInvalidSearchResponse(
@@ -184,6 +187,10 @@ export async function POST(request) {
             structuredCards: Array.isArray(aiResult.value?.structuredCards)
               ? aiResult.value.structuredCards
               : [],
+            clarification: aiResult.value?.clarification || null,
+            recoveryActions: Array.isArray(aiResult.value?.recoveryActions)
+              ? aiResult.value.recoveryActions
+              : [],
             resolution: aiResult.value?.resolution || null,
             error: aiResult.value?.error || "",
           }
@@ -201,16 +208,29 @@ export async function POST(request) {
             appointmentOptions: [],
             appointmentMeta: null,
             structuredCards: [],
+            clarification: null,
+            recoveryActions: [],
             resolution: null,
             error: "AI search failed",
         };
 
     const requestOk = siteResult.status === "fulfilled" || ai.ok;
+    const analyticsCode = ai.appointmentMeta?.providerResolution?.monitoringCode || ai.code || "";
+    const analyticsStatus =
+      ai.clarification
+        ? "clarification"
+        : ai.appointmentMeta?.availabilityStatus === "no_open_slots"
+          ? "no_results"
+          : ai.ok
+            ? "answered"
+            : requestOk
+              ? "degraded"
+              : "failed";
     const eventId = await logAiSearchEvent({
       query,
-      surface: "api_search",
-      status: ai.ok ? "answered" : requestOk ? "degraded" : "failed",
-      code: ai.code || "",
+      surface: clarificationResponse ? "api_search_clarification" : "api_search",
+      status: analyticsStatus,
+      code: analyticsCode,
       resultCount: results.length,
       sourceCount: ai.sources.length,
       appointmentOptionCount: ai.appointmentOptions.length,

@@ -251,6 +251,10 @@ function shouldOpenCardInNewTab(card = {}) {
   return /^https?:\/\//i.test(href);
 }
 
+function isExternalHref(href = "") {
+  return /^https?:\/\//i.test(href) || /^tel:/i.test(href) || /^mailto:/i.test(href);
+}
+
 export default function AiSearchModal({ className = "", onOpen, listenForExternalRequests = true }) {
   const pathname = usePathname();
   const inputRef = useRef(null);
@@ -316,7 +320,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
     resetResults();
   }, [resetResults]);
 
-  const executeSearch = useCallback(async (nextQuery) => {
+  const executeSearch = useCallback(async (nextQuery, options = {}) => {
     const searchQuery = normalizePublicSearchQuery(nextQuery);
     const sessionContext = buildSessionContext(conversationMessages);
 
@@ -338,6 +342,8 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         citations: [],
         appointmentOptions: [],
         appointmentMeta: null,
+        clarification: null,
+        recoveryActions: [],
         eventId: "",
       };
 
@@ -367,6 +373,8 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         citations: [],
         appointmentOptions: [],
         appointmentMeta: null,
+        clarification: null,
+        recoveryActions: [],
         eventId: "",
       };
 
@@ -421,7 +429,12 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query: searchQuery, pageContext, sessionContext }),
+        body: JSON.stringify({
+          query: searchQuery,
+          pageContext,
+          sessionContext,
+          clarificationResponse: options.clarificationResponse === true,
+        }),
       });
 
       const data = await response.json().catch(() => ({}));
@@ -443,6 +456,14 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
       const intent = typeof data?.ai?.intent === "string" ? data.ai.intent : "";
       const resolution =
         data?.ai?.resolution && typeof data.ai.resolution === "object" ? data.ai.resolution : null;
+      const clarification =
+        data?.ai?.clarification && typeof data.ai.clarification === "object"
+          ? data.ai.clarification
+          : null;
+      const recoveryActions = Array.isArray(data?.ai?.recoveryActions)
+        ? data.ai.recoveryActions.slice(0, 4)
+        : [];
+      const code = typeof data?.ai?.code === "string" ? data.ai.code : "";
 
       const nextPayload = {
         summary,
@@ -452,7 +473,10 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         appointmentOptions,
         appointmentMeta,
         intent,
+        code,
         resolution,
+        clarification,
+        recoveryActions,
         eventId,
       };
 
@@ -479,6 +503,8 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         citations: [],
         appointmentOptions: [],
         appointmentMeta: null,
+        clarification: null,
+        recoveryActions: [],
         eventId: "",
       };
 
@@ -542,6 +568,13 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
     event.preventDefault();
     if (state === "loading") return;
     await executeSearch(query.trim());
+  }
+
+  function runChoiceAction(action) {
+    if (!action) return;
+    if (action.type === "query" && action.query) {
+      void executeSearch(action.query, { clarificationResponse: true });
+    }
   }
 
   useEffect(() => {
@@ -731,13 +764,24 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                     cards: [],
                     appointmentOptions: [],
                     appointmentMeta: null,
+                    clarification: null,
+                    recoveryActions: [],
                     eventId: "",
                   };
                   const messageAppointmentStatusText = getAppointmentStatusText(
                     payload.appointmentMeta,
                     payload.appointmentOptions.length > 0
                   );
-                  const showFeedback = message.id === activeAssistantMessageId && payload.eventId;
+                  const clarificationChoices = Array.isArray(payload.clarification?.choices)
+                    ? payload.clarification.choices
+                    : [];
+                  const recoveryActions = Array.isArray(payload.recoveryActions)
+                    ? payload.recoveryActions
+                    : [];
+                  const showFeedback =
+                    message.id === activeAssistantMessageId &&
+                    payload.eventId &&
+                    !payload.clarification;
 
                   return (
                     <article className={`${styles.chatMessage} ${styles.assistantMessage}`} key={message.id}>
@@ -750,6 +794,54 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                           <div className={styles.resolutionPill}>{payload.resolution.label}</div>
                         ) : null}
                         <p className={styles.answerText}>{renderWithLinks(payload.summary)}</p>
+
+                        {clarificationChoices.length > 0 ? (
+                          <div className={styles.choiceActions}>
+                            {clarificationChoices.map((choice) => {
+                              if (choice.type === "link" && choice.href) {
+                                const external = isExternalHref(choice.href);
+                                const choiceBody = (
+                                  <>
+                                    <strong>{choice.label}</strong>
+                                    {choice.description ? <span>{choice.description}</span> : null}
+                                  </>
+                                );
+
+                                return external ? (
+                                  <a
+                                    className={styles.choiceAction}
+                                    href={choice.href}
+                                    key={`${choice.type}-${choice.value || choice.label}`}
+                                    rel="noopener noreferrer"
+                                    target={/^https?:\/\//i.test(choice.href) ? "_blank" : undefined}
+                                  >
+                                    {choiceBody}
+                                  </a>
+                                ) : (
+                                  <Link
+                                    className={styles.choiceAction}
+                                    href={choice.href}
+                                    key={`${choice.type}-${choice.value || choice.label}`}
+                                  >
+                                    {choiceBody}
+                                  </Link>
+                                );
+                              }
+
+                              return (
+                                <button
+                                  className={styles.choiceAction}
+                                  key={`${choice.type}-${choice.value || choice.label}`}
+                                  onClick={() => runChoiceAction(choice)}
+                                  type="button"
+                                >
+                                  <strong>{choice.label}</strong>
+                                  {choice.description ? <span>{choice.description}</span> : null}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : null}
 
                         {messageAppointmentStatusText ? (
                           <div className={styles.appointmentStatus}>
@@ -789,6 +881,50 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                                 </div>
                               </article>
                             ))}
+                          </div>
+                        ) : null}
+
+                        {recoveryActions.length > 0 ? (
+                          <div className={styles.recoveryActions}>
+                            {recoveryActions.map((action) => {
+                              if (action.type === "query" && action.query) {
+                                return (
+                                  <button
+                                    className={styles.recoveryAction}
+                                    key={`${action.type}-${action.value || action.label}`}
+                                    onClick={() => runChoiceAction(action)}
+                                    type="button"
+                                  >
+                                    {action.label}
+                                  </button>
+                                );
+                              }
+
+                              if (action.href) {
+                                const external = isExternalHref(action.href);
+                                return external ? (
+                                  <a
+                                    className={styles.recoveryAction}
+                                    href={action.href}
+                                    key={`${action.type}-${action.value || action.label}`}
+                                    rel="noopener noreferrer"
+                                    target={/^https?:\/\//i.test(action.href) ? "_blank" : undefined}
+                                  >
+                                    {action.label}
+                                  </a>
+                                ) : (
+                                  <Link
+                                    className={styles.recoveryAction}
+                                    href={action.href}
+                                    key={`${action.type}-${action.value || action.label}`}
+                                  >
+                                    {action.label}
+                                  </Link>
+                                );
+                              }
+
+                              return null;
+                            })}
                           </div>
                         ) : null}
 

@@ -14,6 +14,7 @@ import {
   resolveAiSearchPageContext,
   resolveAiSearchSessionContext,
 } from "./ai-search-context.js";
+import { buildAiSearchClarification } from "./ai-search-clarification.js";
 import {
   buildFmaDomainGraphAnswer,
   findFmaDomainGraphContext,
@@ -733,6 +734,22 @@ function formatAppointmentCards(options = [], fallbackSources = []) {
   }));
 }
 
+function formatClarificationCards(clarification = null) {
+  const choices = Array.isArray(clarification?.choices) ? clarification.choices : [];
+  return choices
+    .filter((choice) => choice?.type === "link" && choice.href)
+    .map((choice) => ({
+      type: "clarification",
+      title: choice.label || "Continue",
+      subtitle: choice.description || "Choose this option to continue.",
+      href: choice.href,
+      actionLabel: choice.label || "Continue",
+      details: [],
+      badges: [],
+    }))
+    .slice(0, 4);
+}
+
 function buildProviderResolution(query, providerNames = []) {
   const names = [...new Set(providerNames.filter(Boolean))];
   if (names.length !== 1) return null;
@@ -865,6 +882,32 @@ export async function runAiSearch(rawQuery, options = {}) {
   ]);
   const searchQuery = buildContextualSearchQuery(query, pageContext, sessionContext);
   const intentResult = classifyAiSearchIntent(searchQuery);
+  const clarification = await buildAiSearchClarification(searchQuery, {
+    intent: intentResult.intent,
+  });
+
+  if (clarification) {
+    return {
+      ok: true,
+      code: "clarification_required",
+      intent: intentResult.intent,
+      query,
+      answer: clarification.question || "Can you clarify what you want me to search?",
+      sources: [],
+      confidence: 0.7,
+      aiConfidence: "medium",
+      grounded: true,
+      citations: [],
+      disclaimer: false,
+      appointmentOptions: [],
+      appointmentMeta: null,
+      structuredCards: formatClarificationCards(clarification),
+      clarification,
+      recoveryActions: [],
+      resolution: null,
+      error: "",
+    };
+  }
 
   const appointmentAvailability = await getAppointmentAvailabilityForQuery(searchQuery, {
     days: 30,
@@ -876,7 +919,12 @@ export async function runAiSearch(rawQuery, options = {}) {
       : [];
     return {
       ok: appointmentAvailability.ok,
-      code: appointmentAvailability.code || "",
+      code:
+        appointmentAvailability.code ||
+        (appointmentAvailability.meta?.availabilityStatus &&
+        appointmentAvailability.meta.availabilityStatus !== "open_slots_found"
+          ? appointmentAvailability.meta.availabilityStatus
+          : ""),
       intent: intentResult.intent,
       query,
       answer: appointmentAvailability.answer || "",
@@ -888,7 +936,13 @@ export async function runAiSearch(rawQuery, options = {}) {
       disclaimer: appointmentAvailability.disclaimer === true,
       appointmentOptions,
       appointmentMeta: appointmentAvailability.meta || null,
-      structuredCards: formatAppointmentCards(appointmentOptions, appointmentAvailability.sources || []),
+      structuredCards: appointmentAvailability.clarification
+        ? formatClarificationCards(appointmentAvailability.clarification)
+        : formatAppointmentCards(appointmentOptions, appointmentAvailability.sources || []),
+      clarification: appointmentAvailability.clarification || null,
+      recoveryActions: Array.isArray(appointmentAvailability.recoveryActions)
+        ? appointmentAvailability.recoveryActions
+        : [],
       resolution: buildProviderResolution(query, requestedProviderNames),
       error: appointmentAvailability.ok ? "" : appointmentAvailability.answer || "",
     };
@@ -906,6 +960,8 @@ export async function runAiSearch(rawQuery, options = {}) {
       structuredCards: Array.isArray(domainGraphAnswer.structuredCards)
         ? domainGraphAnswer.structuredCards
         : formatSourceCards(domainGraphAnswer.sources || []),
+      clarification: null,
+      recoveryActions: [],
       resolution: null,
       error: "",
     };

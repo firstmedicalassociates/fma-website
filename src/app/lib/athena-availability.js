@@ -32,17 +32,79 @@ const PROVIDER_AVAILABILITY_LANGUAGE_PATTERN =
 const PROVIDER_ACTION_LANGUAGE_PATTERN =
   /\b(when\s+(?:can|could|may)\s+i\s+(?:see|visit|book|schedule)|(?:can|could|may)\s+i\s+(?:see|visit|book|schedule)|(?:book|schedule)\s+(?:with\s+)?(?:dr\.?\s+)?)\b/i;
 const PROVIDER_APPOINTMENT_REQUEST_PATTERN =
-  /\b(?:what|which)\s+appointments?\s+(?:does|do)\s+(?!(?:you|fma|first medical|first medical associates)\b)(?:dr\s+)?[a-z0-9]+(?:\s+[a-z0-9]+){1,4}\s+(?:have|offer|show|take|accept)\b/i;
+  /\b(?:what|which)\s+appointments?\s+(?:does|do)\s+(?!(?:you|fma|first medical|first medical associates|office|clinic|location|locations)\b)(?:dr\s+)?[a-z0-9]+(?:\s+[a-z0-9]+){0,4}\s+(?:have|offer|show|take|accept)\b/i;
+const PROVIDER_TIME_REQUEST_PATTERN =
+  /\b(?:what|which)\s+times?\s+(?:does|do)\s+(?!(?:you|fma|first medical|first medical associates|office|clinic|location|locations)\b)(?:dr\s+)?[a-z0-9]+(?:\s+[a-z0-9]+){0,4}\s+(?:have|offer|show|take|accept)\b/i;
 const CARE_VISIT_REQUEST_PATTERN =
   /\b(?:see|visit)\s+(?:a\s+)?(?:doctor|provider|physician|clinician)\b/i;
+const SERVICE_APPOINTMENT_REQUEST_PATTERN =
+  /\b(primary\s+care|same[-\s]?day|annual\s+physicals?|physicals?|wellness|urgent\s+care|sick\s+visits?)\b.{0,40}\b(appointments?|schedule|scheduling|book|booking)\b|\b(appointments?|schedule|scheduling|book|booking)\b.{0,40}\b(primary\s+care|same[-\s]?day|annual\s+physicals?|physicals?|wellness|urgent\s+care|sick\s+visits?)\b/i;
 const NON_APPOINTMENT_AVAILABILITY_PATTERN =
   /\b(what|which)\s+(services?|insurance|forms?|resources?|locations?)\s+(?:are|is)\s+available\b|\boffice\s+hours?\b|\bwhat\s+time\s+(?:do|does|is|are)\s+(?:you|fma|office|clinic|location|locations)\s+open\b/i;
 const FAST_APPOINTMENT_PATTERN =
   /\b(quick|quickest|fast|fastest|earliest|soonest|next|asap|now|today|tomorrow|first available)\b/i;
+const EXPLICIT_GLOBAL_APPOINTMENT_PATTERN =
+  /\b(first available|any doctor|any provider|any clinician|all locations|all providers|all doctors|soonest|earliest|quickest|asap|who has openings?|who is available|show available appointments|available appointments|available times|openings today|openings tomorrow)\b/i;
+const PROVIDER_SCOPE_LANGUAGE_PATTERN =
+  /\b(?:for|with)\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b|\b(?:does|do)\s+(?!(?:you|fma|first medical|first medical associates|office|clinic|location|locations)\b)[a-z][a-z0-9 .'-]{1,80}\s+(?:have|show|offer|take|accept|available|openings?|appointments?)\b|\bwhen\s+(?:can|could|may)\s+i\s+(?:see|visit|book|schedule)\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b|\b(?:book|schedule)\s+with\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b/i;
+const DATE_OR_RANGE_LANGUAGE_PATTERN =
+  /\b(today|tomorrow|this\s+week|next\s+week|next\s+\d{1,3}\s+days?|mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?|jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i;
 const LOCATION_PATTERN =
   /\b(germantown|german town|gaithersburg|rockville|columbia|bowie|nottingham|frederick|annapolis|silver spring|crofton|greenbelt|laurel|lutherville|glen burnie)\b/i;
 const REQUESTED_TIME_PATTERN =
   /\b(?:at\s*)?(?:(\d{1,2})(?::([0-5]\d))?\s*(a\.?m\.?|p\.?m\.?)|([01]?\d|2[0-3]):([0-5]\d))\b/i;
+const REQUESTED_WEEKDAY_PATTERN =
+  /\b(mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b/i;
+const MONTH_DAY_PATTERN =
+  /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s*(\d{2,4}))?\b/i;
+const DAY_MONTH_PATTERN =
+  /\b(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)(?:,?\s*(\d{2,4}))?\b/i;
+const NUMERIC_DATE_PATTERN = /\b(\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?\b/;
+const ISO_DATE_PATTERN = /\b(\d{4})-(\d{1,2})-(\d{1,2})\b/;
+const NEXT_DAYS_PATTERN = /\bnext\s+(\d{1,3})\s+days?\b/i;
+const WEEKDAY_INDEX_BY_TOKEN = {
+  sun: 0,
+  sunday: 0,
+  mon: 1,
+  monday: 1,
+  tue: 2,
+  tuesday: 2,
+  wed: 3,
+  wednesday: 3,
+  thu: 4,
+  thursday: 4,
+  fri: 5,
+  friday: 5,
+  sat: 6,
+  saturday: 6,
+};
+const WEEKDAY_LABELS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MONTH_INDEX_BY_TOKEN = {
+  jan: 0,
+  january: 0,
+  feb: 1,
+  february: 1,
+  mar: 2,
+  march: 2,
+  apr: 3,
+  april: 3,
+  may: 4,
+  jun: 5,
+  june: 5,
+  jul: 6,
+  july: 6,
+  aug: 7,
+  august: 7,
+  sep: 8,
+  sept: 8,
+  september: 8,
+  oct: 9,
+  october: 9,
+  nov: 10,
+  november: 10,
+  dec: 11,
+  december: 11,
+};
 
 const APPOINTMENT_REASON_PRIORITY = [
   "New Patient",
@@ -60,28 +122,41 @@ const PROVIDER_QUERY_STOPWORDS = new Set([
   "availabilities",
   "appointment",
   "appointments",
+  "anything",
   "book",
   "booking",
   "can",
   "does",
   "doctor",
   "dr",
+  "find",
   "for",
+  "get",
+  "give",
   "have",
+  "list",
+  "me",
   "open",
   "opening",
   "openings",
+  "please",
   "schedule",
   "scheduling",
   "see",
+  "show",
   "slot",
   "slots",
+  "something",
   "the",
   "time",
   "times",
+  "today",
+  "tomorrow",
   "visit",
   "what",
   "when",
+  "week",
+  "weekly",
   "with",
 ]);
 
@@ -108,6 +183,9 @@ const PROVIDER_INTENT_STOPWORDS = new Set([
   "locations",
   "may",
   "more",
+  "month",
+  "monthly",
+  "next",
   "office",
   "primary",
   "profile",
@@ -788,6 +866,14 @@ function findRequestedSiteProviders(query, siteProviderEntries) {
   return matches.slice(0, MAX_RESULTS);
 }
 
+export function findRequestedSiteProvidersForTest(query, siteProviders = []) {
+  return findRequestedSiteProviders(query, buildSiteProviderLookup(siteProviders)).map((entry) => ({
+    name: entry.provider.name,
+    slug: entry.provider.slug,
+    score: entry.score,
+  }));
+}
+
 function getQueryTokens(query) {
   return normalizeText(query)
     .split(/\s+/)
@@ -822,7 +908,7 @@ function isNearTokenMatch(queryToken, providerToken) {
     return true;
   }
 
-  if (queryToken.length < 5 || providerToken.length < 5) return false;
+  if (queryToken.length < 4 || providerToken.length < 4) return false;
   if (Math.abs(queryToken.length - providerToken.length) > 1) return false;
 
   let edits = 0;
@@ -970,6 +1056,205 @@ function findRequestedProviders(query, providers, siteProviderEntries, requested
     .map((match) => match.provider);
 }
 
+function getSiteProviderCandidate(entry, fallbackScore = 0) {
+  if (!entry?.provider) return null;
+
+  return {
+    name: entry.provider.name || "",
+    slug: entry.provider.slug || "",
+    title: entry.provider.title || "",
+    locations: Array.isArray(entry.provider.locations) ? entry.provider.locations.slice(0, 2) : [],
+    score: Number(entry.score || fallbackScore || 0),
+  };
+}
+
+function getAthenaProviderCandidate(provider, siteProviderEntries, fallbackScore = 0) {
+  if (!provider) return null;
+  const siteProvider = findSiteProvider(provider, siteProviderEntries);
+
+  return {
+    name: siteProvider?.name || getProviderName(provider),
+    slug: siteProvider?.slug || "",
+    title: siteProvider?.title || provider.providertype || "",
+    locations: Array.isArray(siteProvider?.locations) ? siteProvider.locations.slice(0, 2) : [],
+    score: Number(fallbackScore || 0),
+    providerId: provider.providerid || null,
+  };
+}
+
+function dedupeProviderCandidates(candidates = []) {
+  const seen = new Set();
+  return candidates
+    .filter((candidate) => candidate?.name)
+    .filter((candidate) => {
+      const key = candidate.slug || compactText(candidate.name);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, MAX_RESULTS);
+}
+
+function hasProviderLikeAppointmentLanguage(query, requestedSiteProviderEntries = []) {
+  if (requestedSiteProviderEntries.length > 0) return true;
+  if (!PROVIDER_SCOPE_LANGUAGE_PATTERN.test(query)) return false;
+
+  return getProviderIntentTokens(query).length > 0;
+}
+
+function isExplicitGlobalAppointmentScope(query, { requestedDateRange = null, requestedTime = null } = {}) {
+  return Boolean(
+    EXPLICIT_GLOBAL_APPOINTMENT_PATTERN.test(query) ||
+      DATE_OR_RANGE_LANGUAGE_PATTERN.test(query) ||
+      requestedDateRange ||
+      requestedTime ||
+      SERVICE_APPOINTMENT_REQUEST_PATTERN.test(query) ||
+      CARE_VISIT_REQUEST_PATTERN.test(query)
+  );
+}
+
+function buildAppointmentProviderResolution({
+  query,
+  department = null,
+  requestedSiteProviderEntries = [],
+  requestedProviders = [],
+  siteProviderEntries = [],
+  requestedDateRange = null,
+  requestedTime = null,
+} = {}) {
+  const providerCandidates = dedupeProviderCandidates([
+    ...requestedSiteProviderEntries.map((entry) => getSiteProviderCandidate(entry)),
+    ...requestedProviders.map((provider) => getAthenaProviderCandidate(provider, siteProviderEntries, 180)),
+  ]);
+  const providerLikeQuery = hasProviderLikeAppointmentLanguage(query, requestedSiteProviderEntries);
+  const explicitGlobal = isExplicitGlobalAppointmentScope(query, {
+    requestedDateRange,
+    requestedTime,
+  });
+
+  if (requestedProviders.length === 1) {
+    return {
+      appointmentIntent: true,
+      scope: "provider",
+      providerCandidates,
+      resolvedProvider: getAthenaProviderCandidate(requestedProviders[0], siteProviderEntries, 180),
+      confidence: providerCandidates[0]?.score >= 120 ? "high" : "medium",
+      providerLikeQuery,
+      globalAllowed: false,
+      monitoringCode: "",
+    };
+  }
+
+  if (requestedProviders.length === 0 && providerCandidates.length === 1) {
+    return {
+      appointmentIntent: true,
+      scope: "provider",
+      providerCandidates,
+      resolvedProvider: providerCandidates[0],
+      confidence: providerCandidates[0].score >= 110 ? "high" : "medium",
+      providerLikeQuery,
+      globalAllowed: false,
+      monitoringCode: "",
+    };
+  }
+
+  if (
+    requestedProviders.length === 0 &&
+    providerCandidates.length > 1 &&
+    providerCandidates[0].score >= 130 &&
+    providerCandidates[0].score - providerCandidates[1].score >= 35
+  ) {
+    return {
+      appointmentIntent: true,
+      scope: "provider",
+      providerCandidates,
+      resolvedProvider: providerCandidates[0],
+      confidence: "medium",
+      providerLikeQuery,
+      globalAllowed: false,
+      monitoringCode: "",
+    };
+  }
+
+  if (requestedProviders.length > 1 || providerCandidates.length > 1) {
+    return {
+      appointmentIntent: true,
+      scope: "ambiguous",
+      providerCandidates,
+      resolvedProvider: null,
+      confidence: "low",
+      providerLikeQuery: true,
+      globalAllowed: false,
+      monitoringCode: "provider_ambiguous",
+    };
+  }
+
+  if (providerLikeQuery) {
+    return {
+      appointmentIntent: true,
+      scope: "ambiguous",
+      providerCandidates,
+      resolvedProvider: null,
+      confidence: "low",
+      providerLikeQuery: true,
+      globalAllowed: false,
+      monitoringCode: "provider_like_unresolved",
+    };
+  }
+
+  if (department) {
+    return {
+      appointmentIntent: true,
+      scope: "location",
+      providerCandidates: [],
+      resolvedProvider: null,
+      confidence: "high",
+      providerLikeQuery: false,
+      globalAllowed: false,
+      monitoringCode: "",
+    };
+  }
+
+  if (explicitGlobal) {
+    return {
+      appointmentIntent: true,
+      scope: "global",
+      providerCandidates: [],
+      resolvedProvider: null,
+      confidence: "medium",
+      providerLikeQuery: false,
+      globalAllowed: true,
+      monitoringCode: "",
+    };
+  }
+
+  return {
+    appointmentIntent: true,
+    scope: "ambiguous",
+    providerCandidates: [],
+    resolvedProvider: null,
+    confidence: "low",
+    providerLikeQuery: false,
+    globalAllowed: false,
+    monitoringCode: "global_scope_unclear",
+  };
+}
+
+export function resolveAppointmentProviderResolutionForTest(query, siteProviders = [], options = {}) {
+  const siteProviderEntries = buildSiteProviderLookup(siteProviders);
+  const requestedSiteProviderEntries = findRequestedSiteProviders(query, siteProviderEntries);
+
+  return buildAppointmentProviderResolution({
+    query,
+    department: options.department || null,
+    requestedSiteProviderEntries,
+    requestedProviders: [],
+    siteProviderEntries,
+    requestedDateRange: options.requestedDateRange || null,
+    requestedTime: options.requestedTime || null,
+  });
+}
+
 function formatAthenaDate(date) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -1032,8 +1317,59 @@ function addDays(date, days) {
   return next;
 }
 
+function getNextWeekday(baseDate, weekdayIndex) {
+  const today = startOfLocalDay(baseDate);
+  const delta = (weekdayIndex - today.getDay() + 7) % 7;
+  return addDays(today, delta);
+}
+
+function normalizeDateYear(value) {
+  if (!value) return null;
+  const numeric = Number.parseInt(value, 10);
+  if (!Number.isFinite(numeric)) return null;
+  if (numeric < 100) return 2000 + numeric;
+  return numeric;
+}
+
+function buildSpecificDateRange(monthIndex, dayValue, yearValue, today) {
+  const day = Number.parseInt(dayValue, 10);
+  if (!Number.isInteger(monthIndex) || !Number.isInteger(day)) return null;
+
+  const explicitYear = Boolean(yearValue);
+  let year = explicitYear ? normalizeDateYear(yearValue) : today.getFullYear();
+  if (!year) return null;
+
+  let date = new Date(year, monthIndex, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== monthIndex ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  if (!explicitYear && date < today) {
+    year += 1;
+    date = new Date(year, monthIndex, day);
+  }
+
+  const label = date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    ...(explicitYear || date.getFullYear() !== today.getFullYear() ? { year: "numeric" } : {}),
+  });
+
+  return {
+    label,
+    start: date,
+    end: date,
+    explicit: true,
+  };
+}
+
 function parseRequestedDateRange(query, baseDate = new Date()) {
-  const normalized = normalizeText(query);
+  const text = String(query || "");
+  const normalized = normalizeText(text);
   const today = startOfLocalDay(baseDate);
 
   if (/\btoday\b/.test(normalized)) {
@@ -1051,6 +1387,65 @@ function parseRequestedDateRange(query, baseDate = new Date()) {
       label: "tomorrow",
       start: tomorrow,
       end: tomorrow,
+      explicit: true,
+    };
+  }
+
+  const nextDaysMatch = text.match(NEXT_DAYS_PATTERN);
+  if (nextDaysMatch) {
+    const days = Math.min(Math.max(Number.parseInt(nextDaysMatch[1], 10) || 0, 1), EXTENDED_PROVIDER_LOOKAHEAD_DAYS);
+    const end = addDays(today, days);
+    return {
+      label: `next ${days} days`,
+      start: today,
+      end,
+      explicit: true,
+      days,
+    };
+  }
+
+  const isoMatch = text.match(ISO_DATE_PATTERN);
+  if (isoMatch) {
+    const year = isoMatch[1];
+    const monthIndex = Number.parseInt(isoMatch[2], 10) - 1;
+    const range = buildSpecificDateRange(monthIndex, isoMatch[3], year, today);
+    if (range) return range;
+  }
+
+  const monthDayMatch = text.match(MONTH_DAY_PATTERN);
+  if (monthDayMatch) {
+    const monthIndex = MONTH_INDEX_BY_TOKEN[normalizeText(monthDayMatch[1])];
+    const range = buildSpecificDateRange(monthIndex, monthDayMatch[2], monthDayMatch[3], today);
+    if (range) return range;
+  }
+
+  const dayMonthMatch = text.match(DAY_MONTH_PATTERN);
+  if (dayMonthMatch) {
+    const monthIndex = MONTH_INDEX_BY_TOKEN[normalizeText(dayMonthMatch[2])];
+    const range = buildSpecificDateRange(monthIndex, dayMonthMatch[1], dayMonthMatch[3], today);
+    if (range) return range;
+  }
+
+  const numericDateMatch = text.match(NUMERIC_DATE_PATTERN);
+  if (numericDateMatch) {
+    const monthIndex = Number.parseInt(numericDateMatch[1], 10) - 1;
+    const range = buildSpecificDateRange(
+      monthIndex,
+      numericDateMatch[2],
+      numericDateMatch[3],
+      today
+    );
+    if (range) return range;
+  }
+
+  const weekdayMatch = normalized.match(REQUESTED_WEEKDAY_PATTERN);
+  const weekdayIndex = WEEKDAY_INDEX_BY_TOKEN[weekdayMatch?.[1] || ""];
+  if (Number.isInteger(weekdayIndex)) {
+    const requestedDay = getNextWeekday(today, weekdayIndex);
+    return {
+      label: WEEKDAY_LABELS[weekdayIndex],
+      start: requestedDay,
+      end: requestedDay,
       explicit: true,
     };
   }
@@ -1074,6 +1469,29 @@ function parseRequestedDateRange(query, baseDate = new Date()) {
   }
 
   return null;
+}
+
+function formatDateRangePhrase(label = "", lookaheadDays = DEFAULT_LOOKAHEAD_DAYS) {
+  const normalized = normalizeText(label);
+  if (!normalized) return `in the next ${lookaheadDays} days`;
+  if (normalized === "today") return "today";
+  if (normalized === "tomorrow") return "tomorrow";
+  if (normalized === "this week" || normalized === "next week") return `for ${label}`;
+  if (WEEKDAY_LABELS.some((weekday) => normalizeText(weekday) === normalized)) {
+    return `on ${label}`;
+  }
+  return `for ${label}`;
+}
+
+export function parseRequestedDateRangeForTest(query, baseDate = new Date()) {
+  const range = parseRequestedDateRange(query, baseDate);
+  if (!range) return null;
+
+  return {
+    label: range.label,
+    startdate: formatAthenaDate(range.start),
+    enddate: formatAthenaDate(range.end),
+  };
 }
 
 function parseSlotStartMinutes(value = "") {
@@ -1125,47 +1543,53 @@ function getSlotSortValue(option) {
   return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")} ${time}`;
 }
 
-function sortAppointmentOptions(options) {
-  return [...options].sort((first, second) =>
-    getSlotSortValue(first).localeCompare(getSlotSortValue(second))
+function getAppointmentOptionRank(option, context = {}) {
+  const requestedProviderIds = new Set(
+    (context.requestedProviders || []).map((provider) => String(provider.providerid || ""))
   );
+  const requestedDepartmentId = String(context.requestedDepartment?.departmentid || "");
+  const requestedStartdate = context.requestedDateRange
+    ? formatAthenaDate(context.requestedDateRange.start)
+    : "";
+  const directBookingUrl =
+    option.bookingUrl && option.bookingUrl !== GENERAL_BOOK_APPOINTMENT_URL;
+  let score = 0;
+
+  if (requestedProviderIds.size > 0 && requestedProviderIds.has(String(option.providerId))) {
+    score += 120;
+  }
+  if (requestedDepartmentId && String(option.departmentId) === requestedDepartmentId) {
+    score += 80;
+  }
+  if (requestedStartdate && option.date === requestedStartdate) {
+    score += 70;
+  }
+  if (option.slotMatchType === "exact") score += 60;
+  if (option.slotMatchType === "earliest") score += 20;
+  if (directBookingUrl) score += 12;
+  if (option.providerUrl) score += 5;
+
+  return score;
 }
 
-function selectAppointmentOptions(options, requestedProviders) {
-  if (requestedProviders.length <= 1) {
-    return sortAppointmentOptions(options).slice(0, MAX_RESULTS);
-  }
+function sortAppointmentOptions(options, context = {}) {
+  return [...options].sort((first, second) => {
+    const scoreDelta = getAppointmentOptionRank(second, context) - getAppointmentOptionRank(first, context);
+    if (scoreDelta !== 0) return scoreDelta;
+    return getSlotSortValue(first).localeCompare(getSlotSortValue(second));
+  });
+}
 
-  const providerOrder = new Map(
-    requestedProviders.map((provider, index) => [String(provider.providerid), index])
-  );
-  const optionsByProvider = new Map();
-
-  for (const option of sortAppointmentOptions(options)) {
-    const key = String(option.providerId);
-    if (!optionsByProvider.has(key)) optionsByProvider.set(key, []);
-    optionsByProvider.get(key).push(option);
-  }
-
-  const selected = [];
-  const orderedProviderIds = [...optionsByProvider.keys()].sort(
-    (first, second) =>
-      (providerOrder.get(first) ?? MAX_RESULTS) - (providerOrder.get(second) ?? MAX_RESULTS)
-  );
-
-  for (let slotIndex = 0; selected.length < MAX_RESULTS; slotIndex += 1) {
-    let addedThisRound = false;
-    for (const providerId of orderedProviderIds) {
-      const option = optionsByProvider.get(providerId)?.[slotIndex];
-      if (!option) continue;
-      selected.push(option);
-      addedThisRound = true;
-      if (selected.length >= MAX_RESULTS) break;
-    }
-    if (!addedThisRound) break;
-  }
-
-  return selected;
+function selectAppointmentOptions(options, context = {}) {
+  return sortAppointmentOptions(options, context)
+    .slice(0, MAX_RESULTS)
+    .map((option) => {
+      const rank = getAppointmentOptionRank(option, context);
+      return {
+        ...option,
+        matchConfidence: rank >= 180 ? "high" : rank >= 90 ? "medium" : "low",
+      };
+    });
 }
 
 async function getAppointmentReasons(config, accessToken, provider, department) {
@@ -1286,17 +1710,20 @@ export function isAppointmentAvailabilityQuery(query) {
   const hasAvailabilityWord = AVAILABILITY_WORD_PATTERN.test(normalized);
   const hasProviderActionLanguage =
     PROVIDER_ACTION_LANGUAGE_PATTERN.test(normalized) && getProviderIntentTokens(normalized).length > 0;
+  const hasProviderTimeRequest = PROVIDER_TIME_REQUEST_PATTERN.test(normalized);
 
   return (
-    APPOINTMENT_INTENT_PATTERN.test(normalized) &&
+    hasProviderTimeRequest ||
+    (APPOINTMENT_INTENT_PATTERN.test(normalized) &&
     (LOCATION_PATTERN.test(normalized) ||
       FAST_APPOINTMENT_PATTERN.test(normalized) ||
       Boolean(parseRequestedTime(query)) ||
       AVAILABILITY_REQUEST_PATTERN.test(normalized) ||
       PROVIDER_APPOINTMENT_REQUEST_PATTERN.test(normalized) ||
       CARE_VISIT_REQUEST_PATTERN.test(normalized) ||
+      SERVICE_APPOINTMENT_REQUEST_PATTERN.test(normalized) ||
       hasProviderActionLanguage ||
-      (hasAppointmentWord && hasAvailabilityWord))
+      (hasAppointmentWord && hasAvailabilityWord)))
   );
 }
 
@@ -1318,6 +1745,20 @@ function buildAthenaAvailabilityFallback(
     ],
     citations: ["Appointment availability"],
     disclaimer: true,
+    recoveryActions: [
+      {
+        type: "link",
+        label: "Book online",
+        value: "book_online",
+        href: GENERAL_BOOK_APPOINTMENT_URL,
+      },
+      {
+        type: "link",
+        label: "Call office",
+        value: "call_office",
+        href: "tel:+13015152901",
+      },
+    ],
     meta: {
       availabilityStatus: "unavailable",
       code,
@@ -1325,7 +1766,151 @@ function buildAthenaAvailabilityFallback(
   };
 }
 
-function buildProviderSchedulingNotConfirmedResult(siteProviderEntries, lookaheadDays, department = null) {
+function buildAppointmentRecoveryActions({
+  requestedProviderNames = [],
+  department = null,
+  locationName = "",
+  requestedDateRange = null,
+  lookaheadDays = DEFAULT_LOOKAHEAD_DAYS,
+} = {}) {
+  const providerLabel = joinReadableList(requestedProviderNames);
+  const providerQuery = providerLabel ? ` for ${providerLabel}` : "";
+  const locationQuery = department && locationName ? ` in ${locationName}` : "";
+  const actions = [];
+
+  if (!requestedDateRange && lookaheadDays < 60) {
+    actions.push({
+      type: "query",
+      label: "Search next 60 days",
+      value: "next_60_days",
+      query: `show available appointments${providerQuery}${locationQuery} in the next 60 days`,
+    });
+  }
+
+  if (requestedProviderNames.length > 0 && department) {
+    actions.push({
+      type: "query",
+      label: "Show other locations",
+      value: "other_locations",
+      query: `show available appointments for ${providerLabel} in the next 60 days`,
+    });
+  }
+
+  actions.push({
+    type: "query",
+    label: "Show similar providers",
+    value: "similar_providers",
+    query: department && locationName
+      ? `show providers at ${locationName}`
+      : "show primary care providers",
+  });
+
+  actions.push({
+    type: "link",
+    label: "Call office",
+    value: "call_office",
+    href: "tel:+13015152901",
+  });
+
+  return actions.slice(0, 4);
+}
+
+function buildProviderResolutionClarificationResult(query, providerResolution, lookaheadDays, department = null) {
+  const providerCandidates = Array.isArray(providerResolution?.providerCandidates)
+    ? providerResolution.providerCandidates
+    : [];
+  const providerChoices = providerCandidates.map((candidate) => ({
+    type: "query",
+    label: candidate.name,
+    value: candidate.slug || compactText(candidate.name),
+    description: [candidate.title, ...(candidate.locations || []).slice(0, 1)]
+      .filter(Boolean)
+      .join(" | "),
+    query: `${query} ${candidate.name}`,
+  }));
+  const clarification =
+    providerResolution?.monitoringCode === "global_scope_unclear"
+      ? {
+          type: "appointment_scope",
+          question: "What appointment search should I run?",
+          pendingIntent: "appointment_availability",
+          choices: [
+            {
+              type: "query",
+              label: "First available",
+              value: "first_available",
+              description: "Search all locations for the soonest online times.",
+              query: "show first available appointments",
+            },
+            {
+              type: "query",
+              label: "Today",
+              value: "today",
+              description: "Check online appointment times for today.",
+              query: "show available appointments today",
+            },
+            {
+              type: "query",
+              label: "This week",
+              value: "this_week",
+              description: "Check online appointment times this week.",
+              query: "show available appointments this week",
+            },
+            {
+              type: "link",
+              label: "Choose location",
+              value: "locations",
+              description: "Open the locations page.",
+              href: "/locations",
+            },
+          ],
+        }
+      : {
+          type: "provider",
+          question: "Which provider did you mean?",
+          pendingIntent: "appointment_availability",
+          choices:
+            providerChoices.length > 0
+              ? providerChoices
+              : [
+                  {
+                    type: "link",
+                    label: "Find a provider",
+                    value: "providers",
+                    description: "Open the provider directory.",
+                    href: "/providers",
+                  },
+                ],
+        };
+
+  return {
+    ok: true,
+    code: "clarification_required",
+    answer: clarification.question,
+    options: [],
+    sources: [{ title: "Providers", url: "/providers", type: "provider" }],
+    citations: ["Appointment search"],
+    disclaimer: false,
+    clarification,
+    recoveryActions: [],
+    meta: {
+      availabilityStatus: "clarification_required",
+      locationName: department ? getDepartmentName(department) : "First Medical Associates",
+      requestedProviderIds: [],
+      requestedProviderNames: [],
+      providerCountChecked: 0,
+      lookaheadDays,
+      providerResolution,
+    },
+  };
+}
+
+function buildProviderSchedulingNotConfirmedResult(
+  siteProviderEntries,
+  lookaheadDays,
+  department = null,
+  providerResolution = null
+) {
   const providers = siteProviderEntries.map((entry) => entry.provider).filter(Boolean);
   const providerNames = providers.map((provider) => provider.name).filter(Boolean);
   const providerLabel = joinReadableList(providerNames) || "that provider";
@@ -1358,6 +1943,12 @@ function buildProviderSchedulingNotConfirmedResult(siteProviderEntries, lookahea
           ],
     citations: ["Appointment availability"],
     disclaimer: true,
+    recoveryActions: buildAppointmentRecoveryActions({
+      requestedProviderNames: providerNames,
+      department,
+      locationName,
+      lookaheadDays,
+    }),
     meta: {
       availabilityStatus: "provider_schedule_not_confirmed",
       locationName,
@@ -1365,6 +1956,7 @@ function buildProviderSchedulingNotConfirmedResult(siteProviderEntries, lookahea
       requestedProviderNames: providerNames,
       providerCountChecked: 0,
       lookaheadDays,
+      providerResolution,
     },
   };
 }
@@ -1395,8 +1987,32 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
     siteProviderEntries,
     requestedSiteProviderEntries
   );
+  const providerResolution = buildAppointmentProviderResolution({
+    query,
+    department,
+    requestedSiteProviderEntries,
+    requestedProviders,
+    siteProviderEntries,
+    requestedDateRange,
+    requestedTime,
+  });
+
+  if (providerResolution.scope === "ambiguous") {
+    return buildProviderResolutionClarificationResult(
+      query,
+      providerResolution,
+      lookaheadDays,
+      department
+    );
+  }
+
   if (requestedSiteProviderEntries.length > 0 && requestedProviders.length === 0) {
-    return buildProviderSchedulingNotConfirmedResult(requestedSiteProviderEntries, lookaheadDays, department);
+    return buildProviderSchedulingNotConfirmedResult(
+      requestedSiteProviderEntries,
+      lookaheadDays,
+      department,
+      providerResolution
+    );
   }
 
   const start = requestedDateRange?.start || new Date();
@@ -1441,7 +2057,8 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
         },
       })),
       lookaheadDays,
-      department
+      department,
+      providerResolution
     );
   }
 
@@ -1561,7 +2178,12 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
       ? rawOptions.filter((option) => option.slotMatchType === "exact")
       : rawOptions;
 
-  const sortedOptions = selectAppointmentOptions(candidateOptions, requestedProviders);
+  const sortedOptions = selectAppointmentOptions(candidateOptions, {
+    requestedProviders,
+    requestedDepartment: department,
+    requestedDateRange,
+    requestedTime,
+  });
 
   const requestedProviderNames = requestedProviders.map((provider) => {
     const siteProvider = findSiteProvider(provider, siteProviderEntries);
@@ -1587,19 +2209,19 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
     return `${option.providerName} at ${option.locationName} on ${option.displayTime}`;
   };
   const appointmentList = sortedOptions.map(describeAppointmentOption).join(", ");
-  const answerRangeLabel = resultDateRangeLabel || `the next ${resultLookaheadDays} days`;
+  const answerRangePhrase = formatDateRangePhrase(resultDateRangeLabel, resultLookaheadDays);
   const answer =
     sortedOptions.length > 0 && requestedTime && hasExactTimeMatches
       ? `I found ${requestedTime.label} openings for ${answerTarget}: ${appointmentList}. Use the booking links below to schedule, and call 301-515-2901 if you need help confirming availability.`
       : sortedOptions.length > 0 && requestedTime
-        ? `I checked current appointment availability for ${answerTarget}, but did not find exact ${requestedTime.label} openings in ${answerRangeLabel}. The earliest alternatives I found are ${sortedOptions
+        ? `I checked current appointment availability for ${answerTarget}, but did not find exact ${requestedTime.label} openings ${answerRangePhrase}. The earliest alternatives I found are ${sortedOptions
             .map(describeAppointmentOption)
             .join(", ")}. Use the booking links below to schedule, and call 301-515-2901 if you need help confirming availability.`
         : sortedOptions.length > 0
           ? `${requestedProviderNames.length > 0 ? "I found these available times" : "The quickest openings I found"} for ${answerTarget}: ${appointmentList}. Use the booking links below to schedule, and call 301-515-2901 if you need help confirming availability.`
           : requestedTime
-            ? `I checked current appointment availability for ${answerTarget}, but did not find open online appointments at ${requestedTime.label} in ${answerRangeLabel}. Please call 301-515-2901 or use online booking to confirm availability.`
-            : `I checked current appointment availability for ${answerTarget}, but did not find open online appointments in ${answerRangeLabel}. Please call 301-515-2901 or use online booking to confirm availability.`;
+            ? `I checked current appointment availability for ${answerTarget}, but did not find open online appointments at ${requestedTime.label} ${answerRangePhrase}. Please call 301-515-2901 or use online booking to confirm availability.`
+            : `I checked current appointment availability for ${answerTarget}, but did not find open online appointments ${answerRangePhrase}. Please call 301-515-2901 or use online booking to confirm availability.`;
 
   const providerSourceUrls = new Set();
   const providerSources = sortedOptions
@@ -1651,6 +2273,16 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
             ],
     citations: ["Appointment availability"],
     disclaimer: false,
+    recoveryActions:
+      sortedOptions.length > 0
+        ? []
+        : buildAppointmentRecoveryActions({
+            requestedProviderNames,
+            department,
+            locationName,
+            requestedDateRange,
+            lookaheadDays: resultLookaheadDays,
+          }),
     meta: {
       locationName,
       departmentId: department?.departmentid || null,
@@ -1664,6 +2296,7 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
       providerCountChecked: checkedProviderLocationEntries.length,
       availabilityStatus: sortedOptions.length > 0 ? "open_slots_found" : "no_open_slots",
       lookaheadDays: resultLookaheadDays,
+      providerResolution,
     },
   };
 
@@ -1689,6 +2322,51 @@ export async function getAppointmentAvailabilityForQuery(query, options = {}) {
   }
 }
 
+async function getProviderMappingSlotStatus(config, accessToken, provider, department) {
+  if (!provider || !department) {
+    return {
+      slotStatus: "not_checked",
+      slotCount: 0,
+    };
+  }
+
+  const start = new Date();
+  const end = new Date(start);
+  end.setDate(start.getDate() + DEFAULT_LOOKAHEAD_DAYS);
+
+  try {
+    const reasons = await getAppointmentReasons(config, accessToken, provider, department);
+    if (reasons.length === 0) {
+      return {
+        slotStatus: "no_reasons",
+        slotCount: 0,
+      };
+    }
+
+    const slots = await getProviderOpenSlots(
+      config,
+      accessToken,
+      provider,
+      department,
+      reasons.slice(0, 2),
+      formatAthenaDate(start),
+      formatAthenaDate(end),
+      null,
+      1
+    );
+
+    return {
+      slotStatus: slots.length > 0 ? "slots_found" : "no_slots_found",
+      slotCount: slots.length,
+    };
+  } catch {
+    return {
+      slotStatus: "lookup_unavailable",
+      slotCount: 0,
+    };
+  }
+}
+
 export async function getAthenaProviderMappingCoverage() {
   const config = getAthenaConfig();
   if (!config.ok) {
@@ -1706,7 +2384,7 @@ export async function getAthenaProviderMappingCoverage() {
     const siteProviderEntries = buildSiteProviderLookup(siteProviders);
     const schedulableProviders = providers.filter(isSchedulableProvider);
 
-    const rows = siteProviders
+    const baseRows = siteProviders
       .map((siteProvider) => {
         const explicitProviderId = String(siteProvider.athenaProviderId || "").trim();
         const explicitDepartmentId = String(siteProvider.athenaDepartmentId || "").trim();
@@ -1764,11 +2442,48 @@ export async function getAthenaProviderMappingCoverage() {
           matchedDepartmentId: matchedDepartment?.departmentid || "",
           matchedDepartmentName: matchedDepartment ? getDepartmentName(matchedDepartment) : "",
           matchCount: explicitMatch ? 1 : nameMatches.length,
+          _matchedProvider: matchedProvider,
+          _matchedDepartment: matchedDepartment,
         };
-      })
+      });
+
+    const rowsWithSlotStatus = await runWithConcurrency(
+      baseRows,
+      PROVIDER_LOOKUP_CONCURRENCY,
+      async (row) => {
+        const slotCheck = await getProviderMappingSlotStatus(
+          config,
+          accessToken,
+          row._matchedProvider,
+          row._matchedDepartment
+        );
+        const warnings = [...row.warnings];
+        if (slotCheck.slotStatus === "no_reasons") {
+          warnings.push("No online appointment reasons returned for this mapped provider.");
+        } else if (slotCheck.slotStatus === "no_slots_found") {
+          warnings.push("No online appointment slots found in the next 30 days.");
+        } else if (slotCheck.slotStatus === "lookup_unavailable") {
+          warnings.push("Slot check could not be completed.");
+        }
+
+        const publicRow = { ...row };
+        delete publicRow._matchedProvider;
+        delete publicRow._matchedDepartment;
+        return {
+          ...publicRow,
+          warnings,
+          slotStatus: slotCheck.slotStatus,
+          slotCount: slotCheck.slotCount,
+        };
+      }
+    );
+
+    const rows = rowsWithSlotStatus
       .sort((first, second) => {
-        const firstNeedsReview = first.status.includes("missing") || first.status.includes("unsafe") || first.warnings.length > 0;
-        const secondNeedsReview = second.status.includes("missing") || second.status.includes("unsafe") || second.warnings.length > 0;
+        const firstNeedsReview =
+          first.status.includes("missing") || first.status.includes("unsafe") || first.warnings.length > 0;
+        const secondNeedsReview =
+          second.status.includes("missing") || second.status.includes("unsafe") || second.warnings.length > 0;
         if (firstNeedsReview !== secondNeedsReview) return firstNeedsReview ? -1 : 1;
         return first.name.localeCompare(second.name);
       });
@@ -1777,6 +2492,7 @@ export async function getAthenaProviderMappingCoverage() {
       (current, row) => {
         current.total += 1;
         current[row.status] = (current[row.status] || 0) + 1;
+        current[row.slotStatus] = (current[row.slotStatus] || 0) + 1;
         if (row.warnings.length > 0) current.warning += 1;
         return current;
       },
@@ -1787,6 +2503,11 @@ export async function getAthenaProviderMappingCoverage() {
         missing_mapping: 0,
         unsafe_multiple_matches: 0,
         configured_provider_missing: 0,
+        slots_found: 0,
+        no_slots_found: 0,
+        no_reasons: 0,
+        not_checked: 0,
+        lookup_unavailable: 0,
         warning: 0,
       }
     );

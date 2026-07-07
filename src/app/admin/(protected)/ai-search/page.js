@@ -43,6 +43,11 @@ async function loadAiSearchAnalytics() {
       total,
       answered,
       blocked,
+      noResults,
+      clarifications,
+      failed,
+      clarificationChoices,
+      providerResolutionMisses,
       feedbackCount,
       helpful,
       notHelpful,
@@ -53,6 +58,18 @@ async function loadAiSearchAnalytics() {
       prisma.aiSearchEvent.count({ where: { createdAt: { gte: since } } }),
       prisma.aiSearchEvent.count({ where: { createdAt: { gte: since }, status: "answered" } }),
       prisma.aiSearchEvent.count({ where: { createdAt: { gte: since }, status: "blocked" } }),
+      prisma.aiSearchEvent.count({ where: { createdAt: { gte: since }, status: "no_results" } }),
+      prisma.aiSearchEvent.count({ where: { createdAt: { gte: since }, status: "clarification" } }),
+      prisma.aiSearchEvent.count({ where: { createdAt: { gte: since }, status: "failed" } }),
+      prisma.aiSearchEvent.count({
+        where: {
+          createdAt: { gte: since },
+          surface: { in: ["api_search_clarification", "api_ai_search_clarification"] },
+        },
+      }),
+      prisma.aiSearchEvent.count({
+        where: { createdAt: { gte: since }, code: "provider_like_unresolved" },
+      }),
       prisma.aiSearchEvent.count({
         where: { createdAt: { gte: since }, feedbackRating: { not: null } },
       }),
@@ -102,6 +119,11 @@ async function loadAiSearchAnalytics() {
       total,
       answered,
       blocked,
+      noResults,
+      clarifications,
+      failed,
+      clarificationChoices,
+      providerResolutionMisses,
       feedbackCount,
       helpful,
       notHelpful,
@@ -174,15 +196,19 @@ export default async function AdminAiSearchPage() {
   const coverageRows = athenaCoverage.rows || [];
   const reviewRows = coverageRows.filter(
     (row) =>
-      row.status !== "explicit_match" &&
-      (row.status !== "name_match" || row.warnings.length > 0)
+      row.warnings.length > 0 ||
+      (row.status !== "explicit_match" && row.status !== "name_match")
   );
 
   const statCards = analytics.available
     ? [
         { label: "AI searches", value: analytics.total, detail: "Last 30 days" },
         { label: "Answered", value: analytics.answered, detail: "AI or appointment responses" },
+        { label: "No results", value: analytics.noResults, detail: "No online slots or source gaps" },
+        { label: "Clarified", value: analytics.clarifications, detail: `${formatNumber(analytics.clarificationChoices)} choices clicked` },
+        { label: "Provider misses", value: analytics.providerResolutionMisses, detail: "Provider-like searches needing clarification" },
         { label: "Blocked", value: analytics.blocked, detail: "Privacy, length, or safety blocks" },
+        { label: "Failed", value: analytics.failed, detail: "Errors needing review" },
         { label: "Feedback", value: analytics.feedbackCount, detail: `${formatNumber(analytics.notHelpful)} need review` },
       ]
     : [];
@@ -276,6 +302,16 @@ export default async function AdminAiSearchPage() {
                       <p className="admin-stat-value">{formatNumber(reviewRows.length)}</p>
                       <p className="admin-stat-copy">Missing, ambiguous, or warning rows</p>
                     </article>
+                    <article className="admin-stat-card">
+                      <h2 className="admin-stat-label">Slots found</h2>
+                      <p className="admin-stat-value">{formatNumber(athenaCoverage.summary.slots_found || 0)}</p>
+                      <p className="admin-stat-copy">Mapped providers returning online slots</p>
+                    </article>
+                    <article className="admin-stat-card">
+                      <h2 className="admin-stat-label">No slots</h2>
+                      <p className="admin-stat-value">{formatNumber(athenaCoverage.summary.no_slots_found || 0)}</p>
+                      <p className="admin-stat-copy">Mapped providers without returned slots</p>
+                    </article>
                   </div>
 
                   {reviewRows.length === 0 ? (
@@ -297,6 +333,7 @@ export default async function AdminAiSearchPage() {
                                 row.matchedDepartmentName
                                   ? `department ${row.matchedDepartmentName}`
                                   : "",
+                                row.slotStatus ? `slot check ${formatMappingStatus(row.slotStatus)}` : "",
                                 ...row.warnings,
                               ]
                                 .filter(Boolean)

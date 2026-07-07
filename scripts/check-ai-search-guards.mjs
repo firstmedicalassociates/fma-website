@@ -15,8 +15,11 @@ import {
 } from "../src/app/lib/ai-search-output-guard.js";
 import {
   findProviderDepartmentForTest,
+  findRequestedSiteProvidersForTest,
   findSiteProviderForTest,
   isAppointmentAvailabilityQuery,
+  parseRequestedDateRangeForTest,
+  resolveAppointmentProviderResolutionForTest,
 } from "../src/app/lib/athena-availability.js";
 import { buildContextualSearchQuery } from "../src/app/lib/ai-search-context.js";
 import { classifyAiSearchIntent } from "../src/app/lib/ai-search-intent.js";
@@ -93,6 +96,38 @@ check("flags appointment-specific self reference", () => {
   ]);
 });
 
+check("allows generic appointment booking dates", () => {
+  const queries = [
+    "can i book a appointment on saturday",
+    "can I schedule an appointment tomorrow",
+    "can I visit a doctor next week",
+  ];
+
+  for (const query of queries) {
+    const risk = getPhiRisk(query);
+    assert.equal(risk.hasPotentialPhi, false, query);
+  }
+});
+
+check("parses explicit public appointment date requests", () => {
+  const baseDate = new Date(2026, 6, 7);
+  const expected = {
+    label: "July 20",
+    startdate: "07/20/2026",
+    enddate: "07/20/2026",
+  };
+
+  assert.deepEqual(parseRequestedDateRangeForTest("what available times are there on july 20th", baseDate), expected);
+  assert.deepEqual(parseRequestedDateRangeForTest("appointments on 7/20/2026", baseDate), {
+    ...expected,
+    label: "July 20, 2026",
+  });
+  assert.deepEqual(parseRequestedDateRangeForTest("appointments on 2026-07-20", baseDate), {
+    ...expected,
+    label: "July 20, 2026",
+  });
+});
+
 check("flags street addresses, geographies, record IDs, devices, and older ages", () => {
   assertPhiCategories("I live at 123 Main Street", ["address"]);
   assertPhiCategories("my zip code is 20715", ["geographic_identifier"]);
@@ -127,6 +162,7 @@ check("routes provider time availability wording to appointment availability", (
     "what available times does Anita Kunwar have",
     "what available times does Robin Codjoe have available",
     "what appointments does Robin Codjoe have",
+    "give me appointment times for robin",
     "what availabilities does Lekh have",
     "does Quoc Anh Nguyen have any openings",
     "when can I see Maria Munoz-Ritterbusch",
@@ -139,6 +175,62 @@ check("routes provider time availability wording to appointment availability", (
 
   assert.equal(isAppointmentAvailabilityQuery("what services are available"), false);
   assert.equal(isAppointmentAvailabilityQuery("what time do you open"), false);
+});
+
+check("extracts provider names from conversational appointment wording", () => {
+  const matches = findRequestedSiteProvidersForTest("give me appointment times for robin", [
+    {
+      name: "Robin Codjoe",
+      slug: "robin-codjoe",
+    },
+    {
+      name: "Anita Kunwar",
+      slug: "anita-kunwar",
+    },
+  ]);
+
+  assert.equal(matches.length, 1);
+  assert.equal(matches[0].slug, "robin-codjoe");
+});
+
+check("uses provider resolution contract before appointment lookup", () => {
+  const providers = [
+    {
+      name: "Robin Codjoe",
+      slug: "robin-codjoe",
+      title: "M.D.",
+      locations: ["Bowie II, MD"],
+    },
+    {
+      name: "Anita Kunwar",
+      slug: "anita-kunwar",
+      title: "M.D.",
+      locations: ["Nottingham, MD"],
+    },
+  ];
+
+  const providerResolution = resolveAppointmentProviderResolutionForTest(
+    "give me appointment times for robin",
+    providers
+  );
+  assert.equal(providerResolution.scope, "provider");
+  assert.equal(providerResolution.resolvedProvider?.name, "Robin Codjoe");
+  assert.equal(providerResolution.globalAllowed, false);
+
+  const unresolvedResolution = resolveAppointmentProviderResolutionForTest(
+    "give me appointment times for totallyfake",
+    providers
+  );
+  assert.equal(unresolvedResolution.scope, "ambiguous");
+  assert.equal(unresolvedResolution.monitoringCode, "provider_like_unresolved");
+  assert.equal(unresolvedResolution.globalAllowed, false);
+
+  const globalResolution = resolveAppointmentProviderResolutionForTest(
+    "show first available appointments",
+    providers
+  );
+  assert.equal(globalResolution.scope, "global");
+  assert.equal(globalResolution.globalAllowed, true);
 });
 
 check("adds provider page context to relative provider queries", () => {
@@ -161,6 +253,7 @@ check("adds safe session context to provider follow-up queries", () => {
 
 check("classifies public FMA intents with detailed labels", () => {
   assert.equal(classifyAiSearchIntent("how do I book an appointment").intent, "booking_help");
+  assert.equal(classifyAiSearchIntent("can i book a appointment on saturday").intent, "appointment_availability");
   assert.equal(classifyAiSearchIntent("what insurance do you accept").intent, "insurance_question");
   assert.equal(classifyAiSearchIntent("who speaks Spanish near Rockville").intent, "provider_search");
   assert.equal(classifyAiSearchIntent("what services are available").intent, "service_question");

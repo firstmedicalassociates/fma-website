@@ -24,6 +24,12 @@
     "appointmentAvailability": true
   },
   {
+    "id": "provider_appointments_robin_conversational",
+    "query": "give me appointment times for robin",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
     "id": "provider_availability_lekh_plural",
     "query": "what availabilities does Lekh have",
     "expectedIntent": "appointment_availability",
@@ -40,6 +46,70 @@
     "query": "when can I see Maria Munoz-Ritterbusch",
     "expectedIntent": "appointment_availability",
     "appointmentAvailability": true
+  },
+  {
+    "id": "provider_availability_robin_typo",
+    "query": "what times does Robn Codjo have",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_ambiguous_maria_clarification",
+    "query": "what appointments does Maria have",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true,
+    "expectedClarification": true,
+    "expectedClarificationType": "provider"
+  },
+  {
+    "id": "generic_saturday_booking",
+    "query": "can i book a appointment on saturday",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "generic_this_saturday_booking",
+    "query": "what appointments are available this saturday",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "generic_july_20_booking",
+    "query": "what available times are there on july 20th",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "generic_next_60_days_booking",
+    "query": "show available appointments in the next 60 days",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "location_columbia_booking",
+    "query": "what appointments are available in Columbia",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "near_rockville_booking",
+    "query": "appointments near Rockville",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "service_primary_care_booking",
+    "query": "primary care appointments",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "vague_availability_clarification",
+    "query": "what times are available",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true,
+    "expectedClarification": true,
+    "expectedClarificationType": "appointment_scope"
   },
   {
     "id": "provider_bio",
