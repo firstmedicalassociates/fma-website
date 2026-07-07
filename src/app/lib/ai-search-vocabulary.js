@@ -78,7 +78,6 @@ export const AI_SEARCH_VOCABULARY = Object.freeze({
     "silver spring",
     "crofton",
     "greenbelt",
-    "laurel",
     "lutherville",
     "glen burnie",
   ],

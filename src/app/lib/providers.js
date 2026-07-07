@@ -19,6 +19,33 @@ export function formatProviderList(items) {
   return normalizeStringList(items).join(", ");
 }
 
+export function normalizeProviderCredential(value = "") {
+  const cleaned = String(value || "")
+    .trim()
+    .replace(/\./g, "")
+    .replace(/\s*-\s*/g, "-")
+    .replace(/\s+/g, " ");
+  if (!cleaned) return "";
+
+  const upper = cleaned.toUpperCase();
+  const compact = upper.replace(/\s+/g, "");
+
+  if (compact === "MD") return "MD";
+  if (compact === "DO") return "DO";
+  if (compact === "PAC" || compact === "PA-C") return "PA-C";
+  if (compact === "FNPBC" || compact === "FNP-BC") return "FNP-BC";
+  if (compact === "FNPC" || compact === "FNP-C") return "FNP-C";
+
+  return upper;
+}
+
+export function splitProviderCredentialTags(value = "") {
+  const source = Array.isArray(value) ? value : String(value || "").split(/[,;/]+/);
+  const tags = source.map(normalizeProviderCredential).filter(Boolean);
+
+  return [...new Set(tags)];
+}
+
 export function buildLocationTitleMap(locations = []) {
   return Object.fromEntries(
     locations
@@ -98,13 +125,15 @@ export function resolveProviderImageSrc(provider = {}) {
 export function mapProviderForDirectory(provider, locationTitleBySlug = {}) {
   const locationTitles = resolveLocationTitles(provider.locations, locationTitleBySlug);
   const languages = normalizeStringList(provider.languages);
+  const credentialTags = splitProviderCredentialTags(provider.title);
 
   return {
     ...provider,
     image: resolveProviderImageSrc(provider),
     imageAlt: provider.imageAlt || provider.name,
     link: `/providers/${provider.slug}`,
-    role: provider.title,
+    role: formatProviderList(credentialTags) || provider.title,
+    credentialTags,
     location: formatProviderList(locationTitles),
     language: formatProviderList(languages),
     locations: locationTitles,

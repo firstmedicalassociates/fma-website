@@ -1,4 +1,5 @@
 import { getSiteUrl } from "./lib/config/site";
+import { VISIBLE_LOCATION_WHERE } from "./lib/locations";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
 
 export const runtime = "nodejs";
@@ -60,6 +61,7 @@ export default async function sitemap() {
         orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       }),
       prisma.location.findMany({
+        where: VISIBLE_LOCATION_WHERE,
         select: { slug: true, updatedAt: true },
         orderBy: { title: "asc" },
       }),

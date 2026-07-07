@@ -1,4 +1,9 @@
-import { buildStructuredAddress, formatOfficeHoursForDisplay, resolveLocationAddressParts } from "../lib/locations";
+import {
+  VISIBLE_LOCATION_WHERE,
+  buildStructuredAddress,
+  formatOfficeHoursForDisplay,
+  resolveLocationAddressParts,
+} from "../lib/locations";
 import { resolveLocationPrimaryImage } from "../lib/location-photos";
 import { isDatabaseConfigured, prisma } from "../lib/prisma";
 import { locationsIndexMetadata } from "../lib/seo";
@@ -70,6 +75,7 @@ export default async function LocationFinderPage() {
     try {
       [locations, providers] = await Promise.all([
         prisma.location.findMany({
+          where: VISIBLE_LOCATION_WHERE,
           orderBy: { title: "asc" },
           select: LOCATION_FINDER_SELECT,
         }),

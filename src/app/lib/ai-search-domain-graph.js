@@ -1,5 +1,6 @@
 import { prisma } from "./prisma.js";
 import { GENERAL_BOOK_APPOINTMENT_URL } from "./config/site.js";
+import { VISIBLE_LOCATION_WHERE } from "./locations.js";
 import {
   AI_SEARCH_CORE_STOPWORDS,
   AI_SEARCH_PATTERNS,
@@ -332,6 +333,7 @@ async function buildDomainGraph() {
       },
     }),
     prisma.location.findMany({
+      where: VISIBLE_LOCATION_WHERE,
       orderBy: { title: "asc" },
       select: {
         id: true,

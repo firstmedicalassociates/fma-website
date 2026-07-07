@@ -74,7 +74,6 @@ export default function InsurancePage() {
         .accepted-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem; }
         .accepted-header h2 { font-size: 1.5rem; font-weight: 800; color: #001c55; margin-bottom: 0.5rem; }
         .accepted-header p { font-size: 0.875rem; color: #64748b; }
-        .stage-badge { background: #001c55; color: white; padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.6875rem; font-weight: 700; }
         
         .providers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
         .provider-col h5 { font-size: 0.6875rem; font-weight: 700; color: #0070f3; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem; }
@@ -163,7 +162,6 @@ export default function InsurancePage() {
               <h2>Accepted Insurance Plans</h2>
               <p>We accept a wide range of insurance plans to help you get the care you need.</p>
             </div>
-            <div className="stage-badge">STAGE 1 VERIFIED</div>
           </div>
 
           <div className="providers-grid">

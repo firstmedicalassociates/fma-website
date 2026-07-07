@@ -1,6 +1,7 @@
 import { OpenAI } from "openai";
 import { prisma } from "./prisma.js";
 import { FMA_KNOWLEDGE_BASE } from "./fma-knowledge-base.js";
+import { VISIBLE_LOCATION_WHERE } from "./locations.js";
 import {
   PUBLIC_SEARCH_MAX_CHARACTERS,
   PUBLIC_SEARCH_MIN_CHARACTERS,
@@ -305,6 +306,7 @@ async function findStructuredSiteContext(query) {
       },
     }),
     prisma.location.findMany({
+      where: VISIBLE_LOCATION_WHERE,
       orderBy: { title: "asc" },
       select: {
         slug: true,

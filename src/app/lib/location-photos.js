@@ -27,7 +27,6 @@ const PHOTO_BLOBS = {
   "glen-burnie-md": `${PHOTO_BLOB_BASE_URL}/glen-burnie-md.jpg`,
   greenbelt: `${PHOTO_BLOB_BASE_URL}/greenbelt.webp`,
   "greenbelt-md": `${PHOTO_BLOB_BASE_URL}/greenbelt-md.webp`,
-  "laurel-md": `${PHOTO_BLOB_BASE_URL}/laurel-md.png`,
   "lutherville-1": `${PHOTO_BLOB_BASE_URL}/lutherville-1.webp`,
   "lutherville-2": `${PHOTO_BLOB_BASE_URL}/lutherville-2.webp`,
   "lutherville-md": `${PHOTO_BLOB_BASE_URL}/lutherville-md.webp`,
@@ -90,10 +89,6 @@ const LOCATION_PHOTO_SETS = {
   "/location/greenbelt": {
     primary: "greenbelt",
     gallery: ["greenbelt", "greenbelt-md"],
-  },
-  "/location/laurel": {
-    primary: "laurel-md",
-    gallery: ["laurel-md"],
   },
   "/location/lutherville": {
     primary: "lutherville-2",

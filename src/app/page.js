@@ -8,6 +8,7 @@ import WelcomeVideoCard from "./components/welcome-video-card";
 import HomeHeroAiSearch from "./components/home-hero-ai-search";
 import ServiceTypedWord from "./components/service-typed-word";
 import WhyChooseAccordion from "./components/why-choose-accordion";
+import { VISIBLE_LOCATION_WHERE } from "./lib/locations";
 import { buildStaticMetadata } from "./lib/seo";
 import styles from "./page.module.css";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
@@ -78,37 +79,37 @@ const STORIES = [
   {
     quote:
       "The level of care I received was exceptional. From the moment I walked in, the staff made me feel comfortable and heard.",
-    name: "Sarah Jenkins",
+    name: "S. J.",
     role: "Primary Care Patient",
   },
   {
     quote:
       "Getting a same-day appointment was a lifesaver. The process felt organized, efficient, and surprisingly low-stress.",
-    name: "Michael Rodriguez",
+    name: "M. R.",
     role: "Same-Day Visit Patient",
   },
   {
     quote:
       "This is the first practice where I feel truly supported in managing a chronic condition. The care team follows through.",
-    name: "Emily Chen",
+    name: "E. C.",
     role: "Chronic Care Patient",
   },
   {
     quote:
       "The telehealth option and patient portal made everything easier. I always knew where to go and what to expect next.",
-    name: "David Thompson",
+    name: "D. T.",
     role: "Telehealth Patient",
   },
   {
     quote:
       "Beautiful clinic, friendly staff, and clear communication. Even lab follow-up and messaging felt simple and quick.",
-    name: "Amanda Williams",
+    name: "A. W.",
     role: "Preventive Care Patient",
   },
   {
     quote:
       "The coordination between my primary doctor and specialists has been the best part. Nothing feels lost in the shuffle.",
-    name: "Robert Brooks",
+    name: "R. B.",
     role: "Specialty Referral Patient",
   },
 ];
@@ -151,16 +152,19 @@ const HOME_SERVICE_SHOWCASE = [
     title: "Primary Care",
     image: "/assets/drs-first-primary-care.jpg",
     alt: "A physician smiling with an older adult patient during a primary care visit.",
+    href: "/service/primary-care",
   },
   {
     title: "Chronic Conditions",
     image: "/assets/drs-first-chronic-conditions.jpg",
     alt: "An older couple reviewing chronic care information together.",
+    href: "/services?category=Chronic%20Conditions",
   },
   {
     title: "Specialized Care",
     image: "/assets/drs-first-urgent-needs.jpg",
     alt: "A child pretending to check a man's heartbeat with a stethoscope.",
+    href: "/services?category=Specialized%20Care",
   },
 ];
 
@@ -186,9 +190,11 @@ const WHY_CHOOSE_ACCORDION = [
 ];
 
 const HEALTHCARE_HIGHLIGHTS = [
-  "Same Day Appointments",
+  "Same-Day Appointments",
   "On-Site Lab Testing",
   "Most Insurances Accepted",
+  "Multiple Locations to Serve You",
+  "Top-Rated Healthcare",
 ];
 
 const SERVICE_TYPED_WORDS = [
@@ -231,6 +237,7 @@ async function getHomeData() {
     const [featuredLocation, providerCount, locationCount, articleCount, services, heroSearchLocations, heroSearchProviders] =
       await Promise.all([
         prisma.location.findFirst({
+          where: VISIBLE_LOCATION_WHERE,
           orderBy: { title: "asc" },
           select: {
             slug: true,
@@ -249,7 +256,7 @@ async function getHomeData() {
         prisma.provider.count({
           where: { isActive: true },
         }),
-        prisma.location.count(),
+        prisma.location.count({ where: VISIBLE_LOCATION_WHERE }),
         prisma.blogPost.count({
           where: { status: "PUBLISHED" },
         }),
@@ -264,6 +271,7 @@ async function getHomeData() {
           },
         }),
         prisma.location.findMany({
+          where: VISIBLE_LOCATION_WHERE,
           select: {
             slug: true,
             addressCity: true,
@@ -577,7 +585,7 @@ export default async function Home() {
 
           <div className={styles.serviceShowcaseGrid}>
             {HOME_SERVICE_SHOWCASE.map((tile) => (
-              <article key={tile.title} className={styles.serviceShowcaseCard}>
+              <SmartLink key={tile.title} href={tile.href} className={styles.serviceShowcaseCard}>
                 <div className={styles.serviceShowcaseImageWrap}>
                   <Image
                     src={tile.image}
@@ -589,7 +597,7 @@ export default async function Home() {
                   />
                 </div>
                 <h3 className={styles.serviceShowcaseLabel}>{tile.title}</h3>
-              </article>
+              </SmartLink>
             ))}
           </div>
         </section>
@@ -712,7 +720,7 @@ export default async function Home() {
 
             <div className={styles.commitStats} aria-label="Practice statistics">
               <article className={styles.commitStatItem}>
-                <p className={styles.commitStatValue}>{providerCount}+</p>
+                <p className={styles.commitStatValue}>{providerCount}</p>
                 <p className={styles.commitStatLabel}>
                   <span>Active</span> Providers
                 </p>

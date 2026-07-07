@@ -17,10 +17,10 @@ import { normalizeServiceIcon } from "../lib/services";
 import styles from "./location-page.module.css";
 
 const TABS = [
-  { id: "location", label: "01. Location" },
-  { id: "doctors", label: "02. Doctors" },
-  { id: "services", label: "03. Services" },
-  { id: "info", label: "04. Info" },
+  { id: "location", label: "Location" },
+  { id: "doctors", label: "Doctors" },
+  { id: "services", label: "Services" },
+  { id: "info", label: "Info" },
 ];
 
 const INFO_FAQS = [
@@ -560,7 +560,6 @@ export default function LocationPageShell({ location, providers, serviceGroups }
           {activeTab === "doctors" ? (
             <section className={styles.doctorsPanel}>
               <div className={styles.panelIntro}>
-                <p className={styles.stageLabel}>Stage 02: Our Specialists</p>
                 <h2>Providers at {location.title}</h2>
                 <p>Meet the providers currently available at this location.</p>
               </div>

@@ -26,7 +26,7 @@ export const metadata = buildStaticMetadata({
 });
 
 export default function PartnersPage() {
-  const partnersImageSrc = getSiteImageSrc("first-medical-associates-doctors-4");
+  const partnersImageSrc = getSiteImageSrc("first-medical-associates-doctors-9");
 
   const partnerTypes = [
     { 

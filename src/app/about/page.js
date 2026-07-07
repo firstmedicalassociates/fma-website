@@ -459,7 +459,7 @@ export default function AboutPage() {
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#001c55' }}>Our Core Values</h2>
-           <span style={{ fontSize: '0.8125rem', color: '#64748b', fontStyle: 'italic' }}>Guided by integrity since 2004</span>
+           <span style={{ fontSize: '0.8125rem', color: '#64748b', fontStyle: 'italic' }}>Guided by integrity since 2008</span>
         </div>
         <div className="value-grid">
            {values.map((v, i) => {

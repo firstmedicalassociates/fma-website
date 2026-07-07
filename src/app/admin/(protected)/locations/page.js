@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Clock3, Layers3, MapPin, Users } from "../admin-icons";
+import { VISIBLE_LOCATION_WHERE } from "../../../lib/locations";
 import { prisma } from "../../../lib/prisma";
 import LocationRowActions from "./location-row-actions";
 
@@ -16,6 +17,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 export default async function AdminLocationsPage() {
   const [locations, providers] = await Promise.all([
     prisma.location.findMany({
+      where: VISIBLE_LOCATION_WHERE,
       orderBy: { title: "asc" },
       select: {
         id: true,

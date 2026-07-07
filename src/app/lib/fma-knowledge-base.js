@@ -131,7 +131,7 @@ Attendance, lateness, and fees:
   requires rescheduling.
 - If the patient is past the 5-minute window, staff may check whether the original provider or
   another provider at that location has a later same-day opening.
-- If the patient is successfully rescheduled for the same day into an available slot, the $50 fee
+- If the patient is successfully rescheduled into a same-day available slot, the $50 fee
   may be waived.
 - New patients must arrive at least 30 minutes before the scheduled time to complete required
   paperwork. If that window has passed, the appointment must be rescheduled.

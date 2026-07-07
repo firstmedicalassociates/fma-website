@@ -18,6 +18,7 @@ const { OpenAI } = require('openai');
 
 const EMBEDDING_MODEL = 'text-embedding-3-small';
 const WRITE_DELAY_MS = 200;
+const HIDDEN_LOCATION_SLUGS = ['/location/laurel'];
 const QUARANTINE_OUTPUT_PATH = path.resolve(
   __dirname,
   '../artifacts/ai-search/embedding-phi-quarantine.json'
@@ -196,6 +197,11 @@ function createResult(total) {
 
 async function indexLocations() {
   const locations = await prisma.location.findMany({
+    where: {
+      slug: {
+        notIn: HIDDEN_LOCATION_SLUGS,
+      },
+    },
     orderBy: { title: 'asc' },
   });
   const result = createResult(locations.length);

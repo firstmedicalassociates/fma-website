@@ -64,10 +64,6 @@ const LOCATION_SEO_BY_SLUG = {
     title: "Greenbelt | Primary Care Doctor at First Medical Associates",
     h1: "Primary care doctor in GREENBELT, MD",
   },
-  "/location/laurel": {
-    title: "Laurel | Primary Care Doctor at First Medical Associates",
-    h1: "Primary care Doctor in Laurel, MD",
-  },
   "/location/lutherville": {
     title: "Primary Care Doctor in Lutherville | First Medical Associates",
     h1: "Primary care Doctor in Lutherville , MD",

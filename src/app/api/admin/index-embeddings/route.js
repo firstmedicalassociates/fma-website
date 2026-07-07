@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { OpenAI } from 'openai';
 import { requireAdminRequest } from '../../../lib/admin-auth';
+import { VISIBLE_LOCATION_WHERE } from '../../../lib/locations';
 import { getPublicContentPhiRisk } from '../../../lib/no-phi-guard';
 import { prisma } from '../../../lib/prisma';
 
@@ -90,7 +91,7 @@ function getEmbeddingPhiRisk(content) {
 }
 
 async function indexLocations(db) {
-  const locations = await db.location.findMany();
+  const locations = await db.location.findMany({ where: VISIBLE_LOCATION_WHERE });
   let count = 0;
   const errors = [];
 

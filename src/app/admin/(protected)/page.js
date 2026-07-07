@@ -11,6 +11,7 @@ import {
   ADMIN_NAV_SECTIONS,
   ADMIN_PRIMARY_LINK_BY_KEY,
 } from "../../lib/config/admin-navigation.mjs";
+import { VISIBLE_LOCATION_WHERE } from "../../lib/locations";
 import { prisma } from "../../lib/prisma";
 
 export const runtime = "nodejs";
@@ -56,7 +57,7 @@ export default async function AdminDashboardPage() {
   ] = await Promise.all([
     prisma.blogPost.count(),
     prisma.blogPost.count({ where: { status: "PUBLISHED" } }),
-    prisma.location.count(),
+    prisma.location.count({ where: VISIBLE_LOCATION_WHERE }),
     prisma.provider.count(),
     prisma.provider.count({ where: { isActive: true } }),
     prisma.blogPost.findMany({
@@ -70,6 +71,7 @@ export default async function AdminDashboardPage() {
       },
     }),
     prisma.location.findMany({
+      where: VISIBLE_LOCATION_WHERE,
       orderBy: { updatedAt: "desc" },
       take: 4,
       select: {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Clock3, Layers3, MapPin } from "../admin-icons";
+import { VISIBLE_LOCATION_WHERE } from "../../../lib/locations";
 import { prisma } from "../../../lib/prisma";
 import { SERVICE_SELECT, normalizeServiceIcon } from "../../../lib/services";
 import ServiceActions from "./service-actions";
@@ -40,6 +41,7 @@ export default async function AdminServicesPage() {
       select: SERVICE_SELECT,
     }),
     prisma.location.findMany({
+      where: VISIBLE_LOCATION_WHERE,
       orderBy: { title: "asc" },
       select: {
         slug: true,

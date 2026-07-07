@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
 import { requireAdminRequest } from "../../../lib/admin-auth";
 import { validateLocationPayload } from "../../../lib/location-cms";
+import { isHiddenLocationSlug } from "../../../lib/locations";
 
 export const runtime = "nodejs";
 
@@ -20,6 +21,9 @@ export async function POST(request) {
   const validation = validateLocationPayload(body);
   if (!validation.ok) {
     return NextResponse.json({ ok: false, error: validation.error }, { status: 400 });
+  }
+  if (isHiddenLocationSlug(validation.data.slug)) {
+    return NextResponse.json({ ok: false, error: "This location is currently unavailable." }, { status: 400 });
   }
 
   try {

@@ -5,6 +5,7 @@ import {
   buildOpeningHoursSpecification,
   formatOfficeHoursForDisplay,
   groupLocationServices,
+  isHiddenLocationSlug,
   joinLocationSegments,
 } from "../lib/locations";
 import {
@@ -83,6 +84,7 @@ function buildServiceOfferCatalog(services = [], locationTitle = "Location") {
 export async function generateMetadata({ params }) {
   const locationPath = resolveLocationPath(await params);
   if (!locationPath) return {};
+  if (isHiddenLocationSlug(locationPath)) return {};
 
   const location = await prisma.location.findUnique({
     where: { slug: locationPath },
@@ -120,7 +122,7 @@ export async function generateMetadata({ params }) {
 
 export default async function LocationLandingPage({ params }) {
   const locationPath = resolveLocationPath(await params);
-  if (!locationPath) {
+  if (!locationPath || isHiddenLocationSlug(locationPath)) {
     notFound();
   }
 

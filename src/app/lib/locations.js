@@ -8,6 +8,26 @@ export const OFFICE_HOUR_DAYS = [
   { value: "Saturday", shortLabel: "Sat" },
 ];
 
+export const HIDDEN_LOCATION_SLUGS = ["/location/laurel"];
+export const VISIBLE_LOCATION_WHERE = {
+  slug: {
+    notIn: HIDDEN_LOCATION_SLUGS,
+  },
+};
+
+export function withVisibleLocationWhere(where = {}) {
+  const filters = [VISIBLE_LOCATION_WHERE];
+  if (where && Object.keys(where).length > 0) {
+    filters.push(where);
+  }
+
+  return filters.length === 1 ? VISIBLE_LOCATION_WHERE : { AND: filters };
+}
+
+export function isHiddenLocationSlug(value = "") {
+  return HIDDEN_LOCATION_SLUGS.includes(normalizeLocationSlug(value));
+}
+
 const DAY_ALIASES = new Map([
   ["monday", "Monday"],
   ["mon", "Monday"],

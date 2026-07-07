@@ -28,7 +28,7 @@ export const metadata = buildStaticMetadata({
 });
 
 export default function CareersPage() {
-  const careersImageSrc = getSiteImageSrc("first-medical-associates-doctors-9");
+  const careersImageSrc = getSiteImageSrc("first-medical-associates-doctors-4");
 
   const opportunities = [
     {

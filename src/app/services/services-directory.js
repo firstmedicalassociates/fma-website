@@ -45,9 +45,9 @@ function isTelehealthService(service = {}) {
   return category.includes("tele") || title.includes("tele");
 }
 
-export default function ServicesDirectory({ services = [] }) {
+export default function ServicesDirectory({ services = [], initialCategory = "" }) {
   const [query, setQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeCategory, setActiveCategory] = useState(() => normalizeCategory(initialCategory) || "all");
 
   const categories = useMemo(() => {
     const seen = new Set();
@@ -63,13 +63,20 @@ export default function ServicesDirectory({ services = [] }) {
     return values;
   }, [services]);
 
+  const effectiveActiveCategory = useMemo(() => {
+    if (activeCategory === "all") return "all";
+    return categories.some((category) => normalizeCategory(category) === activeCategory)
+      ? activeCategory
+      : "all";
+  }, [activeCategory, categories]);
+
   const filteredServices = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return services
       .filter((service) => {
         const category = normalizeCategory(service?.category);
-        if (activeCategory !== "all" && category !== activeCategory) return false;
+        if (effectiveActiveCategory !== "all" && category !== effectiveActiveCategory) return false;
         if (!normalizedQuery) return true;
 
         const title = String(service?.title || "").toLowerCase();
@@ -88,7 +95,7 @@ export default function ServicesDirectory({ services = [] }) {
         if (firstTelehealth === secondTelehealth) return 0;
         return firstTelehealth ? 1 : -1;
       });
-  }, [activeCategory, query, services]);
+  }, [effectiveActiveCategory, query, services]);
 
   const filterItems = useMemo(() => {
     return [
@@ -143,7 +150,7 @@ export default function ServicesDirectory({ services = [] }) {
             <span className={styles.filterLabel}>Filter By:</span>
             <PillToggleButtons
               items={filterItems}
-              activeValue={activeCategory}
+              activeValue={effectiveActiveCategory}
               onSelect={setActiveCategory}
               ariaLabel="Service category filters"
             />

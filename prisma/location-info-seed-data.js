@@ -117,38 +117,6 @@ module.exports = {
       GERIATRIC_CARE_SECTION,
     ],
   },
-  "/location/laurel": {
-    sourceUrl: "https://drsfirst.com/location/laurel/",
-    sections: [
-      {
-        key: "same-day-clinic",
-        title: "Same-Day Appointments in Laurel, MD",
-        paragraphs: [
-          "At First Medical Associates, we proudly offer top-notch same-day care in Laurel, MD, designed to meet your time-sensitive healthcare needs efficiently and effectively. Our clinic is equipped to handle a variety of medical concerns with same-day appointment options, allowing you to receive the care you need quickly and conveniently.",
-          "Our same-day care in Laurel, MD, is staffed by experienced doctors and medical professionals who are committed to delivering high-quality care in a compassionate and responsive manner. We understand that waiting for an appointment can be challenging when you are not feeling well, so we strive to minimize wait times and offer prompt service.",
-          "Choosing First Medical Associates means you are opting for reliable same-day care in Laurel, MD, where you can receive comprehensive care tailored to your specific needs. We are here to support your health journey with exceptional service and dependable care.",
-        ],
-      },
-      {
-        key: "family-doctor",
-        title: "Family doctor in Laurel, MD",
-        paragraphs: [
-          "At First Medical Associates, we offer a wide range of services designed to keep you and your family in optimal health. From routine check-ups and preventive care to specialized treatments, our medical team in Laurel, MD, is equipped with current clinical knowledge and technology to support your care.",
-          "We strive to make every visit comfortable and informative, addressing questions and concerns you may have about your health. Our goal is to be a reliable partner in your health journey with personalized, effective healthcare.",
-        ],
-      },
-      {
-        key: "doctors",
-        title: "Doctors in Laurel, MD",
-        paragraphs: [
-          "At First Medical Associates, we pride ourselves on offering a wide range of services designed to keep you and your family in optimal health. From routine check-ups and preventive care to specialized treatments, our doctors in Laurel, MD, are equipped with the latest medical knowledge and technology to ensure you receive the best possible care.",
-          "Our goal is to be a reliable partner in your health journey. By choosing First Medical Associates, you are selecting a team of experienced professionals who genuinely care about your well-being. If you are looking for trusted doctors in Laurel, MD, we invite you to schedule an appointment with us today.",
-        ],
-      },
-      PRIMARY_CARE_SECTION,
-      GERIATRIC_CARE_SECTION,
-    ],
-  },
   "/location/columbia": {
     sourceUrl: "https://drsfirst.com/location/columbia/",
     sections: [
