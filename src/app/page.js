@@ -196,7 +196,7 @@ const SERVICE_TYPED_WORDS = [
   "Chronic Conditions",
   "Specialized Care",
   "Asthma Care",
-  "Diabete Care",
+  "Diabetes Care",
 ];
 const SERVICE_TYPED_LONGEST_WORD = SERVICE_TYPED_WORDS.reduce(
   (longest, word) => (word.length > longest.length ? word : longest),

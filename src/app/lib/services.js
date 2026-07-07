@@ -171,17 +171,23 @@ function cleanText(value = "") {
 
 function normalizeText(value) {
   const normalized = cleanText(value);
-  return normalized || null;
+  return fixKnownServiceCopyTypos(normalized) || null;
 }
 
 function normalizeRequiredText(value) {
-  return cleanText(value);
+  return fixKnownServiceCopyTypos(cleanText(value));
+}
+
+function fixKnownServiceCopyTypos(value) {
+  if (!value) return value;
+  return value.replace(/\bduring an(?: a)? same-day visit\b/gi, "during a same-day visit");
 }
 
 function normalizeList(values, fallback = []) {
   if (!Array.isArray(values)) return fallback;
   const items = values.map((value) => cleanText(value)).filter(Boolean);
-  return items.length > 0 ? items : fallback;
+  const normalizedItems = items.map((value) => fixKnownServiceCopyTypos(value));
+  return normalizedItems.length > 0 ? normalizedItems : fallback;
 }
 
 function normalizeFeatureList(values) {
@@ -189,8 +195,8 @@ function normalizeFeatureList(values) {
 
   const items = values
     .map((value) => ({
-      title: cleanText(value?.title),
-      description: cleanText(value?.description),
+      title: fixKnownServiceCopyTypos(cleanText(value?.title)),
+      description: fixKnownServiceCopyTypos(cleanText(value?.description)),
     }))
     .filter((value) => value.title && value.description);
 
@@ -202,8 +208,8 @@ function normalizeFaqList(values) {
 
   const items = values
     .map((value) => ({
-      question: cleanText(value?.question),
-      answer: cleanText(value?.answer),
+      question: fixKnownServiceCopyTypos(cleanText(value?.question)),
+      answer: fixKnownServiceCopyTypos(cleanText(value?.answer)),
     }))
     .filter((value) => value.question && value.answer);
 

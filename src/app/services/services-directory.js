@@ -193,8 +193,8 @@ export default function ServicesDirectory({ services = [] }) {
           <div className={styles.ctaContent}>
             <h2>Need immediate clinical assistance?</h2>
             <p>
-              Our medical team is available for urgent consultations and chronic disease
-              management.
+              Our medical team is available for urgent same-day consultations and chronic
+              disease management.
             </p>
             <div className={styles.ctaActions}>
               <Link href="/providers">Find a Clinician</Link>
