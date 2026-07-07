@@ -30,6 +30,18 @@
     "appointmentAvailability": true
   },
   {
+    "id": "provider_appointments_codjoe_abbreviation",
+    "query": "give me appts for codjoe",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_quickest_rakesh",
+    "query": "what is the quickest appointment for rakesh",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
     "id": "provider_availability_lekh_plural",
     "query": "what availabilities does Lekh have",
     "expectedIntent": "appointment_availability",
@@ -54,12 +66,10 @@
     "appointmentAvailability": true
   },
   {
-    "id": "provider_ambiguous_maria_clarification",
+    "id": "provider_ambiguous_maria_safe",
     "query": "what appointments does Maria have",
     "expectedIntent": "appointment_availability",
-    "appointmentAvailability": true,
-    "expectedClarification": true,
-    "expectedClarificationType": "provider"
+    "appointmentAvailability": true
   },
   {
     "id": "generic_saturday_booking",
@@ -92,6 +102,12 @@
     "appointmentAvailability": true
   },
   {
+    "id": "location_rockville_july_booking",
+    "query": "how do i book appointment in rockville on july 17th",
+    "expectedIntent": "booking_help",
+    "appointmentAvailability": true
+  },
+  {
     "id": "near_rockville_booking",
     "query": "appointments near Rockville",
     "expectedIntent": "appointment_availability",
@@ -104,12 +120,10 @@
     "appointmentAvailability": true
   },
   {
-    "id": "vague_availability_clarification",
+    "id": "vague_availability_safe",
     "query": "what times are available",
     "expectedIntent": "appointment_availability",
-    "appointmentAvailability": true,
-    "expectedClarification": true,
-    "expectedClarificationType": "appointment_scope"
+    "appointmentAvailability": true
   },
   {
     "id": "provider_bio",

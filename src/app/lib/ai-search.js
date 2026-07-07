@@ -8,13 +8,15 @@ import {
   getPhiRisk,
   normalizePublicSearchQuery,
 } from "./no-phi-guard.js";
-import { getAppointmentAvailabilityForQuery } from "./athena-availability.js";
+import {
+  getAppointmentAvailabilityForQuery,
+  shouldCheckAppointmentAvailability,
+} from "./athena-availability.js";
 import {
   buildContextualSearchQuery,
   resolveAiSearchPageContext,
   resolveAiSearchSessionContext,
 } from "./ai-search-context.js";
-import { buildAiSearchClarification } from "./ai-search-clarification.js";
 import {
   buildFmaDomainGraphAnswer,
   findFmaDomainGraphContext,
@@ -24,11 +26,23 @@ import {
 import { GENERAL_BOOK_APPOINTMENT_URL } from "./config/site.js";
 import { detectPromptInjection, sanitizeGeneratedAnswerResult } from "./ai-search-output-guard.js";
 import { classifyAiSearchIntent } from "./ai-search-intent.js";
+import { buildAiSearchRoute, AI_SEARCH_ROUTES } from "./ai-search-router.js";
+import {
+  AI_SEARCH_RESPONSE_STATUS,
+  buildAiSearchResponse,
+  getAppointmentResponseStatus,
+} from "./ai-search-response-contract.js";
+import {
+  AI_SEARCH_CORE_STOPWORDS,
+  compactSearchText,
+  normalizeSearchText,
+  tokenizeSearchText,
+} from "./ai-search-vocabulary.js";
 
 const EMBEDDING_MODEL = "text-embedding-3-small";
 const ANSWER_MODEL = process.env.AI_SEARCH_ANSWER_MODEL?.trim() || "gpt-5.5";
 const ANSWER_API = process.env.AI_SEARCH_ANSWER_API?.trim() || "responses";
-const ANSWER_REASONING_EFFORT = process.env.AI_SEARCH_REASONING_EFFORT?.trim() || "low";
+const ANSWER_REASONING_EFFORT = process.env.AI_SEARCH_REASONING_EFFORT?.trim() || "high";
 const SEARCH_MIN_CHARACTERS = PUBLIC_SEARCH_MIN_CHARACTERS;
 const MAX_QUERY_LENGTH = PUBLIC_SEARCH_MAX_CHARACTERS;
 const STRICT_SIMILARITY_THRESHOLD = 0.3;
@@ -36,37 +50,18 @@ const FALLBACK_SIMILARITY_THRESHOLD = 0.22;
 const STRUCTURED_CONTEXT_LIMIT = 6;
 
 const CONTEXT_STOPWORDS = new Set([
+  ...AI_SEARCH_CORE_STOPWORDS,
   "about",
   "accept",
-  "available",
-  "availability",
-  "book",
-  "can",
-  "does",
-  "doctor",
-  "doctors",
-  "dr",
   "drsfirst",
   "first",
-  "for",
   "fma",
-  "have",
   "location",
   "locations",
   "medical",
   "office",
-  "provider",
-  "providers",
   "service",
   "services",
-  "the",
-  "time",
-  "times",
-  "what",
-  "where",
-  "who",
-  "with",
-  "you",
 ]);
 
 // System prompt that strictly scopes the AI to FMA business only.
@@ -190,21 +185,15 @@ function resolveSourceUrl(metadata = {}) {
 }
 
 function normalizeContextText(value = "") {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
+  return normalizeSearchText(value);
 }
 
 function compactContextText(value = "") {
-  return normalizeContextText(value).replace(/\s+/g, "");
+  return compactSearchText(value);
 }
 
 function getContextTokens(query) {
-  return normalizeContextText(query)
-    .split(/\s+/)
-    .filter((token) => token.length > 2 && !CONTEXT_STOPWORDS.has(token));
+  return tokenizeSearchText(query, { stopwords: CONTEXT_STOPWORDS });
 }
 
 function scoreStructuredRecord(query, primaryText = "", secondaryText = "") {
@@ -734,22 +723,6 @@ function formatAppointmentCards(options = [], fallbackSources = []) {
   }));
 }
 
-function formatClarificationCards(clarification = null) {
-  const choices = Array.isArray(clarification?.choices) ? clarification.choices : [];
-  return choices
-    .filter((choice) => choice?.type === "link" && choice.href)
-    .map((choice) => ({
-      type: "clarification",
-      title: choice.label || "Continue",
-      subtitle: choice.description || "Choose this option to continue.",
-      href: choice.href,
-      actionLabel: choice.label || "Continue",
-      details: [],
-      badges: [],
-    }))
-    .slice(0, 4);
-}
-
 function buildProviderResolution(query, providerNames = []) {
   const names = [...new Set(providerNames.filter(Boolean))];
   if (names.length !== 1) return null;
@@ -763,6 +736,82 @@ function buildProviderResolution(query, providerNames = []) {
     label: `Matched to ${names[0]}`,
     providerNames: names,
   };
+}
+
+function getProviderMatchesFromNames(providerNames = []) {
+  return [...new Set(providerNames.filter(Boolean))].map((name) => ({ name }));
+}
+
+function getProviderMatchesFromSources(sources = []) {
+  return sources
+    .filter((source) => source?.type === "provider" && source.title)
+    .map((source) => ({
+      name: source.title,
+      url: source.url || "",
+    }));
+}
+
+function getLocationMatchesFromSources(sources = []) {
+  return sources
+    .filter((source) => source?.type === "location" && source.title)
+    .map((source) => ({
+      name: source.title,
+      url: source.url || "",
+    }));
+}
+
+function buildRouteMeta(routeContext = {}, extra = {}) {
+  return {
+    route: routeContext.route || "",
+    routeReason: routeContext.reason || "",
+    ...extra,
+  };
+}
+
+function buildAppointmentLeakageFallback(query, intentResult, routeContext) {
+  return buildAiSearchResponse({
+    ok: true,
+    status: AI_SEARCH_RESPONSE_STATUS.NEEDS_INPUT,
+    code: "appointment_scope_needed",
+    intent: intentResult.intent,
+    query,
+    answer:
+      "I can help search current appointment availability, but I need a provider, location, date, or a first-available request. Try asking for a specific provider, location, date, or the soonest available appointment.",
+    sources: [{ title: "Schedule Appointment", url: GENERAL_BOOK_APPOINTMENT_URL, type: "appointment" }],
+    cards: formatSourceCards([{ title: "Schedule Appointment", url: GENERAL_BOOK_APPOINTMENT_URL, type: "appointment" }]),
+    appointmentOptions: [],
+    recoveryActions: [
+      {
+        type: "query",
+        label: "First available",
+        value: "first_available",
+        query: "show first available appointments",
+      },
+      {
+        type: "link",
+        label: "Find a Doctor",
+        value: "providers",
+        href: "/providers",
+      },
+      {
+        type: "link",
+        label: "Call office",
+        value: "call_office",
+        href: "tel:+13015152901",
+      },
+    ],
+    meta: buildRouteMeta(routeContext, {
+      appointment: {
+        availabilityStatus: "appointment_scope_needed",
+      },
+    }),
+    confidence: 0.5,
+    aiConfidence: "medium",
+    grounded: true,
+    citations: ["Appointment search"],
+    disclaimer: true,
+    resolution: null,
+  });
 }
 
 function formatKnowledgeBaseSources(query, citations = []) {
@@ -808,72 +857,55 @@ export async function runAiSearch(rawQuery, options = {}) {
   const query = normalizePublicSearchQuery(rawQuery);
 
   if (query.length < SEARCH_MIN_CHARACTERS) {
-    return {
+    return buildAiSearchResponse({
       ok: false,
+      status: AI_SEARCH_RESPONSE_STATUS.FAILED,
       code: "query_too_short",
       intent: "unknown",
       error: `Query must be at least ${SEARCH_MIN_CHARACTERS} characters`,
       query,
-      answer: "",
-      sources: [],
-      confidence: 0,
-      structuredCards: [],
-      resolution: null,
-    };
+    });
   }
 
   // Enforce max length to prevent context stuffing attacks.
   if (query.length > MAX_QUERY_LENGTH) {
-    return {
+    return buildAiSearchResponse({
       ok: false,
+      status: AI_SEARCH_RESPONSE_STATUS.FAILED,
       code: "query_too_long",
       intent: "unknown",
       error: "Query is too long. Please keep your question under 300 characters.",
       query: "",
-      answer: "",
-      sources: [],
-      confidence: 0,
-      structuredCards: [],
-      resolution: null,
-    };
+    });
   }
 
   const phiRisk = getPhiRisk(query);
   if (phiRisk.hasPotentialPhi) {
     const intentResult = classifyAiSearchIntent(query, { phiRisk, hasPotentialPhi: true });
-    return {
+    return buildAiSearchResponse({
       ok: false,
+      status: AI_SEARCH_RESPONSE_STATUS.BLOCKED,
       code: "potential_phi",
       intent: intentResult.intent,
       error: getNoPhiError("AI search"),
       query: "",
-      answer: "",
-      sources: [],
-      confidence: 0,
       aiConfidence: "low",
       grounded: false,
-      citations: [],
       disclaimer: true,
-      structuredCards: [],
-      resolution: null,
-    };
+    });
   }
 
   // Block prompt injection / jailbreak attempts before they reach OpenAI.
   const securityIssue = detectPromptInjection(query);
   if (securityIssue === "injection") {
-    return {
+    return buildAiSearchResponse({
       ok: false,
+      status: AI_SEARCH_RESPONSE_STATUS.BLOCKED,
       code: "blocked_prompt_injection",
       intent: "unknown",
       error: "Your message could not be processed. This assistant only answers questions about First Medical Associates.",
       query,
-      answer: "",
-      sources: [],
-      confidence: 0,
-      structuredCards: [],
-      resolution: null,
-    };
+    });
   }
 
   const [pageContext, sessionContext] = await Promise.all([
@@ -882,104 +914,110 @@ export async function runAiSearch(rawQuery, options = {}) {
   ]);
   const searchQuery = buildContextualSearchQuery(query, pageContext, sessionContext);
   const intentResult = classifyAiSearchIntent(searchQuery);
-  const clarification = await buildAiSearchClarification(searchQuery, {
+  const appointmentRouteRequired = await shouldCheckAppointmentAvailability(searchQuery);
+  const routeContext = buildAiSearchRoute({
     intent: intentResult.intent,
+    appointmentRouteRequired,
   });
 
-  if (clarification) {
-    return {
-      ok: true,
-      code: "clarification_required",
-      intent: intentResult.intent,
-      query,
-      answer: clarification.question || "Can you clarify what you want me to search?",
-      sources: [],
-      confidence: 0.7,
-      aiConfidence: "medium",
-      grounded: true,
-      citations: [],
-      disclaimer: false,
-      appointmentOptions: [],
-      appointmentMeta: null,
-      structuredCards: formatClarificationCards(clarification),
-      clarification,
-      recoveryActions: [],
-      resolution: null,
-      error: "",
-    };
-  }
-
-  const appointmentAvailability = await getAppointmentAvailabilityForQuery(searchQuery, {
-    days: 30,
-  });
+  const appointmentAvailability =
+    routeContext.route === AI_SEARCH_ROUTES.APPOINTMENT_AVAILABILITY
+      ? await getAppointmentAvailabilityForQuery(searchQuery, {
+          days: 30,
+          force: true,
+        })
+      : null;
   if (appointmentAvailability) {
     const appointmentOptions = appointmentAvailability.options || [];
     const requestedProviderNames = Array.isArray(appointmentAvailability.meta?.requestedProviderNames)
       ? appointmentAvailability.meta.requestedProviderNames
       : [];
-    return {
+    const sources = appointmentAvailability.sources || [];
+    const cards = formatAppointmentCards(appointmentOptions, sources);
+    const availabilityStatus = appointmentAvailability.meta?.availabilityStatus || "";
+    return buildAiSearchResponse({
       ok: appointmentAvailability.ok,
+      status: getAppointmentResponseStatus(availabilityStatus),
       code:
         appointmentAvailability.code ||
-        (appointmentAvailability.meta?.availabilityStatus &&
-        appointmentAvailability.meta.availabilityStatus !== "open_slots_found"
-          ? appointmentAvailability.meta.availabilityStatus
+        (availabilityStatus &&
+        availabilityStatus !== "open_slots_found"
+          ? availabilityStatus
           : ""),
       intent: intentResult.intent,
       query,
       answer: appointmentAvailability.answer || "",
-      sources: appointmentAvailability.sources || [],
+      sources,
       confidence: appointmentAvailability.options?.length > 0 ? 1 : 0.5,
       aiConfidence: appointmentAvailability.options?.length > 0 ? "high" : "medium",
       grounded: true,
       citations: appointmentAvailability.citations || [],
       disclaimer: appointmentAvailability.disclaimer === true,
       appointmentOptions,
-      appointmentMeta: appointmentAvailability.meta || null,
-      structuredCards: appointmentAvailability.clarification
-        ? formatClarificationCards(appointmentAvailability.clarification)
-        : formatAppointmentCards(appointmentOptions, appointmentAvailability.sources || []),
-      clarification: appointmentAvailability.clarification || null,
+      cards,
+      providerMatches: getProviderMatchesFromNames(requestedProviderNames),
+      locationMatches: getLocationMatchesFromSources(sources),
       recoveryActions: Array.isArray(appointmentAvailability.recoveryActions)
         ? appointmentAvailability.recoveryActions
         : [],
+      meta: buildRouteMeta(routeContext, {
+        appointment: appointmentAvailability.meta || null,
+      }),
       resolution: buildProviderResolution(query, requestedProviderNames),
       error: appointmentAvailability.ok ? "" : appointmentAvailability.answer || "",
-    };
+    });
+  }
+
+  if (routeContext.route === AI_SEARCH_ROUTES.APPOINTMENT_AVAILABILITY && routeContext.allowGenericFallback === false) {
+    return buildAppointmentLeakageFallback(query, intentResult, routeContext);
   }
 
   const domainGraphContext = await findFmaDomainGraphContext(searchQuery);
   const domainGraphAnswer = buildFmaDomainGraphAnswer(domainGraphContext);
   if (domainGraphAnswer) {
-    return {
-      ...domainGraphAnswer,
+    const sources = domainGraphAnswer.sources || [];
+    const cards = Array.isArray(domainGraphAnswer.structuredCards)
+      ? domainGraphAnswer.structuredCards
+      : formatSourceCards(sources);
+    return buildAiSearchResponse({
+      ok: domainGraphAnswer.ok,
+      status: AI_SEARCH_RESPONSE_STATUS.ANSWERED,
+      code: domainGraphAnswer.code || "",
       intent: intentResult.intent,
       query,
+      answer: domainGraphAnswer.answer || "",
+      sources,
+      confidence: domainGraphAnswer.confidence || 0.9,
+      aiConfidence: domainGraphAnswer.aiConfidence || "high",
+      grounded: domainGraphAnswer.grounded === true,
+      citations: domainGraphAnswer.citations || [],
+      disclaimer: domainGraphAnswer.disclaimer === true,
       appointmentOptions: [],
-      appointmentMeta: null,
-      structuredCards: Array.isArray(domainGraphAnswer.structuredCards)
-        ? domainGraphAnswer.structuredCards
-        : formatSourceCards(domainGraphAnswer.sources || []),
-      clarification: null,
+      cards,
+      providerMatches: getProviderMatchesFromSources(sources),
+      locationMatches: getLocationMatchesFromSources(sources),
       recoveryActions: [],
+      meta: buildRouteMeta(routeContext, {
+        domainGraph: {
+          hasSignal: domainGraphContext?.hasSignal === true,
+          shouldAnswer: domainGraphContext?.shouldAnswer === true,
+        },
+      }),
       resolution: null,
       error: "",
-    };
+    });
   }
 
   if (!process.env.OPENAI_API_KEY) {
-    return {
+    return buildAiSearchResponse({
       ok: false,
+      status: AI_SEARCH_RESPONSE_STATUS.UNAVAILABLE,
       code: "ai_not_configured",
       intent: intentResult.intent,
       error: "AI search is not configured",
       query,
-      answer: "",
-      sources: [],
-      confidence: 0,
-      structuredCards: [],
-      resolution: null,
-    };
+      meta: buildRouteMeta(routeContext),
+    });
   }
 
   const [queryEmbedding, structuredContext] = await Promise.all([
@@ -1013,8 +1051,9 @@ export async function runAiSearch(rawQuery, options = {}) {
   // Show a disclaimer when the AI itself reports low confidence or used facts outside the context.
   const disclaimer = Boolean(safetyIssue) || aiConfidence === "low" || !grounded;
 
-  return {
+  return buildAiSearchResponse({
     ok: true,
+    status: AI_SEARCH_RESPONSE_STATUS.ANSWERED,
     code: safetyIssue ? `answer_safety_${safetyIssue}` : "",
     intent: intentResult.intent,
     query,
@@ -1025,7 +1064,16 @@ export async function runAiSearch(rawQuery, options = {}) {
     grounded,
     citations,
     disclaimer,
-    structuredCards,
+    cards: structuredCards,
+    providerMatches: getProviderMatchesFromSources(sources),
+    locationMatches: getLocationMatchesFromSources(sources),
+    recoveryActions: [],
+    meta: buildRouteMeta(routeContext, {
+      domainGraph: {
+        hasSignal: domainGraphContext?.hasSignal === true,
+        shouldAnswer: domainGraphContext?.shouldAnswer === true,
+      },
+    }),
     resolution: null,
-  };
+  });
 }

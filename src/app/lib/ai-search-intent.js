@@ -1,4 +1,5 @@
 import { getPhiRisk, normalizePublicSearchQuery } from "./no-phi-guard.js";
+import { AI_SEARCH_PATTERNS } from "./ai-search-vocabulary.js";
 
 export const AI_SEARCH_INTENTS = Object.freeze({
   APPOINTMENT_AVAILABILITY: "appointment_availability",
@@ -35,12 +36,11 @@ export function classifyAiSearchIntent(query = "", options = {}) {
     return { intent: AI_SEARCH_INTENTS.UNKNOWN, confidence: "low", phiCategories: [] };
   }
 
-  const providerAppointmentPattern =
-    /\b(?:what|which)\s+(?:available\s+)?(?:times?|appointments?|openings?|slots?|availabilit(?:y|ies))\s+(?:does|do)\s+(?!(?:you|fma|first medical|first medical associates|office|clinic|location|locations)\b)[a-z0-9 .'-]+\s+(?:have|show|offer|take|accept)\b/;
+  const providerAppointmentPattern = AI_SEARCH_PATTERNS.providerAppointment;
   const appointmentPattern =
-    /\b(appointments?|schedules?|availability|availabilities|available|openings?|slots?|soonest|earliest|asap|today|tomorrow|next\s+week|this\s+week|book\s+with|when\s+can\s+i\s+see|can\s+i\s+(?:see|visit|book|schedule)|see\s+(?:a\s+)?(?:doctor|provider|physician)|visit\s+(?:a\s+)?(?:doctor|provider|physician))\b/;
+    /\b(schedules?|next\s+week|this\s+week|book\s+with|when\s+can\s+i\s+see|can\s+i\s+(?:see|visit|book|schedule)|see\s+(?:a\s+)?(?:doctor|provider|physician|clinician)|visit\s+(?:a\s+)?(?:doctor|provider|physician|clinician))\b/i;
   const bookingHelpPattern =
-    /\b(how|where|can|could)\b.{0,40}\b(book|schedule|make)\b.{0,40}\b(appointment|visit)\b|\b(book|schedule)\s+(?:an?\s+)?appointment\b/;
+    /\b(how|where|can|could)\b.{0,40}\b(book|schedule|make)\b.{0,40}\b(appointment|appt|visit)\b|\b(book|schedule)\s+(?:an?\s+)?(?:appointment|appt)\b/;
 
   if (has(providerAppointmentPattern, normalized)) {
     return { intent: AI_SEARCH_INTENTS.APPOINTMENT_AVAILABILITY, confidence: "high", phiCategories: [] };
@@ -58,7 +58,11 @@ export function classifyAiSearchIntent(query = "", options = {}) {
     return { intent: AI_SEARCH_INTENTS.INSURANCE_QUESTION, confidence: "high", phiCategories: [] };
   }
 
-  if (has(appointmentPattern, normalized)) {
+  if (
+    has(AI_SEARCH_PATTERNS.appointmentTerm, normalized) ||
+    has(AI_SEARCH_PATTERNS.fastAppointment, normalized) ||
+    has(appointmentPattern, normalized)
+  ) {
     const bookingOnly =
       has(bookingHelpPattern, normalized) &&
       !/\b(available|availability|availabilities|openings?|slots?|times?|soonest|earliest|today|tomorrow|next\s+week|this\s+week|mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b/.test(
@@ -72,7 +76,7 @@ export function classifyAiSearchIntent(query = "", options = {}) {
   }
 
   if (
-    has(/\b(who|speaks?|language|tell me about|learn more about|bio|biography|profile|credentials|specialt(?:y|ies)|provider|providers|doctor|doctors|physician|pa|np|nurse practitioner|accepting new patients)\b/, normalized)
+    has(/\b(who|speaks?|language|tell me about|learn more about|bio|biography|profile|credentials|specialt(?:y|ies)|provider|providers|doctor|doctors|physician|physicians|clinician|clinicians|pa|np|nurse practitioner|accepting new patients)\b/, normalized)
   ) {
     return { intent: AI_SEARCH_INTENTS.PROVIDER_SEARCH, confidence: "high", phiCategories: [] };
   }

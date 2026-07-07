@@ -23,6 +23,9 @@ import {
 } from "../src/app/lib/athena-availability.js";
 import { buildContextualSearchQuery } from "../src/app/lib/ai-search-context.js";
 import { classifyAiSearchIntent } from "../src/app/lib/ai-search-intent.js";
+import { buildAiSearchRoute } from "../src/app/lib/ai-search-router.js";
+import { buildAiSearchResponse } from "../src/app/lib/ai-search-response-contract.js";
+import { resolveProviderSearch } from "../src/app/lib/ai-search-provider-resolution.js";
 
 const results = [];
 
@@ -163,6 +166,7 @@ check("routes provider time availability wording to appointment availability", (
     "what available times does Robin Codjoe have available",
     "what appointments does Robin Codjoe have",
     "give me appointment times for robin",
+    "give me appts for codjoe",
     "what availabilities does Lekh have",
     "does Quoc Anh Nguyen have any openings",
     "when can I see Maria Munoz-Ritterbusch",
@@ -191,6 +195,34 @@ check("extracts provider names from conversational appointment wording", () => {
 
   assert.equal(matches.length, 1);
   assert.equal(matches[0].slug, "robin-codjoe");
+
+  const codjoeMatches = findRequestedSiteProvidersForTest("give me appts for codjoe", [
+    {
+      name: "Robin Codjoe",
+      slug: "robin-codjoe",
+    },
+    {
+      name: "Marili Lemus",
+      slug: "marili-lemus",
+    },
+  ]);
+
+  assert.equal(codjoeMatches.length, 1);
+  assert.equal(codjoeMatches[0].slug, "robin-codjoe");
+
+  const rakeshMatches = findRequestedSiteProvidersForTest("what is the quickest appointment for rakesh", [
+    {
+      name: "Rakesh Malik",
+      slug: "rakesh-malik",
+    },
+    {
+      name: "James Wang",
+      slug: "james-wang",
+    },
+  ]);
+
+  assert.equal(rakeshMatches.length, 1);
+  assert.equal(rakeshMatches[0].slug, "rakesh-malik");
 });
 
 check("uses provider resolution contract before appointment lookup", () => {
@@ -215,22 +247,122 @@ check("uses provider resolution contract before appointment lookup", () => {
   );
   assert.equal(providerResolution.scope, "provider");
   assert.equal(providerResolution.resolvedProvider?.name, "Robin Codjoe");
+  assert.deepEqual(providerResolution.resolvedProviders.map((provider) => provider.name), ["Robin Codjoe"]);
+  assert.equal(providerResolution.shouldAllowGlobalFallback, false);
   assert.equal(providerResolution.globalAllowed, false);
+
+  const abbreviatedProviderResolution = resolveAppointmentProviderResolutionForTest(
+    "give me appts for codjoe",
+    providers
+  );
+  assert.equal(abbreviatedProviderResolution.scope, "provider");
+  assert.equal(abbreviatedProviderResolution.resolvedProvider?.name, "Robin Codjoe");
+  assert.deepEqual(abbreviatedProviderResolution.resolvedProviders.map((provider) => provider.name), ["Robin Codjoe"]);
+  assert.equal(abbreviatedProviderResolution.shouldAllowGlobalFallback, false);
+  assert.equal(abbreviatedProviderResolution.globalAllowed, false);
 
   const unresolvedResolution = resolveAppointmentProviderResolutionForTest(
     "give me appointment times for totallyfake",
     providers
   );
-  assert.equal(unresolvedResolution.scope, "ambiguous");
+  assert.equal(unresolvedResolution.scope, "unknown");
   assert.equal(unresolvedResolution.monitoringCode, "provider_like_unresolved");
+  assert.deepEqual(unresolvedResolution.resolvedProviders, []);
+  assert.equal(unresolvedResolution.shouldAllowGlobalFallback, false);
   assert.equal(unresolvedResolution.globalAllowed, false);
+
+  const abbreviatedUnresolvedResolution = resolveAppointmentProviderResolutionForTest(
+    "give me appts for totallyfake",
+    providers
+  );
+  assert.equal(abbreviatedUnresolvedResolution.scope, "unknown");
+  assert.equal(abbreviatedUnresolvedResolution.monitoringCode, "provider_like_unresolved");
+  assert.deepEqual(abbreviatedUnresolvedResolution.resolvedProviders, []);
+  assert.equal(abbreviatedUnresolvedResolution.shouldAllowGlobalFallback, false);
+  assert.equal(abbreviatedUnresolvedResolution.globalAllowed, false);
 
   const globalResolution = resolveAppointmentProviderResolutionForTest(
     "show first available appointments",
     providers
   );
   assert.equal(globalResolution.scope, "global");
+  assert.equal(globalResolution.shouldAllowGlobalFallback, true);
   assert.equal(globalResolution.globalAllowed, true);
+
+  const locationDateResolution = resolveAppointmentProviderResolutionForTest(
+    "how do i book appointment in rockville on july 17th",
+    [
+      {
+        name: "James Wang",
+        slug: "james-wang",
+      },
+    ],
+    {
+      department: {
+        departmentid: "1",
+        patientdepartmentname: "First Medical Associates-Rockville",
+      },
+      requestedDateRange: { label: "July 17" },
+    }
+  );
+  assert.equal(locationDateResolution.scope, "location");
+  assert.equal(locationDateResolution.resolvedProvider, null);
+});
+
+check("uses shared provider resolver contract", () => {
+  const resolution = resolveProviderSearch("give me appts for codjoe", [
+    {
+      name: "Robin Codjoe",
+      slug: "robin-codjoe",
+      title: "M.D.",
+      locations: ["Bowie II, MD"],
+    },
+    {
+      name: "Marili Lemus",
+      slug: "marili-lemus",
+      title: "PA-C",
+      locations: ["Columbia, MD"],
+    },
+  ]);
+
+  assert.equal(resolution.scope, "provider");
+  assert.deepEqual(resolution.resolvedProviders.map((provider) => provider.name), ["Robin Codjoe"]);
+  assert.equal(resolution.shouldAllowGlobalFallback, false);
+  assert.equal(resolution.providerCandidates.length, 1);
+});
+
+check("uses hard route contract for appointment availability", () => {
+  const route = buildAiSearchRoute({
+    intent: "appointment_availability",
+    appointmentRouteRequired: true,
+  });
+
+  assert.equal(route.route, "appointment_availability");
+  assert.equal(route.allowGenericFallback, false);
+});
+
+check("normalizes AI search response schema", () => {
+  const response = buildAiSearchResponse({
+    intent: "appointment_availability",
+    status: "answered",
+    answer: "Test answer",
+    cards: [{ type: "appointment", title: "Robin Codjoe" }],
+    appointmentOptions: [{ providerName: "Robin Codjoe" }],
+    providerMatches: [{ name: "Robin Codjoe" }],
+    locationMatches: [{ name: "Bowie II" }],
+    meta: {
+      appointment: {
+        availabilityStatus: "open_slots_found",
+      },
+    },
+  });
+
+  assert.equal(response.status, "answered");
+  assert.equal(response.cards.length, 1);
+  assert.equal(response.structuredCards.length, 1);
+  assert.equal(response.appointmentMeta.availabilityStatus, "open_slots_found");
+  assert.deepEqual(response.providerMatches.map((provider) => provider.name), ["Robin Codjoe"]);
+  assert.deepEqual(response.locationMatches.map((location) => location.name), ["Bowie II"]);
 });
 
 check("adds provider page context to relative provider queries", () => {

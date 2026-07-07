@@ -1,5 +1,17 @@
 import { prisma } from "./prisma.js";
 import { GENERAL_BOOK_APPOINTMENT_URL } from "./config/site.js";
+import {
+  AI_SEARCH_CORE_STOPWORDS,
+  AI_SEARCH_PATTERNS,
+  compactSearchText,
+  normalizeSearchText,
+} from "./ai-search-vocabulary.js";
+import {
+  buildProviderResolverEntries,
+  getProviderIntentTokens as getSharedProviderIntentTokens,
+  isNearProviderTokenMatch,
+  resolveProviderSearch,
+} from "./ai-search-provider-resolution.js";
 
 const ATHENA_REQUEST_TIMEOUT_MS = 15000;
 const TOKEN_PATH = "/oauth2/v1/token";
@@ -20,21 +32,26 @@ const ATHENA_UNAVAILABLE_ANSWER =
   "I could not check current online appointment availability right now. Please use online booking or call 301-515-2901 so the team can confirm current appointment times.";
 
 const APPOINTMENT_INTENT_PATTERN =
-  /\b(quick|quickest|fast|fastest|earliest|soonest|next|asap|now|today|tomorrow|available|availability|availabilities|opening|openings|appointment|appointments|schedule|scheduling|book|booking|see|visit|see a provider|see a doctor)\b/i;
-const APPOINTMENT_WORD_PATTERN =
-  /\b(appointment|appointments|schedule|scheduling|book|booking|slot|slots|opening|openings|visit)\b/i;
+  new RegExp(
+    `${AI_SEARCH_PATTERNS.appointmentTerm.source}|${AI_SEARCH_PATTERNS.bookingTerm.source}|${AI_SEARCH_PATTERNS.fastAppointment.source}|\\b(?:next|now|today|tomorrow|see\\s+a\\s+provider|see\\s+a\\s+doctor)\\b`,
+    "i"
+  );
+const APPOINTMENT_WORD_PATTERN = AI_SEARCH_PATTERNS.appointmentTerm;
 const AVAILABILITY_WORD_PATTERN =
   /\b(available|availability|availabilities|opening|openings|slot|slots|time|times)\b/i;
 const AVAILABILITY_REQUEST_PATTERN =
   /\b(available\s+times?|available\b.{0,80}\btimes?|times?\b.{0,80}\bavailable|availabilit(?:y|ies)|openings?|slots?|open\s+(?:times?|slots?|appointments?))\b/i;
 const PROVIDER_AVAILABILITY_LANGUAGE_PATTERN =
-  /\b(available|availability|availabilities|openings?|slots?|times?|appointment|appointments|schedule|scheduling|book|booking|soonest|earliest|next|today|tomorrow|when|see|visit)\b/i;
+  new RegExp(
+    `${AI_SEARCH_PATTERNS.appointmentTerm.source}|${AI_SEARCH_PATTERNS.bookingTerm.source}|${AI_SEARCH_PATTERNS.fastAppointment.source}|\\b(?:next|today|tomorrow|when)\\b`,
+    "i"
+  );
 const PROVIDER_ACTION_LANGUAGE_PATTERN =
   /\b(when\s+(?:can|could|may)\s+i\s+(?:see|visit|book|schedule)|(?:can|could|may)\s+i\s+(?:see|visit|book|schedule)|(?:book|schedule)\s+(?:with\s+)?(?:dr\.?\s+)?)\b/i;
 const PROVIDER_APPOINTMENT_REQUEST_PATTERN =
-  /\b(?:what|which)\s+appointments?\s+(?:does|do)\s+(?!(?:you|fma|first medical|first medical associates|office|clinic|location|locations)\b)(?:dr\s+)?[a-z0-9]+(?:\s+[a-z0-9]+){0,4}\s+(?:have|offer|show|take|accept)\b/i;
+  /\b(?:what|which)\s+(?:appointments?|appts?)\s+(?:does|do)\s+(?!(?:i|we|you|they|anyone|anybody|someone|somebody|fma|first medical|first medical associates|office|clinic|location|locations)\b)(?:dr\s+)?[a-z0-9]+(?:\s+[a-z0-9]+){0,4}\s+(?:have|offer|show|take|accept)\b/i;
 const PROVIDER_TIME_REQUEST_PATTERN =
-  /\b(?:what|which)\s+times?\s+(?:does|do)\s+(?!(?:you|fma|first medical|first medical associates|office|clinic|location|locations)\b)(?:dr\s+)?[a-z0-9]+(?:\s+[a-z0-9]+){0,4}\s+(?:have|offer|show|take|accept)\b/i;
+  /\b(?:what|which)\s+times?\s+(?:does|do)\s+(?!(?:i|we|you|they|anyone|anybody|someone|somebody|fma|first medical|first medical associates|office|clinic|location|locations)\b)(?:dr\s+)?[a-z0-9]+(?:\s+[a-z0-9]+){0,4}\s+(?:have|offer|show|take|accept)\b/i;
 const CARE_VISIT_REQUEST_PATTERN =
   /\b(?:see|visit)\s+(?:a\s+)?(?:doctor|provider|physician|clinician)\b/i;
 const SERVICE_APPOINTMENT_REQUEST_PATTERN =
@@ -43,14 +60,12 @@ const NON_APPOINTMENT_AVAILABILITY_PATTERN =
   /\b(what|which)\s+(services?|insurance|forms?|resources?|locations?)\s+(?:are|is)\s+available\b|\boffice\s+hours?\b|\bwhat\s+time\s+(?:do|does|is|are)\s+(?:you|fma|office|clinic|location|locations)\s+open\b/i;
 const FAST_APPOINTMENT_PATTERN =
   /\b(quick|quickest|fast|fastest|earliest|soonest|next|asap|now|today|tomorrow|first available)\b/i;
-const EXPLICIT_GLOBAL_APPOINTMENT_PATTERN =
-  /\b(first available|any doctor|any provider|any clinician|all locations|all providers|all doctors|soonest|earliest|quickest|asap|who has openings?|who is available|show available appointments|available appointments|available times|openings today|openings tomorrow)\b/i;
+const EXPLICIT_GLOBAL_APPOINTMENT_PATTERN = AI_SEARCH_PATTERNS.globalAppointment;
 const PROVIDER_SCOPE_LANGUAGE_PATTERN =
-  /\b(?:for|with)\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b|\b(?:does|do)\s+(?!(?:you|fma|first medical|first medical associates|office|clinic|location|locations)\b)[a-z][a-z0-9 .'-]{1,80}\s+(?:have|show|offer|take|accept|available|openings?|appointments?)\b|\bwhen\s+(?:can|could|may)\s+i\s+(?:see|visit|book|schedule)\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b|\b(?:book|schedule)\s+with\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b/i;
+  /\b(?:for|with)\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b|\b(?:does|do)\s+(?!(?:i|we|you|they|anyone|anybody|someone|somebody|fma|first medical|first medical associates|office|clinic|location|locations)\b)[a-z][a-z0-9 .'-]{1,80}\s+(?:have|show|offer|take|accept|available|openings?|appointments?)\b|\bwhen\s+(?:can|could|may)\s+i\s+(?:see|visit|book|schedule)\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b|\b(?:book|schedule)\s+with\s+(?:dr\.?\s+)?[a-z][a-z0-9 .'-]{1,80}\b/i;
 const DATE_OR_RANGE_LANGUAGE_PATTERN =
   /\b(today|tomorrow|this\s+week|next\s+week|next\s+\d{1,3}\s+days?|mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?|jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i;
-const LOCATION_PATTERN =
-  /\b(germantown|german town|gaithersburg|rockville|columbia|bowie|nottingham|frederick|annapolis|silver spring|crofton|greenbelt|laurel|lutherville|glen burnie)\b/i;
+const LOCATION_PATTERN = AI_SEARCH_PATTERNS.locationAlias;
 const REQUESTED_TIME_PATTERN =
   /\b(?:at\s*)?(?:(\d{1,2})(?::([0-5]\d))?\s*(a\.?m\.?|p\.?m\.?)|([01]?\d|2[0-3]):([0-5]\d))\b/i;
 const REQUESTED_WEEKDAY_PATTERN =
@@ -116,91 +131,7 @@ const APPOINTMENT_REASON_PRIORITY = [
   "Wellness Visit",
 ];
 
-const PROVIDER_QUERY_STOPWORDS = new Set([
-  "available",
-  "availability",
-  "availabilities",
-  "appointment",
-  "appointments",
-  "anything",
-  "book",
-  "booking",
-  "can",
-  "does",
-  "doctor",
-  "dr",
-  "find",
-  "for",
-  "get",
-  "give",
-  "have",
-  "list",
-  "me",
-  "open",
-  "opening",
-  "openings",
-  "please",
-  "schedule",
-  "scheduling",
-  "see",
-  "show",
-  "slot",
-  "slots",
-  "something",
-  "the",
-  "time",
-  "times",
-  "today",
-  "tomorrow",
-  "visit",
-  "what",
-  "when",
-  "week",
-  "weekly",
-  "with",
-]);
-
-const PROVIDER_INTENT_STOPWORDS = new Set([
-  ...PROVIDER_QUERY_STOPWORDS,
-  "about",
-  "any",
-  "are",
-  "bio",
-  "biography",
-  "care",
-  "could",
-  "does",
-  "education",
-  "fma",
-  "free",
-  "hours",
-  "info",
-  "information",
-  "insurance",
-  "is",
-  "learn",
-  "location",
-  "locations",
-  "may",
-  "more",
-  "month",
-  "monthly",
-  "next",
-  "office",
-  "primary",
-  "profile",
-  "resource",
-  "resources",
-  "see",
-  "service",
-  "services",
-  "specializes",
-  "specialty",
-  "visit",
-  "visits",
-  "which",
-  "why",
-]);
+const PROVIDER_QUERY_STOPWORDS = new Set([...AI_SEARCH_CORE_STOPWORDS, "anything", "open", "something"]);
 
 let tokenCache = null;
 let referenceCache = null;
@@ -208,21 +139,15 @@ let siteProviderIntentCache = null;
 const availabilityCache = new Map();
 
 function normalizeText(value = "") {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
+  return normalizeSearchText(value);
 }
 
 function compactText(value = "") {
-  return normalizeText(value).replace(/\s+/g, "");
+  return compactSearchText(value);
 }
 
 function getProviderIntentTokens(query) {
-  return normalizeText(query)
-    .split(/\s+/)
-    .filter((token) => token.length > 2 && !PROVIDER_INTENT_STOPWORDS.has(token));
+  return getSharedProviderIntentTokens(query);
 }
 
 function hasAppointmentAvailabilityLanguage(query) {
@@ -235,33 +160,7 @@ function hasAppointmentAvailabilityLanguage(query) {
 }
 
 function buildProviderIntentEntries(providers = []) {
-  const firstNameCounts = new Map();
-  const lastNameCounts = new Map();
-
-  for (const provider of providers) {
-    const nameTokens = normalizeText(provider.name).split(/\s+/).filter(Boolean);
-    const firstName = nameTokens[0] || "";
-    const lastName = nameTokens[nameTokens.length - 1] || "";
-    if (firstName) firstNameCounts.set(firstName, (firstNameCounts.get(firstName) || 0) + 1);
-    if (lastName) lastNameCounts.set(lastName, (lastNameCounts.get(lastName) || 0) + 1);
-  }
-
-  return providers
-    .map((provider) => {
-      const nameTokens = normalizeText(provider.name).split(/\s+/).filter(Boolean);
-      const firstName = nameTokens[0] || "";
-      const lastName = nameTokens[nameTokens.length - 1] || "";
-
-      return {
-        key: compactText(provider.name),
-        tokens: nameTokens,
-        firstName,
-        lastName,
-        firstNameUnique: firstName && firstNameCounts.get(firstName) === 1,
-        lastNameUnique: lastName && lastNameCounts.get(lastName) === 1,
-      };
-    })
-    .filter((entry) => entry.key && entry.tokens.length > 0);
+  return buildProviderResolverEntries(providers);
 }
 
 async function getSiteProviderIntentEntries() {
@@ -285,23 +184,8 @@ async function getSiteProviderIntentEntries() {
 }
 
 function queryMentionsKnownProvider(query, providerEntries) {
-  const compactQuery = compactText(query);
-  const queryTokens = new Set(normalizeText(query).split(/\s+/).filter(Boolean));
-  const providerIntentTokens = getProviderIntentTokens(query);
-
-  return providerEntries.some((entry) => {
-    if (entry.key.length >= 5 && compactQuery.includes(entry.key)) return true;
-
-    const fullNameTokenMatches = entry.tokens.filter((token) => queryTokens.has(token)).length;
-    if (fullNameTokenMatches >= Math.min(2, entry.tokens.length)) return true;
-
-    if (entry.lastNameUnique && queryTokens.has(entry.lastName)) return true;
-    if (entry.firstNameUnique && queryTokens.has(entry.firstName) && providerIntentTokens.length <= 2) {
-      return true;
-    }
-
-    return false;
-  });
+  const resolution = resolveProviderSearch(query, providerEntries, { entries: true });
+  return resolution.resolvedProviders.length > 0 || resolution.providerCandidates.length > 0;
 }
 
 async function isKnownProviderAvailabilityQuery(query) {
@@ -720,46 +604,7 @@ export function findSiteProviderForTest(athenaProvider, siteProviders = []) {
 }
 
 function buildSiteProviderLookup(siteProviders) {
-  const firstNameCounts = new Map();
-  const lastNameCounts = new Map();
-
-  for (const provider of siteProviders) {
-    const nameTokens = normalizeText(provider.name).split(/\s+/).filter(Boolean);
-    const firstName = nameTokens[0] || "";
-    const lastName = nameTokens[nameTokens.length - 1] || "";
-    if (firstName) firstNameCounts.set(firstName, (firstNameCounts.get(firstName) || 0) + 1);
-    if (lastName) lastNameCounts.set(lastName, (lastNameCounts.get(lastName) || 0) + 1);
-  }
-
-  return siteProviders
-    .map((provider) => {
-      const nameTokens = normalizeText(provider.name).split(/\s+/).filter(Boolean);
-      const tokens = [
-        ...new Set(
-          [provider.name, provider.athenaSchedulingName]
-            .filter(Boolean)
-            .flatMap((value) => normalizeText(value).split(/\s+/))
-            .filter((token) => token.length > 1 && !["c", "d", "do", "fnp", "m", "md", "np", "pa"].includes(token))
-        ),
-      ];
-      const keys = [provider.name, provider.athenaSchedulingName]
-        .map((value) => compactText(value))
-        .filter(Boolean);
-      const firstName = nameTokens[0] || "";
-      const lastName = nameTokens[nameTokens.length - 1] || "";
-
-      return {
-        provider,
-        key: keys[0] || "",
-        keys,
-        tokens,
-        firstName,
-        lastName,
-        firstNameUnique: firstName && firstNameCounts.get(firstName) === 1,
-        lastNameUnique: lastName && lastNameCounts.get(lastName) === 1,
-      };
-    })
-    .filter((entry) => entry.keys.length > 0 && entry.tokens.length > 0);
+  return buildProviderResolverEntries(siteProviders);
 }
 
 function findSiteProvider(athenaProvider, siteProviderEntries) {
@@ -833,37 +678,11 @@ function isSameSiteProvider(firstProvider, secondProvider) {
 }
 
 function findRequestedSiteProviders(query, siteProviderEntries) {
-  const queryTokens = getProviderIntentTokens(query);
-  if (queryTokens.length === 0) return [];
-
-  const compactQuery = compactText(query);
-  const matches = siteProviderEntries
-    .map((entry) => {
-      const tokenMatchCount = entry.tokens.filter((token) => queryHasToken(queryTokens, token)).length;
-      const firstNameMatched = entry.firstName ? queryHasToken(queryTokens, entry.firstName) : false;
-      const lastNameMatched = entry.lastName ? queryHasToken(queryTokens, entry.lastName) : false;
-      let score = 0;
-
-      if (entry.keys.some((key) => key.length >= 5 && compactQuery.includes(key))) {
-        score = Math.max(score, 170);
-      }
-      if (firstNameMatched && lastNameMatched) score = Math.max(score, 150);
-      if (lastNameMatched && tokenMatchCount >= 2) score = Math.max(score, 132);
-      if (lastNameMatched && entry.lastNameUnique) score = Math.max(score, 110);
-      if (tokenMatchCount >= Math.min(3, entry.tokens.length)) score = Math.max(score, 118);
-      if (firstNameMatched && entry.firstNameUnique && queryTokens.length <= 1) {
-        score = Math.max(score, 92);
-      }
-
-      return { ...entry, score };
-    })
-    .filter((entry) => entry.score >= 90)
-    .sort((first, second) => {
-      if (second.score !== first.score) return second.score - first.score;
-      return first.provider.name.localeCompare(second.provider.name);
-    });
-
-  return matches.slice(0, MAX_RESULTS);
+  const resolution = resolveProviderSearch(query, siteProviderEntries, { entries: true, limit: MAX_RESULTS });
+  return resolution.scoredEntries.map((entry) => ({
+    ...entry,
+    score: entry.score,
+  }));
 }
 
 export function findRequestedSiteProvidersForTest(query, siteProviders = []) {
@@ -898,43 +717,7 @@ function getProviderNameTokens(provider, siteProvider = null) {
 }
 
 function isNearTokenMatch(queryToken, providerToken) {
-  if (!queryToken || !providerToken) return false;
-  if (queryToken === providerToken) return true;
-  if (
-    queryToken.length >= 4 &&
-    providerToken.length >= 4 &&
-    (providerToken.startsWith(queryToken) || queryToken.startsWith(providerToken))
-  ) {
-    return true;
-  }
-
-  if (queryToken.length < 4 || providerToken.length < 4) return false;
-  if (Math.abs(queryToken.length - providerToken.length) > 1) return false;
-
-  let edits = 0;
-  let queryIndex = 0;
-  let providerIndex = 0;
-  while (queryIndex < queryToken.length && providerIndex < providerToken.length) {
-    if (queryToken[queryIndex] === providerToken[providerIndex]) {
-      queryIndex += 1;
-      providerIndex += 1;
-      continue;
-    }
-
-    edits += 1;
-    if (edits > 1) return false;
-
-    if (queryToken.length > providerToken.length) {
-      queryIndex += 1;
-    } else if (providerToken.length > queryToken.length) {
-      providerIndex += 1;
-    } else {
-      queryIndex += 1;
-      providerIndex += 1;
-    }
-  }
-
-  return true;
+  return isNearProviderTokenMatch(queryToken, providerToken);
 }
 
 function queryHasToken(queryTokens, providerToken) {
@@ -1138,8 +921,10 @@ function buildAppointmentProviderResolution({
       scope: "provider",
       providerCandidates,
       resolvedProvider: getAthenaProviderCandidate(requestedProviders[0], siteProviderEntries, 180),
+      resolvedProviders: [getAthenaProviderCandidate(requestedProviders[0], siteProviderEntries, 180)].filter(Boolean),
       confidence: providerCandidates[0]?.score >= 120 ? "high" : "medium",
       providerLikeQuery,
+      shouldAllowGlobalFallback: false,
       globalAllowed: false,
       monitoringCode: "",
     };
@@ -1151,8 +936,10 @@ function buildAppointmentProviderResolution({
       scope: "provider",
       providerCandidates,
       resolvedProvider: providerCandidates[0],
+      resolvedProviders: [providerCandidates[0]].filter(Boolean),
       confidence: providerCandidates[0].score >= 110 ? "high" : "medium",
       providerLikeQuery,
+      shouldAllowGlobalFallback: false,
       globalAllowed: false,
       monitoringCode: "",
     };
@@ -1169,8 +956,10 @@ function buildAppointmentProviderResolution({
       scope: "provider",
       providerCandidates,
       resolvedProvider: providerCandidates[0],
+      resolvedProviders: [providerCandidates[0]].filter(Boolean),
       confidence: "medium",
       providerLikeQuery,
+      shouldAllowGlobalFallback: false,
       globalAllowed: false,
       monitoringCode: "",
     };
@@ -1179,11 +968,13 @@ function buildAppointmentProviderResolution({
   if (requestedProviders.length > 1 || providerCandidates.length > 1) {
     return {
       appointmentIntent: true,
-      scope: "ambiguous",
+      scope: "unknown",
       providerCandidates,
       resolvedProvider: null,
+      resolvedProviders: [],
       confidence: "low",
       providerLikeQuery: true,
+      shouldAllowGlobalFallback: false,
       globalAllowed: false,
       monitoringCode: "provider_ambiguous",
     };
@@ -1192,11 +983,13 @@ function buildAppointmentProviderResolution({
   if (providerLikeQuery) {
     return {
       appointmentIntent: true,
-      scope: "ambiguous",
+      scope: "unknown",
       providerCandidates,
       resolvedProvider: null,
+      resolvedProviders: [],
       confidence: "low",
       providerLikeQuery: true,
+      shouldAllowGlobalFallback: false,
       globalAllowed: false,
       monitoringCode: "provider_like_unresolved",
     };
@@ -1208,8 +1001,10 @@ function buildAppointmentProviderResolution({
       scope: "location",
       providerCandidates: [],
       resolvedProvider: null,
+      resolvedProviders: [],
       confidence: "high",
       providerLikeQuery: false,
+      shouldAllowGlobalFallback: false,
       globalAllowed: false,
       monitoringCode: "",
     };
@@ -1221,8 +1016,10 @@ function buildAppointmentProviderResolution({
       scope: "global",
       providerCandidates: [],
       resolvedProvider: null,
+      resolvedProviders: [],
       confidence: "medium",
       providerLikeQuery: false,
+      shouldAllowGlobalFallback: true,
       globalAllowed: true,
       monitoringCode: "",
     };
@@ -1230,11 +1027,13 @@ function buildAppointmentProviderResolution({
 
   return {
     appointmentIntent: true,
-    scope: "ambiguous",
+    scope: "unknown",
     providerCandidates: [],
     resolvedProvider: null,
+    resolvedProviders: [],
     confidence: "low",
     providerLikeQuery: false,
+    shouldAllowGlobalFallback: false,
     globalAllowed: false,
     monitoringCode: "global_scope_unclear",
   };
@@ -1723,6 +1522,7 @@ export function isAppointmentAvailabilityQuery(query) {
       CARE_VISIT_REQUEST_PATTERN.test(normalized) ||
       SERVICE_APPOINTMENT_REQUEST_PATTERN.test(normalized) ||
       hasProviderActionLanguage ||
+      (hasAppointmentWord && PROVIDER_SCOPE_LANGUAGE_PATTERN.test(normalized)) ||
       (hasAppointmentWord && hasAvailabilityWord)))
   );
 }
@@ -1815,87 +1615,61 @@ function buildAppointmentRecoveryActions({
   return actions.slice(0, 4);
 }
 
-function buildProviderResolutionClarificationResult(query, providerResolution, lookaheadDays, department = null) {
+function buildProviderResolutionFallbackResult(providerResolution, lookaheadDays, department = null) {
   const providerCandidates = Array.isArray(providerResolution?.providerCandidates)
     ? providerResolution.providerCandidates
     : [];
-  const providerChoices = providerCandidates.map((candidate) => ({
-    type: "query",
-    label: candidate.name,
-    value: candidate.slug || compactText(candidate.name),
-    description: [candidate.title, ...(candidate.locations || []).slice(0, 1)]
-      .filter(Boolean)
-      .join(" | "),
-    query: `${query} ${candidate.name}`,
-  }));
-  const clarification =
-    providerResolution?.monitoringCode === "global_scope_unclear"
-      ? {
-          type: "appointment_scope",
-          question: "What appointment search should I run?",
-          pendingIntent: "appointment_availability",
-          choices: [
-            {
-              type: "query",
-              label: "First available",
-              value: "first_available",
-              description: "Search all locations for the soonest online times.",
-              query: "show first available appointments",
-            },
-            {
-              type: "query",
-              label: "Today",
-              value: "today",
-              description: "Check online appointment times for today.",
-              query: "show available appointments today",
-            },
-            {
-              type: "query",
-              label: "This week",
-              value: "this_week",
-              description: "Check online appointment times this week.",
-              query: "show available appointments this week",
-            },
-            {
-              type: "link",
-              label: "Choose location",
-              value: "locations",
-              description: "Open the locations page.",
-              href: "/locations",
-            },
-          ],
-        }
-      : {
-          type: "provider",
-          question: "Which provider did you mean?",
-          pendingIntent: "appointment_availability",
-          choices:
-            providerChoices.length > 0
-              ? providerChoices
-              : [
-                  {
-                    type: "link",
-                    label: "Find a provider",
-                    value: "providers",
-                    description: "Open the provider directory.",
-                    href: "/providers",
-                  },
-                ],
-        };
+  const isVagueGlobalScope = providerResolution?.monitoringCode === "global_scope_unclear";
+  const locationName = department ? getDepartmentName(department) : "First Medical Associates";
+  const candidateSources = providerCandidates
+    .filter((candidate) => candidate?.name && candidate?.slug)
+    .map((candidate) => ({
+      title: candidate.name,
+      url: `/providers/${candidate.slug}`,
+      type: "provider",
+      category: [candidate.title, ...(candidate.locations || []).slice(0, 1)]
+        .filter(Boolean)
+        .join(" | "),
+    }))
+    .slice(0, MAX_RESULTS);
+  const answer = isVagueGlobalScope
+    ? "I can help search current appointment availability, but I need a provider, location, date, or a first-available request. Try asking for a specific provider, location, date, or the soonest available appointment."
+    : "I could not confidently match that provider for appointment availability. Please use the provider's full name, open the provider directory, or call 301-515-2901 so the team can help confirm current appointment times.";
 
   return {
     ok: true,
-    code: "clarification_required",
-    answer: clarification.question,
+    code: providerResolution?.monitoringCode || "provider_match_needed",
+    answer,
     options: [],
-    sources: [{ title: "Providers", url: "/providers", type: "provider" }],
+    sources:
+      candidateSources.length > 0
+        ? candidateSources
+        : [{ title: "Find a Doctor", url: "/providers", type: "provider" }],
     citations: ["Appointment search"],
-    disclaimer: false,
-    clarification,
-    recoveryActions: [],
+    disclaimer: true,
+    recoveryActions: [
+      {
+        type: "query",
+        label: "First available",
+        value: "first_available",
+        query: "show first available appointments",
+      },
+      {
+        type: "link",
+        label: "Find a Doctor",
+        value: "providers",
+        href: "/providers",
+      },
+      {
+        type: "link",
+        label: "Call office",
+        value: "call_office",
+        href: "tel:+13015152901",
+      },
+    ],
     meta: {
-      availabilityStatus: "clarification_required",
-      locationName: department ? getDepartmentName(department) : "First Medical Associates",
+      availabilityStatus: isVagueGlobalScope ? "appointment_scope_needed" : "provider_match_needed",
+      locationName,
       requestedProviderIds: [],
       requestedProviderNames: [],
       providerCountChecked: 0,
@@ -1997,9 +1771,8 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
     requestedTime,
   });
 
-  if (providerResolution.scope === "ambiguous") {
-    return buildProviderResolutionClarificationResult(
-      query,
+  if (providerResolution.scope === "unknown") {
+    return buildProviderResolutionFallbackResult(
       providerResolution,
       lookaheadDays,
       department
@@ -2309,7 +2082,7 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
 }
 
 export async function getAppointmentAvailabilityForQuery(query, options = {}) {
-  if (!(await shouldCheckAppointmentAvailability(query))) return null;
+  if (options.force !== true && !(await shouldCheckAppointmentAvailability(query))) return null;
 
   try {
     return await getLiveAppointmentAvailabilityForQuery(query, {

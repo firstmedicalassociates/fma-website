@@ -6,7 +6,6 @@ import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import { getPhiRisk } from "../src/app/lib/no-phi-guard.js";
 import { inferAiSearchIntent } from "../src/app/lib/ai-search-analytics.js";
-import { buildAiSearchClarification } from "../src/app/lib/ai-search-clarification.js";
 import {
   shouldCheckAppointmentAvailability,
   getAppointmentAvailabilityForQuery,
@@ -186,9 +185,6 @@ async function evaluateStaticCase(testCase) {
   const blocked = phiRisk.hasPotentialPhi;
   const intent = blocked ? "privacy_blocked" : inferAiSearchIntent(testCase.query);
   const appointmentAvailability = await shouldCheckAppointmentAvailability(testCase.query);
-  const clarification = blocked
-    ? null
-    : await buildAiSearchClarification(testCase.query, { intent });
   const failures = [];
 
   if (Boolean(testCase.expectedBlocked) !== blocked) {
@@ -214,24 +210,6 @@ async function evaluateStaticCase(testCase) {
     }
   }
 
-  if (
-    typeof testCase.expectedClarification === "boolean" &&
-    testCase.expectedClarification !== Boolean(clarification)
-  ) {
-    failures.push(
-      `expected clarification=${testCase.expectedClarification} got ${Boolean(clarification)}`
-    );
-  }
-
-  if (
-    testCase.expectedClarificationType &&
-    clarification?.type !== testCase.expectedClarificationType
-  ) {
-    failures.push(
-      `expected clarification type=${testCase.expectedClarificationType} got ${clarification?.type || "none"}`
-    );
-  }
-
   return {
     id: testCase.id,
     query: testCase.query,
@@ -239,8 +217,6 @@ async function evaluateStaticCase(testCase) {
     phiCategories: phiRisk.categories,
     intent,
     appointmentAvailability,
-    clarificationType: clarification?.type || "",
-    clarificationChoiceCount: clarification?.choices?.length || 0,
     failures,
   };
 }

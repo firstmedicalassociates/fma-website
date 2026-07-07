@@ -1,103 +1,40 @@
 import { prisma } from "./prisma.js";
 import { GENERAL_BOOK_APPOINTMENT_URL } from "./config/site.js";
+import {
+  AI_SEARCH_CORE_STOPWORDS,
+  AI_SEARCH_PATTERNS,
+  compactSearchText,
+  normalizeSearchText,
+  tokenizeSearchText,
+} from "./ai-search-vocabulary.js";
+import {
+  isNearProviderTokenMatch,
+  resolveProviderSearch,
+} from "./ai-search-provider-resolution.js";
 
 const GRAPH_CACHE_TTL_MS = 5 * 60 * 1000;
 const PROVIDER_RESULT_LIMIT = 6;
 const SERVICE_CATALOG_LIMIT = 10;
 const SOURCE_LIMIT = 3;
 const TOKEN_STOPWORDS = new Set([
-  "a",
-  "an",
-  "and",
-  "any",
-  "are",
-  "at",
-  "can",
+  ...AI_SEARCH_CORE_STOPWORDS,
   "care",
-  "doctor",
-  "doctors",
-  "does",
-  "find",
-  "for",
-  "have",
-  "in",
-  "is",
-  "me",
-  "near",
-  "of",
-  "on",
-  "or",
   "primary",
-  "provider",
-  "providers",
-  "service",
-  "services",
   "someone",
-  "the",
-  "there",
-  "to",
-  "who",
-  "with",
 ]);
 
 let graphCache = null;
 
 function normalizeText(value = "") {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
+  return normalizeSearchText(value);
 }
 
 function compactText(value = "") {
-  return normalizeText(value).replace(/\s+/g, "");
+  return compactSearchText(value);
 }
 
 function textTokens(value = "") {
-  return normalizeText(value)
-    .split(/\s+/)
-    .filter((token) => token.length > 2 && !TOKEN_STOPWORDS.has(token));
-}
-
-function isNearTokenMatch(queryToken, providerToken) {
-  if (!queryToken || !providerToken) return false;
-  if (queryToken === providerToken) return true;
-  if (
-    queryToken.length >= 4 &&
-    providerToken.length >= 4 &&
-    (providerToken.startsWith(queryToken) || queryToken.startsWith(providerToken))
-  ) {
-    return true;
-  }
-
-  if (queryToken.length < 4 || providerToken.length < 4) return false;
-  if (Math.abs(queryToken.length - providerToken.length) > 1) return false;
-
-  let edits = 0;
-  let queryIndex = 0;
-  let providerIndex = 0;
-  while (queryIndex < queryToken.length && providerIndex < providerToken.length) {
-    if (queryToken[queryIndex] === providerToken[providerIndex]) {
-      queryIndex += 1;
-      providerIndex += 1;
-      continue;
-    }
-
-    edits += 1;
-    if (edits > 1) return false;
-
-    if (queryToken.length > providerToken.length) {
-      queryIndex += 1;
-    } else if (providerToken.length > queryToken.length) {
-      providerIndex += 1;
-    } else {
-      queryIndex += 1;
-      providerIndex += 1;
-    }
-  }
-
-  return true;
+  return tokenizeSearchText(value, { stopwords: TOKEN_STOPWORDS });
 }
 
 function cleanPath(value = "") {
@@ -299,7 +236,7 @@ function getProviderScore(provider, criteria) {
   const queryTokens = textTokens(criteria.query);
   const providerNameTokens = textTokens(provider.name);
   const providerTokenMatches = providerNameTokens.filter((providerToken) =>
-    queryTokens.some((queryToken) => isNearTokenMatch(queryToken, providerToken))
+    queryTokens.some((queryToken) => isNearProviderTokenMatch(queryToken, providerToken))
   ).length;
   const hasNearProviderNameMatch =
     providerNameTokens.length > 0 && providerTokenMatches >= Math.min(2, providerNameTokens.length);
@@ -336,9 +273,8 @@ function getProviderScore(provider, criteria) {
 }
 
 function detectsProviderSearch(query) {
-  return /\b(who|find|tell me about|learn more about|bio|biography|profile|doctor|doctors|provider|providers|physician|speaks?|language|near|at|in|accepting|taking|appointments?|availability|times?|openings?)\b/i.test(
-    query
-  );
+  AI_SEARCH_PATTERNS.providerSearch.lastIndex = 0;
+  return AI_SEARCH_PATTERNS.providerSearch.test(query);
 }
 
 function extractCriteria(query, graph) {
@@ -461,12 +397,23 @@ async function buildDomainGraph() {
   return graph;
 }
 
-function rankProviderMatches(graph, criteria) {
+function rankProviderMatches(graph, criteria, providerResolution = null) {
+  const resolverScores = new Map(
+    (providerResolution?.scoredEntries || []).map((entry) => [
+      entry.provider.slug || entry.provider.name,
+      entry.score,
+    ])
+  );
   const scored = graph.providers
-    .map((provider) => ({
-      provider,
-      ...getProviderScore(provider, criteria),
-    }))
+    .map((provider) => {
+      const scoredProvider = getProviderScore(provider, criteria);
+      const resolverScore = resolverScores.get(provider.slug || provider.name) || 0;
+      return {
+        provider,
+        ...scoredProvider,
+        score: Math.max(scoredProvider.score, resolverScore),
+      };
+    })
     .filter((match) => match.score > 0)
     .sort((first, second) => {
       if (second.score !== first.score) return second.score - first.score;
@@ -518,7 +465,8 @@ function hasDomainGraphSignal(criteria, providerMatches, locationMatches, servic
 export async function findFmaDomainGraphContext(query, options = {}) {
   const graph = await buildDomainGraph();
   const criteria = extractCriteria(query, graph);
-  const providerMatches = rankProviderMatches(graph, criteria);
+  const providerResolution = resolveProviderSearch(query, graph.providers, { limit: PROVIDER_RESULT_LIMIT });
+  const providerMatches = rankProviderMatches(graph, criteria, providerResolution);
   const locationMatches = rankLocationMatches(graph, criteria);
   const serviceMatches = rankServiceMatches(graph, criteria);
   const hasSignal = hasDomainGraphSignal(criteria, providerMatches, locationMatches, serviceMatches);
@@ -538,6 +486,7 @@ export async function findFmaDomainGraphContext(query, options = {}) {
     hasSignal,
     shouldAnswer,
     criteria,
+    providerResolution,
     providerMatches: providerMatches.slice(0, Number(options.providerLimit) || PROVIDER_RESULT_LIMIT),
     locationMatches,
     serviceMatches,

@@ -24,6 +24,7 @@ const SEARCH_RATE_LIMIT = {
 function buildAiError(error, code = "invalid_query") {
   return {
     ok: false,
+    status: "failed",
     code,
     intent: "unknown",
     answer: "",
@@ -36,7 +37,10 @@ function buildAiError(error, code = "invalid_query") {
     appointmentOptions: [],
     appointmentMeta: null,
     structuredCards: [],
-    clarification: null,
+    cards: [],
+    providerMatches: [],
+    locationMatches: [],
+    meta: {},
     recoveryActions: [],
     resolution: null,
     error,
@@ -123,7 +127,6 @@ export async function POST(request) {
     const sessionContext = body?.sessionContext && typeof body.sessionContext === "object"
       ? body.sessionContext
       : null;
-    const clarificationResponse = body?.clarificationResponse === true;
 
     if (query.length < PUBLIC_SEARCH_MIN_CHARACTERS) {
       return await buildInvalidSearchResponse(
@@ -171,6 +174,7 @@ export async function POST(request) {
       aiResult.status === "fulfilled"
         ? {
             ok: Boolean(aiResult.value?.ok),
+            status: aiResult.value?.status || "",
             code: aiResult.value?.code || "",
             intent: aiResult.value?.intent || "unknown",
             answer: aiResult.value?.answer || "",
@@ -187,7 +191,20 @@ export async function POST(request) {
             structuredCards: Array.isArray(aiResult.value?.structuredCards)
               ? aiResult.value.structuredCards
               : [],
-            clarification: aiResult.value?.clarification || null,
+            cards: Array.isArray(aiResult.value?.cards)
+              ? aiResult.value.cards
+              : Array.isArray(aiResult.value?.structuredCards)
+                ? aiResult.value.structuredCards
+                : [],
+            providerMatches: Array.isArray(aiResult.value?.providerMatches)
+              ? aiResult.value.providerMatches
+              : [],
+            locationMatches: Array.isArray(aiResult.value?.locationMatches)
+              ? aiResult.value.locationMatches
+              : [],
+            meta: aiResult.value?.meta && typeof aiResult.value.meta === "object"
+              ? aiResult.value.meta
+              : {},
             recoveryActions: Array.isArray(aiResult.value?.recoveryActions)
               ? aiResult.value.recoveryActions
               : [],
@@ -196,6 +213,7 @@ export async function POST(request) {
           }
         : {
             ok: false,
+            status: "failed",
             code: "ai_search_failed",
             intent: "unknown",
             answer: "",
@@ -208,7 +226,10 @@ export async function POST(request) {
             appointmentOptions: [],
             appointmentMeta: null,
             structuredCards: [],
-            clarification: null,
+            cards: [],
+            providerMatches: [],
+            locationMatches: [],
+            meta: {},
             recoveryActions: [],
             resolution: null,
             error: "AI search failed",
@@ -216,19 +237,18 @@ export async function POST(request) {
 
     const requestOk = siteResult.status === "fulfilled" || ai.ok;
     const analyticsCode = ai.appointmentMeta?.providerResolution?.monitoringCode || ai.code || "";
+    const availabilityStatus = ai.appointmentMeta?.availabilityStatus || "";
     const analyticsStatus =
-      ai.clarification
-        ? "clarification"
-        : ai.appointmentMeta?.availabilityStatus === "no_open_slots"
-          ? "no_results"
-          : ai.ok
-            ? "answered"
-            : requestOk
-              ? "degraded"
-              : "failed";
+      ["no_open_slots", "provider_match_needed", "appointment_scope_needed"].includes(availabilityStatus)
+        ? "no_results"
+        : ai.ok
+          ? "answered"
+          : requestOk
+            ? "degraded"
+            : "failed";
     const eventId = await logAiSearchEvent({
       query,
-      surface: clarificationResponse ? "api_search_clarification" : "api_search",
+      surface: "api_search",
       status: analyticsStatus,
       code: analyticsCode,
       resultCount: results.length,
