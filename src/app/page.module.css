@@ -448,7 +448,7 @@
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .schedulerFilterField {
@@ -493,6 +493,22 @@
 .schedulerFilterInput::placeholder {
   color: #6d86ad;
   font-weight: 500;
+}
+
+.schedulerDateInput {
+  min-width: 0;
+  color-scheme: light;
+  cursor: pointer;
+}
+
+.schedulerDateInput::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.72;
+  filter: hue-rotate(178deg) saturate(1.2);
+}
+
+.schedulerDateInput::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 .schedulerSuggestions {

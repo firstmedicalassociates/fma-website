@@ -15,6 +15,8 @@ import {
 import styles from "./ai-search-modal.module.css";
 
 const SEARCH_MIN_CHARACTERS = 2;
+const DEFAULT_APPOINTMENT_RESULT_LIMIT = 4;
+const MAX_APPOINTMENT_RESULT_LIMIT = 48;
 const DEFAULT_LOADING_STATUSES = [
   "Reviewing doctors, services, and locations...",
   "Checking the best appointment paths...",
@@ -171,7 +173,7 @@ function getAppointmentStatusText(appointmentMeta, hasAppointmentOptions) {
   if (!appointmentMeta) return "";
 
   if (hasAppointmentOptions || appointmentMeta.availabilityStatus === "open_slots_found") {
-    return "Open online times found. Choose a slot below.";
+    return "Showing the earliest online time found for each provider. Use Book appointment to view the full live schedule.";
   }
 
   if (appointmentMeta.availabilityStatus === "no_open_slots") {
@@ -187,6 +189,12 @@ function getAppointmentStatusText(appointmentMeta, hasAppointmentOptions) {
   }
 
   return "";
+}
+
+function getAppointmentTimeLabel(option = {}) {
+  if (option.slotMatchType === "exact") return "Exact match";
+  if (option.slotMatchType === "fallback") return "Closest available";
+  return "Earliest shown";
 }
 
 function createMessageId(prefix) {
@@ -255,6 +263,12 @@ function isExternalHref(href = "") {
   return /^https?:\/\//i.test(href) || /^tel:/i.test(href) || /^mailto:/i.test(href);
 }
 
+function normalizePositiveInteger(value, fallback, max) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.min(parsed, max);
+}
+
 export default function AiSearchModal({ className = "", onOpen, listenForExternalRequests = true }) {
   const pathname = usePathname();
   const inputRef = useRef(null);
@@ -320,9 +334,19 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
     resetResults();
   }, [resetResults]);
 
-  const executeSearch = useCallback(async (nextQuery) => {
+  const executeSearch = useCallback(async (nextQuery, requestOptions = {}) => {
     const searchQuery = normalizePublicSearchQuery(nextQuery);
-    const sessionContext = buildSessionContext(conversationMessages);
+    const sessionContext = requestOptions.sessionContext || buildSessionContext(conversationMessages);
+    const appointmentResultLimit = normalizePositiveInteger(
+      requestOptions.maxAppointmentResults,
+      DEFAULT_APPOINTMENT_RESULT_LIMIT,
+      MAX_APPOINTMENT_RESULT_LIMIT
+    );
+    const providerCheckLimit = normalizePositiveInteger(
+      requestOptions.providerCheckLimit,
+      0,
+      80
+    );
 
     if (searchQuery !== nextQuery) {
       setQuery(searchQuery);
@@ -431,6 +455,8 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
           query: searchQuery,
           pageContext,
           sessionContext,
+          maxAppointmentResults: appointmentResultLimit,
+          providerCheckLimit: providerCheckLimit || undefined,
         }),
       });
 
@@ -445,7 +471,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
       const sources = Array.isArray(data?.ai?.sources) ? data.ai.sources.slice(0, 3) : [];
       const citations = Array.isArray(data?.ai?.citations) ? data.ai.citations : [];
       const appointmentOptions = Array.isArray(data?.ai?.appointmentOptions)
-        ? data.ai.appointmentOptions.slice(0, 4)
+        ? data.ai.appointmentOptions.slice(0, appointmentResultLimit)
         : [];
       const appointmentMeta =
         data?.ai?.appointmentMeta && typeof data.ai.appointmentMeta === "object"
@@ -644,6 +670,14 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
     function handleSearchRequest(event) {
       const nextQuery = String(event?.detail?.query || "").trim();
       const shouldAutoRun = Boolean(event?.detail?.autoRun);
+      const requestOptions = {
+        maxAppointmentResults: event?.detail?.maxAppointmentResults,
+        providerCheckLimit: event?.detail?.providerCheckLimit,
+        sessionContext:
+          event?.detail?.sessionContext && typeof event.detail.sessionContext === "object"
+            ? event.detail.sessionContext
+            : null,
+      };
 
       openModal();
 
@@ -651,7 +685,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
 
       if (shouldAutoRun && nextQuery.length >= SEARCH_MIN_CHARACTERS) {
         window.setTimeout(() => {
-          void executeSearch(nextQuery);
+          void executeSearch(nextQuery, requestOptions);
         }, 0);
       }
     }
@@ -798,10 +832,16 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                                 key={`${option.providerId}-${option.date}-${option.startTime}`}
                               >
                                 <div>
+                                  <span className={styles.appointmentTimeLabel}>
+                                    {getAppointmentTimeLabel(option)}
+                                  </span>
                                   <span className={styles.appointmentTime}>{option.displayTime}</span>
                                   <h4>{option.providerName}</h4>
                                   <p>
                                     {[option.providerTitle, option.locationName].filter(Boolean).join(" | ")}
+                                  </p>
+                                  <p className={styles.appointmentHint}>
+                                    More times may be available on the booking page.
                                   </p>
                                 </div>
                                 <div className={styles.appointmentLinks}>

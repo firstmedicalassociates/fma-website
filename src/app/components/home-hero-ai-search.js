@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AI_SEARCH_REQUEST_EVENT } from "../lib/ai-search-events";
 import styles from "../page.module.css";
+
+const HERO_APPOINTMENT_RESULT_LIMIT = 48;
+const HERO_PROVIDER_CHECK_LIMIT = 80;
 
 function ArrowIcon() {
   return (
@@ -22,21 +26,29 @@ function uniqueSorted(values) {
   );
 }
 
-function includesIgnoreCase(value, query) {
-  return String(value || "").toLowerCase().includes(String(query || "").toLowerCase());
-}
-
 function filterSuggestions(values, query, limit = 10) {
   const text = normalizeText(query).toLowerCase();
   if (!text) return values.slice(0, limit);
   return values.filter((value) => value.toLowerCase().includes(text)).slice(0, limit);
 }
 
-export default function HomeHeroAiSearch({ locations = [], providers = [] }) {
+function getTodayInputValue() {
+  const today = new Date();
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+  return today.toISOString().slice(0, 10);
+}
+
+function buildAppointmentQuery(city, date) {
+  const cityPhrase = city ? ` in ${city}` : "";
+  const datePhrase = date ? ` on ${date}` : "";
+  return `show available appointments${cityPhrase}${datePhrase}`;
+}
+
+export default function HomeHeroAiSearch({ locations = [] }) {
   const [cityQuery, setCityQuery] = useState("");
-  const [stateQuery, setStateQuery] = useState("");
-  const [providerQuery, setProviderQuery] = useState("");
+  const [dateQuery, setDateQuery] = useState("");
   const [activeField, setActiveField] = useState(null);
+  const todayInputValue = useMemo(() => getTodayInputValue(), []);
 
   const normalizedLocations = useMemo(
     () =>
@@ -48,101 +60,51 @@ export default function HomeHeroAiSearch({ locations = [], providers = [] }) {
     [locations],
   );
 
-  const normalizedProviders = useMemo(
-    () =>
-      providers.map((provider) => ({
-        slug: normalizeText(provider.slug),
-        name: normalizeText(provider.name),
-        linkUrl: normalizeText(provider.linkUrl),
-        locations: Array.isArray(provider.locations)
-          ? provider.locations.map((slug) => normalizeText(slug)).filter(Boolean)
-          : [],
-      })),
-    [providers],
-  );
-
   const trimmedCityQuery = normalizeText(cityQuery);
-  const trimmedStateQuery = normalizeText(stateQuery);
-  const trimmedProviderQuery = normalizeText(providerQuery);
+  const trimmedDateQuery = normalizeText(dateQuery);
 
   const cityOptions = useMemo(() => {
-    const scoped = trimmedStateQuery
-      ? normalizedLocations.filter((location) => includesIgnoreCase(location.state, trimmedStateQuery))
-      : normalizedLocations;
-    return uniqueSorted(scoped.map((location) => location.city));
-  }, [normalizedLocations, trimmedStateQuery]);
-
-  const stateOptions = useMemo(() => {
-    const scoped = trimmedCityQuery
-      ? normalizedLocations.filter((location) => includesIgnoreCase(location.city, trimmedCityQuery))
-      : normalizedLocations;
-    return uniqueSorted(scoped.map((location) => location.state));
-  }, [normalizedLocations, trimmedCityQuery]);
-
-  const matchingLocationSlugs = useMemo(() => {
-    return new Set(
-      normalizedLocations
-        .filter((location) => {
-          if (trimmedCityQuery && !includesIgnoreCase(location.city, trimmedCityQuery)) return false;
-          if (trimmedStateQuery && !includesIgnoreCase(location.state, trimmedStateQuery)) return false;
-          return true;
-        })
-        .map((location) => location.slug),
-    );
-  }, [normalizedLocations, trimmedCityQuery, trimmedStateQuery]);
-
-  const providerOptions = useMemo(() => {
-    const items = normalizedProviders
-      .filter((provider) => {
-        if (!trimmedCityQuery && !trimmedStateQuery) return true;
-        return provider.locations.some((slug) => matchingLocationSlugs.has(slug));
-      })
-      .map((provider) => ({ slug: provider.slug, name: provider.name, linkUrl: provider.linkUrl }));
-
-    return items.sort((a, b) => a.name.localeCompare(b.name));
-  }, [matchingLocationSlugs, normalizedProviders, trimmedCityQuery, trimmedStateQuery]);
+    return uniqueSorted(normalizedLocations.map((location) => location.city));
+  }, [normalizedLocations]);
 
   const visibleCityOptions = filterSuggestions(cityOptions, cityQuery);
-  const visibleStateOptions = filterSuggestions(stateOptions, stateQuery);
-  const visibleProviderOptions = filterSuggestions(
-    providerOptions.map((provider) => provider.name),
-    providerQuery,
-  );
 
   function submitSearch(event) {
     event.preventDefault();
 
-    const exactProvider = providerOptions.find(
-      (provider) => provider.name.toLowerCase() === trimmedProviderQuery.toLowerCase(),
-    );
-
-    if (exactProvider) {
-      const bookingHref = normalizeText(exactProvider.linkUrl);
-      if (bookingHref) {
-        window.location.assign(bookingHref);
-        return;
-      }
-
-      // If no provider booking link exists yet, keep users on provider search results.
-      const fallbackParams = new URLSearchParams();
-      fallbackParams.set("provider", exactProvider.name);
-      window.location.assign(`/providers?${fallbackParams.toString()}`);
+    if (!trimmedCityQuery && !trimmedDateQuery) {
+      window.dispatchEvent(
+        new CustomEvent(AI_SEARCH_REQUEST_EVENT, {
+          detail: {
+            query: "",
+            autoRun: false,
+          },
+        }),
+      );
       return;
     }
 
-    const params = new URLSearchParams();
-    if (trimmedCityQuery) params.set("city", trimmedCityQuery);
-    if (trimmedStateQuery) params.set("state", trimmedStateQuery);
-    if (trimmedProviderQuery) params.set("provider", trimmedProviderQuery);
+    const query = buildAppointmentQuery(trimmedCityQuery, trimmedDateQuery);
 
-    const query = params.toString();
-    window.location.assign(query ? `/providers?${query}` : "/providers");
+    window.dispatchEvent(
+      new CustomEvent(AI_SEARCH_REQUEST_EVENT, {
+        detail: {
+          query,
+          autoRun: true,
+          maxAppointmentResults: HERO_APPOINTMENT_RESULT_LIMIT,
+          providerCheckLimit: HERO_PROVIDER_CHECK_LIMIT,
+          sessionContext: {
+            source: "home_hero",
+            city: trimmedCityQuery,
+            date: trimmedDateQuery,
+          },
+        },
+      }),
+    );
   }
 
   function selectSuggestion(field, value) {
     if (field === "city") setCityQuery(value);
-    if (field === "state") setStateQuery(value);
-    if (field === "provider") setProviderQuery(value);
     setActiveField(null);
   }
 
@@ -183,70 +145,22 @@ export default function HomeHeroAiSearch({ locations = [], providers = [] }) {
 
         <label
           className={styles.schedulerFilterField}
-          onFocus={() => setActiveField("state")}
-          onBlur={() => setActiveField((value) => (value === "state" ? null : value))}
+          onFocus={() => setActiveField(null)}
         >
-          <span className={styles.schedulerFilterLabel}>State</span>
+          <span className={styles.schedulerFilterLabel}>Date</span>
           <input
-            className={styles.schedulerFilterInput}
-            value={stateQuery}
-            onChange={(event) => setStateQuery(event.target.value)}
-            aria-label="Search by state"
-            placeholder="Search by state"
+            className={`${styles.schedulerFilterInput} ${styles.schedulerDateInput}`}
+            value={dateQuery}
+            onChange={(event) => setDateQuery(event.target.value)}
+            aria-label="Select appointment date"
+            min={todayInputValue}
+            type="date"
             autoComplete="off"
           />
-          {activeField === "state" && visibleStateOptions.length > 0 ? (
-            <ul className={styles.schedulerSuggestions} role="listbox" aria-label="State suggestions">
-              {visibleStateOptions.map((state) => (
-                <li key={state} className={styles.schedulerSuggestionItem}>
-                  <button
-                    type="button"
-                    className={styles.schedulerSuggestionButton}
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => selectSuggestion("state", state)}
-                  >
-                    {state}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </label>
-
-        <label
-          className={styles.schedulerFilterField}
-          onFocus={() => setActiveField("provider")}
-          onBlur={() => setActiveField((value) => (value === "provider" ? null : value))}
-        >
-          <span className={styles.schedulerFilterLabel}>Provider</span>
-          <input
-            className={styles.schedulerFilterInput}
-            value={providerQuery}
-            onChange={(event) => setProviderQuery(event.target.value)}
-            aria-label="Search by provider"
-            placeholder="Search by provider"
-            autoComplete="off"
-          />
-          {activeField === "provider" && visibleProviderOptions.length > 0 ? (
-            <ul className={styles.schedulerSuggestions} role="listbox" aria-label="Provider suggestions">
-              {visibleProviderOptions.map((providerName) => (
-                <li key={providerName} className={styles.schedulerSuggestionItem}>
-                  <button
-                    type="button"
-                    className={styles.schedulerSuggestionButton}
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => selectSuggestion("provider", providerName)}
-                  >
-                    {providerName}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : null}
         </label>
       </div>
 
-      <button className={styles.schedulerArrow} type="submit" aria-label="Search providers">
+      <button className={styles.schedulerArrow} type="submit" aria-label="Search available appointments">
         <ArrowIcon />
       </button>
     </form>

@@ -855,6 +855,8 @@ function formatKnowledgeBaseSources(query, citations = []) {
 
 export async function runAiSearch(rawQuery, options = {}) {
   const query = normalizePublicSearchQuery(rawQuery);
+  const maxAppointmentResults = Number.parseInt(options.maxAppointmentResults, 10);
+  const providerCheckLimit = Number.parseInt(options.providerCheckLimit, 10);
 
   if (query.length < SEARCH_MIN_CHARACTERS) {
     return buildAiSearchResponse({
@@ -925,6 +927,8 @@ export async function runAiSearch(rawQuery, options = {}) {
       ? await getAppointmentAvailabilityForQuery(searchQuery, {
           days: 30,
           force: true,
+          maxResults: Number.isFinite(maxAppointmentResults) ? maxAppointmentResults : undefined,
+          providerCheckLimit: Number.isFinite(providerCheckLimit) ? providerCheckLimit : undefined,
         })
       : null;
   if (appointmentAvailability) {

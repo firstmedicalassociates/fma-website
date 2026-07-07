@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   PUBLIC_SEARCH_MAX_CHARACTERS,
   getNoPhiError,
@@ -11,6 +11,8 @@ import {
 import styles from "./search-page.module.css";
 
 const SEARCH_MIN_CHARACTERS = 2;
+const HERO_APPOINTMENT_SEARCH_STORAGE_KEY = "fma:hero-appointment-search";
+const HERO_APPOINTMENT_RESULT_LIMIT = 12;
 
 function groupResultsByKind(results = []) {
   return results.reduce((groups, result) => {
@@ -31,13 +33,67 @@ function groupResultsByKind(results = []) {
 }
 
 function normalizeAiPayload(value = {}) {
+  const appointmentOptions = Array.isArray(value?.appointmentOptions)
+    ? value.appointmentOptions.slice(0, HERO_APPOINTMENT_RESULT_LIMIT)
+    : [];
+
   return {
     ok: value?.ok === true,
     answer: String(value?.answer || ""),
     error: String(value?.error || ""),
     sources: Array.isArray(value?.sources) ? value.sources.slice(0, 3) : [],
     confidence: Number(value?.confidence || 0),
+    appointmentOptions,
+    appointmentMeta:
+      value?.appointmentMeta && typeof value.appointmentMeta === "object"
+        ? value.appointmentMeta
+        : null,
+    recoveryActions: Array.isArray(value?.recoveryActions) ? value.recoveryActions.slice(0, 4) : [],
   };
+}
+
+function getAppointmentStatusText(appointmentMeta, hasAppointmentOptions) {
+  if (hasAppointmentOptions) {
+    return "Showing the earliest online time found for each provider. Use Book appointment to view the full live schedule.";
+  }
+  if (!appointmentMeta) return "";
+  if (appointmentMeta.availabilityStatus === "no_open_slots") {
+    return "No online appointment times found for that search.";
+  }
+  if (appointmentMeta.availabilityStatus === "unavailable") {
+    return "Appointment availability is temporarily unavailable.";
+  }
+  return "";
+}
+
+function getAppointmentTimeLabel(option = {}) {
+  if (option.slotMatchType === "exact") return "Exact match";
+  if (option.slotMatchType === "fallback") return "Closest available";
+  return "Earliest shown";
+}
+
+function isExternalHref(href = "") {
+  return /^https?:\/\//i.test(String(href || ""));
+}
+
+function parseStoredHeroSearch() {
+  try {
+    const raw = window.sessionStorage.getItem(HERO_APPOINTMENT_SEARCH_STORAGE_KEY);
+    if (!raw) return null;
+    window.sessionStorage.removeItem(HERO_APPOINTMENT_SEARCH_STORAGE_KEY);
+    const payload = JSON.parse(raw);
+    const query = String(payload?.query || "").trim();
+    if (!query) return null;
+
+    return {
+      query,
+      city: String(payload?.city || "").trim(),
+      date: String(payload?.date || "").trim(),
+      source: String(payload?.source || "home_hero").trim(),
+    };
+  } catch {
+    return null;
+  }
 }
 
 export default function SearchClient() {
@@ -51,17 +107,9 @@ export default function SearchClient() {
   const groups = useMemo(() => groupResultsByKind(results), [results]);
   const hasQuery = submittedQuery.length >= SEARCH_MIN_CHARACTERS;
 
-  useEffect(() => {
-    if (window.location.search) {
-      window.history.replaceState(null, "", window.location.pathname);
-    }
-  }, []);
-
-  async function runSearch(event) {
-    event.preventDefault();
-
-    const nextQuery = normalizePublicSearchQuery(query);
-    if (nextQuery !== query) setQuery(nextQuery);
+  const executeSearch = useCallback(async (rawQuery, options = {}) => {
+    const nextQuery = normalizePublicSearchQuery(rawQuery);
+    setQuery(nextQuery);
 
     setSubmittedQuery("");
     setResults([]);
@@ -94,7 +142,12 @@ export default function SearchClient() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query: nextQuery }),
+        body: JSON.stringify({
+          query: nextQuery,
+          sessionContext: options.sessionContext || null,
+          maxAppointmentResults: options.maxAppointmentResults || undefined,
+          providerCheckLimit: options.providerCheckLimit || undefined,
+        }),
       });
       const data = await response.json().catch(() => ({}));
       const nextResults = Array.isArray(data?.results) ? data.results : [];
@@ -109,7 +162,42 @@ export default function SearchClient() {
       setStatus("error");
       setError("Search is temporarily unavailable.");
     }
+  }, []);
+
+  useEffect(() => {
+    const storedHeroSearch = parseStoredHeroSearch();
+    if (window.location.search) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+
+    if (!storedHeroSearch) return undefined;
+
+    const timeoutId = window.setTimeout(() => {
+      executeSearch(storedHeroSearch.query, {
+        sessionContext: {
+          source: storedHeroSearch.source,
+          city: storedHeroSearch.city,
+          date: storedHeroSearch.date,
+        },
+        maxAppointmentResults: HERO_APPOINTMENT_RESULT_LIMIT,
+        providerCheckLimit: 32,
+      });
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [executeSearch]);
+
+  function runSearch(event) {
+    event.preventDefault();
+    executeSearch(query);
   }
+
+  const appointmentOptions = aiResult?.appointmentOptions || [];
+  const hasAppointmentOptions = appointmentOptions.length > 0;
+  const appointmentStatusText = getAppointmentStatusText(
+    aiResult?.appointmentMeta,
+    hasAppointmentOptions,
+  );
 
   return (
     <main className={styles.shell}>
@@ -142,7 +230,9 @@ export default function SearchClient() {
           <div className={styles.summaryRow}>
             <span className={styles.summaryPill}>Search complete</span>
             <span className={styles.summaryText}>
-              {results.length} result{results.length === 1 ? "" : "s"} found
+              {hasAppointmentOptions
+                ? `${appointmentOptions.length} appointment time${appointmentOptions.length === 1 ? "" : "s"} found`
+                : `${results.length} result${results.length === 1 ? "" : "s"} found`}
             </span>
           </div>
         ) : (
@@ -167,6 +257,87 @@ export default function SearchClient() {
                   <strong>{source.title}</strong>
                 </Link>
               ))}
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
+      {hasQuery && (hasAppointmentOptions || appointmentStatusText) ? (
+        <section className={styles.appointmentSection}>
+          <div className={styles.appointmentHeader}>
+            <div>
+              <span className={styles.resultBadge}>Current availability</span>
+              <h2>Available appointment times</h2>
+            </div>
+            {appointmentStatusText ? <p>{appointmentStatusText}</p> : null}
+          </div>
+
+          {hasAppointmentOptions ? (
+            <div className={styles.appointmentGrid}>
+              {appointmentOptions.map((option, index) => {
+                const providerUrl = String(option.providerUrl || "").trim();
+                const bookingUrl = String(option.bookingUrl || "").trim();
+                return (
+                  <article
+                    className={styles.appointmentCard}
+                    key={`${option.providerName || "provider"}-${option.displayTime || index}`}
+                  >
+                    <span className={styles.appointmentTimeLabel}>
+                      {getAppointmentTimeLabel(option)}
+                    </span>
+                    <span className={styles.appointmentTime}>
+                      {option.displayTime || [option.date, option.startTime].filter(Boolean).join(" ")}
+                    </span>
+                    <h3>{option.providerName || "FMA provider"}</h3>
+                    <p>{[option.providerTitle, option.locationName].filter(Boolean).join(" | ")}</p>
+                    <p className={styles.appointmentHint}>
+                      More times may be available on the booking page.
+                    </p>
+                    <div className={styles.appointmentActions}>
+                      {providerUrl ? (
+                        <Link className={styles.appointmentSecondaryLink} href={providerUrl}>
+                          View profile
+                        </Link>
+                      ) : null}
+                      {bookingUrl ? (
+                        <a
+                          className={styles.appointmentBookLink}
+                          href={bookingUrl}
+                          rel={isExternalHref(bookingUrl) ? "noreferrer" : undefined}
+                          target={isExternalHref(bookingUrl) ? "_blank" : undefined}
+                        >
+                          Book appointment
+                        </a>
+                      ) : null}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : aiResult?.recoveryActions?.length > 0 ? (
+            <div className={styles.recoveryActions}>
+              {aiResult.recoveryActions.map((action) =>
+                action.href ? (
+                  <a
+                    className={styles.recoveryAction}
+                    href={action.href}
+                    key={`${action.label}-${action.href}`}
+                    rel={isExternalHref(action.href) ? "noreferrer" : undefined}
+                    target={isExternalHref(action.href) ? "_blank" : undefined}
+                  >
+                    {action.label}
+                  </a>
+                ) : action.query ? (
+                  <button
+                    className={styles.recoveryAction}
+                    key={`${action.label}-${action.query}`}
+                    onClick={() => executeSearch(action.query)}
+                    type="button"
+                  >
+                    {action.label}
+                  </button>
+                ) : null,
+              )}
             </div>
           ) : null}
         </section>

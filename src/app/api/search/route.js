@@ -127,6 +127,8 @@ export async function POST(request) {
     const sessionContext = body?.sessionContext && typeof body.sessionContext === "object"
       ? body.sessionContext
       : null;
+    const maxAppointmentResults = Number.parseInt(body?.maxAppointmentResults, 10);
+    const providerCheckLimit = Number.parseInt(body?.providerCheckLimit, 10);
 
     if (query.length < PUBLIC_SEARCH_MIN_CHARACTERS) {
       return await buildInvalidSearchResponse(
@@ -162,7 +164,17 @@ export async function POST(request) {
         perTypeLimit: 4,
         totalLimit: 8,
       }),
-      runAiSearch(query, { limit: 8, pageContext, sessionContext }),
+      runAiSearch(query, {
+        limit: 8,
+        pageContext,
+        sessionContext,
+        maxAppointmentResults: Number.isFinite(maxAppointmentResults)
+          ? maxAppointmentResults
+          : undefined,
+        providerCheckLimit: Number.isFinite(providerCheckLimit)
+          ? providerCheckLimit
+          : undefined,
+      }),
     ]);
 
     const results =

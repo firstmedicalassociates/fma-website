@@ -22,6 +22,8 @@ const DEFAULT_LOOKAHEAD_DAYS = 30;
 const MAX_PROVIDER_CHECKS = 14;
 const MAX_GLOBAL_PROVIDER_CHECKS = 80;
 const MAX_RESULTS = 4;
+const MAX_REQUESTED_RESULTS = 48;
+const MAX_REQUESTED_PROVIDER_CHECKS = 80;
 const OPEN_SLOT_LIMIT = 6;
 const TIME_SLOT_LIMIT = 100;
 const PROVIDER_SLOT_LIMIT = 4;
@@ -140,6 +142,12 @@ const availabilityCache = new Map();
 
 function normalizeText(value = "") {
   return normalizeSearchText(value);
+}
+
+function normalizePositiveInteger(value, fallback, max) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.min(parsed, max);
 }
 
 function compactText(value = "") {
@@ -451,11 +459,11 @@ async function loadReferenceData(config, accessToken) {
   return data;
 }
 
-function findRequestedDepartment(query, departments) {
+function findRequestedDepartments(query, departments) {
   const normalizedQuery = normalizeText(query);
   const compactQuery = compactText(query);
 
-  const matches = departments
+  return departments
     .map((department) => {
       const values = getDepartmentSearchValues(department);
       const score = values.reduce((bestScore, value) => {
@@ -483,9 +491,15 @@ function findRequestedDepartment(query, departments) {
       return { department, score };
     })
     .filter((match) => match.score >= 75)
-    .sort((first, second) => second.score - first.score);
+    .sort((first, second) => {
+      if (second.score !== first.score) return second.score - first.score;
+      return getDepartmentName(first.department).localeCompare(getDepartmentName(second.department));
+    })
+    .map((match) => match.department);
+}
 
-  return matches[0]?.department || null;
+function findRequestedDepartment(query, departments) {
+  return findRequestedDepartments(query, departments)[0] || null;
 }
 
 function findConfiguredDepartmentForProvider(provider, departments, siteProviderEntries = []) {
@@ -1346,7 +1360,15 @@ function getAppointmentOptionRank(option, context = {}) {
   const requestedProviderIds = new Set(
     (context.requestedProviders || []).map((provider) => String(provider.providerid || ""))
   );
-  const requestedDepartmentId = String(context.requestedDepartment?.departmentid || "");
+  const requestedDepartmentIds = new Set(
+    [
+      context.requestedDepartment,
+      ...(Array.isArray(context.requestedDepartments) ? context.requestedDepartments : []),
+    ]
+      .filter(Boolean)
+      .map((department) => String(department.departmentid || ""))
+      .filter(Boolean)
+  );
   const requestedStartdate = context.requestedDateRange
     ? formatAthenaDate(context.requestedDateRange.start)
     : "";
@@ -1357,7 +1379,7 @@ function getAppointmentOptionRank(option, context = {}) {
   if (requestedProviderIds.size > 0 && requestedProviderIds.has(String(option.providerId))) {
     score += 120;
   }
-  if (requestedDepartmentId && String(option.departmentId) === requestedDepartmentId) {
+  if (requestedDepartmentIds.size > 0 && requestedDepartmentIds.has(String(option.departmentId))) {
     score += 80;
   }
   if (requestedStartdate && option.date === requestedStartdate) {
@@ -1380,8 +1402,14 @@ function sortAppointmentOptions(options, context = {}) {
 }
 
 function selectAppointmentOptions(options, context = {}) {
+  const resultLimit = normalizePositiveInteger(
+    context.maxResults,
+    MAX_RESULTS,
+    MAX_REQUESTED_RESULTS
+  );
+
   return sortAppointmentOptions(options, context)
-    .slice(0, MAX_RESULTS)
+    .slice(0, resultLimit)
     .map((option) => {
       const rank = getAppointmentOptionRank(option, context);
       return {
@@ -1747,9 +1775,20 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
 
   const accessToken = await getAccessToken(config);
   const { departments, providers, siteProviders } = await loadReferenceData(config, accessToken);
-  const department = findRequestedDepartment(query, departments);
+  const requestedDepartments = findRequestedDepartments(query, departments);
+  const department = requestedDepartments[0] || null;
   const requestedTime = parseRequestedTime(query);
   const lookaheadDays = Number(options.days || DEFAULT_LOOKAHEAD_DAYS);
+  const maxResults = normalizePositiveInteger(
+    options.maxResults,
+    MAX_RESULTS,
+    MAX_REQUESTED_RESULTS
+  );
+  const providerCheckLimit = normalizePositiveInteger(
+    options.providerCheckLimit,
+    MAX_PROVIDER_CHECKS,
+    MAX_REQUESTED_PROVIDER_CHECKS
+  );
   const requestedDateRange = parseRequestedDateRange(query);
 
   const siteProviderEntries = buildSiteProviderLookup(siteProviders);
@@ -1796,22 +1835,36 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
   let resultEnddate = enddate;
   let resultLookaheadDays = lookaheadDays;
   let resultDateRangeLabel = requestedDateRange?.label || "";
+  const requestedDepartmentEntries = requestedDepartments.length > 0
+    ? requestedDepartments
+    : department
+      ? [department]
+      : [];
 
   const providerLocationEntries = requestedProviders.length > 0
     ? requestedProviders
         .map((provider) => ({
           provider,
           department:
-            department && matchDepartmentForProvider(provider, department, siteProviderEntries)
+            requestedDepartmentEntries.find((requestedDepartment) =>
+              matchDepartmentForProvider(provider, requestedDepartment, siteProviderEntries)
+            ) ||
+            (department && matchDepartmentForProvider(provider, department, siteProviderEntries)
               ? department
-              : findProviderDepartment(provider, departments, siteProviderEntries),
+              : findProviderDepartment(provider, departments, siteProviderEntries)),
         }))
         .filter((entry) => entry.department)
-    : department
-    ? schedulableProviders
-        .filter((provider) => matchDepartmentForProvider(provider, department, siteProviderEntries))
-        .slice(0, MAX_PROVIDER_CHECKS)
-        .map((provider) => ({ provider, department }))
+    : requestedDepartmentEntries.length > 0
+    ? uniqueProviderDepartmentEntries(
+        schedulableProviders.flatMap((provider) =>
+          requestedDepartmentEntries
+            .filter((requestedDepartment) =>
+              matchDepartmentForProvider(provider, requestedDepartment, siteProviderEntries)
+            )
+            .map((requestedDepartment) => ({ provider, department: requestedDepartment }))
+        )
+      )
+        .slice(0, providerCheckLimit)
     : schedulableProviders
         .map((provider) => ({
           provider,
@@ -1837,9 +1890,13 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
 
   const providerCacheKey =
     requestedProviders.map((provider) => provider.providerid).sort().join(",") || "any-provider";
-  const cacheKey = `${config.practiceId}:${department?.departmentid || "all"}:${providerCacheKey}:${startdate}:${enddate}:${
+  const departmentCacheKey =
+    requestedDepartmentEntries.map((entry) => entry.departmentid).sort().join(",") ||
+    department?.departmentid ||
+    "all";
+  const cacheKey = `${config.practiceId}:${departmentCacheKey}:${providerCacheKey}:${startdate}:${enddate}:${
     requestedTime?.minutes ?? "any"
-  }`;
+  }:${maxResults}:${providerCheckLimit}`;
   const cachedAvailability = availabilityCache.get(cacheKey);
   if (cachedAvailability?.expiresAt > Date.now()) {
     return cachedAvailability.value;
@@ -1954,15 +2011,25 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
   const sortedOptions = selectAppointmentOptions(candidateOptions, {
     requestedProviders,
     requestedDepartment: department,
+    requestedDepartments: requestedDepartmentEntries,
     requestedDateRange,
     requestedTime,
+    maxResults,
   });
 
   const requestedProviderNames = requestedProviders.map((provider) => {
     const siteProvider = findSiteProvider(provider, siteProviderEntries);
     return siteProvider?.name || getProviderName(provider);
   });
-  const locationName = department ? getDepartmentName(department) : "all First Medical Associates locations";
+  const requestedDepartmentNames = [
+    ...new Set(requestedDepartmentEntries.map((entry) => getDepartmentName(entry)).filter(Boolean)),
+  ];
+  const locationName =
+    requestedDepartmentNames.length > 1
+      ? joinReadableList(requestedDepartmentNames)
+      : department
+        ? getDepartmentName(department)
+        : "all First Medical Associates locations";
   const answerTarget =
     requestedProviderNames.length > 0
       ? `${joinReadableList(requestedProviderNames)}${department ? ` at ${locationName}` : ""}`
@@ -2059,6 +2126,7 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
     meta: {
       locationName,
       departmentId: department?.departmentid || null,
+      departmentIds: requestedDepartmentEntries.map((entry) => entry.departmentid).filter(Boolean),
       requestedProviderIds: requestedProviders.map((provider) => provider.providerid),
       requestedProviderNames,
       startdate,
