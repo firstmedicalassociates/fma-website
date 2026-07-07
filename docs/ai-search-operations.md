@@ -165,6 +165,8 @@ Graph-backed answers are used for provider/service discovery questions such as:
 
 The graph is intentionally conservative. It does not infer provider gender or accepting-new-patient status from names, photos, biographies, or Athena side effects. If those fields are requested but are not represented as verified public fields, the answer must say that confirmation is needed.
 
+The public chat modal sends a short, browser-held session context for follow-up questions. The server validates provider slugs/names against active public provider records before adding context, and it does not store chat turns. This supports follow-ups like `what about next week?` after a provider availability answer.
+
 Graph coverage is checked by:
 
 ```bash
@@ -187,6 +189,18 @@ Use this script only to inspect provider schedule mappings during development or
 npm run athena:provider-schedules
 ```
 
+Use this report when a provider is visible on the website but search cannot find appointment times:
+
+```bash
+npm run athena:audit-provider-departments -- --slugs=robin-codjoe --days=90 --limit=1
+```
+
+That command checks the provider across departments and writes JSON/Markdown output under `artifacts/athena/`. For one exact provider/department pair, use:
+
+```bash
+npm run athena:debug-open-slots -- --provider-id=104 --department-id=17 --days=30 --all
+```
+
 If Athena is unavailable or not configured, the app returns a safe booking fallback that asks the visitor to use online booking or call the office. It should not expose internal configuration details.
 
 Provider availability matching uses the public provider directory first, then live Athena providers. The provider editor also supports optional Athena mapping fields:
@@ -196,6 +210,10 @@ Provider availability matching uses the public provider directory first, then li
 - `athenaSchedulingName`
 
 Use these fields when Athena's scheduling name or department does not match the public website profile. Exact Athena IDs take priority over fuzzy name matching.
+
+Provider-specific availability now checks the matched department first, then alternate departments, then an extended lookahead window. The live eval should continue passing across all active public providers; remaining `no_open_slots` results usually mean the scheduling system is returning zero public online slots for that provider/range, not that the AI failed to understand the query.
+
+Date phrases such as `today`, `tomorrow`, `this week`, and `next week` constrain the live appointment lookup range. Without an explicit date phrase, provider-specific searches use the standard lookahead and then the extended lookahead fallback.
 
 ## Privacy Rules
 

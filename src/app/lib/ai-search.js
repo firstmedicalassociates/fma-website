@@ -12,6 +12,7 @@ import { getAppointmentAvailabilityForQuery } from "./athena-availability.js";
 import {
   buildContextualSearchQuery,
   resolveAiSearchPageContext,
+  resolveAiSearchSessionContext,
 } from "./ai-search-context.js";
 import {
   buildFmaDomainGraphAnswer,
@@ -21,6 +22,7 @@ import {
 } from "./ai-search-domain-graph.js";
 import { GENERAL_BOOK_APPOINTMENT_URL } from "./config/site.js";
 import { detectPromptInjection, sanitizeGeneratedAnswerResult } from "./ai-search-output-guard.js";
+import { classifyAiSearchIntent } from "./ai-search-intent.js";
 
 const EMBEDDING_MODEL = "text-embedding-3-small";
 const ANSWER_MODEL = process.env.AI_SEARCH_ANSWER_MODEL?.trim() || "gpt-5.5";
@@ -654,6 +656,98 @@ function mergeSources(...sourceGroups) {
   return merged;
 }
 
+function formatStructuredContextCards(items = []) {
+  return items
+    .filter((item) => item.url && item.type !== "article")
+    .map((item) => ({
+      type: item.type,
+      title: item.title,
+      subtitle:
+        item.type === "provider"
+          ? "FMA provider"
+          : item.type === "location"
+            ? "FMA location"
+            : item.type === "service"
+              ? "FMA service"
+              : "FMA page",
+      href: item.url,
+      actionLabel:
+        item.type === "provider"
+          ? "View profile"
+          : item.type === "location"
+            ? "View location"
+            : item.type === "service"
+              ? "View service"
+              : "Open page",
+      details: item.content
+        ? item.content
+            .split("\n")
+            .filter((line) => /^(Title|Locations|Languages|Address|Phone|Category|Description):/i.test(line))
+            .slice(0, 3)
+        : [],
+      badges: [],
+    }))
+    .slice(0, 4);
+}
+
+function formatSourceCards(sources = []) {
+  return sources
+    .filter((source) => source?.url && source?.title)
+    .map((source) => ({
+      type: source.type || "page",
+      title: source.title,
+      subtitle: source.category || source.type || "FMA page",
+      href: source.url,
+      actionLabel:
+        source.type === "provider"
+          ? "View profile"
+          : source.type === "location"
+            ? "View location"
+            : source.type === "service"
+              ? "View service"
+              : source.type === "appointment"
+                ? "Book appointment"
+                : "Open page",
+      details: [],
+      badges: [source.category || source.type].filter(Boolean),
+    }))
+    .slice(0, 3);
+}
+
+function formatAppointmentCards(options = [], fallbackSources = []) {
+  if (options.length === 0) return formatSourceCards(fallbackSources);
+
+  return options.slice(0, 4).map((option) => ({
+    type: "appointment",
+    title: option.providerName || "Available appointment",
+    subtitle: option.displayTime || "Available time",
+    href: option.providerUrl || option.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL,
+    bookingUrl: option.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL,
+    actionLabel: "Book appointment",
+    details: [
+      option.providerTitle || "",
+      option.locationName ? `Location: ${option.locationName}` : "",
+      option.reason ? `Visit type: ${option.reason}` : "",
+    ].filter(Boolean),
+    badges: [option.locationName, option.displayTime].filter(Boolean).slice(0, 3),
+  }));
+}
+
+function buildProviderResolution(query, providerNames = []) {
+  const names = [...new Set(providerNames.filter(Boolean))];
+  if (names.length !== 1) return null;
+
+  const compactQuery = compactContextText(query);
+  const compactProviderName = compactContextText(names[0]);
+  if (!compactProviderName || compactQuery.includes(compactProviderName)) return null;
+
+  return {
+    type: "provider_match",
+    label: `Matched to ${names[0]}`,
+    providerNames: names,
+  };
+}
+
 function formatKnowledgeBaseSources(query, citations = []) {
   const normalized = normalizeContextText(`${query} ${citations.join(" ")}`);
 
@@ -700,11 +794,14 @@ export async function runAiSearch(rawQuery, options = {}) {
     return {
       ok: false,
       code: "query_too_short",
+      intent: "unknown",
       error: `Query must be at least ${SEARCH_MIN_CHARACTERS} characters`,
       query,
       answer: "",
       sources: [],
       confidence: 0,
+      structuredCards: [],
+      resolution: null,
     };
   }
 
@@ -713,19 +810,24 @@ export async function runAiSearch(rawQuery, options = {}) {
     return {
       ok: false,
       code: "query_too_long",
+      intent: "unknown",
       error: "Query is too long. Please keep your question under 300 characters.",
       query: "",
       answer: "",
       sources: [],
       confidence: 0,
+      structuredCards: [],
+      resolution: null,
     };
   }
 
   const phiRisk = getPhiRisk(query);
   if (phiRisk.hasPotentialPhi) {
+    const intentResult = classifyAiSearchIntent(query, { phiRisk, hasPotentialPhi: true });
     return {
       ok: false,
       code: "potential_phi",
+      intent: intentResult.intent,
       error: getNoPhiError("AI search"),
       query: "",
       answer: "",
@@ -735,6 +837,8 @@ export async function runAiSearch(rawQuery, options = {}) {
       grounded: false,
       citations: [],
       disclaimer: true,
+      structuredCards: [],
+      resolution: null,
     };
   }
 
@@ -744,24 +848,36 @@ export async function runAiSearch(rawQuery, options = {}) {
     return {
       ok: false,
       code: "blocked_prompt_injection",
+      intent: "unknown",
       error: "Your message could not be processed. This assistant only answers questions about First Medical Associates.",
       query,
       answer: "",
       sources: [],
       confidence: 0,
+      structuredCards: [],
+      resolution: null,
     };
   }
 
-  const pageContext = await resolveAiSearchPageContext(options.pageContext);
-  const searchQuery = buildContextualSearchQuery(query, pageContext);
+  const [pageContext, sessionContext] = await Promise.all([
+    resolveAiSearchPageContext(options.pageContext),
+    resolveAiSearchSessionContext(options.sessionContext),
+  ]);
+  const searchQuery = buildContextualSearchQuery(query, pageContext, sessionContext);
+  const intentResult = classifyAiSearchIntent(searchQuery);
 
   const appointmentAvailability = await getAppointmentAvailabilityForQuery(searchQuery, {
     days: 30,
   });
   if (appointmentAvailability) {
+    const appointmentOptions = appointmentAvailability.options || [];
+    const requestedProviderNames = Array.isArray(appointmentAvailability.meta?.requestedProviderNames)
+      ? appointmentAvailability.meta.requestedProviderNames
+      : [];
     return {
       ok: appointmentAvailability.ok,
       code: appointmentAvailability.code || "",
+      intent: intentResult.intent,
       query,
       answer: appointmentAvailability.answer || "",
       sources: appointmentAvailability.sources || [],
@@ -770,8 +886,10 @@ export async function runAiSearch(rawQuery, options = {}) {
       grounded: true,
       citations: appointmentAvailability.citations || [],
       disclaimer: appointmentAvailability.disclaimer === true,
-      appointmentOptions: appointmentAvailability.options || [],
+      appointmentOptions,
       appointmentMeta: appointmentAvailability.meta || null,
+      structuredCards: formatAppointmentCards(appointmentOptions, appointmentAvailability.sources || []),
+      resolution: buildProviderResolution(query, requestedProviderNames),
       error: appointmentAvailability.ok ? "" : appointmentAvailability.answer || "",
     };
   }
@@ -781,9 +899,14 @@ export async function runAiSearch(rawQuery, options = {}) {
   if (domainGraphAnswer) {
     return {
       ...domainGraphAnswer,
+      intent: intentResult.intent,
       query,
       appointmentOptions: [],
       appointmentMeta: null,
+      structuredCards: Array.isArray(domainGraphAnswer.structuredCards)
+        ? domainGraphAnswer.structuredCards
+        : formatSourceCards(domainGraphAnswer.sources || []),
+      resolution: null,
       error: "",
     };
   }
@@ -792,11 +915,14 @@ export async function runAiSearch(rawQuery, options = {}) {
     return {
       ok: false,
       code: "ai_not_configured",
+      intent: intentResult.intent,
       error: "AI search is not configured",
       query,
       answer: "",
       sources: [],
       confidence: 0,
+      structuredCards: [],
+      resolution: null,
     };
   }
 
@@ -824,6 +950,9 @@ export async function runAiSearch(rawQuery, options = {}) {
       : knowledgeBaseSources.length > 0
         ? knowledgeBaseSources
         : mergeSources(knowledgeBaseSources, formatSources(similarContent));
+  const structuredContextCards = formatStructuredContextCards(structuredContext);
+  const structuredCards =
+    structuredContextCards.length > 0 ? structuredContextCards : formatSourceCards(sources);
 
   // Show a disclaimer when the AI itself reports low confidence or used facts outside the context.
   const disclaimer = Boolean(safetyIssue) || aiConfidence === "low" || !grounded;
@@ -831,6 +960,7 @@ export async function runAiSearch(rawQuery, options = {}) {
   return {
     ok: true,
     code: safetyIssue ? `answer_safety_${safetyIssue}` : "",
+    intent: intentResult.intent,
     query,
     answer,
     sources,
@@ -839,5 +969,7 @@ export async function runAiSearch(rawQuery, options = {}) {
     grounded,
     citations,
     disclaimer,
+    structuredCards,
+    resolution: null,
   };
 }

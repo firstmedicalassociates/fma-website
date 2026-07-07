@@ -114,10 +114,62 @@ async function loadAiSearchAnalytics() {
   }
 }
 
+async function loadProviderDataQuality() {
+  try {
+    const providers = await prisma.provider.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: {
+        slug: true,
+        name: true,
+        linkUrl: true,
+        locations: true,
+        languages: true,
+        athenaProviderId: true,
+        athenaDepartmentId: true,
+        athenaSchedulingName: true,
+      },
+    });
+
+    const rows = providers
+      .map((provider) => {
+        const gaps = [
+          !provider.linkUrl ? "missing booking URL" : "",
+          !Array.isArray(provider.locations) || provider.locations.length === 0 ? "missing locations" : "",
+          !Array.isArray(provider.languages) || provider.languages.length === 0 ? "missing languages" : "",
+          !provider.athenaProviderId && !provider.athenaSchedulingName ? "missing scheduling match" : "",
+          !provider.athenaDepartmentId ? "missing scheduling department" : "",
+        ].filter(Boolean);
+
+        return {
+          name: provider.name,
+          slug: provider.slug,
+          gaps,
+        };
+      })
+      .filter((row) => row.gaps.length > 0);
+
+    return {
+      available: true,
+      total: providers.length,
+      rows,
+      complete: providers.length - rows.length,
+    };
+  } catch {
+    return {
+      available: false,
+      total: 0,
+      rows: [],
+      complete: 0,
+    };
+  }
+}
+
 export default async function AdminAiSearchPage() {
-  const [analytics, athenaCoverage] = await Promise.all([
+  const [analytics, athenaCoverage, providerDataQuality] = await Promise.all([
     loadAiSearchAnalytics(),
     getAthenaProviderMappingCoverage(),
+    loadProviderDataQuality(),
   ]);
   const coverageRows = athenaCoverage.rows || [];
   const reviewRows = coverageRows.filter(
@@ -279,6 +331,47 @@ export default async function AdminAiSearchPage() {
                     </article>
                   ))}
                 </div>
+              )}
+            </section>
+
+            <section className="admin-panel">
+              <div className="admin-panel-header">
+                <div>
+                  <h2>Provider data quality</h2>
+                  <p>Public profile fields that affect search ranking, cards, and appointment routing.</p>
+                </div>
+              </div>
+              {!providerDataQuality.available ? (
+                <div className="admin-empty">Provider data quality could not be loaded.</div>
+              ) : (
+                <>
+                  <div className="admin-stat-stack ai-search-stat-grid">
+                    <article className="admin-stat-card">
+                      <h2 className="admin-stat-label">Complete</h2>
+                      <p className="admin-stat-value">{formatNumber(providerDataQuality.complete)}</p>
+                      <p className="admin-stat-copy">No public data gaps detected</p>
+                    </article>
+                    <article className="admin-stat-card">
+                      <h2 className="admin-stat-label">Needs data</h2>
+                      <p className="admin-stat-value">{formatNumber(providerDataQuality.rows.length)}</p>
+                      <p className="admin-stat-copy">Missing fields to review</p>
+                    </article>
+                  </div>
+                  {providerDataQuality.rows.length === 0 ? (
+                    <div className="admin-empty">All active provider profiles have the key AI-search fields.</div>
+                  ) : (
+                    <div className="admin-record-list">
+                      {providerDataQuality.rows.slice(0, 18).map((row) => (
+                        <article className="admin-record" key={row.slug}>
+                          <div className="admin-record-identity">
+                            <p className="admin-record-title">{row.name}</p>
+                            <p className="admin-record-secondary">{row.gaps.join(" | ")}</p>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </section>
 

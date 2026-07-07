@@ -25,6 +25,7 @@ function buildAiError(error, code = "invalid_query") {
   return {
     ok: false,
     code,
+    intent: "unknown",
     answer: "",
     sources: [],
     confidence: 0,
@@ -34,6 +35,8 @@ function buildAiError(error, code = "invalid_query") {
     disclaimer: true,
     appointmentOptions: [],
     appointmentMeta: null,
+    structuredCards: [],
+    resolution: null,
     error,
   };
 }
@@ -115,6 +118,9 @@ export async function POST(request) {
     const pageContext = body?.pageContext && typeof body.pageContext === "object"
       ? body.pageContext
       : null;
+    const sessionContext = body?.sessionContext && typeof body.sessionContext === "object"
+      ? body.sessionContext
+      : null;
 
     if (query.length < PUBLIC_SEARCH_MIN_CHARACTERS) {
       return await buildInvalidSearchResponse(
@@ -150,7 +156,7 @@ export async function POST(request) {
         perTypeLimit: 4,
         totalLimit: 8,
       }),
-      runAiSearch(query, { limit: 8, pageContext }),
+      runAiSearch(query, { limit: 8, pageContext, sessionContext }),
     ]);
 
     const results =
@@ -163,6 +169,7 @@ export async function POST(request) {
         ? {
             ok: Boolean(aiResult.value?.ok),
             code: aiResult.value?.code || "",
+            intent: aiResult.value?.intent || "unknown",
             answer: aiResult.value?.answer || "",
             sources: Array.isArray(aiResult.value?.sources) ? aiResult.value.sources : [],
             confidence: Number(aiResult.value?.confidence || 0),
@@ -174,11 +181,16 @@ export async function POST(request) {
               ? aiResult.value.appointmentOptions
               : [],
             appointmentMeta: aiResult.value?.appointmentMeta || null,
+            structuredCards: Array.isArray(aiResult.value?.structuredCards)
+              ? aiResult.value.structuredCards
+              : [],
+            resolution: aiResult.value?.resolution || null,
             error: aiResult.value?.error || "",
           }
         : {
             ok: false,
             code: "ai_search_failed",
+            intent: "unknown",
             answer: "",
             sources: [],
             confidence: 0,
@@ -188,6 +200,8 @@ export async function POST(request) {
             disclaimer: true,
             appointmentOptions: [],
             appointmentMeta: null,
+            structuredCards: [],
+            resolution: null,
             error: "AI search failed",
         };
 
@@ -203,6 +217,7 @@ export async function POST(request) {
       aiConfidence: ai.aiConfidence,
       grounded: ai.grounded,
       disclaimer: ai.disclaimer,
+      intent: ai.intent,
       latencyMs: Date.now() - startedAt,
     });
     const aiWithEvent = {

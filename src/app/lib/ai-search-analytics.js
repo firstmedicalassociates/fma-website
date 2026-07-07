@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "./prisma.js";
 import { getPhiRisk, normalizePublicSearchQuery } from "./no-phi-guard.js";
+import { classifyAiSearchIntent } from "./ai-search-intent.js";
 
 const ALLOWED_FEEDBACK_RATINGS = new Set(["helpful", "not_helpful"]);
 const ALLOWED_FEEDBACK_TAGS = new Set([
@@ -33,58 +34,7 @@ function hashQuery(query) {
 }
 
 export function inferAiSearchIntent(query = "") {
-  const normalized = normalizePublicSearchQuery(query).toLowerCase();
-
-  if (
-    /\b(?:what|which)\s+times?\s+(?:does|do)\s+(?!(?:you|fma|first medical|first medical associates|office|clinic|location|locations)\b)[a-z0-9 .'-]+\s+have\b/.test(
-      normalized
-    )
-  ) {
-    return "appointment";
-  }
-
-  if (/\b(what|which)\s+services?\s+(?:are|is)\s+available\b/.test(normalized)) {
-    return "service";
-  }
-  if (/\b(what|which)\s+insurance\s+(?:are|is)\s+available\b/.test(normalized)) {
-    return "insurance";
-  }
-  if (/\b(what|which)\s+locations?\s+(?:are|is)\s+available\b/.test(normalized)) {
-    return "location";
-  }
-
-  if (/\b(book|booking|appointments?|schedules?|availability|availabilities|available|openings?|slots?|soonest|earliest)\b/.test(normalized)) {
-    return "appointment";
-  }
-  if (/\b(?:when\s+(?:can|could|may)\s+i\s+(?:see|visit)|(?:can|could|may)\s+i\s+(?:see|visit|book|schedule)|(?:book|schedule)\s+with)\b/.test(normalized)) {
-    return "appointment";
-  }
-  if (/\b(tell me about|learn more about|bio|biography|profile|credentials|specialt(?:y|ies)|accepting new patients)\b/.test(normalized)) {
-    return "provider";
-  }
-  if (/\b(provider|providers|doctor|doctors|physician|pa|np|nurse practitioner)\b/.test(normalized)) {
-    return "provider";
-  }
-  if (/\b(location|locations|located|office|offices|address|directions|hours|parking|near|city)\b/.test(normalized)) {
-    return "location";
-  }
-  if (/\b(service|services|primary care|same-day|same day|telehealth|telemedicine|physical|wellness)\b/.test(normalized)) {
-    return "service";
-  }
-  if (/\b(insurance|medicare|medicaid|payer|coverage|accept|accepted|copay|self-pay|self pay)\b/.test(normalized)) {
-    return "insurance";
-  }
-  if (/\b(billing|bill|payment|pay|invoice|cost|fee)\b/.test(normalized)) {
-    return "billing";
-  }
-  if (/\b(portal|athena|records|forms|medical records|hipaa|privacy)\b/.test(normalized)) {
-    return "patient_resources";
-  }
-  if (/\b(contact|phone|email|fax|call)\b/.test(normalized)) {
-    return "contact";
-  }
-
-  return "general";
+  return classifyAiSearchIntent(query).intent;
 }
 
 function canUseAiSearchEventModel() {
@@ -109,6 +59,7 @@ export async function logAiSearchEvent({
   disclaimer = false,
   latencyMs = null,
   phiCategories = null,
+  intent = "",
 } = {}) {
   if (eventLoggingDisabled) return null;
   if (!canUseAiSearchEventModel()) return null;
@@ -125,7 +76,7 @@ export async function logAiSearchEvent({
         queryHash: isPotentialPhiEvent ? null : hashQuery(normalizedQuery),
         queryLength: isPotentialPhiEvent ? 0 : normalizedQuery.length,
         surface: String(surface || "api").slice(0, 40),
-        intent: isPotentialPhiEvent ? "privacy_blocked" : inferAiSearchIntent(normalizedQuery),
+        intent: isPotentialPhiEvent ? "privacy_blocked" : String(intent || inferAiSearchIntent(normalizedQuery)).slice(0, 80),
         status: String(status || "unknown").slice(0, 40),
         code: code ? String(code).slice(0, 80) : null,
         resultCount: Math.max(Number(resultCount) || 0, 0),

@@ -61,7 +61,10 @@ export async function POST(request) {
     const pageContext = body?.pageContext && typeof body.pageContext === "object"
       ? body.pageContext
       : null;
-    const result = await runAiSearch(query, { limit: 8, pageContext });
+    const sessionContext = body?.sessionContext && typeof body.sessionContext === "object"
+      ? body.sessionContext
+      : null;
+    const result = await runAiSearch(query, { limit: 8, pageContext, sessionContext });
     const eventId = await logAiSearchEvent({
       query,
       surface: "api_ai_search",
@@ -73,6 +76,7 @@ export async function POST(request) {
       aiConfidence: result.aiConfidence || "",
       grounded: result.grounded === true,
       disclaimer: result.disclaimer === true,
+      intent: result.intent || "",
       latencyMs: Date.now() - startedAt,
     });
     const status = getStatusForAiResult(result);

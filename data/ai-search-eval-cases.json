@@ -2,67 +2,67 @@
   {
     "id": "provider_availability_anita",
     "query": "what times does anita kunwar have available",
-    "expectedIntent": "appointment",
+    "expectedIntent": "appointment_availability",
     "appointmentAvailability": true
   },
   {
     "id": "provider_availability_openings",
     "query": "does Anita Kunwar have any openings",
-    "expectedIntent": "appointment",
+    "expectedIntent": "appointment_availability",
     "appointmentAvailability": true
   },
   {
     "id": "provider_availability_robin",
     "query": "what available times does Robin Codjoe have available",
-    "expectedIntent": "appointment",
+    "expectedIntent": "appointment_availability",
     "appointmentAvailability": true
   },
   {
     "id": "provider_appointments_robin",
     "query": "what appointments does Robin Codjoe have",
-    "expectedIntent": "appointment",
+    "expectedIntent": "appointment_availability",
     "appointmentAvailability": true
   },
   {
     "id": "provider_availability_lekh_plural",
     "query": "what availabilities does Lekh have",
-    "expectedIntent": "appointment",
+    "expectedIntent": "appointment_availability",
     "appointmentAvailability": true
   },
   {
     "id": "provider_availability_quoc",
     "query": "does Quoc Anh Nguyen have any openings",
-    "expectedIntent": "appointment",
+    "expectedIntent": "appointment_availability",
     "appointmentAvailability": true
   },
   {
     "id": "provider_availability_maria_munoz",
     "query": "when can I see Maria Munoz-Ritterbusch",
-    "expectedIntent": "appointment",
+    "expectedIntent": "appointment_availability",
     "appointmentAvailability": true
   },
   {
     "id": "provider_bio",
     "query": "tell me about Anita Kunwar",
-    "expectedIntent": "provider",
+    "expectedIntent": "provider_search",
     "appointmentAvailability": false
   },
   {
     "id": "provider_location",
     "query": "where is Anita Kunwar located",
-    "expectedIntent": "location",
+    "expectedIntent": "location_question",
     "appointmentAvailability": false
   },
   {
     "id": "insurance",
     "query": "what insurance do you accept",
-    "expectedIntent": "insurance",
+    "expectedIntent": "insurance_question",
     "appointmentAvailability": false
   },
   {
     "id": "locations",
     "query": "where are your offices located",
-    "expectedIntent": "location",
+    "expectedIntent": "location_question",
     "appointmentAvailability": false
   },
   {

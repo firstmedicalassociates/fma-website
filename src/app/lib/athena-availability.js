@@ -15,6 +15,7 @@ const TIME_SLOT_LIMIT = 100;
 const PROVIDER_SLOT_LIMIT = 4;
 const PROVIDER_LOOKUP_CONCURRENCY = 3;
 const AVAILABILITY_CACHE_TTL_MS = 60 * 1000;
+const EXTENDED_PROVIDER_LOOKAHEAD_DAYS = 210;
 const ATHENA_UNAVAILABLE_ANSWER =
   "I could not check current online appointment availability right now. Please use online booking or call 301-515-2901 so the team can confirm current appointment times.";
 
@@ -424,6 +425,16 @@ function getProviderSearchKey(provider) {
   return compactText(getProviderName(provider));
 }
 
+function getProviderSearchKeys(provider) {
+  return [
+    ...new Set(
+      [getProviderSearchKey(provider), provider.displayname, provider.schedulingname]
+        .map((value) => compactText(value))
+        .filter(Boolean)
+    ),
+  ];
+}
+
 function isSchedulableProvider(provider) {
   return provider.entitytype === "Person" && provider.billable === true && provider.hideinportal !== true;
 }
@@ -528,28 +539,106 @@ function findConfiguredDepartmentForProvider(provider, departments, siteProvider
 }
 
 function matchDepartmentForProvider(provider, department, siteProviderEntries = []) {
+  return getProviderDepartmentMatchScore(provider, department, siteProviderEntries) > 0;
+}
+
+function getProviderDepartmentMatchScore(provider, department, siteProviderEntries = []) {
   const configuredDepartmentId = String(
     findSiteProvider(provider, siteProviderEntries)?.athenaDepartmentId || ""
   ).trim();
   if (configuredDepartmentId) {
-    return String(department?.departmentid || "").trim() === configuredDepartmentId;
+    return String(department?.departmentid || "").trim() === configuredDepartmentId ? 1000 : 0;
   }
 
   const home = compactText(provider.homedepartment);
-  if (!home) return false;
+  if (!home) return 0;
 
-  return getDepartmentSearchValues(department).some((value) => {
+  return getDepartmentSearchValues(department).reduce((bestScore, value) => {
     const candidate = compactText(value);
-    return candidate && (candidate.includes(home) || home.includes(candidate));
-  });
+    if (!candidate) return bestScore;
+
+    if (candidate === home) return Math.max(bestScore, 100);
+    if (candidate.endsWith(home)) return Math.max(bestScore, 96);
+    if (candidate.includes(home)) return Math.max(bestScore, 92);
+
+    if (candidate.length >= 6 && home.endsWith(candidate)) return Math.max(bestScore, 70);
+    if (candidate.length >= 6 && home.includes(candidate)) return Math.max(bestScore, 62);
+    if (candidate.length >= 4 && candidate.includes(home)) return Math.max(bestScore, 55);
+    if (candidate.length >= 4 && home.includes(candidate)) return Math.max(bestScore, 45);
+
+    return bestScore;
+  }, 0);
 }
 
 function findProviderDepartment(provider, departments, siteProviderEntries = []) {
-  return (
-    findConfiguredDepartmentForProvider(provider, departments, siteProviderEntries) ||
-    departments.find((department) => matchDepartmentForProvider(provider, department, siteProviderEntries)) ||
-    null
-  );
+  const configuredDepartment = findConfiguredDepartmentForProvider(provider, departments, siteProviderEntries);
+  if (configuredDepartment) return configuredDepartment;
+
+  return findProviderDepartmentMatches(provider, departments, siteProviderEntries)[0]?.department || null;
+}
+
+function findProviderDepartmentMatches(provider, departments, siteProviderEntries = []) {
+  const configuredDepartment = findConfiguredDepartmentForProvider(provider, departments, siteProviderEntries);
+  if (configuredDepartment) {
+    return [{ department: configuredDepartment, score: 1000 }];
+  }
+
+  return departments
+    .map((department) => ({
+      department,
+      score: getProviderDepartmentMatchScore(provider, department, siteProviderEntries),
+    }))
+    .filter((match) => match.score > 0)
+    .sort((first, second) => second.score - first.score);
+}
+
+function getProviderDepartmentEntryKey({ provider, department }) {
+  return `${String(provider?.providerid || "").trim()}:${String(department?.departmentid || "").trim()}`;
+}
+
+function uniqueProviderDepartmentEntries(entries = [], existingEntries = []) {
+  const seen = new Set(existingEntries.map(getProviderDepartmentEntryKey));
+
+  return entries.filter((entry) => {
+    if (!entry?.provider || !entry?.department) return false;
+
+    const key = getProviderDepartmentEntryKey(entry);
+    if (!key || seen.has(key)) return false;
+
+    seen.add(key);
+    return true;
+  });
+}
+
+function buildProviderFallbackDepartmentEntries(
+  requestedProviders,
+  departments,
+  siteProviderEntries,
+  requestedDepartment,
+  existingEntries = []
+) {
+  const entries = requestedProviders.flatMap((provider) => {
+    const fallbackDepartments = requestedDepartment
+      ? findProviderDepartmentMatches(provider, departments, siteProviderEntries).map(
+          (match) => match.department
+        )
+      : departments;
+
+    return fallbackDepartments.map((fallbackDepartment) => ({
+      provider,
+      department: fallbackDepartment,
+    }));
+  });
+
+  return uniqueProviderDepartmentEntries(entries, existingEntries);
+}
+
+export function findProviderDepartmentForTest(provider, departments, siteProviderEntries = []) {
+  return findProviderDepartment(provider, departments, siteProviderEntries);
+}
+
+export function findSiteProviderForTest(athenaProvider, siteProviders = []) {
+  return findSiteProvider(athenaProvider, buildSiteProviderLookup(siteProviders));
 }
 
 function buildSiteProviderLookup(siteProviders) {
@@ -596,8 +685,8 @@ function buildSiteProviderLookup(siteProviders) {
 }
 
 function findSiteProvider(athenaProvider, siteProviderEntries) {
-  const athenaKey = getProviderSearchKey(athenaProvider);
-  if (!athenaKey) return null;
+  const athenaKeys = getProviderSearchKeys(athenaProvider);
+  if (athenaKeys.length === 0) return null;
   const athenaProviderId = String(athenaProvider.providerid || "").trim();
 
   if (athenaProviderId) {
@@ -607,11 +696,15 @@ function findSiteProvider(athenaProvider, siteProviderEntries) {
     if (idMatch) return idMatch.provider;
   }
 
-  const exactMatch = siteProviderEntries.find((entry) => entry.keys.includes(athenaKey));
+  const exactMatch = siteProviderEntries.find((entry) =>
+    athenaKeys.some((athenaKey) => entry.keys.includes(athenaKey))
+  );
   if (exactMatch) return exactMatch.provider;
 
-  const substringMatch = siteProviderEntries.find(
-    (entry) => entry.keys.some((key) => key.includes(athenaKey) || athenaKey.includes(key))
+  const substringMatch = siteProviderEntries.find((entry) =>
+    athenaKeys.some((athenaKey) =>
+      entry.keys.some((key) => key.includes(athenaKey) || athenaKey.includes(key))
+    )
   );
   if (substringMatch) return substringMatch.provider;
 
@@ -929,6 +1022,60 @@ function parseRequestedTime(query) {
   return parseClockTime(match[4], match[5]);
 }
 
+function startOfLocalDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function addDays(date, days) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function parseRequestedDateRange(query, baseDate = new Date()) {
+  const normalized = normalizeText(query);
+  const today = startOfLocalDay(baseDate);
+
+  if (/\btoday\b/.test(normalized)) {
+    return {
+      label: "today",
+      start: today,
+      end: today,
+      explicit: true,
+    };
+  }
+
+  if (/\btomorrow\b/.test(normalized)) {
+    const tomorrow = addDays(today, 1);
+    return {
+      label: "tomorrow",
+      start: tomorrow,
+      end: tomorrow,
+      explicit: true,
+    };
+  }
+
+  if (/\bthis\s+week\b/.test(normalized)) {
+    return {
+      label: "this week",
+      start: today,
+      end: addDays(today, 7),
+      explicit: true,
+    };
+  }
+
+  if (/\bnext\s+week\b/.test(normalized)) {
+    return {
+      label: "next week",
+      start: addDays(today, 7),
+      end: addDays(today, 14),
+      explicit: true,
+    };
+  }
+
+  return null;
+}
+
 function parseSlotStartMinutes(value = "") {
   const time = String(value || "").trim();
   const twelveHourMatch = time.match(/^(\d{1,2})(?::([0-5]\d))?\s*(a\.?m\.?|p\.?m\.?)$/i);
@@ -1237,6 +1384,7 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
   const department = findRequestedDepartment(query, departments);
   const requestedTime = parseRequestedTime(query);
   const lookaheadDays = Number(options.days || DEFAULT_LOOKAHEAD_DAYS);
+  const requestedDateRange = parseRequestedDateRange(query);
 
   const siteProviderEntries = buildSiteProviderLookup(siteProviders);
   const requestedSiteProviderEntries = findRequestedSiteProviders(query, siteProviderEntries);
@@ -1251,11 +1399,14 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
     return buildProviderSchedulingNotConfirmedResult(requestedSiteProviderEntries, lookaheadDays, department);
   }
 
-  const start = new Date();
-  const end = new Date(start);
-  end.setDate(start.getDate() + lookaheadDays);
+  const start = requestedDateRange?.start || new Date();
+  const end = requestedDateRange?.end || new Date(start);
+  if (!requestedDateRange) end.setDate(start.getDate() + lookaheadDays);
   const startdate = formatAthenaDate(start);
   const enddate = formatAthenaDate(end);
+  let resultEnddate = enddate;
+  let resultLookaheadDays = lookaheadDays;
+  let resultDateRangeLabel = requestedDateRange?.label || "";
 
   const providerLocationEntries = requestedProviders.length > 0
     ? requestedProviders
@@ -1304,10 +1455,8 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
     return cachedAvailability.value;
   }
 
-  const appointmentOptions = await runWithConcurrency(
-    providerLocationEntries,
-    PROVIDER_LOOKUP_CONCURRENCY,
-    async ({ provider, department: providerDepartment }) => {
+  const loadAppointmentOptions = (entries, rangeStartdate = startdate, rangeEnddate = resultEnddate) =>
+    runWithConcurrency(entries, PROVIDER_LOOKUP_CONCURRENCY, async ({ provider, department: providerDepartment }) => {
       if (!providerDepartment) return null;
 
       const reasons = await getAppointmentReasons(config, accessToken, provider, providerDepartment);
@@ -1319,8 +1468,8 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
         provider,
         providerDepartment,
         reasons,
-        startdate,
-        enddate,
+        rangeStartdate,
+        rangeEnddate,
         requestedTime,
         requestedProviders.length > 0 ? PROVIDER_SLOT_LIMIT : 1
       );
@@ -1348,10 +1497,62 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
         slotMatchType: slot.slotMatchType || (requestedTime ? "fallback" : "earliest"),
         requestedTimeLabel: requestedTime?.label || "",
       }));
-    }
-  );
+    });
 
-  const rawOptions = appointmentOptions.flat().filter(Boolean);
+  let checkedProviderLocationEntries = providerLocationEntries;
+  let appointmentOptions = await loadAppointmentOptions(providerLocationEntries);
+  let rawOptions = appointmentOptions.flat().filter(Boolean);
+
+  // Provider-specific searches run in phases so a bad or incomplete primary mapping does not hide real openings.
+  if (rawOptions.length === 0 && requestedProviders.length > 0) {
+    const fallbackProviderLocationEntries = buildProviderFallbackDepartmentEntries(
+      requestedProviders,
+      departments,
+      siteProviderEntries,
+      department,
+      providerLocationEntries
+    );
+
+    if (fallbackProviderLocationEntries.length > 0) {
+      checkedProviderLocationEntries = [
+        ...providerLocationEntries,
+        ...fallbackProviderLocationEntries,
+      ];
+      appointmentOptions = await loadAppointmentOptions(fallbackProviderLocationEntries);
+      const fallbackRawOptions = appointmentOptions.flat().filter(Boolean);
+      if (fallbackRawOptions.length > 0) rawOptions = fallbackRawOptions;
+    }
+  }
+
+  if (
+    rawOptions.length === 0 &&
+    requestedProviders.length > 0 &&
+    !department &&
+    !requestedDateRange &&
+    EXTENDED_PROVIDER_LOOKAHEAD_DAYS > lookaheadDays
+  ) {
+    const extendedEnd = new Date(start);
+    extendedEnd.setDate(start.getDate() + EXTENDED_PROVIDER_LOOKAHEAD_DAYS);
+    const extendedEnddate = formatAthenaDate(extendedEnd);
+    const extendedProviderLocationEntries = uniqueProviderDepartmentEntries(
+      requestedProviders.flatMap((provider) =>
+        departments.map((fallbackDepartment) => ({ provider, department: fallbackDepartment }))
+      )
+    );
+    const extendedAppointmentOptions = await loadAppointmentOptions(
+      extendedProviderLocationEntries,
+      startdate,
+      extendedEnddate
+    );
+    const extendedRawOptions = extendedAppointmentOptions.flat().filter(Boolean);
+
+    checkedProviderLocationEntries = extendedProviderLocationEntries;
+    resultEnddate = extendedEnddate;
+    resultLookaheadDays = EXTENDED_PROVIDER_LOOKAHEAD_DAYS;
+    resultDateRangeLabel = "";
+    if (extendedRawOptions.length > 0) rawOptions = extendedRawOptions;
+  }
+
   const hasExactTimeMatches = requestedTime
     ? rawOptions.some((option) => option.slotMatchType === "exact")
     : false;
@@ -1371,34 +1572,34 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
     requestedProviderNames.length > 0
       ? `${joinReadableList(requestedProviderNames)}${department ? ` at ${locationName}` : ""}`
       : locationName;
+  const optionLocationNames = new Set(sortedOptions.map((option) => option.locationName).filter(Boolean));
+  const shouldShowOptionLocation = !department && optionLocationNames.size > 0;
+  const describeAppointmentOption = (option) => {
+    if (requestedProviderNames.length === 1) {
+      return shouldShowOptionLocation && option.locationName
+        ? `${option.displayTime} at ${option.locationName}`
+        : option.displayTime;
+    }
+    if (department || requestedProviderNames.length > 0) {
+      return `${option.providerName} on ${option.displayTime}`;
+    }
+
+    return `${option.providerName} at ${option.locationName} on ${option.displayTime}`;
+  };
+  const appointmentList = sortedOptions.map(describeAppointmentOption).join(", ");
+  const answerRangeLabel = resultDateRangeLabel || `the next ${resultLookaheadDays} days`;
   const answer =
     sortedOptions.length > 0 && requestedTime && hasExactTimeMatches
-      ? `I found ${requestedTime.label} openings for ${answerTarget}: ${sortedOptions
-          .map((option) =>
-            department || requestedProviderNames.length > 0
-              ? `${option.providerName} on ${option.displayTime}`
-              : `${option.providerName} at ${option.locationName} on ${option.displayTime}`
-          )
-          .join(", ")}. Use the booking links below to schedule, and call 301-515-2901 if you need help confirming availability.`
+      ? `I found ${requestedTime.label} openings for ${answerTarget}: ${appointmentList}. Use the booking links below to schedule, and call 301-515-2901 if you need help confirming availability.`
       : sortedOptions.length > 0 && requestedTime
-        ? `I checked current appointment availability for ${answerTarget}, but did not find exact ${requestedTime.label} openings in the next ${lookaheadDays} days. The earliest alternatives I found are ${sortedOptions
-            .map((option) =>
-              department || requestedProviderNames.length > 0
-                ? `${option.providerName} on ${option.displayTime}`
-                : `${option.providerName} at ${option.locationName} on ${option.displayTime}`
-            )
+        ? `I checked current appointment availability for ${answerTarget}, but did not find exact ${requestedTime.label} openings in ${answerRangeLabel}. The earliest alternatives I found are ${sortedOptions
+            .map(describeAppointmentOption)
             .join(", ")}. Use the booking links below to schedule, and call 301-515-2901 if you need help confirming availability.`
         : sortedOptions.length > 0
-          ? `${requestedProviderNames.length > 0 ? "The available times" : "The quickest openings"} I found for ${answerTarget} are ${sortedOptions
-          .map((option) =>
-            department || requestedProviderNames.length > 0
-              ? `${option.providerName} on ${option.displayTime}`
-              : `${option.providerName} at ${option.locationName} on ${option.displayTime}`
-          )
-          .join(", ")}. Use the booking links below to schedule, and call 301-515-2901 if you need help confirming availability.`
+          ? `${requestedProviderNames.length > 0 ? "I found these available times" : "The quickest openings I found"} for ${answerTarget}: ${appointmentList}. Use the booking links below to schedule, and call 301-515-2901 if you need help confirming availability.`
           : requestedTime
-            ? `I checked current appointment availability for ${answerTarget}, but did not find open online appointments at ${requestedTime.label} in the next ${lookaheadDays} days. Please call 301-515-2901 or use online booking to confirm availability.`
-            : `I checked current appointment availability for ${answerTarget}, but did not find open online appointments in the next ${lookaheadDays} days. Please call 301-515-2901 or use online booking to confirm availability.`;
+            ? `I checked current appointment availability for ${answerTarget}, but did not find open online appointments at ${requestedTime.label} in ${answerRangeLabel}. Please call 301-515-2901 or use online booking to confirm availability.`
+            : `I checked current appointment availability for ${answerTarget}, but did not find open online appointments in ${answerRangeLabel}. Please call 301-515-2901 or use online booking to confirm availability.`;
 
   const providerSourceUrls = new Set();
   const providerSources = sortedOptions
@@ -1456,12 +1657,13 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
       requestedProviderIds: requestedProviders.map((provider) => provider.providerid),
       requestedProviderNames,
       startdate,
-      enddate,
+      enddate: resultEnddate,
+      requestedDateRange: resultDateRangeLabel || null,
       requestedTime: requestedTime?.label || null,
       exactTimeMatches: hasExactTimeMatches,
-      providerCountChecked: providerLocationEntries.length,
+      providerCountChecked: checkedProviderLocationEntries.length,
       availabilityStatus: sortedOptions.length > 0 ? "open_slots_found" : "no_open_slots",
-      lookaheadDays,
+      lookaheadDays: resultLookaheadDays,
     },
   };
 

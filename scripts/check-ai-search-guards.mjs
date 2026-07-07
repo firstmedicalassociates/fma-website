@@ -13,8 +13,13 @@ import {
   getGeneratedAnswerSafetyIssue,
   sanitizeGeneratedAnswerResult,
 } from "../src/app/lib/ai-search-output-guard.js";
-import { isAppointmentAvailabilityQuery } from "../src/app/lib/athena-availability.js";
+import {
+  findProviderDepartmentForTest,
+  findSiteProviderForTest,
+  isAppointmentAvailabilityQuery,
+} from "../src/app/lib/athena-availability.js";
 import { buildContextualSearchQuery } from "../src/app/lib/ai-search-context.js";
+import { classifyAiSearchIntent } from "../src/app/lib/ai-search-intent.js";
 
 const results = [];
 
@@ -143,6 +148,64 @@ check("adds provider page context to relative provider queries", () => {
   });
 
   assert.equal(query.includes("Robin Codjoe"), true);
+});
+
+check("adds safe session context to provider follow-up queries", () => {
+  const query = buildContextualSearchQuery("what about next week", null, {
+    providers: [{ name: "Robin Codjoe" }],
+  });
+
+  assert.equal(query.includes("Robin Codjoe"), true);
+  assert.equal(classifyAiSearchIntent(query).intent, "appointment_availability");
+});
+
+check("classifies public FMA intents with detailed labels", () => {
+  assert.equal(classifyAiSearchIntent("how do I book an appointment").intent, "booking_help");
+  assert.equal(classifyAiSearchIntent("what insurance do you accept").intent, "insurance_question");
+  assert.equal(classifyAiSearchIntent("who speaks Spanish near Rockville").intent, "provider_search");
+  assert.equal(classifyAiSearchIntent("what services are available").intent, "service_question");
+});
+
+check("prefers full provider home department over partial location match", () => {
+  const matchedDepartment = findProviderDepartmentForTest(
+    { homedepartment: "BOWIE II" },
+    [
+      {
+        departmentid: "9",
+        patientdepartmentname: "First Medical Associates-Bowie",
+        city: "BOWIE",
+        state: "MD",
+      },
+      {
+        departmentid: "17",
+        patientdepartmentname: "First Medical Associates - Bowie II",
+        city: "BOWIE",
+        state: "MD",
+      },
+    ]
+  );
+
+  assert.equal(String(matchedDepartment?.departmentid || ""), "17");
+});
+
+check("matches provider scheduling aliases from display names", () => {
+  const matchedProvider = findSiteProviderForTest(
+    {
+      providerid: 53,
+      firstname: "Maria",
+      lastname: "Ibrahim",
+      displayname: "Maria Munoz",
+      schedulingname: "Munoz_Maria",
+    },
+    [
+      {
+        name: "Maria Munoz-Ritterbusch",
+        slug: "maria-munoz-md",
+      },
+    ]
+  );
+
+  assert.equal(matchedProvider?.slug, "maria-munoz-md");
 });
 
 check("allows safe generated FMA answers", () => {

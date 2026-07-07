@@ -84,6 +84,12 @@ const DOMAIN_GRAPH_CASES = [
     expectedServiceMatch: true,
     expectedCode: "service_catalog_match",
   },
+  {
+    id: "domain_graph_provider_typo_recovery",
+    query: "Tell me about Robn Codjo",
+    expectedProviderMatch: true,
+    expectedCode: "directory_match",
+  },
 ];
 
 function normalizeNameTokens(value = "") {
@@ -202,7 +208,7 @@ async function evaluateAllProviderPromptCoverage() {
     const appointmentAvailability = await shouldCheckAppointmentAvailability(testCase.query);
     const failures = [];
 
-    if (intent !== "appointment") {
+    if (intent !== "appointment_availability") {
       failures.push(`expected appointment intent, got ${intent}`);
     }
 
@@ -355,12 +361,12 @@ async function evaluateAllProviderLiveCases() {
       const matches = expectedTokens.filter((token) => actualTokens.has(token)).length;
       return matches >= Math.min(2, expectedTokens.length);
     });
-    const acceptableProviderAwareFallback = result?.code === "provider_schedule_not_confirmed";
     const ok =
       result?.ok === true &&
       result?.code !== "appointment_availability_unavailable" &&
       result?.code !== "appointment_availability_not_configured" &&
-      (matchedExpectedProvider || acceptableProviderAwareFallback);
+      result?.code !== "provider_schedule_not_confirmed" &&
+      matchedExpectedProvider;
 
     return {
       id: `provider:${provider.slug}`,

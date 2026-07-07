@@ -175,15 +175,15 @@ function getAppointmentStatusText(appointmentMeta, hasAppointmentOptions) {
   }
 
   if (appointmentMeta.availabilityStatus === "no_open_slots") {
-    return "Provider matched. No online times returned.";
+    return "No online appointment times found right now.";
   }
 
   if (appointmentMeta.availabilityStatus === "provider_schedule_not_confirmed") {
-    return "Provider found. Live times need confirmation.";
+    return "Provider found. Please confirm current times by booking online or calling.";
   }
 
   if (appointmentMeta.availabilityStatus === "unavailable") {
-    return "Live times need confirmation.";
+    return "Please confirm current times by booking online or calling.";
   }
 
   return "";
@@ -191,6 +191,64 @@ function getAppointmentStatusText(appointmentMeta, hasAppointmentOptions) {
 
 function createMessageId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function providerSlugFromHref(href = "") {
+  const match = String(href || "").match(/\/providers\/([a-z0-9-]+)/i);
+  return match?.[1] || "";
+}
+
+function buildSessionContext(messages = []) {
+  const lastAssistant = [...messages].reverse().find((message) => message.role === "assistant" && message.payload);
+  const payload = lastAssistant?.payload;
+  if (!payload) return null;
+
+  const providerNames = new Set();
+  const providerSlugs = new Set();
+
+  for (const name of payload.appointmentMeta?.requestedProviderNames || []) {
+    if (name) providerNames.add(name);
+  }
+
+  for (const option of payload.appointmentOptions || []) {
+    if (option.providerName) providerNames.add(option.providerName);
+    if (option.providerSlug) providerSlugs.add(option.providerSlug);
+    const slug = providerSlugFromHref(option.providerUrl);
+    if (slug) providerSlugs.add(slug);
+  }
+
+  for (const card of payload.cards || []) {
+    const cardType = card.type || card.kind || "";
+    if (cardType === "provider" && card.title) providerNames.add(card.title);
+    const slug = providerSlugFromHref(card.href);
+    if (slug) providerSlugs.add(slug);
+  }
+
+  for (const source of payload.sources || []) {
+    const slug = providerSlugFromHref(source.url);
+    if (slug) providerSlugs.add(slug);
+  }
+
+  const providerNameValues = [...providerNames].slice(0, 3);
+  const providerSlugValues = [...providerSlugs].slice(0, 3);
+  if (providerNameValues.length === 0 && providerSlugValues.length === 0) return null;
+
+  return {
+    lastIntent: payload.intent || "",
+    lastAvailabilityStatus: payload.appointmentMeta?.availabilityStatus || "",
+    providerNames: providerNameValues,
+    providerSlugs: providerSlugValues,
+  };
+}
+
+function getPrimaryCardHref(card = {}) {
+  if (card.type === "appointment" && card.bookingUrl) return card.bookingUrl;
+  return card.href || card.bookingUrl || "/search";
+}
+
+function shouldOpenCardInNewTab(card = {}) {
+  const href = getPrimaryCardHref(card);
+  return /^https?:\/\//i.test(href);
 }
 
 export default function AiSearchModal({ className = "", onOpen, listenForExternalRequests = true }) {
@@ -260,6 +318,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
 
   const executeSearch = useCallback(async (nextQuery) => {
     const searchQuery = normalizePublicSearchQuery(nextQuery);
+    const sessionContext = buildSessionContext(conversationMessages);
 
     if (searchQuery !== nextQuery) {
       setQuery(searchQuery);
@@ -362,11 +421,14 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query: searchQuery, pageContext }),
+        body: JSON.stringify({ query: searchQuery, pageContext, sessionContext }),
       });
 
       const data = await response.json().catch(() => ({}));
-      const cards = mapApiCards(data?.results);
+      const structuredCards = Array.isArray(data?.ai?.structuredCards)
+        ? data.ai.structuredCards.slice(0, 6)
+        : [];
+      const cards = structuredCards.length > 0 ? structuredCards : mapApiCards(data?.results);
       const summary = data?.ai?.answer || data?.ai?.error || DEFAULT_SUMMARY;
       const sources = Array.isArray(data?.ai?.sources) ? data.ai.sources.slice(0, 3) : [];
       const citations = Array.isArray(data?.ai?.citations) ? data.ai.citations : [];
@@ -378,6 +440,9 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
           ? data.ai.appointmentMeta
           : null;
       const eventId = typeof data?.ai?.eventId === "string" ? data.ai.eventId : "";
+      const intent = typeof data?.ai?.intent === "string" ? data.ai.intent : "";
+      const resolution =
+        data?.ai?.resolution && typeof data.ai.resolution === "object" ? data.ai.resolution : null;
 
       const nextPayload = {
         summary,
@@ -386,6 +451,8 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         citations,
         appointmentOptions,
         appointmentMeta,
+        intent,
+        resolution,
         eventId,
       };
 
@@ -433,7 +500,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
     } finally {
       stopLoadingTicker();
     }
-  }, [pageContext, stopLoadingTicker]);
+  }, [conversationMessages, pageContext, stopLoadingTicker]);
 
   async function submitFeedback(eventId, rating, tags = []) {
     if (!eventId || feedbackState.status === "submitting") return;
@@ -661,6 +728,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
 
                   const payload = message.payload || {
                     summary: DEFAULT_SUMMARY,
+                    cards: [],
                     appointmentOptions: [],
                     appointmentMeta: null,
                     eventId: "",
@@ -678,6 +746,9 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                       </span>
                       <div className={`${styles.messageBubble} ${styles.assistantBubble}`}>
                         <div className={styles.assistantHeader}>FMA AI</div>
+                        {payload.resolution?.label ? (
+                          <div className={styles.resolutionPill}>{payload.resolution.label}</div>
+                        ) : null}
                         <p className={styles.answerText}>{renderWithLinks(payload.summary)}</p>
 
                         {messageAppointmentStatusText ? (
@@ -718,6 +789,64 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                                 </div>
                               </article>
                             ))}
+                          </div>
+                        ) : null}
+
+                        {payload.cards?.filter((card) => card.type !== "appointment").length > 0 ? (
+                          <div className={styles.structuredCards}>
+                            {payload.cards
+                              .filter((card) => card.type !== "appointment")
+                              .slice(0, 4)
+                              .map((card) => {
+                                const href = getPrimaryCardHref(card);
+                                const external = shouldOpenCardInNewTab(card);
+                                const cardBody = (
+                                  <>
+                                    <div className={styles.structuredCardHeader}>
+                                      <span>{card.type || "result"}</span>
+                                      <h4>{card.title}</h4>
+                                      {card.subtitle ? <p>{card.subtitle}</p> : null}
+                                    </div>
+                                    {Array.isArray(card.details) && card.details.length > 0 ? (
+                                      <ul className={styles.structuredDetails}>
+                                        {card.details.slice(0, 3).map((detail) => (
+                                          <li key={detail}>{detail}</li>
+                                        ))}
+                                      </ul>
+                                    ) : null}
+                                    {Array.isArray(card.badges) && card.badges.length > 0 ? (
+                                      <div className={styles.structuredBadges}>
+                                        {card.badges.slice(0, 4).map((badge) => (
+                                          <span key={badge}>{badge}</span>
+                                        ))}
+                                      </div>
+                                    ) : null}
+                                    <span className={styles.structuredAction}>
+                                      {card.actionLabel || "Open"}
+                                    </span>
+                                  </>
+                                );
+
+                                return external ? (
+                                  <a
+                                    className={styles.structuredCard}
+                                    href={href}
+                                    key={`${card.type}-${card.title}-${href}`}
+                                    rel="noopener noreferrer"
+                                    target="_blank"
+                                  >
+                                    {cardBody}
+                                  </a>
+                                ) : (
+                                  <Link
+                                    className={styles.structuredCard}
+                                    href={href}
+                                    key={`${card.type}-${card.title}-${href}`}
+                                  >
+                                    {cardBody}
+                                  </Link>
+                                );
+                              })}
                           </div>
                         ) : null}
 

@@ -60,6 +60,46 @@ function textTokens(value = "") {
     .filter((token) => token.length > 2 && !TOKEN_STOPWORDS.has(token));
 }
 
+function isNearTokenMatch(queryToken, providerToken) {
+  if (!queryToken || !providerToken) return false;
+  if (queryToken === providerToken) return true;
+  if (
+    queryToken.length >= 4 &&
+    providerToken.length >= 4 &&
+    (providerToken.startsWith(queryToken) || queryToken.startsWith(providerToken))
+  ) {
+    return true;
+  }
+
+  if (queryToken.length < 4 || providerToken.length < 4) return false;
+  if (Math.abs(queryToken.length - providerToken.length) > 1) return false;
+
+  let edits = 0;
+  let queryIndex = 0;
+  let providerIndex = 0;
+  while (queryIndex < queryToken.length && providerIndex < providerToken.length) {
+    if (queryToken[queryIndex] === providerToken[providerIndex]) {
+      queryIndex += 1;
+      providerIndex += 1;
+      continue;
+    }
+
+    edits += 1;
+    if (edits > 1) return false;
+
+    if (queryToken.length > providerToken.length) {
+      queryIndex += 1;
+    } else if (providerToken.length > queryToken.length) {
+      providerIndex += 1;
+    } else {
+      queryIndex += 1;
+      providerIndex += 1;
+    }
+  }
+
+  return true;
+}
+
 function cleanPath(value = "") {
   const text = String(value || "").trim();
   if (!text) return "";
@@ -256,6 +296,13 @@ function getProviderScore(provider, criteria) {
 
   const providerNameCompact = compactText(provider.name);
   const hasProviderNameMatch = providerNameCompact && compactText(criteria.query).includes(providerNameCompact);
+  const queryTokens = textTokens(criteria.query);
+  const providerNameTokens = textTokens(provider.name);
+  const providerTokenMatches = providerNameTokens.filter((providerToken) =>
+    queryTokens.some((queryToken) => isNearTokenMatch(queryToken, providerToken))
+  ).length;
+  const hasNearProviderNameMatch =
+    providerNameTokens.length > 0 && providerTokenMatches >= Math.min(2, providerNameTokens.length);
   const hasCriteria =
     criteria.languages.length > 0 ||
     criteria.locations.length > 0 ||
@@ -263,7 +310,7 @@ function getProviderScore(provider, criteria) {
     criteria.unsupportedCriteria.length > 0 ||
     criteria.asksAcceptingNewPatients;
 
-  if (!hasProviderNameMatch && !hasCriteria) {
+  if (!hasProviderNameMatch && !hasNearProviderNameMatch && !hasCriteria) {
     return {
       score: 0,
       languageMatches,
@@ -273,6 +320,7 @@ function getProviderScore(provider, criteria) {
   }
 
   if (hasProviderNameMatch) score += 160;
+  if (hasNearProviderNameMatch) score += 132;
   if (criteria.languages.length > 0) score += languageMatches.length > 0 ? 60 : -1000;
   if (criteria.locations.length > 0) score += locationMatches.length > 0 ? 70 : -1000;
   if (criteria.services.length > 0) score += serviceMatches.length > 0 ? 35 : -1000;
@@ -288,7 +336,7 @@ function getProviderScore(provider, criteria) {
 }
 
 function detectsProviderSearch(query) {
-  return /\b(who|find|doctor|doctors|provider|providers|physician|speaks?|language|near|at|in|accepting|taking|appointments?|availability|times?|openings?)\b/i.test(
+  return /\b(who|find|tell me about|learn more about|bio|biography|profile|doctor|doctors|provider|providers|physician|speaks?|language|near|at|in|accepting|taking|appointments?|availability|times?|openings?)\b/i.test(
     query
   );
 }
@@ -477,7 +525,8 @@ export async function findFmaDomainGraphContext(query, options = {}) {
   const shouldAnswer = Boolean(
     hasSignal &&
       ((criteria.providerSearch &&
-        (criteria.languages.length > 0 ||
+        (providerMatches.length > 0 ||
+          criteria.languages.length > 0 ||
           criteria.locations.length > 0 ||
           criteria.services.length > 0 ||
           criteria.unsupportedCriteria.length > 0 ||
@@ -583,6 +632,62 @@ function formatProviderAnswerItem(match) {
   return details ? `${provider.name} (${details})` : provider.name;
 }
 
+function formatProviderCard(match) {
+  const provider = match.provider;
+  const locations = (provider.locationRecords || []).map((location) => location.title).filter(Boolean);
+  const languages = Array.isArray(provider.languages) ? provider.languages.filter(Boolean) : [];
+
+  return {
+    type: "provider",
+    title: provider.name,
+    subtitle: provider.title || "FMA provider",
+    href: `/providers/${provider.slug}`,
+    actionLabel: "View profile",
+    bookingUrl: provider.linkUrl || GENERAL_BOOK_APPOINTMENT_URL,
+    details: [
+      locations.length ? `Locations: ${locations.join(", ")}` : "",
+      languages.length ? `Languages: ${languages.join(", ")}` : "",
+    ].filter(Boolean),
+    badges: [
+      ...locations.slice(0, 2),
+      ...languages.slice(0, 2),
+    ].slice(0, 4),
+  };
+}
+
+function formatLocationCard(location) {
+  return {
+    type: "location",
+    title: location.title,
+    subtitle: formatAddress(location) || "FMA location",
+    href: normalizeLocationPath(location.slug),
+    actionLabel: "View location",
+    bookingUrl: location.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL,
+    details: [location.phone ? `Phone: ${location.phone}` : ""].filter(Boolean),
+    badges: [location.addressCity, location.addressState].filter(Boolean).slice(0, 3),
+  };
+}
+
+function formatServiceCard(service) {
+  return {
+    type: "service",
+    title: service.title,
+    subtitle: service.category || "FMA service",
+    href: normalizeServicePath(service.slug),
+    actionLabel: "View service",
+    details: [service.description || ""].filter(Boolean).slice(0, 1),
+    badges: [service.category].filter(Boolean),
+  };
+}
+
+export function formatFmaDomainGraphCards(result = {}) {
+  return [
+    ...(result.providerMatches || []).map(formatProviderCard),
+    ...(result.locationMatches || []).map(formatLocationCard),
+    ...(result.serviceMatches || []).map(formatServiceCard),
+  ].slice(0, PROVIDER_RESULT_LIMIT);
+}
+
 export function formatFmaDomainGraphSources(result = {}) {
   const sources = [];
   for (const match of result.providerMatches || []) {
@@ -618,6 +723,7 @@ export function buildFmaDomainGraphAnswer(result = {}) {
 
   const criteria = result.criteria || {};
   const sources = formatFmaDomainGraphSources(result);
+  const structuredCards = formatFmaDomainGraphCards(result);
   const providerMatches = result.providerMatches || [];
   const caveats = [];
 
@@ -648,6 +754,7 @@ export function buildFmaDomainGraphAnswer(result = {}) {
       grounded: true,
       citations: ["FMA provider directory"],
       disclaimer: caveats.length > 0,
+      structuredCards,
     };
   }
 
@@ -665,6 +772,7 @@ export function buildFmaDomainGraphAnswer(result = {}) {
       grounded: true,
       citations: ["FMA service catalog"],
       disclaimer: false,
+      structuredCards,
     };
   }
 
@@ -683,6 +791,7 @@ export function buildFmaDomainGraphAnswer(result = {}) {
       grounded: true,
       citations: ["FMA provider directory"],
       disclaimer: true,
+      structuredCards,
     };
   }
 
