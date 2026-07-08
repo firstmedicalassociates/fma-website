@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Database,
   FileText,
   LayoutDashboard,
   LogOut,
@@ -11,6 +12,7 @@ import {
   Menu,
   PenSquare,
   Layers3,
+  Sparkles,
   UserPlus,
   X,
 } from "./admin-icons";
@@ -22,10 +24,12 @@ const ICONS_BY_KEY = {
   locations: MapPin,
   services: Layers3,
   providers: UserPlus,
+  "ai-search": Sparkles,
   "new-post": PenSquare,
   "new-location": MapPin,
   "new-service": Layers3,
   "new-provider": UserPlus,
+  "athena-test": Database,
 };
 
 function getDisplayName(email) {

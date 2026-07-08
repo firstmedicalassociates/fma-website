@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "../../../../lib/prisma";
+import { VISIBLE_LOCATION_WHERE } from "../../../../lib/locations";
 import ProviderForm from "../provider-form";
 
 export const runtime = "nodejs";
@@ -23,6 +24,9 @@ export default async function EditProviderPage({ params }) {
         imageUrl: true,
         imageAlt: true,
         linkUrl: true,
+        athenaProviderId: true,
+        athenaDepartmentId: true,
+        athenaSchedulingName: true,
         locations: true,
         languages: true,
         sortOrder: true,
@@ -30,6 +34,7 @@ export default async function EditProviderPage({ params }) {
       },
     }),
     prisma.location.findMany({
+      where: VISIBLE_LOCATION_WHERE,
       orderBy: { title: "asc" },
       select: {
         slug: true,

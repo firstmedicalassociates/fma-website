@@ -354,6 +354,7 @@
 .ctaActions a {
   min-height: 52px;
   padding: 0 28px;
+  border: 1px solid transparent;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
@@ -371,6 +372,13 @@
   background: #ffffff;
   color: var(--services-primary);
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.22);
+}
+
+.ctaActions a:nth-child(2) {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .ctaActions a:last-child {

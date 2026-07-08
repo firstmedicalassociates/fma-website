@@ -8,29 +8,43 @@
     "start": "next start",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
+    "check:ai-search-guards": "node --experimental-default-type=module scripts/check-ai-search-guards.mjs",
+    "check:deployment": "npm audit --audit-level=low && npm run check:ai-search-guards && npm run eval:ai-search && npx prisma validate && npm run build",
+    "eval:ai-search": "node --experimental-default-type=module scripts/evaluate-ai-search.mjs",
+    "eval:ai-search:live": "node --experimental-default-type=module scripts/evaluate-ai-search.mjs --live --all-providers",
+    "athena:audit-provider-departments": "node scripts/audit-athena-provider-departments.mjs",
+    "athena:debug-open-slots": "node scripts/debug-athena-open-slots.mjs",
+    "check:embedding-freshness": "node scripts/check-embedding-freshness.js",
+    "index:embeddings": "node scripts/index-embeddings.js",
     "import:live-blogs": "node scripts/import-live-blogs.js",
     "sync:providers": "node scripts/sync-live-providers.js",
-    "migrate:provider-images": "node scripts/migrate-provider-images-to-blob.js"
+    "migrate:provider-images": "node scripts/migrate-provider-images-to-blob.js",
+    "athena:provider-schedules": "node scripts/print-athena-provider-schedules.js"
   },
   "dependencies": {
     "@fontsource/material-symbols-outlined": "^5.2.42",
-    "@neondatabase/serverless": "^1.0.2",
-    "@prisma/adapter-neon": "^7.7.0",
-    "@prisma/client": "^7.7.0",
-    "@vercel/blob": "^2.4.0",
+    "@neondatabase/serverless": "^1.1.0",
+    "@prisma/adapter-neon": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "@vercel/blob": "^2.5.0",
     "bcryptjs": "^2.4.3",
+    "dotenv": "^16.6.1",
     "image-size": "^2.0.2",
     "lucide-react": "^1.11.0",
-    "next": "16.1.5",
+    "next": "16.2.10",
     "node-html-parser": "^7.1.0",
     "openai": "^6.38.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
   "devDependencies": {
-    "eslint": "^9",
-    "eslint-config-next": "16.1.5",
-    "prisma": "^7.7.0"
+    "eslint": "^9.39.4",
+    "eslint-config-next": "16.2.10",
+    "prisma": "^7.8.0"
+  },
+  "overrides": {
+    "@hono/node-server": "1.19.13",
+    "postcss": "8.5.10"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

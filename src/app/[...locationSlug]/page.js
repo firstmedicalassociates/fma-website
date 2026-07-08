@@ -5,9 +5,15 @@ import {
   buildOpeningHoursSpecification,
   formatOfficeHoursForDisplay,
   groupLocationServices,
+  isHiddenLocationSlug,
   joinLocationSegments,
 } from "../lib/locations";
+import {
+  resolveLocationGalleryImages,
+  resolveLocationPrimaryImage,
+} from "../lib/location-photos";
 import { prisma } from "../lib/prisma";
+import { resolveProviderImageSrc } from "../lib/providers";
 import { getLocationSeoContent } from "../lib/seo";
 import LocationPageShell from "./location-page-shell";
 
@@ -78,6 +84,7 @@ function buildServiceOfferCatalog(services = [], locationTitle = "Location") {
 export async function generateMetadata({ params }) {
   const locationPath = resolveLocationPath(await params);
   if (!locationPath) return {};
+  if (isHiddenLocationSlug(locationPath)) return {};
 
   const location = await prisma.location.findUnique({
     where: { slug: locationPath },
@@ -87,7 +94,9 @@ export async function generateMetadata({ params }) {
   if (!location) return {};
 
   const seo = getLocationSeoContent(location);
-  const imageUrl = resolveImageUrl(location.mapImageUrl);
+  const primaryImage = resolveLocationPrimaryImage(location);
+  const imageUrl = resolveImageUrl(primaryImage?.src || location.mapImageUrl);
+  const imageAlt = primaryImage?.alt || location.mapImageAlt || location.title;
 
   return {
     title: seo.title,
@@ -100,20 +109,20 @@ export async function generateMetadata({ params }) {
       url: absoluteUrl(location.slug),
       title: seo.title,
       description: seo.description,
-      images: imageUrl ? [{ url: imageUrl, alt: location.mapImageAlt || location.title }] : undefined,
+      images: imageUrl ? [{ url: imageUrl, alt: imageAlt }] : undefined,
     },
     twitter: {
       card: imageUrl ? "summary_large_image" : "summary",
       title: seo.title,
       description: seo.description,
-      images: imageUrl ? [{ url: imageUrl, alt: location.mapImageAlt || location.title }] : undefined,
+      images: imageUrl ? [{ url: imageUrl, alt: imageAlt }] : undefined,
     },
   };
 }
 
 export default async function LocationLandingPage({ params }) {
   const locationPath = resolveLocationPath(await params);
-  if (!locationPath) {
+  if (!locationPath || isHiddenLocationSlug(locationPath)) {
     notFound();
   }
 
@@ -165,7 +174,11 @@ export default async function LocationLandingPage({ params }) {
       : [],
   ]);
 
-  const imageUrl = resolveImageUrl(location.mapImageUrl);
+  const primaryImage = resolveLocationPrimaryImage(location);
+  const galleryImages = resolveLocationGalleryImages(location);
+  const primaryImageSrc = primaryImage?.src || location.mapImageUrl || "";
+  const primaryImageAlt = primaryImage?.alt || location.mapImageAlt || location.title;
+  const imageUrl = resolveImageUrl(primaryImageSrc);
   const locationUrl = absoluteUrl(location.slug);
   const openingHours = formatOfficeHoursForDisplay(location.officeHours);
   const openingHoursSpecification = buildOpeningHoursSpecification(location.officeHours);
@@ -207,16 +220,18 @@ export default async function LocationLandingPage({ params }) {
           ...location,
           seoH1: seo.h1,
           seoPlaceLabel: seo.placeLabel,
-          mapImageUrl: location.mapImageUrl || "",
-          mapImageAlt: location.mapImageAlt || location.title,
+          mapImageUrl: primaryImageSrc,
+          mapImageAlt: primaryImageAlt,
           officeHours: Array.isArray(location.officeHours) ? location.officeHours : [],
           infoSections: Array.isArray(location.infoSections) ? location.infoSections : [],
           publicPhone,
           services: locationServices,
-          imageUrl: imageUrl || "",
+          imageUrl: primaryImageSrc,
+          galleryImages,
         }}
         providers={providers.map((provider) => ({
           ...provider,
+          imageUrl: resolveProviderImageSrc(provider),
           imageAlt: provider.imageAlt || provider.name,
           profileHref: `/providers/${provider.slug}`,
           ctaHref: provider.linkUrl || `/providers/${provider.slug}`,

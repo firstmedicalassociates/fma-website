@@ -34,6 +34,13 @@ export const ADMIN_PRIMARY_LINKS = [
     icon: "providers",
     smokeText: "Providers",
   },
+  {
+    key: "ai-search",
+    href: "/admin/ai-search",
+    label: "AI Search",
+    icon: "ai-search",
+    smokeText: "AI Search",
+  },
 ];
 
 export const ADMIN_QUICK_LINKS = [
@@ -64,6 +71,13 @@ export const ADMIN_QUICK_LINKS = [
     label: "Add Provider",
     icon: "new-provider",
     smokeText: "Add Provider",
+  },
+  {
+    key: "athena-test",
+    href: "/admin/athena-test",
+    label: "Athena Test",
+    icon: "athena-test",
+    smokeText: "Athena API Test",
   },
 ];
 

@@ -105,13 +105,6 @@ module.exports = [
     href: "/location/lutherville/",
   },
   {
-    name: "Laurel, MD",
-    cityStatePhone: "443-917-3101",
-    addressLines: ["14201 Laurel Park Drive, Suite 111", "Laurel, MD 20707"],
-    img: "https://drsfirst.com/wp-content/uploads/2023/04/health-clinic-02.png",
-    href: "/location/laurel/",
-  },
-  {
     name: "Greenbelt, MD",
     cityStatePhone: "227-997-3903",
     addressLines: ["7500 Greenway Center Dr, Ste 620", "Greenbelt, MD 21093"],

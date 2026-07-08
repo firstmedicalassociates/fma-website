@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import { prisma } from "../lib/prisma";
+import { VISIBLE_LOCATION_WHERE } from "../lib/locations";
 import { buildLocationTitleMap, mapProviderForDirectory } from "../lib/providers";
 import { providersIndexMetadata } from "../lib/seo";
 import ProvidersDirectory from "./providers-directory";
@@ -31,6 +32,7 @@ export default async function ProvidersPage() {
       },
     }),
     prisma.location.findMany({
+      where: VISIBLE_LOCATION_WHERE,
       orderBy: { title: "asc" },
       select: {
         slug: true,

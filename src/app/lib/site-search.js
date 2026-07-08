@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { withVisibleLocationWhere } from "./locations";
 import { buildLocationTitleMap, formatProviderList, resolveLocationTitles } from "./providers";
 
 function cleanText(value = "") {
@@ -78,7 +79,7 @@ export async function searchSite(rawQuery, options = {}) {
       },
     }),
     prisma.location.findMany({
-      where: {
+      where: withVisibleLocationWhere({
         OR: [
           { title: { contains: query, mode: "insensitive" } },
           { accent: { contains: query, mode: "insensitive" } },
@@ -89,7 +90,7 @@ export async function searchSite(rawQuery, options = {}) {
           { addressState: { contains: query, mode: "insensitive" } },
           { postalCode: { contains: query, mode: "insensitive" } },
         ],
-      },
+      }),
       orderBy: { title: "asc" },
       take: perTypeLimit,
       select: {
@@ -144,11 +145,11 @@ export async function searchSite(rawQuery, options = {}) {
   const providerLocationSlugs = [...new Set(providers.flatMap((provider) => provider.locations || []))];
   const providerLocationTitles = providerLocationSlugs.length
     ? await prisma.location.findMany({
-        where: {
+        where: withVisibleLocationWhere({
           slug: {
             in: providerLocationSlugs,
           },
-        },
+        }),
         select: {
           slug: true,
           title: true,

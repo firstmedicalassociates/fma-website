@@ -45,9 +45,9 @@ function isTelehealthService(service = {}) {
   return category.includes("tele") || title.includes("tele");
 }
 
-export default function ServicesDirectory({ services = [] }) {
+export default function ServicesDirectory({ services = [], initialCategory = "" }) {
   const [query, setQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeCategory, setActiveCategory] = useState(() => normalizeCategory(initialCategory) || "all");
 
   const categories = useMemo(() => {
     const seen = new Set();
@@ -63,13 +63,20 @@ export default function ServicesDirectory({ services = [] }) {
     return values;
   }, [services]);
 
+  const effectiveActiveCategory = useMemo(() => {
+    if (activeCategory === "all") return "all";
+    return categories.some((category) => normalizeCategory(category) === activeCategory)
+      ? activeCategory
+      : "all";
+  }, [activeCategory, categories]);
+
   const filteredServices = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return services
       .filter((service) => {
         const category = normalizeCategory(service?.category);
-        if (activeCategory !== "all" && category !== activeCategory) return false;
+        if (effectiveActiveCategory !== "all" && category !== effectiveActiveCategory) return false;
         if (!normalizedQuery) return true;
 
         const title = String(service?.title || "").toLowerCase();
@@ -88,7 +95,7 @@ export default function ServicesDirectory({ services = [] }) {
         if (firstTelehealth === secondTelehealth) return 0;
         return firstTelehealth ? 1 : -1;
       });
-  }, [activeCategory, query, services]);
+  }, [effectiveActiveCategory, query, services]);
 
   const filterItems = useMemo(() => {
     return [
@@ -105,7 +112,7 @@ export default function ServicesDirectory({ services = [] }) {
       <section className={styles.heroSection}>
         <div className={styles.heroSplit}>
           <div className={styles.heroLeft}>
-            <HeroEyebrow as="span">Primary Care, Urgent Care &amp; Telehealth</HeroEyebrow>
+            <HeroEyebrow as="span">Primary Care, Specialized Care &amp; Telehealth</HeroEyebrow>
             <h1>
               Healthcare Services
               <br />
@@ -114,7 +121,7 @@ export default function ServicesDirectory({ services = [] }) {
           </div>
           <div className={styles.heroRight}>
             <p>
-              Browse primary care, urgent care, telehealth, and chronic care services. Search,
+              Browse primary care, specialized care, telehealth, and chronic care services. Search,
               filter, and find the right treatment options from First Medical Associates.
             </p>
             <div className={styles.heroLines} aria-hidden="true">
@@ -143,7 +150,7 @@ export default function ServicesDirectory({ services = [] }) {
             <span className={styles.filterLabel}>Filter By:</span>
             <PillToggleButtons
               items={filterItems}
-              activeValue={activeCategory}
+              activeValue={effectiveActiveCategory}
               onSelect={setActiveCategory}
               ariaLabel="Service category filters"
             />
@@ -193,8 +200,8 @@ export default function ServicesDirectory({ services = [] }) {
           <div className={styles.ctaContent}>
             <h2>Need immediate clinical assistance?</h2>
             <p>
-              Our medical team is available for urgent consultations and chronic disease
-              management.
+              Our medical team is available for urgent same-day consultations and chronic
+              disease management.
             </p>
             <div className={styles.ctaActions}>
               <Link href="/providers">Find a Clinician</Link>

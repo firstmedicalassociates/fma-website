@@ -2,7 +2,7 @@
 
 import { Inter } from "next/font/google";
 import { usePathname } from "next/navigation";
-import { Briefcase, Handshake, Info, Target, Users } from "lucide-react";
+import { Briefcase, Handshake, Info, Target } from "lucide-react";
 import HeroEyebrow from "../components/hero-eyebrow";
 import { PillToggleNav } from "../components/pill-toggles";
 import styles from "../components/brandon-route-shell.module.css";
@@ -39,12 +39,6 @@ export default function AboutLayout({ children }) {
       subtitle:
         "High-quality, accessible care that patients trust and our team is proud to deliver.",
     },
-    "/about/leadership": {
-      tag: "Leadership",
-      title: "Guided by Clinical Excellence.",
-      subtitle:
-        "Meet the team of medical professionals and healthcare leaders dedicated to shaping the future of First Medical Associates.",
-    },
   };
 
   const currentHero = heroContent[pathname] || heroContent["/about"];
@@ -53,7 +47,6 @@ export default function AboutLayout({ children }) {
     { name: "Mission & Values", href: "/about/mission", icon: Target },
     { name: "Careers", href: "/about/careers", icon: Briefcase },
     { name: "Partner With Us", href: "/about/partners", icon: Handshake },
-    { name: "Leadership", href: "/about/leadership", icon: Users },
   ];
 
   return (

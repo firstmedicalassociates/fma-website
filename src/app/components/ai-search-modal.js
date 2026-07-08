@@ -1,29 +1,50 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GENERAL_BOOK_APPOINTMENT_URL } from "../lib/config/site";
 import { AI_SEARCH_REQUEST_EVENT } from "../lib/ai-search-events";
-import { getNoPhiError, hasPotentialPhi, NO_PHI_NOTICE } from "../lib/no-phi-guard";
+import {
+  PUBLIC_SEARCH_MAX_CHARACTERS,
+  getNoPhiError,
+  hasPotentialPhi,
+  normalizePublicSearchQuery,
+  NO_PHI_NOTICE,
+} from "../lib/no-phi-guard";
 import styles from "./ai-search-modal.module.css";
 
 const SEARCH_MIN_CHARACTERS = 2;
-const LOADING_STATUSES = [
+const DEFAULT_APPOINTMENT_RESULT_LIMIT = 4;
+const MAX_APPOINTMENT_RESULT_LIMIT = 48;
+const DEFAULT_LOADING_STATUSES = [
   "Reviewing doctors, services, and locations...",
   "Checking the best appointment paths...",
   "Preparing useful results and next steps...",
 ];
+const APPOINTMENT_LOADING_STATUSES = [
+  "Checking current appointment availability...",
+  "Matching providers, locations, and open times...",
+  "Preparing booking links...",
+];
+const APPOINTMENT_QUERY_PATTERN =
+  /\b(available|availability|availabilities|appointment|appointments|opening|openings|slot|slots|quickest|earliest|soonest|asap|today|tomorrow|\d{1,2}(?::\d{2})?\s*(?:a\.?m\.?|p\.?m\.?))\b/i;
 
-const PROMPT_PILLS = [
-  "Which doctors are accepting new patients?",
-  "How do I book an appointment?",
-  "What primary care services do you offer?",
-];
-const FOLLOWUP_PILLS = [
-  "Which doctors are accepting new patients?",
-  "What insurance do you accept?",
-  "Where are your offices located?",
-];
+const DEFAULT_FEEDBACK_STATE = {
+  status: "idle",
+  rating: "",
+  message: "",
+};
+
+function getPageContextFromPathname(pathname = "") {
+  const match = String(pathname || "").match(/^\/providers\/([a-z0-9-]+)\/?$/i);
+  if (!match?.[1]) return null;
+
+  return {
+    type: "provider",
+    slug: match[1],
+  };
+}
 
 // Matches full URLs, www URLs, US phone numbers, and email addresses in AI-generated text.
 const LINK_PATTERN =
@@ -142,8 +163,116 @@ function mapApiCards(results = []) {
   }));
 }
 
+function getLoadingStatuses(nextQuery) {
+  return APPOINTMENT_QUERY_PATTERN.test(nextQuery)
+    ? APPOINTMENT_LOADING_STATUSES
+    : DEFAULT_LOADING_STATUSES;
+}
+
+function getAppointmentStatusText(appointmentMeta, hasAppointmentOptions) {
+  if (!appointmentMeta) return "";
+
+  if (hasAppointmentOptions || appointmentMeta.availabilityStatus === "open_slots_found") {
+    return "Showing the earliest online time found for each provider. Use Book appointment to view the full live schedule.";
+  }
+
+  if (appointmentMeta.availabilityStatus === "no_open_slots") {
+    return "No online appointment times found right now.";
+  }
+
+  if (appointmentMeta.availabilityStatus === "provider_schedule_not_confirmed") {
+    return "Provider found. Please confirm current times by booking online or calling.";
+  }
+
+  if (appointmentMeta.availabilityStatus === "unavailable") {
+    return "Please confirm current times by booking online or calling.";
+  }
+
+  return "";
+}
+
+function getAppointmentTimeLabel(option = {}) {
+  if (option.slotMatchType === "exact") return "Exact match";
+  if (option.slotMatchType === "fallback") return "Closest available";
+  return "Earliest shown";
+}
+
+function createMessageId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function providerSlugFromHref(href = "") {
+  const match = String(href || "").match(/\/providers\/([a-z0-9-]+)/i);
+  return match?.[1] || "";
+}
+
+function buildSessionContext(messages = []) {
+  const lastAssistant = [...messages].reverse().find((message) => message.role === "assistant" && message.payload);
+  const payload = lastAssistant?.payload;
+  if (!payload) return null;
+
+  const providerNames = new Set();
+  const providerSlugs = new Set();
+
+  for (const name of payload.appointmentMeta?.requestedProviderNames || []) {
+    if (name) providerNames.add(name);
+  }
+
+  for (const option of payload.appointmentOptions || []) {
+    if (option.providerName) providerNames.add(option.providerName);
+    if (option.providerSlug) providerSlugs.add(option.providerSlug);
+    const slug = providerSlugFromHref(option.providerUrl);
+    if (slug) providerSlugs.add(slug);
+  }
+
+  for (const card of payload.cards || []) {
+    const cardType = card.type || card.kind || "";
+    if (cardType === "provider" && card.title) providerNames.add(card.title);
+    const slug = providerSlugFromHref(card.href);
+    if (slug) providerSlugs.add(slug);
+  }
+
+  for (const source of payload.sources || []) {
+    const slug = providerSlugFromHref(source.url);
+    if (slug) providerSlugs.add(slug);
+  }
+
+  const providerNameValues = [...providerNames].slice(0, 3);
+  const providerSlugValues = [...providerSlugs].slice(0, 3);
+  if (providerNameValues.length === 0 && providerSlugValues.length === 0) return null;
+
+  return {
+    lastIntent: payload.intent || "",
+    lastAvailabilityStatus: payload.appointmentMeta?.availabilityStatus || "",
+    providerNames: providerNameValues,
+    providerSlugs: providerSlugValues,
+  };
+}
+
+function getPrimaryCardHref(card = {}) {
+  if (card.type === "appointment" && card.bookingUrl) return card.bookingUrl;
+  return card.href || card.bookingUrl || "/search";
+}
+
+function shouldOpenCardInNewTab(card = {}) {
+  const href = getPrimaryCardHref(card);
+  return /^https?:\/\//i.test(href);
+}
+
+function isExternalHref(href = "") {
+  return /^https?:\/\//i.test(href) || /^tel:/i.test(href) || /^mailto:/i.test(href);
+}
+
+function normalizePositiveInteger(value, fallback, max) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.min(parsed, max);
+}
+
 export default function AiSearchModal({ className = "", onOpen, listenForExternalRequests = true }) {
+  const pathname = usePathname();
   const inputRef = useRef(null);
+  const chatStreamRef = useRef(null);
   const previousFocusRef = useRef(null);
   const loadingIntervalRef = useRef(null);
   const lockScrollYRef = useRef(0);
@@ -152,15 +281,12 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
   const [query, setQuery] = useState("");
   const [state, setState] = useState("idle");
   const [statusIndex, setStatusIndex] = useState(0);
+  const [loadingStatuses, setLoadingStatuses] = useState(DEFAULT_LOADING_STATUSES);
   const [helperText, setHelperText] = useState("Example: Find a primary care doctor near Rockville.");
   const [errorMessage, setErrorMessage] = useState("");
-  const [resultPayload, setResultPayload] = useState({
-    summary: DEFAULT_SUMMARY,
-    cards: MOCK_RESULT_CARDS,
-    sources: [],
-    citations: [],
-    disclaimer: false,
-  });
+  const [conversationMessages, setConversationMessages] = useState([]);
+  const [activeAssistantMessageId, setActiveAssistantMessageId] = useState("");
+  const [feedbackState, setFeedbackState] = useState(DEFAULT_FEEDBACK_STATE);
 
   const overlayClassName = [
     styles.modal,
@@ -171,81 +297,152 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
     .filter(Boolean)
     .join(" ");
 
-  const loadingStatus = useMemo(() => LOADING_STATUSES[statusIndex] || LOADING_STATUSES[0], [statusIndex]);
+  const loadingStatus = useMemo(
+    () => loadingStatuses[statusIndex] || loadingStatuses[0],
+    [loadingStatuses, statusIndex]
+  );
+  const pageContext = useMemo(() => getPageContextFromPathname(pathname), [pathname]);
 
-  function stopLoadingTicker() {
+  const stopLoadingTicker = useCallback(() => {
     if (loadingIntervalRef.current) {
       window.clearInterval(loadingIntervalRef.current);
       loadingIntervalRef.current = null;
     }
-  }
+  }, []);
 
-  function resetResults() {
+  const resetResults = useCallback(() => {
     setState("idle");
     setStatusIndex(0);
+    setLoadingStatuses(DEFAULT_LOADING_STATUSES);
     setHelperText("Example: Find a primary care doctor near Rockville.");
     setErrorMessage("");
-    setResultPayload({
-      summary: DEFAULT_SUMMARY,
-      cards: MOCK_RESULT_CARDS,
-      sources: [],
-      citations: [],
-      disclaimer: false,
-    });
+    setConversationMessages([]);
+    setActiveAssistantMessageId("");
+    setFeedbackState(DEFAULT_FEEDBACK_STATE);
     stopLoadingTicker();
-  }
+  }, [stopLoadingTicker]);
 
-  function openModal() {
+  const openModal = useCallback(() => {
     previousFocusRef.current = document.activeElement;
     setIsOpen(true);
     resetResults();
     onOpen?.();
-  }
+  }, [onOpen, resetResults]);
 
-  function closeModal() {
+  const closeModal = useCallback(() => {
     setIsOpen(false);
     resetResults();
-  }
+  }, [resetResults]);
 
-  function applyPrompt(text) {
-    setQuery(text);
-    window.requestAnimationFrame(() => {
-      inputRef.current?.focus();
-      const end = text.length;
-      inputRef.current?.setSelectionRange(end, end);
-    });
-  }
+  const executeSearch = useCallback(async (nextQuery, requestOptions = {}) => {
+    const searchQuery = normalizePublicSearchQuery(nextQuery);
+    const sessionContext = requestOptions.sessionContext || buildSessionContext(conversationMessages);
+    const appointmentResultLimit = normalizePositiveInteger(
+      requestOptions.maxAppointmentResults,
+      DEFAULT_APPOINTMENT_RESULT_LIMIT,
+      MAX_APPOINTMENT_RESULT_LIMIT
+    );
+    const providerCheckLimit = normalizePositiveInteger(
+      requestOptions.providerCheckLimit,
+      0,
+      80
+    );
 
-  async function executeSearch(nextQuery) {
-    if (nextQuery.length < SEARCH_MIN_CHARACTERS) {
+    if (searchQuery !== nextQuery) {
+      setQuery(searchQuery);
+    }
+
+    if (searchQuery.length < SEARCH_MIN_CHARACTERS) {
       setHelperText(`Please enter at least ${SEARCH_MIN_CHARACTERS} characters.`);
       inputRef.current?.focus();
       return;
     }
 
-    if (hasPotentialPhi(nextQuery)) {
-      setResultPayload({
+    if (hasPotentialPhi(searchQuery)) {
+      const privacyPayload = {
         summary: getNoPhiError("AI search"),
         cards: MOCK_RESULT_CARDS,
         sources: [],
         citations: [],
-        disclaimer: false,
-      });
+        appointmentOptions: [],
+        appointmentMeta: null,
+        recoveryActions: [],
+        eventId: "",
+      };
+
+      setConversationMessages((messages) => [
+        ...messages,
+        {
+          id: createMessageId("assistant"),
+          role: "assistant",
+          payload: privacyPayload,
+        },
+      ]);
+      setActiveAssistantMessageId("");
+      setFeedbackState(DEFAULT_FEEDBACK_STATE);
       setErrorMessage("");
       setHelperText("Remove medical details and try a general FMA question.");
+      setQuery("");
       setState("results");
       inputRef.current?.focus();
       return;
     }
 
+    if (searchQuery.length > PUBLIC_SEARCH_MAX_CHARACTERS) {
+      const tooLongPayload = {
+        summary: "Please keep your question under 300 characters.",
+        cards: MOCK_RESULT_CARDS,
+        sources: [],
+        citations: [],
+        appointmentOptions: [],
+        appointmentMeta: null,
+        recoveryActions: [],
+        eventId: "",
+      };
+
+      setConversationMessages((messages) => [
+        ...messages,
+        {
+          id: createMessageId("assistant"),
+          role: "assistant",
+          payload: tooLongPayload,
+        },
+      ]);
+      setActiveAssistantMessageId("");
+      setFeedbackState(DEFAULT_FEEDBACK_STATE);
+      setErrorMessage("");
+      setHelperText("Shorten your question and try again.");
+      setState("results");
+      inputRef.current?.focus();
+      return;
+    }
+
+    const assistantMessageId = createMessageId("assistant");
+
     stopLoadingTicker();
     setErrorMessage("");
+    const nextLoadingStatuses = getLoadingStatuses(searchQuery);
+    setLoadingStatuses(nextLoadingStatuses);
     setStatusIndex(0);
     setState("loading");
     setHelperText("Searching FMA with AI...");
+    setActiveAssistantMessageId(assistantMessageId);
+    setConversationMessages((messages) => [
+      ...messages,
+      {
+        id: createMessageId("user"),
+        role: "user",
+        content: searchQuery,
+      },
+      {
+        id: assistantMessageId,
+        role: "assistant",
+        status: "loading",
+      },
+    ]);
 
     loadingIntervalRef.current = window.setInterval(() => {
-      setStatusIndex((current) => (current + 1) % LOADING_STATUSES.length);
+      setStatusIndex((current) => (current + 1) % nextLoadingStatuses.length);
     }, 900);
 
     try {
@@ -254,38 +451,159 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query: nextQuery }),
+        body: JSON.stringify({
+          query: searchQuery,
+          pageContext,
+          sessionContext,
+          maxAppointmentResults: appointmentResultLimit,
+          providerCheckLimit: providerCheckLimit || undefined,
+        }),
       });
 
       const data = await response.json().catch(() => ({}));
-      const cards = mapApiCards(data?.results);
+      const structuredCards = Array.isArray(data?.ai?.cards)
+        ? data.ai.cards.slice(0, 6)
+        : Array.isArray(data?.ai?.structuredCards)
+          ? data.ai.structuredCards.slice(0, 6)
+          : [];
+      const cards = structuredCards.length > 0 ? structuredCards : mapApiCards(data?.results);
       const summary = data?.ai?.answer || data?.ai?.error || DEFAULT_SUMMARY;
       const sources = Array.isArray(data?.ai?.sources) ? data.ai.sources.slice(0, 3) : [];
       const citations = Array.isArray(data?.ai?.citations) ? data.ai.citations : [];
-      const disclaimer = Boolean(data?.ai?.disclaimer);
+      const appointmentOptions = Array.isArray(data?.ai?.appointmentOptions)
+        ? data.ai.appointmentOptions.slice(0, appointmentResultLimit)
+        : [];
+      const appointmentMeta =
+        data?.ai?.appointmentMeta && typeof data.ai.appointmentMeta === "object"
+          ? data.ai.appointmentMeta
+          : null;
+      const eventId = typeof data?.ai?.eventId === "string" ? data.ai.eventId : "";
+      const intent = typeof data?.ai?.intent === "string" ? data.ai.intent : "";
+      const resolution =
+        data?.ai?.resolution && typeof data.ai.resolution === "object" ? data.ai.resolution : null;
+      const recoveryActions = Array.isArray(data?.ai?.recoveryActions)
+        ? data.ai.recoveryActions.slice(0, 4)
+        : [];
+      const code = typeof data?.ai?.code === "string" ? data.ai.code : "";
 
-      setResultPayload({ summary, cards, sources, citations, disclaimer });
+      const nextPayload = {
+        summary,
+        cards,
+        sources,
+        citations,
+        appointmentOptions,
+        appointmentMeta,
+        intent,
+        code,
+        resolution,
+        recoveryActions,
+        eventId,
+      };
+
+      setConversationMessages((messages) =>
+        messages.map((message) =>
+          message.id === assistantMessageId
+            ? {
+                ...message,
+                status: "done",
+                payload: nextPayload,
+              }
+            : message
+        )
+      );
+      setFeedbackState(DEFAULT_FEEDBACK_STATE);
       setHelperText("Refine your search or ask a follow-up question.");
-      setErrorMessage(response.ok && data?.ok ? "" : "Live AI search is unavailable right now. Showing suggested paths.");
+      setErrorMessage(response.ok && data?.ok ? "" : "AI search is unavailable right now. Showing suggested paths.");
       setState("results");
     } catch (_error) {
-      setResultPayload({
+      const fallbackPayload = {
         summary: DEFAULT_SUMMARY,
         cards: MOCK_RESULT_CARDS,
         sources: [],
-      });
-      setErrorMessage("Live AI search is unavailable right now. Showing suggested paths.");
+        citations: [],
+        appointmentOptions: [],
+        appointmentMeta: null,
+        recoveryActions: [],
+        eventId: "",
+      };
+
+      setConversationMessages((messages) =>
+        messages.map((message) =>
+          message.id === assistantMessageId
+            ? {
+                ...message,
+                status: "done",
+                payload: fallbackPayload,
+              }
+            : message
+        )
+      );
+      setFeedbackState(DEFAULT_FEEDBACK_STATE);
+      setErrorMessage("AI search is unavailable right now. Showing suggested paths.");
       setHelperText("Refine your search or ask a follow-up question.");
       setState("results");
     } finally {
       stopLoadingTicker();
     }
+  }, [conversationMessages, pageContext, stopLoadingTicker]);
+
+  async function submitFeedback(eventId, rating, tags = []) {
+    if (!eventId || feedbackState.status === "submitting") return;
+
+    setFeedbackState({
+      status: "submitting",
+      rating,
+      message: "",
+    });
+
+    try {
+      const response = await fetch("/api/ai-search/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          eventId,
+          rating,
+          tags,
+        }),
+      });
+
+      setFeedbackState({
+        status: response.ok ? "sent" : "error",
+        rating: response.ok ? rating : "",
+        message: response.ok ? "Feedback saved." : "Feedback could not be saved.",
+      });
+    } catch {
+      setFeedbackState({
+        status: "error",
+        rating: "",
+        message: "Feedback could not be saved.",
+      });
+    }
   }
 
   async function runSearch(event) {
     event.preventDefault();
+    if (state === "loading") return;
     await executeSearch(query.trim());
   }
+
+  function runRecoveryAction(action) {
+    if (!action) return;
+    if (action.type === "query" && action.query) {
+      void executeSearch(action.query);
+    }
+  }
+
+  useEffect(() => {
+    if (!isOpen || !chatStreamRef.current) return;
+
+    chatStreamRef.current.scrollTo({
+      top: chatStreamRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [conversationMessages, isOpen, state]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -340,11 +658,11 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         previousFocusRef.current.focus();
       }
     };
-  }, [isOpen]);
+  }, [closeModal, isOpen, stopLoadingTicker]);
 
   useEffect(() => {
     return () => stopLoadingTicker();
-  }, []);
+  }, [stopLoadingTicker]);
 
   useEffect(() => {
     if (!listenForExternalRequests) return undefined;
@@ -352,6 +670,14 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
     function handleSearchRequest(event) {
       const nextQuery = String(event?.detail?.query || "").trim();
       const shouldAutoRun = Boolean(event?.detail?.autoRun);
+      const requestOptions = {
+        maxAppointmentResults: event?.detail?.maxAppointmentResults,
+        providerCheckLimit: event?.detail?.providerCheckLimit,
+        sessionContext:
+          event?.detail?.sessionContext && typeof event.detail.sessionContext === "object"
+            ? event.detail.sessionContext
+            : null,
+      };
 
       openModal();
 
@@ -359,7 +685,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
 
       if (shouldAutoRun && nextQuery.length >= SEARCH_MIN_CHARACTERS) {
         window.setTimeout(() => {
-          void executeSearch(nextQuery);
+          void executeSearch(nextQuery, requestOptions);
         }, 0);
       }
     }
@@ -413,113 +739,309 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
               </h2>
             </div>
 
-            <div className={styles.searchDock}>
-              <form className={styles.searchPanel} onSubmit={runSearch}>
-                <div className={styles.searchInner}>
-                  <div className={styles.searchInputRow}>
-                    <SparkleIcon className={styles.inputIcon} />
-                    <textarea
-                      className={styles.searchInput}
-                      onChange={(event) => setQuery(event.target.value)}
-                      placeholder="Ask about doctors, services, locations, insurance, or appointments..."
-                      ref={inputRef}
-                      rows={2}
-                      value={query}
-                    />
-                  </div>
-
-                  <div className={styles.controls}>
-                    <span className={styles.helperText}>{helperText}</span>
-                    <button className={styles.submitButton} type="submit">
-                      Search
-                    </button>
-                  </div>
-
-                  <div className={styles.privacyHint}>
-                    {NO_PHI_NOTICE}
-                  </div>
-                </div>
-              </form>
-
-              <div aria-label="Suggested AI searches" className={styles.suggestionChips}>
-                {PROMPT_PILLS.map((pill) => (
-                  <button className={styles.chip} key={pill} onClick={() => applyPrompt(pill)} type="button">
-                    {pill}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {(state === "loading" || state === "results") ? (
-              <section aria-live="polite" className={styles.stateArea}>
-                {state === "loading" ? (
-                  <div className={styles.loadingView}>
-                    <div className={styles.thinkingCard}>
-                      <div className={styles.thinkingHead}>
-                        <span aria-hidden="true" className={styles.thinkingOrb} />
-                        Searching First Medical Associates...
-                      </div>
-                      <div className={styles.thinkingStatus}>{loadingStatus}</div>
-                      <div className={styles.skeletonGrid}>
-                        {[0, 1, 2].map((item) => (
-                          <div className={styles.skeletonCard} key={item}>
-                            <div className={`${styles.skeletonLine} ${styles.skeletonShort}`} />
-                            <div className={`${styles.skeletonLine} ${styles.skeletonLong}`} />
-                            <div className={`${styles.skeletonLine} ${styles.skeletonMedium}`} />
-                          </div>
-                        ))}
-                      </div>
+            <section aria-label="AI search conversation" className={styles.chatShell}>
+              <div aria-live="polite" className={styles.chatStream} ref={chatStreamRef}>
+                {conversationMessages.length === 0 ? (
+                  <article className={`${styles.chatMessage} ${styles.assistantMessage}`}>
+                    <span className={styles.messageAvatar} aria-hidden="true">
+                      <SparkleIcon className={styles.sparkleIcon} />
+                    </span>
+                    <div className={`${styles.messageBubble} ${styles.assistantBubble} ${styles.welcomeBubble}`}>
+                      <div className={styles.assistantHeader}>FMA AI</div>
+                      <p className={styles.answerText}>Ask a question about FMA providers, locations, services, insurance, or appointments.</p>
                     </div>
-                  </div>
-                ) : (
-                  <div className={styles.resultsView}>
-                    <article className={styles.answerCard}>
-                      <div className={styles.answerLabel}>
-                        <SparkleIcon className={styles.sparkleIcon} />
-                        AI Summary
-                      </div>
-                      <h3>Here&apos;s the best place to start.</h3>
-                      <p>{renderWithLinks(resultPayload.summary)}</p>
+                  </article>
+                ) : null}
 
-                      {resultPayload.disclaimer ? (
-                        <div className={styles.disclaimerBanner}>
-                          <span className={styles.disclaimerIcon}>⚠</span>
-                          This answer is based on available information and may not be complete. Please call{" "}
-                          <a className={styles.answerLink} href="tel:+13015152901">301-515-2901</a> or email{" "}
-                          <a className={styles.answerLink} href="mailto:info@DrsFirst.com">info@DrsFirst.com</a> to confirm details with our team.
+                {conversationMessages.map((message) => {
+                  if (message.role === "user") {
+                    return (
+                      <article className={`${styles.chatMessage} ${styles.userMessage}`} key={message.id}>
+                        <div className={`${styles.messageBubble} ${styles.userBubble}`}>
+                          {message.content}
                         </div>
-                      ) : null}
+                      </article>
+                    );
+                  }
 
-                      <div className={styles.quickActions}>
-                        <Link className={`${styles.quickAction} ${styles.quickActionPrimary}`} href={GENERAL_BOOK_APPOINTMENT_URL}>
-                          Schedule Appointment
-                        </Link>
-                        <Link className={styles.quickAction} href="/providers">
-                          Find a Doctor
-                        </Link>
-                        <Link className={styles.quickAction} href="/locations">
-                          View Locations
-                        </Link>
+                  if (message.status === "loading") {
+                    return (
+                      <article className={`${styles.chatMessage} ${styles.assistantMessage}`} key={message.id}>
+                        <span className={styles.messageAvatar} aria-hidden="true">
+                          <SparkleIcon className={styles.sparkleIcon} />
+                        </span>
+                        <div className={`${styles.messageBubble} ${styles.assistantBubble} ${styles.thinkingBubble}`}>
+                          <div className={styles.thinkingHead}>
+                            <span aria-hidden="true" className={styles.thinkingOrb} />
+                            Searching First Medical Associates...
+                          </div>
+                          <div className={styles.thinkingStatus}>{loadingStatus}</div>
+                          <div aria-hidden="true" className={styles.loadingDots}>
+                            <span />
+                            <span />
+                            <span />
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  }
+
+                  const payload = message.payload || {
+                    summary: DEFAULT_SUMMARY,
+                    cards: [],
+                    appointmentOptions: [],
+                    appointmentMeta: null,
+                    recoveryActions: [],
+                    eventId: "",
+                  };
+                  const messageAppointmentStatusText = getAppointmentStatusText(
+                    payload.appointmentMeta,
+                    payload.appointmentOptions.length > 0
+                  );
+                  const recoveryActions = Array.isArray(payload.recoveryActions)
+                    ? payload.recoveryActions
+                    : [];
+                  const showFeedback =
+                    message.id === activeAssistantMessageId &&
+                    payload.eventId;
+
+                  return (
+                    <article className={`${styles.chatMessage} ${styles.assistantMessage}`} key={message.id}>
+                      <span className={styles.messageAvatar} aria-hidden="true">
+                        <SparkleIcon className={styles.sparkleIcon} />
+                      </span>
+                      <div className={`${styles.messageBubble} ${styles.assistantBubble}`}>
+                        <div className={styles.assistantHeader}>FMA AI</div>
+                        {payload.resolution?.label ? (
+                          <div className={styles.resolutionPill}>{payload.resolution.label}</div>
+                        ) : null}
+                        <p className={styles.answerText}>{renderWithLinks(payload.summary)}</p>
+
+                        {messageAppointmentStatusText ? (
+                          <div className={styles.appointmentStatus}>
+                            <span>Current availability</span>
+                            <strong>{messageAppointmentStatusText}</strong>
+                          </div>
+                        ) : null}
+
+                        {payload.appointmentOptions.length > 0 ? (
+                          <div className={styles.appointmentOptions}>
+                            {payload.appointmentOptions.map((option) => (
+                              <article
+                                className={styles.appointmentOption}
+                                key={`${option.providerId}-${option.date}-${option.startTime}`}
+                              >
+                                <div>
+                                  <span className={styles.appointmentTimeLabel}>
+                                    {getAppointmentTimeLabel(option)}
+                                  </span>
+                                  <span className={styles.appointmentTime}>{option.displayTime}</span>
+                                  <h4>{option.providerName}</h4>
+                                  <p>
+                                    {[option.providerTitle, option.locationName].filter(Boolean).join(" | ")}
+                                  </p>
+                                  <p className={styles.appointmentHint}>
+                                    More times may be available on the booking page.
+                                  </p>
+                                </div>
+                                <div className={styles.appointmentLinks}>
+                                  {option.providerUrl ? (
+                                    <Link className={styles.appointmentSecondaryLink} href={option.providerUrl}>
+                                      View profile
+                                    </Link>
+                                  ) : null}
+                                  <a
+                                    className={styles.appointmentBookLink}
+                                    href={option.bookingUrl}
+                                    rel="noopener noreferrer"
+                                    target="_blank"
+                                  >
+                                    Book appointment
+                                  </a>
+                                </div>
+                              </article>
+                            ))}
+                          </div>
+                        ) : null}
+
+                        {recoveryActions.length > 0 ? (
+                          <div className={styles.recoveryActions}>
+                            {recoveryActions.map((action) => {
+                              if (action.type === "query" && action.query) {
+                                return (
+                                  <button
+                                    className={styles.recoveryAction}
+                                    key={`${action.type}-${action.value || action.label}`}
+                                    onClick={() => runRecoveryAction(action)}
+                                    type="button"
+                                  >
+                                    {action.label}
+                                  </button>
+                                );
+                              }
+
+                              if (action.href) {
+                                const external = isExternalHref(action.href);
+                                return external ? (
+                                  <a
+                                    className={styles.recoveryAction}
+                                    href={action.href}
+                                    key={`${action.type}-${action.value || action.label}`}
+                                    rel="noopener noreferrer"
+                                    target={/^https?:\/\//i.test(action.href) ? "_blank" : undefined}
+                                  >
+                                    {action.label}
+                                  </a>
+                                ) : (
+                                  <Link
+                                    className={styles.recoveryAction}
+                                    href={action.href}
+                                    key={`${action.type}-${action.value || action.label}`}
+                                  >
+                                    {action.label}
+                                  </Link>
+                                );
+                              }
+
+                              return null;
+                            })}
+                          </div>
+                        ) : null}
+
+                        {payload.cards?.filter((card) => card.type !== "appointment").length > 0 ? (
+                          <div className={styles.structuredCards}>
+                            {payload.cards
+                              .filter((card) => card.type !== "appointment")
+                              .slice(0, 4)
+                              .map((card) => {
+                                const href = getPrimaryCardHref(card);
+                                const external = shouldOpenCardInNewTab(card);
+                                const cardBody = (
+                                  <>
+                                    <div className={styles.structuredCardHeader}>
+                                      <span>{card.type || "result"}</span>
+                                      <h4>{card.title}</h4>
+                                      {card.subtitle ? <p>{card.subtitle}</p> : null}
+                                    </div>
+                                    {Array.isArray(card.details) && card.details.length > 0 ? (
+                                      <ul className={styles.structuredDetails}>
+                                        {card.details.slice(0, 3).map((detail) => (
+                                          <li key={detail}>{detail}</li>
+                                        ))}
+                                      </ul>
+                                    ) : null}
+                                    {Array.isArray(card.badges) && card.badges.length > 0 ? (
+                                      <div className={styles.structuredBadges}>
+                                        {card.badges.slice(0, 4).map((badge) => (
+                                          <span key={badge}>{badge}</span>
+                                        ))}
+                                      </div>
+                                    ) : null}
+                                    <span className={styles.structuredAction}>
+                                      {card.actionLabel || "Open"}
+                                    </span>
+                                  </>
+                                );
+
+                                return external ? (
+                                  <a
+                                    className={styles.structuredCard}
+                                    href={href}
+                                    key={`${card.type}-${card.title}-${href}`}
+                                    rel="noopener noreferrer"
+                                    target="_blank"
+                                  >
+                                    {cardBody}
+                                  </a>
+                                ) : (
+                                  <Link
+                                    className={styles.structuredCard}
+                                    href={href}
+                                    key={`${card.type}-${card.title}-${href}`}
+                                  >
+                                    {cardBody}
+                                  </Link>
+                                );
+                              })}
+                          </div>
+                        ) : null}
+
+                        <div className={styles.quickActions}>
+                          <Link className={`${styles.quickAction} ${styles.quickActionPrimary}`} href={GENERAL_BOOK_APPOINTMENT_URL}>
+                            Schedule Appointment
+                          </Link>
+                          <Link className={styles.quickAction} href="/providers">
+                            Find a Doctor
+                          </Link>
+                          <Link className={styles.quickAction} href="/locations">
+                            View Locations
+                          </Link>
+                        </div>
+
+                        {showFeedback ? (
+                          <div className={styles.feedbackPanel}>
+                            <span>Was this helpful?</span>
+                            <div className={styles.feedbackButtons}>
+                              <button
+                                aria-pressed={feedbackState.rating === "helpful"}
+                                className={styles.feedbackButton}
+                                disabled={feedbackState.status === "submitting"}
+                                onClick={() => submitFeedback(payload.eventId, "helpful", ["good_match"])}
+                                type="button"
+                              >
+                                Helpful
+                              </button>
+                              <button
+                                aria-pressed={feedbackState.rating === "not_helpful"}
+                                className={styles.feedbackButton}
+                                disabled={feedbackState.status === "submitting"}
+                                onClick={() => submitFeedback(payload.eventId, "not_helpful", ["too_generic"])}
+                                type="button"
+                              >
+                                Needs work
+                              </button>
+                            </div>
+                            {feedbackState.message ? (
+                              <p className={styles.feedbackMessage}>{feedbackState.message}</p>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
-
                     </article>
+                  );
+                })}
 
-                    <div className={styles.followupSection}>
-                      <p>Ask a follow-up</p>
-                      <div className={styles.suggestionChips}>
-                        {FOLLOWUP_PILLS.map((pill) => (
-                          <button className={styles.chip} key={pill} onClick={() => applyPrompt(pill)} type="button">
-                            {pill}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                {errorMessage ? <p className={styles.errorNotice}>{errorMessage}</p> : null}
+              </div>
 
-                    {errorMessage ? <p className={styles.errorNotice}>{errorMessage}</p> : null}
-                  </div>
-                )}
-              </section>
-            ) : null}
+              <form className={styles.chatComposer} onSubmit={runSearch}>
+                <div className={styles.chatInputRow}>
+                  <SparkleIcon className={styles.inputIcon} />
+                  <textarea
+                    aria-label="Ask FMA AI"
+                    className={styles.searchInput}
+                    maxLength={PUBLIC_SEARCH_MAX_CHARACTERS}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Ask about doctors, services, locations, insurance, or appointments..."
+                    ref={inputRef}
+                    rows={2}
+                    value={query}
+                  />
+                </div>
+
+                <div className={styles.composerFooter}>
+                  <span className={styles.helperText}>{helperText}</span>
+                  <button className={styles.submitButton} disabled={state === "loading"} type="submit">
+                    {state === "loading" ? "Searching" : "Search"}
+                  </button>
+                </div>
+
+              </form>
+            </section>
+
+            <div className={`${styles.privacyHint} ${styles.modalPrivacyHint}`}>
+              {NO_PHI_NOTICE}
+            </div>
           </div>
         </div>
       ) : null}

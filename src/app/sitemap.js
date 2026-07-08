@@ -1,4 +1,5 @@
 import { getSiteUrl } from "./lib/config/site";
+import { VISIBLE_LOCATION_WHERE } from "./lib/locations";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
 
 export const runtime = "nodejs";
@@ -23,7 +24,6 @@ export default async function sitemap() {
     createStaticRoute(siteUrl, "/blog", "weekly", 0.7),
     createStaticRoute(siteUrl, "/about", "monthly", 0.6),
     createStaticRoute(siteUrl, "/about/careers", "monthly", 0.6),
-    createStaticRoute(siteUrl, "/about/leadership", "monthly", 0.5),
     createStaticRoute(siteUrl, "/about/mission", "monthly", 0.5),
     createStaticRoute(siteUrl, "/about/partners", "monthly", 0.5),
     createStaticRoute(siteUrl, "/contact", "monthly", 0.6),
@@ -61,6 +61,7 @@ export default async function sitemap() {
         orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       }),
       prisma.location.findMany({
+        where: VISIBLE_LOCATION_WHERE,
         select: { slug: true, updatedAt: true },
         orderBy: { title: "asc" },
       }),

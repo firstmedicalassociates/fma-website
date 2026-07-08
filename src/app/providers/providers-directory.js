@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import HeroEyebrow from "../components/hero-eyebrow";
+import { splitProviderCredentialTags } from "../lib/providers";
 import styles from "./providers-directory.module.css";
 
 function slugify(value) {
@@ -58,7 +59,13 @@ export default function ProvidersDirectory({ providers }) {
   }, [providers]);
 
   const specialtyOptions = useMemo(() => {
-    return [...new Set(providers.map((provider) => String(provider.role || "").trim()).filter(Boolean))].sort();
+    return [
+      ...new Set(
+        providers
+          .flatMap((provider) => provider.credentialTags || splitProviderCredentialTags(provider.role))
+          .filter(Boolean)
+      ),
+    ].sort();
   }, [providers]);
 
   const filteredProviders = useMemo(() => {
@@ -70,7 +77,10 @@ export default function ProvidersDirectory({ providers }) {
         activeLanguage === "all" ||
         (provider.languages || []).some((language) => slugify(language) === activeLanguage);
       const matchesSpecialty =
-        activeSpecialty === "all" || slugify(provider.role) === activeSpecialty;
+        activeSpecialty === "all" ||
+        (provider.credentialTags || splitProviderCredentialTags(provider.role)).some(
+          (credential) => slugify(credential) === activeSpecialty
+        );
 
       return matchesCity && matchesLanguage && matchesSpecialty;
     });

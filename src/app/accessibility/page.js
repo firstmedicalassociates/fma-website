@@ -24,7 +24,7 @@ export default function AccessibilityPage() {
           heading: "Care access and accommodations",
           body: [
             "If you need help accessing care information, scheduling support, or communication accommodations, our team can help route your request to the appropriate office.",
-            "For urgent care needs, please call the office directly rather than relying on website messaging alone.",
+            "For specialized care needs, please call the office directly rather than relying on website messaging alone.",
           ],
         },
       ]}

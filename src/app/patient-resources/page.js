@@ -25,7 +25,7 @@ export default function ResourcesOverview() {
   const sidebarActions = [
     { title: 'Find Location', sub: 'Maryland clinic locations', icon: MapPin, href: '/locations' },
     { title: 'Patient Portal', sub: 'Access records and results', icon: Users, href: '/patient-resources/patients' },
-    { title: 'Schedule Walk-in', sub: 'Same-day appointment options', icon: Clock, href: '/services' },
+    { title: 'Schedule Same-Day', sub: 'Same-Day appointment options', icon: Clock, href: '/services' },
   ];
 
   return (
@@ -118,7 +118,6 @@ export default function ResourcesOverview() {
            border: 1px solid #eee;
         }
         .ins-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .status-badge { background: #001c55; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 700; }
         .ins-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
         .ins-col h5 { font-size: 0.6875rem; font-weight: 700; color: #0070f3; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
         .ins-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
@@ -208,7 +207,6 @@ export default function ResourcesOverview() {
               <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>Accepted Insurance</h2>
               <p style={{ color: '#666', fontSize: '0.875rem' }}>Updated weekly. Please verify with your carrier.</p>
             </div>
-            <div className="status-badge">STAGE 1 VERIFIED</div>
           </div>
 
           <div className="ins-grid">

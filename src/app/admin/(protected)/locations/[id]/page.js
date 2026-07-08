@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "../../../../lib/prisma";
 import { LOCATION_FORM_SELECT } from "../../../../lib/location-cms";
+import { isHiddenLocationSlug } from "../../../../lib/locations";
 import LocationForm from "../location-form";
 
 export const runtime = "nodejs";
@@ -29,7 +30,7 @@ export default async function EditLocationPage({ params }) {
     }),
   ]);
 
-  if (!location) {
+  if (!location || isHiddenLocationSlug(location.slug)) {
     notFound();
   }
 

@@ -2,12 +2,16 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import HeroEyebrow from "../../components/hero-eyebrow";
 import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
 import InternalLinkHub from "../../components/internal-link-hub";
 import { absoluteUrl } from "../../lib/config/site";
-import { buildDisplayAddress, splitLocationSlug } from "../../lib/locations";
+import {
+  buildDisplayAddress,
+  isHiddenLocationSlug,
+  splitLocationSlug,
+  withVisibleLocationWhere,
+} from "../../lib/locations";
 import { prisma } from "../../lib/prisma";
 import { getProviderSeoContent } from "../../lib/seo";
 import { getProviderZocdocUrl } from "../../lib/zocdoc";
@@ -261,13 +265,15 @@ export default async function ProviderDetailPage({ params }) {
     notFound();
   }
 
-  const assignedLocations = provider.locations.length
+  const visibleProviderLocationSlugs = provider.locations.filter((locationSlug) => !isHiddenLocationSlug(locationSlug));
+
+  const assignedLocations = visibleProviderLocationSlugs.length
     ? await prisma.location.findMany({
-        where: {
+        where: withVisibleLocationWhere({
           slug: {
-            in: provider.locations,
+            in: visibleProviderLocationSlugs,
           },
-        },
+        }),
         select: {
           slug: true,
           title: true,
@@ -284,9 +290,9 @@ export default async function ProviderDetailPage({ params }) {
     : [];
 
   const locationTitleBySlug = buildLocationTitleMap(assignedLocations);
-  const locationTitles = resolveLocationTitles(provider.locations, locationTitleBySlug);
+  const locationTitles = resolveLocationTitles(visibleProviderLocationSlugs, locationTitleBySlug);
   const assignedLocationBySlug = new Map(assignedLocations.map((location) => [location.slug, location]));
-  const locationLinks = provider.locations.map((locationSlug) => {
+  const locationLinks = visibleProviderLocationSlugs.map((locationSlug) => {
     const location = assignedLocationBySlug.get(locationSlug);
     const label =
       locationTitleBySlug[locationSlug] ||
@@ -325,7 +331,6 @@ export default async function ProviderDetailPage({ params }) {
       : primaryLocation?.href
         ? "View Location"
         : "Back to Providers";
-  const heroBadgeLabel = primaryLocation?.label || "Provider Profile";
   const subtitle = provider.title
     ? `${provider.title} at First Medical Associates`
     : "First Medical Associates provider";
@@ -399,8 +404,6 @@ export default async function ProviderDetailPage({ params }) {
               </div>
 
               <div className={styles.heroCopy}>
-                <HeroEyebrow>{heroBadgeLabel}</HeroEyebrow>
-
                 <div className={styles.heroHeading}>
                   <h1>{seo.h1}</h1>
                   <p>{subtitle}</p>
@@ -554,7 +557,7 @@ export default async function ProviderDetailPage({ params }) {
                   {
                     href: "/services",
                     label: "Browse Services",
-                    description: "See primary care, urgent care, chronic care, and telehealth options.",
+                    description: "See primary care, specialized care, chronic care, and telehealth options.",
                   },
                   {
                     href: primaryLocation?.href || "/locations",

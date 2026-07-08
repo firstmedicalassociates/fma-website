@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: {
-    default: `Primary Care & Urgent Care Services in Maryland | ${SITE_NAME}`,
+    default: `Primary Care & Specialized Care Services in Maryland | ${SITE_NAME}`,
     template: "%s",
   },
   description:

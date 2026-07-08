@@ -12,7 +12,11 @@ export const metadata = servicesIndexMetadata;
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default async function ServicesPage() {
+export default async function ServicesPage({ searchParams }) {
+  const resolvedSearchParams = await searchParams;
+  const initialCategory =
+    typeof resolvedSearchParams?.category === "string" ? resolvedSearchParams.category : "";
+
   const services = await prisma.service.findMany({
     where: { isActive: true },
     orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { title: "asc" }],
@@ -30,7 +34,7 @@ export default async function ServicesPage() {
     <>
       <SiteHeader />
       <div className={inter.className}>
-        <ServicesDirectory services={services} />
+        <ServicesDirectory services={services} initialCategory={initialCategory} />
       </div>
       <SiteFooter />
     </>

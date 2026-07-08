@@ -41,3 +41,9 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# generated Athena diagnostics
+/athena-provider-schedules.md
+/athena-provider-schedules.json
+/artifacts/athena/
+/artifacts/ai-search/

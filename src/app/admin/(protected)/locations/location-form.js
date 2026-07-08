@@ -1304,7 +1304,7 @@ export default function LocationForm({
                                 onChange={(event) =>
                                   updateInfoSectionField(section.id, "title", event.target.value)
                                 }
-                                placeholder="Walk-in Clinic in Columbia, MD"
+                                placeholder="Same-Day Appointments in Columbia, MD"
                               />
                             </div>
 
@@ -1317,7 +1317,7 @@ export default function LocationForm({
                                 onChange={(event) =>
                                   updateInfoSectionField(section.id, "key", event.target.value)
                                 }
-                                placeholder="walk-in-clinic"
+                                placeholder="same-day-clinic"
                               />
                             </div>
                           </div>

@@ -390,7 +390,7 @@ export default function LocationFinder({ locations = [] }) {
   const [mapStatus, setMapStatus] = useState(GOOGLE_MAPS_API_KEY ? "loading" : "missingKey");
   const [mapErrorMessage, setMapErrorMessage] = useState("");
   const [geocodeErrorMessage, setGeocodeErrorMessage] = useState("");
-  const [geocodeVersion, setGeocodeVersion] = useState(0);
+  const [geocodePositions, setGeocodePositions] = useState(() => new Map());
 
   const mapElementRef = useRef(null);
   const mapRef = useRef(null);
@@ -402,7 +402,7 @@ export default function LocationFinder({ locations = [] }) {
 
   const rankedLocations = useMemo(() => {
     const baseLocations = locations.map((location) => {
-      const position = geocodeCacheRef.current.get(location.slug);
+      const position = geocodePositions.get(location.slug);
       const distanceMiles = searchOrigin?.position
         ? calculateDistanceMiles(searchOrigin.position, position)
         : null;
@@ -429,7 +429,7 @@ export default function LocationFinder({ locations = [] }) {
 
       return left.title.localeCompare(right.title);
     });
-  }, [geocodeVersion, locations, searchOrigin]);
+  }, [geocodePositions, locations, searchOrigin]);
 
   const filteredLocations = useMemo(() => {
     const finderInputs = {
@@ -620,7 +620,7 @@ export default function LocationFinder({ locations = [] }) {
       }
 
       if (!cancelled && changed) {
-        setGeocodeVersion((current) => current + 1);
+        setGeocodePositions(new Map(geocodeCacheRef.current));
       }
     }
 
@@ -638,7 +638,7 @@ export default function LocationFinder({ locations = [] }) {
     const visibleLocationSlugs = new Set(filteredLocations.map((location) => location.slug));
 
     for (const location of locations) {
-      const position = geocodeCacheRef.current.get(location.slug);
+      const position = geocodePositions.get(location.slug);
       if (!position) continue;
 
       let marker = markersRef.current.get(location.slug);
@@ -665,7 +665,7 @@ export default function LocationFinder({ locations = [] }) {
       marker.setZIndex(location.slug === activeLocation?.slug ? 100 : 10);
       marker.setMap(visibleLocationSlugs.has(location.slug) ? mapRef.current : null);
     }
-  }, [activeLocation?.slug, filteredLocations, geocodeVersion, isMobileViewport, locations, mapStatus]);
+  }, [activeLocation?.slug, filteredLocations, geocodePositions, isMobileViewport, locations, mapStatus]);
 
   useEffect(() => {
     if (mapStatus !== "ready" || !mapRef.current || typeof window === "undefined") return;
@@ -674,14 +674,14 @@ export default function LocationFinder({ locations = [] }) {
       ? filteredLocations.slice(0, 6)
       : filteredLocations;
     const visiblePositions = positionsForBounds
-      .map((location) => geocodeCacheRef.current.get(location.slug))
+      .map((location) => geocodePositions.get(location.slug))
       .filter(Boolean);
 
     if (visiblePositions.length === 0) return;
 
     const googleMaps = window.google;
     const selectedPosition = activeLocation
-      ? geocodeCacheRef.current.get(activeLocation.slug)
+      ? geocodePositions.get(activeLocation.slug)
       : null;
 
     if (hasPinnedSelection && selectedPosition) {
@@ -701,7 +701,7 @@ export default function LocationFinder({ locations = [] }) {
     mapRef.current.fitBounds(bounds, MAP_BOUNDS_PADDING);
   }, [
     filteredLocations,
-    geocodeVersion,
+    geocodePositions,
     hasActiveFinderSearch,
     hasPinnedSelection,
     mapStatus,
@@ -914,7 +914,7 @@ export default function LocationFinder({ locations = [] }) {
       <div className={styles.page}>
         <main className={styles.stage}>
           <h1 className={styles.screenReaderOnly}>
-            Find Primary Care and Walk-In Clinic Locations in Maryland
+            Find Primary Care and Same-Day Appointment Locations in Maryland
           </h1>
           <div className={styles.mapBackdrop}>
             <div className={styles.mapCanvas} ref={mapElementRef} />

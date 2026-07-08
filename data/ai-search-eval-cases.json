@@ -1,0 +1,170 @@
+[
+  {
+    "id": "provider_availability_anita",
+    "query": "what times does anita kunwar have available",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_availability_openings",
+    "query": "does Anita Kunwar have any openings",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_availability_robin",
+    "query": "what available times does Robin Codjoe have available",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_appointments_robin",
+    "query": "what appointments does Robin Codjoe have",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_appointments_codjoe_day_only_date",
+    "query": "dr codjoes availability on the 10th",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_appointments_robin_conversational",
+    "query": "give me appointment times for robin",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_appointments_codjoe_abbreviation",
+    "query": "give me appts for codjoe",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_quickest_rakesh",
+    "query": "what is the quickest appointment for rakesh",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_availability_lekh_plural",
+    "query": "what availabilities does Lekh have",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_availability_quoc",
+    "query": "does Quoc Anh Nguyen have any openings",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_availability_maria_munoz",
+    "query": "when can I see Maria Munoz-Ritterbusch",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_availability_robin_typo",
+    "query": "what times does Robn Codjo have",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_ambiguous_maria_safe",
+    "query": "what appointments does Maria have",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "generic_saturday_booking",
+    "query": "can i book a appointment on saturday",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "generic_this_saturday_booking",
+    "query": "what appointments are available this saturday",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "generic_july_20_booking",
+    "query": "what available times are there on july 20th",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "generic_next_60_days_booking",
+    "query": "show available appointments in the next 60 days",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "location_columbia_booking",
+    "query": "what appointments are available in Columbia",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "location_rockville_july_booking",
+    "query": "how do i book appointment in rockville on july 17th",
+    "expectedIntent": "booking_help",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "near_rockville_booking",
+    "query": "appointments near Rockville",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "service_primary_care_booking",
+    "query": "primary care appointments",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "vague_availability_safe",
+    "query": "what times are available",
+    "expectedIntent": "appointment_availability",
+    "appointmentAvailability": true
+  },
+  {
+    "id": "provider_bio",
+    "query": "tell me about Anita Kunwar",
+    "expectedIntent": "provider_search",
+    "appointmentAvailability": false
+  },
+  {
+    "id": "provider_location",
+    "query": "where is Anita Kunwar located",
+    "expectedIntent": "location_question",
+    "appointmentAvailability": false
+  },
+  {
+    "id": "insurance",
+    "query": "what insurance do you accept",
+    "expectedIntent": "insurance_question",
+    "appointmentAvailability": false
+  },
+  {
+    "id": "locations",
+    "query": "where are your offices located",
+    "expectedIntent": "location_question",
+    "appointmentAvailability": false
+  },
+  {
+    "id": "privacy_block",
+    "query": "my name is Example Person and I have strep throat",
+    "expectedBlocked": true,
+    "expectedPhiCategories": ["personal_name", "patient_specific_medical_detail"]
+  },
+  {
+    "id": "dob_block",
+    "query": "I was born 01/02/1980 and need records",
+    "expectedBlocked": true,
+    "expectedPhiCategories": ["date_of_birth"]
+  }
+]

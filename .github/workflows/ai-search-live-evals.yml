@@ -1,0 +1,30 @@
+name: AI Search Live Evals
+
+on:
+  schedule:
+    - cron: "17 7 * * *"
+  workflow_dispatch:
+
+jobs:
+  live-evals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ATHENA_CLIENT_ID: ${{ secrets.ATHENA_CLIENT_ID }}
+      ATHENA_CLIENT_SECRET: ${{ secrets.ATHENA_CLIENT_SECRET }}
+      ATHENA_TOKEN_URL: ${{ secrets.ATHENA_TOKEN_URL }}
+      ATHENA_BASE_URL: ${{ secrets.ATHENA_BASE_URL }}
+      ATHENA_DEFAULT_SCOPE: ${{ secrets.ATHENA_DEFAULT_SCOPE }}
+      ATHENA_DEFAULT_PRACTICE_ID: ${{ secrets.ATHENA_DEFAULT_PRACTICE_ID }}
+      AI_SEARCH_EVENT_SECRET: ${{ secrets.AI_SEARCH_EVENT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run eval:ai-search:live

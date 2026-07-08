@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Clock3, MapPin, UserPlus, Users } from "../admin-icons";
+import { VISIBLE_LOCATION_WHERE } from "../../../lib/locations";
 import { prisma } from "../../../lib/prisma";
 import {
   buildLocationTitleMap,
@@ -38,6 +39,7 @@ export default async function AdminProvidersPage() {
       },
     }),
     prisma.location.findMany({
+      where: VISIBLE_LOCATION_WHERE,
       orderBy: { title: "asc" },
       select: {
         slug: true,

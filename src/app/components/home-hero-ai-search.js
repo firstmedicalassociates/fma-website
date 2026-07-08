@@ -1,7 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AI_SEARCH_REQUEST_EVENT } from "../lib/ai-search-events";
 import styles from "../page.module.css";
+
+const HERO_APPOINTMENT_RESULT_LIMIT = 48;
+const HERO_PROVIDER_CHECK_LIMIT = 80;
+const UPCOMING_DATE_OPTION_COUNT = 21;
+const CITY_DROPDOWN_ID = "home-hero-city-options";
+const DATE_DROPDOWN_ID = "home-hero-date-options";
+const dateLabelFormatter = new Intl.DateTimeFormat("en-US", {
+  weekday: "short",
+  month: "short",
+  day: "numeric",
+});
+const dateMetaFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
 
 function ArrowIcon() {
   return (
@@ -22,21 +40,62 @@ function uniqueSorted(values) {
   );
 }
 
-function includesIgnoreCase(value, query) {
-  return String(value || "").toLowerCase().includes(String(query || "").toLowerCase());
+function getTodayInputValue() {
+  const today = new Date();
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+  return today.toISOString().slice(0, 10);
 }
 
-function filterSuggestions(values, query, limit = 10) {
-  const text = normalizeText(query).toLowerCase();
-  if (!text) return values.slice(0, limit);
-  return values.filter((value) => value.toLowerCase().includes(text)).slice(0, limit);
+function parseInputDate(value = "") {
+  const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
 }
 
-export default function HomeHeroAiSearch({ locations = [], providers = [] }) {
-  const [cityQuery, setCityQuery] = useState("");
-  const [stateQuery, setStateQuery] = useState("");
-  const [providerQuery, setProviderQuery] = useState("");
-  const [activeField, setActiveField] = useState(null);
+function dateToInputValue(date) {
+  const value = new Date(date);
+  value.setMinutes(value.getMinutes() - value.getTimezoneOffset());
+  return value.toISOString().slice(0, 10);
+}
+
+function formatDateButtonLabel(value) {
+  const date = parseInputDate(value);
+  return date ? dateLabelFormatter.format(date) : "";
+}
+
+function buildUpcomingDateOptions(todayValue) {
+  const baseDate = parseInputDate(todayValue) || new Date();
+
+  return Array.from({ length: UPCOMING_DATE_OPTION_COUNT }, (_, index) => {
+    const date = new Date(baseDate);
+    date.setDate(baseDate.getDate() + index);
+
+    return {
+      value: dateToInputValue(date),
+      label:
+        index === 0
+          ? "Today"
+          : index === 1
+            ? "Tomorrow"
+            : dateLabelFormatter.format(date),
+      meta: dateMetaFormatter.format(date),
+    };
+  });
+}
+
+function buildAppointmentQuery(city, date) {
+  const cityPhrase = city ? ` in ${city}` : "";
+  const datePhrase = date ? ` on ${date}` : "";
+  return `show available appointments${cityPhrase}${datePhrase}`;
+}
+
+export default function HomeHeroAiSearch({ locations = [] }) {
+  const [selectedCity, setSelectedCity] = useState("");
+  const [dateQuery, setDateQuery] = useState("");
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const schedulerRef = useRef(null);
+  const todayInputValue = useMemo(() => getTodayInputValue(), []);
 
   const normalizedLocations = useMemo(
     () =>
@@ -48,130 +107,123 @@ export default function HomeHeroAiSearch({ locations = [], providers = [] }) {
     [locations],
   );
 
-  const normalizedProviders = useMemo(
-    () =>
-      providers.map((provider) => ({
-        slug: normalizeText(provider.slug),
-        name: normalizeText(provider.name),
-        linkUrl: normalizeText(provider.linkUrl),
-        locations: Array.isArray(provider.locations)
-          ? provider.locations.map((slug) => normalizeText(slug)).filter(Boolean)
-          : [],
-      })),
-    [providers],
-  );
-
-  const trimmedCityQuery = normalizeText(cityQuery);
-  const trimmedStateQuery = normalizeText(stateQuery);
-  const trimmedProviderQuery = normalizeText(providerQuery);
+  const trimmedCityQuery = normalizeText(selectedCity);
+  const trimmedDateQuery = normalizeText(dateQuery);
 
   const cityOptions = useMemo(() => {
-    const scoped = trimmedStateQuery
-      ? normalizedLocations.filter((location) => includesIgnoreCase(location.state, trimmedStateQuery))
-      : normalizedLocations;
-    return uniqueSorted(scoped.map((location) => location.city));
-  }, [normalizedLocations, trimmedStateQuery]);
+    return uniqueSorted(normalizedLocations.map((location) => location.city));
+  }, [normalizedLocations]);
 
-  const stateOptions = useMemo(() => {
-    const scoped = trimmedCityQuery
-      ? normalizedLocations.filter((location) => includesIgnoreCase(location.city, trimmedCityQuery))
-      : normalizedLocations;
-    return uniqueSorted(scoped.map((location) => location.state));
-  }, [normalizedLocations, trimmedCityQuery]);
-
-  const matchingLocationSlugs = useMemo(() => {
-    return new Set(
-      normalizedLocations
-        .filter((location) => {
-          if (trimmedCityQuery && !includesIgnoreCase(location.city, trimmedCityQuery)) return false;
-          if (trimmedStateQuery && !includesIgnoreCase(location.state, trimmedStateQuery)) return false;
-          return true;
-        })
-        .map((location) => location.slug),
-    );
-  }, [normalizedLocations, trimmedCityQuery, trimmedStateQuery]);
-
-  const providerOptions = useMemo(() => {
-    const items = normalizedProviders
-      .filter((provider) => {
-        if (!trimmedCityQuery && !trimmedStateQuery) return true;
-        return provider.locations.some((slug) => matchingLocationSlugs.has(slug));
-      })
-      .map((provider) => ({ slug: provider.slug, name: provider.name, linkUrl: provider.linkUrl }));
-
-    return items.sort((a, b) => a.name.localeCompare(b.name));
-  }, [matchingLocationSlugs, normalizedProviders, trimmedCityQuery, trimmedStateQuery]);
-
-  const visibleCityOptions = filterSuggestions(cityOptions, cityQuery);
-  const visibleStateOptions = filterSuggestions(stateOptions, stateQuery);
-  const visibleProviderOptions = filterSuggestions(
-    providerOptions.map((provider) => provider.name),
-    providerQuery,
+  const upcomingDateOptions = useMemo(
+    () => buildUpcomingDateOptions(todayInputValue),
+    [todayInputValue],
   );
+
+  useEffect(() => {
+    function handleDocumentMouseDown(event) {
+      if (schedulerRef.current?.contains(event.target)) return;
+      setOpenDropdown(null);
+    }
+
+    function handleDocumentKeyDown(event) {
+      if (event.key === "Escape") {
+        setOpenDropdown(null);
+      }
+    }
+
+    document.addEventListener("mousedown", handleDocumentMouseDown);
+    document.addEventListener("keydown", handleDocumentKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleDocumentMouseDown);
+      document.removeEventListener("keydown", handleDocumentKeyDown);
+    };
+  }, []);
 
   function submitSearch(event) {
     event.preventDefault();
+    setOpenDropdown(null);
 
-    const exactProvider = providerOptions.find(
-      (provider) => provider.name.toLowerCase() === trimmedProviderQuery.toLowerCase(),
-    );
-
-    if (exactProvider) {
-      const bookingHref = normalizeText(exactProvider.linkUrl);
-      if (bookingHref) {
-        window.location.assign(bookingHref);
-        return;
-      }
-
-      // If no provider booking link exists yet, keep users on provider search results.
-      const fallbackParams = new URLSearchParams();
-      fallbackParams.set("provider", exactProvider.name);
-      window.location.assign(`/providers?${fallbackParams.toString()}`);
+    if (!trimmedCityQuery && !trimmedDateQuery) {
+      window.dispatchEvent(
+        new CustomEvent(AI_SEARCH_REQUEST_EVENT, {
+          detail: {
+            query: "",
+            autoRun: false,
+          },
+        }),
+      );
       return;
     }
 
-    const params = new URLSearchParams();
-    if (trimmedCityQuery) params.set("city", trimmedCityQuery);
-    if (trimmedStateQuery) params.set("state", trimmedStateQuery);
-    if (trimmedProviderQuery) params.set("provider", trimmedProviderQuery);
+    const query = buildAppointmentQuery(trimmedCityQuery, trimmedDateQuery);
 
-    const query = params.toString();
-    window.location.assign(query ? `/providers?${query}` : "/providers");
+    window.dispatchEvent(
+      new CustomEvent(AI_SEARCH_REQUEST_EVENT, {
+        detail: {
+          query,
+          autoRun: true,
+          maxAppointmentResults: HERO_APPOINTMENT_RESULT_LIMIT,
+          providerCheckLimit: HERO_PROVIDER_CHECK_LIMIT,
+          sessionContext: {
+            source: "home_hero",
+            city: trimmedCityQuery,
+            date: trimmedDateQuery,
+          },
+        },
+      }),
+    );
   }
 
-  function selectSuggestion(field, value) {
-    if (field === "city") setCityQuery(value);
-    if (field === "state") setStateQuery(value);
-    if (field === "provider") setProviderQuery(value);
-    setActiveField(null);
-  }
+  const hasCityOptions = cityOptions.length > 0;
+  const dateButtonLabel = formatDateButtonLabel(dateQuery);
 
   return (
-    <form className={styles.schedulerBar} onSubmit={submitSearch}>
+    <form className={styles.schedulerBar} onSubmit={submitSearch} ref={schedulerRef}>
       <div className={styles.schedulerFilterGrid}>
-        <label
-          className={styles.schedulerFilterField}
-          onFocus={() => setActiveField("city")}
-          onBlur={() => setActiveField((value) => (value === "city" ? null : value))}
+        <div
+          className={`${styles.schedulerFilterField} ${
+            openDropdown === "city" ? styles.schedulerFilterFieldOpen : ""
+          }`}
         >
           <span className={styles.schedulerFilterLabel}>City</span>
-          <input
-            className={styles.schedulerFilterInput}
-            value={cityQuery}
-            onChange={(event) => setCityQuery(event.target.value)}
-            aria-label="Search by city"
-            placeholder="Search by city"
-            autoComplete="off"
-          />
-          {activeField === "city" && visibleCityOptions.length > 0 ? (
-            <ul className={styles.schedulerSuggestions} role="listbox" aria-label="City suggestions">
-              {visibleCityOptions.map((city) => (
+          <button
+            type="button"
+            className={`${styles.schedulerFilterInput} ${styles.schedulerDropdownTrigger}`}
+            aria-label="Select appointment city"
+            aria-controls={CITY_DROPDOWN_ID}
+            aria-expanded={openDropdown === "city"}
+            aria-haspopup="listbox"
+            disabled={!hasCityOptions}
+            onClick={() =>
+              setOpenDropdown((current) => (current === "city" ? null : "city"))
+            }
+          >
+            <span className={selectedCity ? "" : styles.schedulerDropdownPlaceholder}>
+              {selectedCity || (hasCityOptions ? "Select a city" : "No cities available")}
+            </span>
+            <ChevronDown aria-hidden="true" className={styles.schedulerDropdownIcon} />
+          </button>
+          {openDropdown === "city" && hasCityOptions ? (
+            <ul
+              className={styles.schedulerSuggestions}
+              id={CITY_DROPDOWN_ID}
+              role="listbox"
+              aria-label="City options"
+            >
+              {cityOptions.map((city) => (
                 <li key={city} className={styles.schedulerSuggestionItem}>
                   <button
                     type="button"
-                    className={styles.schedulerSuggestionButton}
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => selectSuggestion("city", city)}
+                    className={`${styles.schedulerSuggestionButton} ${
+                      selectedCity === city ? styles.schedulerSuggestionButtonActive : ""
+                    }`}
+                    role="option"
+                    aria-selected={selectedCity === city}
+                    onClick={() => {
+                      setSelectedCity(city);
+                      setOpenDropdown(null);
+                    }}
                   >
                     {city}
                   </button>
@@ -179,74 +231,84 @@ export default function HomeHeroAiSearch({ locations = [], providers = [] }) {
               ))}
             </ul>
           ) : null}
-        </label>
+        </div>
 
-        <label
-          className={styles.schedulerFilterField}
-          onFocus={() => setActiveField("state")}
-          onBlur={() => setActiveField((value) => (value === "state" ? null : value))}
+        <div
+          className={`${styles.schedulerFilterField} ${
+            openDropdown === "date" ? styles.schedulerFilterFieldOpen : ""
+          }`}
         >
-          <span className={styles.schedulerFilterLabel}>State</span>
-          <input
-            className={styles.schedulerFilterInput}
-            value={stateQuery}
-            onChange={(event) => setStateQuery(event.target.value)}
-            aria-label="Search by state"
-            placeholder="Search by state"
-            autoComplete="off"
-          />
-          {activeField === "state" && visibleStateOptions.length > 0 ? (
-            <ul className={styles.schedulerSuggestions} role="listbox" aria-label="State suggestions">
-              {visibleStateOptions.map((state) => (
-                <li key={state} className={styles.schedulerSuggestionItem}>
+          <span className={styles.schedulerFilterLabel}>Date</span>
+          <button
+            type="button"
+            className={`${styles.schedulerFilterInput} ${styles.schedulerDropdownTrigger}`}
+            aria-label="Select appointment date"
+            aria-controls={DATE_DROPDOWN_ID}
+            aria-expanded={openDropdown === "date"}
+            aria-haspopup="dialog"
+            onClick={() =>
+              setOpenDropdown((current) => (current === "date" ? null : "date"))
+            }
+          >
+            <span className={dateButtonLabel ? "" : styles.schedulerDropdownPlaceholder}>
+              {dateButtonLabel || "Select a date"}
+            </span>
+            <ChevronDown aria-hidden="true" className={styles.schedulerDropdownIcon} />
+          </button>
+          {openDropdown === "date" ? (
+            <div
+              className={`${styles.schedulerSuggestions} ${styles.schedulerDateMenu}`}
+              id={DATE_DROPDOWN_ID}
+              role="dialog"
+              aria-label="Date options"
+            >
+              <div className={styles.schedulerDateMenuHeader}>
+                <input
+                  className={`${styles.schedulerFilterInput} ${styles.schedulerDateMenuInput}`}
+                  value={dateQuery}
+                  onChange={(event) => setDateQuery(event.target.value)}
+                  aria-label="Choose appointment date"
+                  min={todayInputValue}
+                  type="date"
+                  autoComplete="off"
+                />
+                {dateQuery ? (
                   <button
                     type="button"
-                    className={styles.schedulerSuggestionButton}
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => selectSuggestion("state", state)}
+                    className={styles.schedulerDateClear}
+                    onClick={() => setDateQuery("")}
                   >
-                    {state}
+                    Clear
                   </button>
-                </li>
-              ))}
-            </ul>
+                ) : null}
+              </div>
+              <ul className={styles.schedulerDateOptionList}>
+                {upcomingDateOptions.map((dateOption) => (
+                  <li key={dateOption.value} className={styles.schedulerSuggestionItem}>
+                    <button
+                      type="button"
+                      className={`${styles.schedulerSuggestionButton} ${
+                        dateQuery === dateOption.value
+                          ? styles.schedulerSuggestionButtonActive
+                          : ""
+                      }`}
+                      onClick={() => {
+                        setDateQuery(dateOption.value);
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      <span>{dateOption.label}</span>
+                      <small className={styles.schedulerDateOptionMeta}>{dateOption.meta}</small>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : null}
-        </label>
-
-        <label
-          className={styles.schedulerFilterField}
-          onFocus={() => setActiveField("provider")}
-          onBlur={() => setActiveField((value) => (value === "provider" ? null : value))}
-        >
-          <span className={styles.schedulerFilterLabel}>Provider</span>
-          <input
-            className={styles.schedulerFilterInput}
-            value={providerQuery}
-            onChange={(event) => setProviderQuery(event.target.value)}
-            aria-label="Search by provider"
-            placeholder="Search by provider"
-            autoComplete="off"
-          />
-          {activeField === "provider" && visibleProviderOptions.length > 0 ? (
-            <ul className={styles.schedulerSuggestions} role="listbox" aria-label="Provider suggestions">
-              {visibleProviderOptions.map((providerName) => (
-                <li key={providerName} className={styles.schedulerSuggestionItem}>
-                  <button
-                    type="button"
-                    className={styles.schedulerSuggestionButton}
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => selectSuggestion("provider", providerName)}
-                  >
-                    {providerName}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </label>
+        </div>
       </div>
 
-      <button className={styles.schedulerArrow} type="submit" aria-label="Search providers">
+      <button className={styles.schedulerArrow} type="submit" aria-label="Search available appointments">
         <ArrowIcon />
       </button>
     </form>

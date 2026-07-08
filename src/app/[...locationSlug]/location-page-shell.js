@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import HeroEyebrow from "../components/hero-eyebrow";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
@@ -17,20 +17,20 @@ import { normalizeServiceIcon } from "../lib/services";
 import styles from "./location-page.module.css";
 
 const TABS = [
-  { id: "location", label: "01. Location" },
-  { id: "doctors", label: "02. Doctors" },
-  { id: "services", label: "03. Services" },
-  { id: "info", label: "04. Info" },
+  { id: "location", label: "Location" },
+  { id: "doctors", label: "Doctors" },
+  { id: "services", label: "Services" },
+  { id: "info", label: "Info" },
 ];
 
 const INFO_FAQS = [
   {
-    q: "What services are available at the walk-in clinic?",
+    q: "What services are available for same-day appointments?",
     a: "We offer treatment for acute illnesses, minor injuries, and preventative care.",
   },
   {
-    q: "Do I need an appointment for urgent care?",
-    a: "No appointment is necessary for our walk-in urgent care services.",
+    q: "Can I schedule specialized care for a same-day visit?",
+    a: "Yes. Same-day appointment options are available for many non-emergency concerns.",
   },
   {
     q: "Do you offer family medicine for children and adults?",
@@ -148,6 +148,8 @@ export default function LocationPageShell({ location, providers, serviceGroups }
     phone: "",
     message: "",
   });
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
   const addressLines = useMemo(() => formatAddressLines(location), [location]);
   const officeHourRows = useMemo(
@@ -211,7 +213,11 @@ export default function LocationPageShell({ location, providers, serviceGroups }
       });
     };
 
-    const walkIn = getSection(["walk-in clinic", "walk in clinic", "walk-in"]);
+    const walkIn = getSection([
+      "same-day appointments",
+      "same-day clinic",
+      "same-day",
+    ]);
     const family = getSection(["family doctor", "family"]);
     const doctors = getSection(["doctors in", "doctors"]);
     const primary = getSection(["primary care", "primary"]);
@@ -224,10 +230,10 @@ export default function LocationPageShell({ location, providers, serviceGroups }
 
     return {
       walkIn: {
-        title: walkIn?.title || `Walk-in Clinic in ${locationSeoPlaceLabel}`,
+        title: walkIn?.title || `Same-Day Appointments in ${locationSeoPlaceLabel}`,
         description:
           walkIn?.paragraphs?.join(" ") ||
-          "Our walk-in clinic delivers immediate care for urgent health needs with no appointment necessary.",
+          "Our same-day care provides timely support for non-emergency health needs, with scheduling options designed around fast access.",
       },
       family: {
         title: family?.title || `Family Doctor in ${locationSeoPlaceLabel}`,
@@ -268,11 +274,83 @@ export default function LocationPageShell({ location, providers, serviceGroups }
       );
     });
   }, [serviceEntries, serviceFilter, serviceQuery]);
+  const galleryImages = useMemo(() => {
+    const images = Array.isArray(location.galleryImages) ? location.galleryImages : [];
+    const normalizedImages = images
+      .map((image) => ({
+        src: String(image?.src || "").trim(),
+        alt: String(image?.alt || location.mapImageAlt || location.title || "Location photo").trim(),
+      }))
+      .filter((image) => image.src);
+
+    if (normalizedImages.length > 0) return normalizedImages;
+    if (!location.imageUrl) return [];
+
+    return [
+      {
+        src: location.imageUrl,
+        alt: location.mapImageAlt || location.title || "Location photo",
+      },
+    ];
+  }, [location.galleryImages, location.imageUrl, location.mapImageAlt, location.title]);
+  const safeActivePhotoIndex =
+    galleryImages.length > 0 ? Math.min(activePhotoIndex, galleryImages.length - 1) : 0;
+  const activeGalleryImage = galleryImages[safeActivePhotoIndex] || null;
+  const heroImageSrc = location.imageUrl || activeGalleryImage?.src || "";
+  const heroImageAlt = location.mapImageAlt || activeGalleryImage?.alt || location.title;
   const publicPhone = location.publicPhone || "";
   const patientPortalUrl = PATIENT_PORTAL_URL;
   const hasPatientPortalLink = Boolean(patientPortalUrl && patientPortalUrl !== "#");
   const bookingUrl = location.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL || "";
   const hasBookingLink = Boolean(bookingUrl && bookingUrl !== "#");
+
+  function openPhotoModal(index = 0) {
+    if (galleryImages.length === 0) return;
+    setActivePhotoIndex(Math.max(0, Math.min(index, galleryImages.length - 1)));
+    setIsPhotoModalOpen(true);
+  }
+
+  function showPreviousPhoto() {
+    if (galleryImages.length <= 1) return;
+    setActivePhotoIndex((current) => (current - 1 + galleryImages.length) % galleryImages.length);
+  }
+
+  function showNextPhoto() {
+    if (galleryImages.length <= 1) return;
+    setActivePhotoIndex((current) => (current + 1) % galleryImages.length);
+  }
+
+  useEffect(() => {
+    if (!isPhotoModalOpen) return undefined;
+
+    const galleryCount = galleryImages.length;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        setIsPhotoModalOpen(false);
+      }
+
+      if (galleryCount <= 1) return;
+
+      if (event.key === "ArrowLeft") {
+        setActivePhotoIndex((current) => (current - 1 + galleryCount) % galleryCount);
+      }
+
+      if (event.key === "ArrowRight") {
+        setActivePhotoIndex((current) => (current + 1) % galleryCount);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [galleryImages.length, isPhotoModalOpen]);
+
   async function handleInfoFormSubmit(event) {
     event.preventDefault();
     setInfoFormStatus("sending");
@@ -376,26 +454,25 @@ export default function LocationPageShell({ location, providers, serviceGroups }
 
                 <div className={styles.locationHeroMedia}>
                   <div className={styles.locationHeroMediaCard}>
-                    {location.imageUrl ? (
+                    {heroImageSrc ? (
                       <img
                         className={styles.locationHeroImage}
-                        src={location.imageUrl}
-                        alt={location.mapImageAlt}
+                        src={heroImageSrc}
+                        alt={heroImageAlt}
                       />
                     ) : (
                       <div className={styles.mediaPlaceholder}>Location image is currently unavailable.</div>
                     )}
 
-                    {location.imageUrl ? (
-                      <a
-                        href={location.imageUrl}
-                        target="_blank"
-                        rel="noreferrer"
+                    {galleryImages.length > 0 ? (
+                      <button
+                        type="button"
                         className={styles.locationHeroPhotoButton}
+                        onClick={() => openPhotoModal(0)}
                       >
                         <span className="material-symbols-outlined">imagesmode</span>
                         <span>View photos</span>
-                      </a>
+                      </button>
                     ) : null}
                   </div>
                 </div>
@@ -483,7 +560,6 @@ export default function LocationPageShell({ location, providers, serviceGroups }
           {activeTab === "doctors" ? (
             <section className={styles.doctorsPanel}>
               <div className={styles.panelIntro}>
-                <p className={styles.stageLabel}>Stage 02: Our Specialists</p>
                 <h2>Providers at {location.title}</h2>
                 <p>Meet the providers currently available at this location.</p>
               </div>
@@ -691,8 +767,8 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                         <span className="material-symbols-outlined">calendar_month</span>
                       </div>
                       <div>
-                        <h3>Walk-In Clinic</h3>
-                        <p>No appointment needed for urgent care</p>
+                        <h3>Same-Day Appointments</h3>
+                        <p>Same-day options for specialized care</p>
                       </div>
                     </div>
 
@@ -999,6 +1075,93 @@ export default function LocationPageShell({ location, providers, serviceGroups }
           ) : null}
         </section>
       </main>
+
+      {isPhotoModalOpen && activeGalleryImage ? (
+        <div
+          className={styles.photoModalOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${location.title} photos`}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setIsPhotoModalOpen(false);
+            }
+          }}
+        >
+          <div className={styles.photoModalPanel}>
+            <div className={styles.photoModalTopBar}>
+              <div>
+                <p className={styles.photoModalKicker}>{location.title}</p>
+                <h2>Office Photos</h2>
+              </div>
+              <button
+                type="button"
+                className={styles.photoModalClose}
+                aria-label="Close photos"
+                onClick={() => setIsPhotoModalOpen(false)}
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className={styles.photoModalStage}>
+              {galleryImages.length > 1 ? (
+                <button
+                  type="button"
+                  className={`${styles.photoModalArrow} ${styles.photoModalArrowPrevious}`}
+                  aria-label="Previous photo"
+                  onClick={showPreviousPhoto}
+                >
+                  <span className="material-symbols-outlined">chevron_left</span>
+                </button>
+              ) : null}
+
+              <img
+                className={styles.photoModalImage}
+                src={activeGalleryImage.src}
+                alt={activeGalleryImage.alt}
+              />
+
+              {galleryImages.length > 1 ? (
+                <button
+                  type="button"
+                  className={`${styles.photoModalArrow} ${styles.photoModalArrowNext}`}
+                  aria-label="Next photo"
+                  onClick={showNextPhoto}
+                >
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+              ) : null}
+            </div>
+
+            <div className={styles.photoModalFooter}>
+              <p>
+                Photo {safeActivePhotoIndex + 1} of {galleryImages.length}
+              </p>
+
+              {galleryImages.length > 1 ? (
+                <div className={styles.photoModalThumbs} aria-label="Choose photo">
+                  {galleryImages.map((image, index) => (
+                    <button
+                      key={image.src}
+                      type="button"
+                      className={`${styles.photoModalThumb} ${
+                        index === safeActivePhotoIndex ? styles.photoModalThumbActive : ""
+                      }`}
+                      aria-label={`Show photo ${index + 1}`}
+                      aria-current={index === safeActivePhotoIndex}
+                      onClick={() => setActivePhotoIndex(index)}
+                    >
+                      <img src={image.src} alt="" />
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <SiteFooter />
     </div>
   );

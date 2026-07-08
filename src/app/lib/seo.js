@@ -25,7 +25,7 @@ function formatLocationSeoPlace(location = {}) {
 
 const LOCATION_SEO_BY_SLUG = {
   "/location/annapolis": {
-    title: "Walk-In Healthcare at First Medical Associates in Annapolis | Convenient Care",
+    title: "Same-Day Healthcare at First Medical Associates in Annapolis | Convenient Care",
     h1: "Primary care Doctor in Annapolis, MD",
   },
   "/bowie-dev": {
@@ -33,7 +33,7 @@ const LOCATION_SEO_BY_SLUG = {
     h1: "Best primary care physician and doctor in Bowie, MD",
   },
   "/location/bowie": {
-    title: "Top Doctors & Walk-In Clinic in Bowie, MD | First Medical Associates",
+    title: "Top Doctors & Same-Day Appointments in Bowie, MD | First Medical Associates",
     h1: "Best primary care physician and doctor in Bowie, MD",
   },
   "/location/columbia": {
@@ -45,35 +45,31 @@ const LOCATION_SEO_BY_SLUG = {
     h1: "Primary care Doctor in Crofton , MD",
   },
   "/location/frederick": {
-    title: "Primary Care & Family Doctors | Walk-In Clinic in Frederick, MD | First Medical Associates",
+    title: "Primary Care & Family Doctors | Same-Day Appointments in Frederick, MD | First Medical Associates",
     h1: "Primary care Doctor in Frederick, MD",
   },
   "/location/gaithersburg": {
-    title: "Walk-In Healthcare at First Medical Associates in Gaithersburg | Quick & Convenient Care",
+    title: "Same-Day Healthcare at First Medical Associates in Gaithersburg | Quick & Convenient Care",
     h1: "Family doctor in Gaithersburg, MD",
   },
   "/location/germantown": {
-    title: "Primary Care Doctor in Germantown, MD | Comprehensive Walk-In Clinic & Family Doctors | First Medical Associates",
+    title: "Primary Care Doctor in Germantown, MD | Comprehensive Same-Day Appointments & Family Doctors | First Medical Associates",
     h1: "Primary care Doctor in Germantown, MD",
   },
   "/location/glen-burnie": {
-    title: "Walk-In Healthcare at First Medical Associates in Glen Burnie | Quick & Convenient Care",
+    title: "Same-Day Healthcare at First Medical Associates in Glen Burnie | Quick & Convenient Care",
     h1: "Primary care Doctor in Glen Burnie, MD",
   },
   "/location/greenbelt": {
     title: "Greenbelt | Primary Care Doctor at First Medical Associates",
     h1: "Primary care doctor in GREENBELT, MD",
   },
-  "/location/laurel": {
-    title: "Laurel | Primary Care Doctor at First Medical Associates",
-    h1: "Primary care Doctor in Laurel, MD",
-  },
   "/location/lutherville": {
     title: "Primary Care Doctor in Lutherville | First Medical Associates",
     h1: "Primary care Doctor in Lutherville , MD",
   },
   "/location/nottingham": {
-    title: "Primary Care Doctor in Nottingham, MD | Family & Walk-In Clinic | First Medical Associates",
+    title: "Primary Care Doctor in Nottingham, MD | Family & Same-Day Appointments | First Medical Associates",
     h1: "Primary Care Doctor in Nottingham, MD",
   },
   "/location/rockville": {
@@ -81,7 +77,7 @@ const LOCATION_SEO_BY_SLUG = {
     h1: "Primary care Doctor in Rockville, MD",
   },
   "/location/severna-park": {
-    title: "Walk-In Healthcare at First Medical Associates in Severna Park | Fast & Reliable Care",
+    title: "Same-Day Healthcare at First Medical Associates in Severna Park | Fast & Reliable Care",
     h1: "Primary care Doctor in Severna Park, MD",
   },
   "/location/silver-spring": {
@@ -124,7 +120,7 @@ const SERVICE_SEO_TITLES_BY_SLUG = {
     "Telemedicine Services at First Medical Associates in Maryland | Convenient Online Care",
   "annual-physicals": "Annual Physicals at First Medical Associates in Maryland | Expert Care",
   "primary-care": "Primary Care Doctor at First Medical Associates in Maryland | Trusted Healthcare",
-  "urgent-needs": "Urgent Care Doctor in Maryland | Quick & Reliable Care",
+  "same-day-care": "Same-Day Care in Maryland | Quick & Reliable Care",
   "mens-health": "Men's Health Doctor at First Medical Associates in Maryland | Specialized Care",
   "skin-rash-and-eczema":
     "Skin Rash Doctor at First Medical Associates in Maryland | Expert Diagnosis & Treatment",
@@ -175,16 +171,16 @@ export const providersIndexMetadata = buildStaticMetadata({
 });
 
 export const servicesIndexMetadata = buildStaticMetadata({
-  title: "Primary Care, Urgent Care & Telehealth Services in Maryland | First Medical Associates",
+  title: "Primary Care, Specialized Care & Telehealth Services in Maryland | First Medical Associates",
   description:
-    "Explore primary care, urgent care, chronic care, telehealth, and walk-in medical services from First Medical Associates across Maryland.",
+    "Explore primary care, specialized care, chronic care, telehealth, and same-day medical appointments from First Medical Associates across Maryland.",
   pathname: "/services",
 });
 
 export const locationsIndexMetadata = buildStaticMetadata({
-  title: "Primary Care & Walk-In Clinic Locations in Maryland | First Medical Associates",
+  title: "Primary Care & Same-Day Appointment Locations in Maryland | First Medical Associates",
   description:
-    "Find First Medical Associates primary care and walk-in clinic locations across Maryland, with office details, directions, and appointment access.",
+    "Find First Medical Associates primary care and same-day appointment locations across Maryland, with office details, directions, and appointment access.",
   pathname: "/locations",
 });
 
@@ -202,9 +198,9 @@ export function getLocationSeoContent(location = {}) {
   const title = mapped?.title || `Primary Care Doctor in ${placeName} | First Medical Associates`;
   const description =
     truncateText(
-      `Visit First Medical Associates for primary care, family medicine, and walk-in clinic support in ${placeName}. ${baseDescription}`,
+      `Visit First Medical Associates for primary care, family medicine, and same-day appointment support in ${placeName}. ${baseDescription}`,
       160
-    ) || `Visit First Medical Associates for primary care and walk-in clinic support in ${placeName}.`;
+    ) || `Visit First Medical Associates for primary care and same-day appointment support in ${placeName}.`;
 
   return { title, h1, description, placeLabel: placeName };
 }

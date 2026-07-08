@@ -784,7 +784,7 @@ export default function ServiceDetailTemplate({ service }) {
             {
               href: "/services",
               label: "Browse All Services",
-              description: "Compare related treatment options, chronic care, urgent care, and telehealth.",
+              description: "Compare related treatment options, chronic care, specialized care, and telehealth.",
             },
             {
               href: "/patient-resources/insurance",
