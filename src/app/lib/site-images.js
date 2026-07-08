@@ -6,11 +6,20 @@ const SITE_IMAGE_BLOBS = {
   "first-medical-associates-doctors-9": `${SITE_IMAGE_BLOB_BASE_URL}/first-medical-associates-doctors-9.webp`,
 };
 
+const SITE_IMAGE_VERSIONS = {
+  "first-medical-associates-doctors-5": "51183c12",
+};
+
 export function getSiteImageBlobUrl(key = "") {
   return SITE_IMAGE_BLOBS[String(key || "").trim()] || "";
 }
 
 export function getSiteImageSrc(key = "") {
   const normalizedKey = String(key || "").trim();
-  return normalizedKey ? `/api/site-images/${encodeURIComponent(normalizedKey)}` : "";
+  if (!normalizedKey) return "";
+
+  const version = SITE_IMAGE_VERSIONS[normalizedKey];
+  const path = `/api/site-images/${encodeURIComponent(normalizedKey)}`;
+
+  return version ? `${path}?v=${encodeURIComponent(version)}` : path;
 }
