@@ -77,7 +77,7 @@ export default function SiteHeader() {
   const headerActionLabel = "Book Appointment";
 
   const navLinks = [
-    { href: "/providers", label: "Find a Doctor" },
+    { href: "/providers", label: "Find a Provider" },
     { href: "/locations", label: "Locations" },
     { href: "/services", label: "Services" },
     { href: "/patient-resources", label: "Resources" },
