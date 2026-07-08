@@ -468,6 +468,10 @@
   z-index: 8;
 }
 
+.schedulerFilterFieldOpen {
+  z-index: 30;
+}
+
 .schedulerFilterLabel {
   color: #173a88;
   font-size: 0.82rem;
@@ -495,6 +499,40 @@
   font-weight: 500;
 }
 
+.schedulerDropdownTrigger {
+  min-height: 24px;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+
+.schedulerDropdownTrigger:disabled {
+  color: #6d86ad;
+  cursor: not-allowed;
+}
+
+.schedulerDropdownPlaceholder {
+  color: #6d86ad;
+  font-weight: 500;
+}
+
+.schedulerDropdownIcon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: #1748be;
+  transition: transform 180ms ease;
+}
+
+.schedulerFilterFieldOpen .schedulerDropdownIcon {
+  transform: rotate(180deg);
+}
+
 .schedulerDateInput {
   min-width: 0;
   color-scheme: light;
@@ -519,17 +557,20 @@
   margin: 0;
   padding: 8px;
   list-style: none;
-  border: 1px solid rgba(67, 106, 180, 0.28);
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 250, 255, 0.96));
+  border: 1px solid rgba(67, 106, 180, 0.3);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(141, 232, 255, 0.2), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(245, 250, 255, 0.98));
   box-shadow:
-    0 18px 30px rgba(20, 49, 110, 0.18),
-    0 1px 0 rgba(255, 255, 255, 0.82) inset;
+    0 22px 36px rgba(20, 49, 110, 0.2),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
   max-height: 250px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(23, 58, 136, 0.3) rgba(15, 35, 88, 0.08);
-  z-index: 20;
+  transform-origin: top center;
+  z-index: 50;
 }
 
 .schedulerSuggestions::-webkit-scrollbar {
@@ -565,8 +606,12 @@
   width: 100%;
   min-height: 34px;
   border: 0;
-  border-radius: 10px;
-  padding: 0 10px;
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   background: transparent;
   color: #1d3f77;
   font: inherit;
@@ -587,8 +632,69 @@
   outline: none;
 }
 
+.schedulerSuggestionButtonActive {
+  background: rgba(23, 72, 190, 0.12);
+  color: #12306f;
+  box-shadow: inset 0 0 0 1px rgba(23, 72, 190, 0.12);
+}
+
 .schedulerSuggestionButton:active {
   transform: translateY(1px);
+}
+
+.schedulerDateMenu {
+  display: grid;
+  gap: 8px;
+  max-height: none;
+  overflow: visible;
+}
+
+.schedulerDateMenuHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 14px;
+  background: rgba(232, 240, 254, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(23, 72, 190, 0.08);
+}
+
+.schedulerDateMenuInput {
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  background: #ffffff;
+  color-scheme: light;
+  cursor: pointer;
+}
+
+.schedulerDateClear {
+  min-height: 38px;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 12px;
+  background: #1748be;
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.schedulerDateOptionList {
+  max-height: 220px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(23, 58, 136, 0.3) rgba(15, 35, 88, 0.08);
+}
+
+.schedulerDateOptionMeta {
+  color: #6d86ad;
+  font-size: 0.74rem;
+  font-weight: 700;
 }
 
 .schedulerArrow {
