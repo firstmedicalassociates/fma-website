@@ -690,7 +690,7 @@ export default function ServiceDetailTemplate({ service }) {
                 <Calendar size={18} /> Schedule an Appointment
               </Link>
               <Link href="/providers" className="button-outline">
-                <User size={18} /> Find a Primary Care Doctor
+                <User size={18} /> Find a Primary Care Provider
               </Link>
             </div>
           </div>
@@ -773,8 +773,8 @@ export default function ServiceDetailTemplate({ service }) {
           links={[
             {
               href: "/providers",
-              label: "Find a Doctor",
-              description: "Browse primary care doctors and providers who can help with this service.",
+              label: "Find a Provider",
+              description: "Browse primary care providers who can help with this service.",
             },
             {
               href: "/locations",
@@ -805,7 +805,7 @@ export default function ServiceDetailTemplate({ service }) {
               <Calendar size={18} /> Schedule an Appointment
             </Link>
             <Link href="/providers" className="cta-btn-outline">
-              Find a Doctor <ArrowRight size={18} />
+              Find a Provider <ArrowRight size={18} />
             </Link>
           </div>
         </section>

@@ -24,7 +24,7 @@ Online Booking: https://first-medical-associates.inquicker.com/ (also available 
 Online Bill Pay: Available at www.DrsFirst.com
 
 HOURS OF OPERATION
-Office Hours: Monday–Friday, 8:00 AM – 5:00 PM (lunch break 12:00 PM – 1:00 PM)
+Office Hours: Monday-Friday, 8:00 AM - 5:00 PM. Saturday and Sunday: Closed.
 After-Hours Support: Available 24/7 — call 301-515-2901 for time-sensitive needs
 
 LOCATIONS (14 Maryland locations)

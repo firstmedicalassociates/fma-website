@@ -21,6 +21,16 @@ function cleanText(value) {
   return normalized || null;
 }
 
+const STANDARD_LOCATION_OFFICE_HOURS = [
+  { day: "Sunday", closed: true },
+  { day: "Monday", startTime: "08:00", endTime: "17:00" },
+  { day: "Tuesday", startTime: "08:00", endTime: "17:00" },
+  { day: "Wednesday", startTime: "08:00", endTime: "17:00" },
+  { day: "Thursday", startTime: "08:00", endTime: "17:00" },
+  { day: "Friday", startTime: "08:00", endTime: "17:00" },
+  { day: "Saturday", closed: true },
+];
+
 function normalizeSlug(value = "") {
   const segments = String(value)
     .split("/")
@@ -92,7 +102,7 @@ function buildSeedLocation(entry) {
     directionsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayAddress)}`,
     mapImageUrl: cleanText(entry.img),
     mapImageAlt: `${cleanText(entry.name)} office`,
-    officeHours: [],
+    officeHours: STANDARD_LOCATION_OFFICE_HOURS,
     infoSections: normalizeInfoSections(infoSeed?.sections),
     serviceIds: [],
     services: [],
@@ -177,7 +187,7 @@ function mergeLocation(existingLocation, seededLocation) {
     mapImageAlt: pickText(existingLocation.mapImageAlt, seededLocation.mapImageAlt),
     parkingTitle: pickText(existingLocation.parkingTitle, null),
     parkingDescription: pickText(existingLocation.parkingDescription, null),
-    officeHours: pickArray(existingLocation.officeHours, seededLocation.officeHours),
+    officeHours: seededLocation.officeHours,
     infoSections: existingInfoSections.length > 0 ? existingInfoSections : seededInfoSections,
     serviceIds: pickArray(existingLocation.serviceIds, seededLocation.serviceIds),
     services:
