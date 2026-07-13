@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { GENERAL_BOOK_APPOINTMENT_URL } from "../lib/config/site";
 import { AI_SEARCH_REQUEST_EVENT } from "../lib/ai-search-events";
 import {
@@ -18,7 +19,7 @@ const SEARCH_MIN_CHARACTERS = 2;
 const DEFAULT_APPOINTMENT_RESULT_LIMIT = 4;
 const MAX_APPOINTMENT_RESULT_LIMIT = 48;
 const DEFAULT_LOADING_STATUSES = [
-  "Reviewing doctors, services, and locations...",
+  "Reviewing providers, services, and locations...",
   "Checking the best appointment paths...",
   "Preparing useful results and next steps...",
 ];
@@ -102,10 +103,10 @@ const DEFAULT_SUMMARY =
 const MOCK_RESULT_CARDS = [
   {
     categoryLabel: "Provider Search",
-    title: "Find a Doctor",
+    title: "Find a Provider",
     description: "Search providers by specialty, city, state, or appointment type.",
     href: "/providers",
-    actionLabel: "View doctor options",
+    actionLabel: "View provider options",
   },
   {
     categoryLabel: "Primary Care",
@@ -143,7 +144,7 @@ function SparkleIcon({ className }) {
 
 function getActionLabel(item) {
   if (!item) return "Open page";
-  if (item.kind === "provider") return "View doctor options";
+  if (item.kind === "provider") return "View provider options";
   if (item.kind === "service") return "Explore services";
   if (item.kind === "location") return "View locations";
   if (item.kind === "article") return "Read article";
@@ -282,7 +283,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
   const [state, setState] = useState("idle");
   const [statusIndex, setStatusIndex] = useState(0);
   const [loadingStatuses, setLoadingStatuses] = useState(DEFAULT_LOADING_STATUSES);
-  const [helperText, setHelperText] = useState("Example: Find a primary care doctor near Rockville.");
+  const [helperText, setHelperText] = useState("Example: Find a primary care provider near Rockville.");
   const [errorMessage, setErrorMessage] = useState("");
   const [conversationMessages, setConversationMessages] = useState([]);
   const [activeAssistantMessageId, setActiveAssistantMessageId] = useState("");
@@ -314,7 +315,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
     setState("idle");
     setStatusIndex(0);
     setLoadingStatuses(DEFAULT_LOADING_STATUSES);
-    setHelperText("Example: Find a primary care doctor near Rockville.");
+    setHelperText("Example: Find a primary care provider near Rockville.");
     setErrorMessage("");
     setConversationMessages([]);
     setActiveAssistantMessageId("");
@@ -709,26 +710,37 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         <span>AI Search</span>
       </button>
 
-      {isOpen ? (
-        <div
-          aria-hidden={!isOpen}
-          className={overlayClassName}
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              closeModal();
-            }
-          }}
-        >
-          <button aria-label="Close AI search" className={styles.closeButton} onClick={closeModal} type="button">
-            &times;
-          </button>
+      {isOpen && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              aria-hidden={!isOpen}
+              className={overlayClassName}
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget) {
+                  closeModal();
+                }
+              }}
+            >
+              <button
+                aria-label="Close AI search"
+                className={styles.closeButton}
+                onClick={closeModal}
+                type="button"
+              >
+                &times;
+              </button>
 
-          <div aria-labelledby="aiSearchTitle" aria-modal="true" className={styles.content} role="dialog">
-            <div className={styles.heroBlock}>
-              <div className={styles.eyebrow}>
-                <SparkleIcon className={styles.sparkleIcon} />
-                AI Powered Search
-              </div>
+              <div
+                aria-labelledby="aiSearchTitle"
+                aria-modal="true"
+                className={styles.content}
+                role="dialog"
+              >
+                <div className={styles.heroBlock}>
+                  <div className={styles.eyebrow}>
+                    <SparkleIcon className={styles.sparkleIcon} />
+                    AI Powered Search
+                  </div>
 
               <h2 className={styles.title} id="aiSearchTitle">
                 <span className={styles.titleWord}>Search</span>
@@ -971,7 +983,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                             Schedule Appointment
                           </Link>
                           <Link className={styles.quickAction} href="/providers">
-                            Find a Doctor
+                            Find a Provider
                           </Link>
                           <Link className={styles.quickAction} href="/locations">
                             View Locations
@@ -1022,7 +1034,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                     className={styles.searchInput}
                     maxLength={PUBLIC_SEARCH_MAX_CHARACTERS}
                     onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Ask about doctors, services, locations, insurance, or appointments..."
+                    placeholder="Ask about providers, services, locations, insurance, or appointments..."
                     ref={inputRef}
                     rows={2}
                     value={query}
@@ -1039,12 +1051,15 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
               </form>
             </section>
 
-            <div className={`${styles.privacyHint} ${styles.modalPrivacyHint}`}>
-              {NO_PHI_NOTICE}
+                <div className={`${styles.privacyHint} ${styles.modalPrivacyHint}`}>
+                  {NO_PHI_NOTICE}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      ) : null}
+            ,
+            document.body,
+          )
+        : null}
     </>
   );
 }

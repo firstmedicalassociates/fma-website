@@ -1707,7 +1707,7 @@ function buildProviderResolutionFallbackResult(providerResolution, lookaheadDays
     sources:
       candidateSources.length > 0
         ? candidateSources
-        : [{ title: "Find a Doctor", url: "/providers", type: "provider" }],
+        : [{ title: "Find a Provider", url: "/providers", type: "provider" }],
     citations: ["Appointment search"],
     disclaimer: true,
     recoveryActions: [
@@ -1719,7 +1719,7 @@ function buildProviderResolutionFallbackResult(providerResolution, lookaheadDays
       },
       {
         type: "link",
-        label: "Find a Doctor",
+        label: "Find a Provider",
         value: "providers",
         href: "/providers",
       },

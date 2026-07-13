@@ -80,10 +80,14 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100vh;
   height: 100dvh;
+  min-height: 100vh;
   min-height: 100dvh;
   overscroll-behavior-y: contain;
   overflow-y: auto;
@@ -1424,7 +1428,14 @@
   }
 
   .closeButton {
-    display: none;
+    top: calc(14px + env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
   }
 
   .searchInputRow {
