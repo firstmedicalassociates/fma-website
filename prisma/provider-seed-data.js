@@ -442,7 +442,7 @@ module.exports = [
   {
     name: "Grace Nzouatcham",
     title: "PA-C",
-    locations: ["Columbia (Broken Land Dr)", "Lutherville"],
+    locations: ["Columbia (Broken Land Pkwy)", "Lutherville"],
     languages: ["English", "French"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/grace-nzouatcham.webp",
     imageAlt: "Grace Nzouatcham headshot",
@@ -530,7 +530,7 @@ module.exports = [
   {
     name: "Amit S. Babra",
     title: "M.D.",
-    locations: ["Columbia (Broken Land Dr)"],
+    locations: ["Columbia (Broken Land Pkwy)"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/amit-s-babra.webp",
     imageAlt: "Amit S. Babra headshot",

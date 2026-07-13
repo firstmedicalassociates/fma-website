@@ -42,7 +42,11 @@ const PHOTO_BLOBS = {
   "severna-park-md": `${PHOTO_BLOB_BASE_URL}/severna-park-md.webp`,
   "silver-spring-1": `${PHOTO_BLOB_BASE_URL}/silver-spring-1.webp`,
   "silver-spring-2": `${PHOTO_BLOB_BASE_URL}/silver-spring-2.webp`,
-  "silver-spring-md": `${PHOTO_BLOB_BASE_URL}/silver-spring-md.jpg`,
+  "silver-spring-building": `${PHOTO_BLOB_BASE_URL}/silver-spring-building.webp`,
+};
+
+const PHOTO_ALTS = {
+  "silver-spring-building": "Exterior of the First Medical Associates Silver Spring office building",
 };
 
 const LOCATION_PHOTO_SETS = {
@@ -108,7 +112,7 @@ const LOCATION_PHOTO_SETS = {
   },
   "/location/silver-spring": {
     primary: "silver-spring-2",
-    gallery: ["silver-spring-2", "silver-spring-1", "silver-spring-md"],
+    gallery: ["silver-spring-2", "silver-spring-1", "silver-spring-building"],
   },
 };
 
@@ -126,7 +130,7 @@ function buildPhoto(key, location, index) {
   return {
     key,
     src: `/api/location-photos/${encodeURIComponent(key)}`,
-    alt: buildPhotoAlt(location, index),
+    alt: PHOTO_ALTS[key] || buildPhotoAlt(location, index),
   };
 }
 

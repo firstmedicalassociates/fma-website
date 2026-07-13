@@ -30,7 +30,7 @@ module.exports = [
   {
     name: "Columbia II, MD",
     cityStatePhone: "443-979-9281",
-    addressLines: ["9841 Broken Land Dr., STE 115", "Columbia, MD 21046"],
+    addressLines: ["9841 Broken Land Parkway, STE 115", "Columbia, MD 21046"],
     img: "https://drsfirst.com/wp-content/uploads/2023/04/health-clinic-80.jpg",
     href: "/columbia-dev/",
   },
