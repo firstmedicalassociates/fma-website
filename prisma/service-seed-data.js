@@ -201,19 +201,19 @@ module.exports = [
       detailLinkHref: "/location",
       faqItems: [
         {
-          question: "What if my issue needs attention but is not life-threatening?",
+          question: "When should I use FMA same-day care, urgent care, or the emergency room?",
           answer:
-            "Schedule online or call for same-day evaluation. Our team can assess your symptoms and start treatment quickly.",
+            "Choose FMA same-day care for new or worsening, non-life-threatening concerns when an appointment is available. Urgent care is an option for prompt, non-emergency care when FMA is unavailable. Use the emergency room for possible emergencies, and call 911 for life-threatening symptoms such as chest pain or pressure, severe trouble breathing, signs of stroke, loss of consciousness, or bleeding that will not stop. Do not delay emergency care.",
         },
         {
           question: "How do I choose same-day care vs. my regular PCP visit?",
           answer:
-            "Use same-day care for immediate problems. Ongoing issues and long-term planning are best managed in routine PCP follow-up.",
+            "Use same-day care for a new or worsening, non-life-threatening concern that should not wait for your next routine appointment. Use a regular PCP visit for preventive care, ongoing concerns, and long-term condition management.",
         },
         {
           question: "What happens during a same-day visit?",
           answer:
-            "We review symptoms and history, perform an exam, start treatment, and provide instructions for recovery and follow-up.",
+            "A provider reviews your symptoms and medical history, performs an appropriate exam, and discusses testing, treatment, and follow-up based on your needs.",
         },
       ],
       ctaTitle: "Need Care Today?",
