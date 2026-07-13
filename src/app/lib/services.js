@@ -170,6 +170,10 @@ const KNOWN_SERVICE_COPY_REPLACEMENTS = {
   "Find a Primary Care Doctor": "Find a Primary Care Provider",
   "Primary care gives you a consistent clinical home for preventive visits, urgent concerns, and long-term condition management.":
     "Primary care gives you a consistent clinical home for preventive visits, pressing concerns, and long-term condition management.",
+  "How do I choose same-day specialized care vs. my regular PCP visit?":
+    "How do I choose same-day care vs. my regular PCP visit?",
+  "How do I choose specialized care vs. my regular PCP visit?":
+    "How do I choose same-day care vs. my regular PCP visit?",
 };
 
 function cleanText(value = "") {

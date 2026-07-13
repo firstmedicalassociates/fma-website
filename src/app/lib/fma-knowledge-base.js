@@ -270,7 +270,7 @@ Telemedicine insurance:
   Johns Hopkins Health
 - NOT accepted for telemedicine: Cigna or United Health Care commercial plans
   (Medicare/Medicaid versions of these plans are accepted)
-- Self-pay: $150 per consultation
+- Self-pay: $180 for new patients; $150 for existing patients
 
 ANNUAL PHYSICALS
 Recommended yearly for all patients. FMA annual physicals include:
@@ -286,7 +286,7 @@ Insurance for annual physicals:
   Johns Hopkins Health, Medicare (including Advantage Plans), Medicaid (multiple plans)
 - NOT accepted: Cigna Healthcare or United Health Care commercial plans
   (Medicaid and Medicare UHC/Cigna plans ARE accepted)
-- Self-pay: $150 per consultation
+- Self-pay: $180 for new patients; $150 for existing patients
 
 PROVIDERS
 FMA employs board-certified internists and family medicine physicians, plus nurse practitioners
@@ -304,7 +304,7 @@ All secondary insurances accepted.
 Medicaid Plans: Wellpoint/Amerigroup, CareFirst Community Plan, Aetna Medicaid, United Health
 Medicaid, Priority Partner–Johns Hopkins, Amerigroup, Maryland Physicians Care, straight Medicaid.
 
-Self-Pay: $150 per consultation (uninsured patients).
+Self-Pay: $180 for new patients; $150 for existing patients (uninsured patients).
 
 Billing questions: call 301-515-2901 or use online bill pay at www.DrsFirst.com.
 Fax for billing: 866-701-4905

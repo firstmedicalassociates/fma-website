@@ -206,7 +206,7 @@ module.exports = [
             "Schedule online or call for same-day evaluation. Our team can assess your symptoms and start treatment quickly.",
         },
         {
-          question: "How do I choose same-day specialized care vs. my regular PCP visit?",
+          question: "How do I choose same-day care vs. my regular PCP visit?",
           answer:
             "Use same-day care for immediate problems. Ongoing issues and long-term planning are best managed in routine PCP follow-up.",
         },

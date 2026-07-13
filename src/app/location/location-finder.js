@@ -9,13 +9,19 @@ import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_MAP_ID } from "../lib/config/site";
 import { formatOfficeHourTime, normalizeOfficeHours } from "../lib/locations";
+import {
+  calculateDistanceMiles,
+  flattenLocationGroups,
+  groupLocationsByStructuredCity,
+  LOCATION_SEARCH_RADIUS_MILES,
+  selectLocationGroupsForSearch,
+} from "./location-finder-utils.mjs";
 import styles from "./location-finder.module.css";
 
 const DEFAULT_MAP_CENTER = { lat: 39.1141, lng: -76.8041 };
 const DEFAULT_MAP_ZOOM = 7;
 const FOCUSED_MAP_ZOOM = 11;
 const MAP_BOUNDS_PADDING = 96;
-const DEFAULT_SEARCH_RADIUS_MILES = 25;
 const MOBILE_BREAKPOINT_PX = 720;
 const DEFAULT_MARKER_SIZE_PX = 18;
 const SELECTED_MARKER_SIZE_PX = 22;
@@ -134,56 +140,6 @@ function buildFinderSearchAttempts({ state = "", city = "", zip = "" }) {
     cityValue,
     stateValue,
   ].filter((value, index, values) => value && values.indexOf(value) === index);
-}
-
-function normalizeFinderInput(value = "") {
-  return String(value || "")
-    .trim()
-    .toLowerCase();
-}
-
-function locationMatchesFinderInputs(location, { city = "", state = "", zip = "" }) {
-  if (!city && !state && !zip) return true;
-
-  const haystack = [
-    location.title,
-    location.slug,
-    location.address,
-    ...(Array.isArray(location.addressLines) ? location.addressLines : []),
-    location.addressCity,
-    location.addressState,
-    location.postalCode,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-
-  if (city && !haystack.includes(city)) return false;
-  if (state && !haystack.includes(state)) return false;
-  if (zip && !haystack.includes(zip)) return false;
-
-  return true;
-}
-
-function toRadians(value) {
-  return (value * Math.PI) / 180;
-}
-
-function calculateDistanceMiles(origin, target) {
-  if (!origin || !target) return null;
-
-  const earthRadiusMiles = 3958.8;
-  const latitudeDelta = toRadians(target.lat - origin.lat);
-  const longitudeDelta = toRadians(target.lng - origin.lng);
-  const originLatitude = toRadians(origin.lat);
-  const targetLatitude = toRadians(target.lat);
-
-  const haversine =
-    Math.sin(latitudeDelta / 2) ** 2 +
-    Math.cos(originLatitude) * Math.cos(targetLatitude) * Math.sin(longitudeDelta / 2) ** 2;
-  const arc = 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
-
-  return earthRadiusMiles * arc;
 }
 
 function formatDistanceMiles(value) {
@@ -380,6 +336,7 @@ export default function LocationFinder({ locations = [] }) {
   const [searchStatus, setSearchStatus] = useState("idle");
   const [searchErrorMessage, setSearchErrorMessage] = useState("");
   const [pinnedSlug, setPinnedSlug] = useState(locations[0]?.slug || "");
+  const [focusedGroupKey, setFocusedGroupKey] = useState("");
   const [hasPinnedSelection, setHasPinnedSelection] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -431,27 +388,26 @@ export default function LocationFinder({ locations = [] }) {
     });
   }, [geocodePositions, locations, searchOrigin]);
 
-  const filteredLocations = useMemo(() => {
-    const finderInputs = {
-      city: normalizeFinderInput(searchCity),
-      state: normalizeFinderInput(searchState),
-      zip: normalizeFinderInput(searchZip),
-    };
-
-    const liveInputFilteredLocations = rankedLocations.filter((location) =>
-      locationMatchesFinderInputs(location, finderInputs)
-    );
-
+  const allLocationGroups = useMemo(
+    () => groupLocationsByStructuredCity(rankedLocations),
+    [rankedLocations]
+  );
+  const locationSearchSelection = useMemo(() => {
     if (!searchOrigin?.position) {
-      return liveInputFilteredLocations;
+      return {
+        groups: allLocationGroups,
+        usedNearestFallback: false,
+        hasDistanceData: true,
+      };
     }
 
-    return liveInputFilteredLocations.filter(
-      (location) =>
-        typeof location.distanceMiles === "number" &&
-        location.distanceMiles <= DEFAULT_SEARCH_RADIUS_MILES
-    );
-  }, [rankedLocations, searchCity, searchOrigin, searchState, searchZip]);
+    return selectLocationGroupsForSearch(allLocationGroups);
+  }, [allLocationGroups, searchOrigin]);
+  const filteredLocationGroups = locationSearchSelection.groups;
+  const filteredLocations = useMemo(
+    () => flattenLocationGroups(filteredLocationGroups),
+    [filteredLocationGroups]
+  );
 
   const selectedLocation = useMemo(() => {
     if (!hasPinnedSelection || filteredLocations.length === 0) return null;
@@ -463,6 +419,10 @@ export default function LocationFinder({ locations = [] }) {
     if (isMobileViewport && mobileViewMode === "detail") return filteredLocations[0] || null;
     return null;
   }, [filteredLocations, isMobileViewport, mobileViewMode, selectedLocation]);
+  const focusedLocationGroup = useMemo(
+    () => filteredLocationGroups.find((group) => group.key === focusedGroupKey) || null,
+    [filteredLocationGroups, focusedGroupKey]
+  );
 
   const finderSearchQuery = useMemo(
     () => buildFinderSearchQuery({ state: searchState, city: searchCity, zip: searchZip }),
@@ -651,6 +611,7 @@ export default function LocationFinder({ locations = [] }) {
         });
         marker.addListener("click", () => {
           setPinnedSlug(location.slug);
+          setFocusedGroupKey("");
           setHasPinnedSelection(true);
           if (isMobileViewport) {
             setMobileViewMode("detail");
@@ -683,10 +644,26 @@ export default function LocationFinder({ locations = [] }) {
     const selectedPosition = activeLocation
       ? geocodePositions.get(activeLocation.slug)
       : null;
+    const focusedGroupPositions = (focusedLocationGroup?.locations || [])
+      .map((location) => geocodePositions.get(location.slug))
+      .filter(Boolean);
 
     if (hasPinnedSelection && selectedPosition) {
       mapRef.current.panTo(selectedPosition);
       mapRef.current.setZoom(FOCUSED_MAP_ZOOM);
+      return;
+    }
+
+    if (focusedGroupPositions.length === 1) {
+      mapRef.current.panTo(focusedGroupPositions[0]);
+      mapRef.current.setZoom(FOCUSED_MAP_ZOOM);
+      return;
+    }
+
+    if (focusedGroupPositions.length > 1) {
+      const groupBounds = new googleMaps.maps.LatLngBounds();
+      focusedGroupPositions.forEach((position) => groupBounds.extend(position));
+      mapRef.current.fitBounds(groupBounds, MAP_BOUNDS_PADDING);
       return;
     }
 
@@ -706,6 +683,7 @@ export default function LocationFinder({ locations = [] }) {
     hasPinnedSelection,
     mapStatus,
     activeLocation,
+    focusedLocationGroup,
   ]);
 
   async function handleFinderSearch(event) {
@@ -717,6 +695,7 @@ export default function LocationFinder({ locations = [] }) {
       setSearchErrorMessage("");
       setHasPinnedSelection(false);
       setPinnedSlug("");
+      setFocusedGroupKey("");
       return;
     }
 
@@ -744,6 +723,36 @@ export default function LocationFinder({ locations = [] }) {
     setSearchStatus("success");
     setHasPinnedSelection(false);
     setPinnedSlug("");
+    setFocusedGroupKey("");
+    setMobileViewMode("list");
+  }
+
+  function resetResolvedFinderSearch() {
+    setSearchOrigin(null);
+    setSearchStatus("idle");
+    setSearchErrorMessage("");
+    setHasPinnedSelection(false);
+    setPinnedSlug("");
+    setFocusedGroupKey("");
+    setMobileViewMode("list");
+  }
+
+  function handleFinderInputChange(setValue, value) {
+    setValue(value);
+    resetResolvedFinderSearch();
+  }
+
+  function selectOffice(location, { showMobileDetail = false } = {}) {
+    setPinnedSlug(location.slug);
+    setFocusedGroupKey("");
+    setHasPinnedSelection(true);
+    if (showMobileDetail) setMobileViewMode("detail");
+  }
+
+  function focusLocationGroup(group) {
+    setPinnedSlug("");
+    setHasPinnedSelection(false);
+    setFocusedGroupKey(group.key);
   }
 
   function clearSearches() {
@@ -755,6 +764,7 @@ export default function LocationFinder({ locations = [] }) {
     setSearchErrorMessage("");
     setHasPinnedSelection(false);
     setPinnedSlug("");
+    setFocusedGroupKey("");
     setMobileViewMode("list");
     setIsSheetExpanded(false);
   }
@@ -779,12 +789,26 @@ export default function LocationFinder({ locations = [] }) {
   }
 
   const selectedLocationCallHref = buildCallHref(activeLocation?.publicPhone);
-  const emptyResults = filteredLocations.length === 0;
+  const emptyResults = filteredLocationGroups.length === 0;
+  const usedNearestFallback =
+    hasActiveFinderSearch && locationSearchSelection.usedNearestFallback;
+  const distanceDataUnavailable =
+    hasActiveFinderSearch && !locationSearchSelection.hasDistanceData;
   const resultsTagLabel = hasActiveFinderSearch
-    ? searchOrigin?.label || finderSearchQuery
-    : hasFinderSearchInput
-      ? `Live filter: ${finderSearchQuery}`
-      : "All locations";
+    ? usedNearestFallback
+      ? `Nearest locations to ${searchOrigin?.label || finderSearchQuery}`
+      : searchOrigin?.label || finderSearchQuery
+    : "All locations";
+  const searchResultsSummary = usedNearestFallback
+    ? `No offices are within ${LOCATION_SEARCH_RADIUS_MILES} miles. Showing the nearest ${filteredLocationGroups.length} areas with FMA offices.`
+    : hasActiveFinderSearch && !distanceDataUnavailable
+      ? `Showing offices within ${LOCATION_SEARCH_RADIUS_MILES} miles.`
+      : "";
+  const mobileResultsHeading = usedNearestFallback
+    ? "Nearest Locations"
+    : hasActiveFinderSearch
+      ? `Within ${LOCATION_SEARCH_RADIUS_MILES} Miles`
+      : "All Locations";
   const showResultsPanel = true;
   const showDesktopDetailView = !isMobileViewport && Boolean(activeLocation);
   const stageContentClassName = `${styles.stageContent} ${styles.stageContentResultsOnly}`;
@@ -927,7 +951,9 @@ export default function LocationFinder({ locations = [] }) {
                   <input
                     type="text"
                     value={searchCity}
-                    onChange={(event) => setSearchCity(event.target.value)}
+                    onChange={(event) =>
+                      handleFinderInputChange(setSearchCity, event.target.value)
+                    }
                     placeholder="Search by city"
                   />
                 </label>
@@ -939,7 +965,9 @@ export default function LocationFinder({ locations = [] }) {
                   <input
                     type="text"
                     value={searchState}
-                    onChange={(event) => setSearchState(event.target.value)}
+                    onChange={(event) =>
+                      handleFinderInputChange(setSearchState, event.target.value)
+                    }
                     placeholder="Search by state"
                   />
                 </label>
@@ -952,7 +980,9 @@ export default function LocationFinder({ locations = [] }) {
                     type="text"
                     inputMode="numeric"
                     value={searchZip}
-                    onChange={(event) => setSearchZip(event.target.value)}
+                    onChange={(event) =>
+                      handleFinderInputChange(setSearchZip, event.target.value)
+                    }
                     placeholder="Search by zip code"
                   />
                 </label>
@@ -1014,7 +1044,9 @@ export default function LocationFinder({ locations = [] }) {
                     <input
                       type="text"
                       value={searchCity}
-                      onChange={(event) => setSearchCity(event.target.value)}
+                      onChange={(event) =>
+                        handleFinderInputChange(setSearchCity, event.target.value)
+                      }
                       placeholder="City"
                     />
                   </label>
@@ -1024,7 +1056,9 @@ export default function LocationFinder({ locations = [] }) {
                       type="text"
                       inputMode="numeric"
                       value={searchZip}
-                      onChange={(event) => setSearchZip(event.target.value)}
+                      onChange={(event) =>
+                        handleFinderInputChange(setSearchZip, event.target.value)
+                      }
                       placeholder="ZIP"
                     />
                   </label>
@@ -1068,30 +1102,117 @@ export default function LocationFinder({ locations = [] }) {
                   {mobileViewMode === "list" ? (
                     <section className={styles.mobileLocationsSection}>
                       <div className={styles.mobileLocationsHeading}>
-                        <h3>All Locations</h3>
+                        <h3>{mobileResultsHeading}</h3>
                         <button type="button" className={styles.clearButton} onClick={clearSearches}>
                           Clear
                         </button>
                       </div>
 
+                      {searchErrorMessage || searchResultsSummary ? (
+                        <p className={styles.mobileResultsSummary} role="status">
+                          {searchErrorMessage || searchResultsSummary}
+                        </p>
+                      ) : null}
+
                       <div className={styles.mobileLocationList}>
-                        {filteredLocations.map((location) => (
-                          <button
-                            key={`mobile-${location.slug}`}
-                            type="button"
-                            className={`${styles.mobileLocationRow} ${
-                              activeLocation?.slug === location.slug ? styles.mobileLocationRowActive : ""
-                            }`}
-                            onClick={() => {
-                              setPinnedSlug(location.slug);
-                              setHasPinnedSelection(true);
-                              setMobileViewMode("detail");
-                            }}
-                          >
-                            <strong>{location.title}</strong>
-                            <span>{location.addressLines[0] || location.address || "Address pending"}</span>
-                          </button>
-                        ))}
+                        {emptyResults ? (
+                          <div className={styles.mobileEmptyState} role="status">
+                            <strong>
+                              {distanceDataUnavailable
+                                ? "Nearby distances are temporarily unavailable."
+                                : "No locations are available."}
+                            </strong>
+                            <span>
+                              {distanceDataUnavailable
+                                ? "Clear the search to view every office."
+                                : "Please try again shortly."}
+                            </span>
+                          </div>
+                        ) : (
+                          filteredLocationGroups.map((group) => {
+                            if (group.locations.length === 1) {
+                              const location = group.locations[0];
+
+                              return (
+                                <button
+                                  key={`mobile-${location.slug}`}
+                                  type="button"
+                                  className={`${styles.mobileLocationRow} ${
+                                    activeLocation?.slug === location.slug
+                                      ? styles.mobileLocationRowActive
+                                      : ""
+                                  }`}
+                                  onClick={() =>
+                                    selectOffice(location, { showMobileDetail: true })
+                                  }
+                                >
+                                  <strong>{location.title}</strong>
+                                  <span>
+                                    {location.addressLines[0] ||
+                                      location.address ||
+                                      "Address pending"}
+                                  </span>
+                                  {hasActiveFinderSearch &&
+                                  typeof location.distanceMiles === "number" ? (
+                                    <span>{formatDistanceMiles(location.distanceMiles)}</span>
+                                  ) : null}
+                                </button>
+                              );
+                            }
+
+                            const groupIsActive =
+                              focusedGroupKey === group.key ||
+                              group.locations.some(
+                                (location) => activeLocation?.slug === location.slug
+                              );
+
+                            return (
+                              <article
+                                key={`mobile-${group.key}`}
+                                className={`${styles.mobileLocationGroup} ${
+                                  groupIsActive ? styles.mobileLocationGroupActive : ""
+                                }`}
+                              >
+                                <button
+                                  type="button"
+                                  className={styles.mobileLocationGroupHeader}
+                                  onClick={() => focusLocationGroup(group)}
+                                  aria-label={`Show all ${group.locations.length} ${group.title} office pins`}
+                                >
+                                  <strong>{group.title}</strong>
+                                  <span>{group.locations.length} offices · View pins</span>
+                                </button>
+                                <div className={styles.mobileLocationBranches}>
+                                  {group.locations.map((location) => (
+                                    <button
+                                      key={`mobile-branch-${location.slug}`}
+                                      type="button"
+                                      className={`${styles.mobileLocationBranch} ${
+                                        activeLocation?.slug === location.slug
+                                          ? styles.mobileLocationRowActive
+                                          : ""
+                                      }`}
+                                      onClick={() =>
+                                        selectOffice(location, { showMobileDetail: true })
+                                      }
+                                    >
+                                      <strong>{location.title}</strong>
+                                      <span>
+                                        {location.addressLines[0] ||
+                                          location.address ||
+                                          "Address pending"}
+                                      </span>
+                                      {hasActiveFinderSearch &&
+                                      typeof location.distanceMiles === "number" ? (
+                                        <span>{formatDistanceMiles(location.distanceMiles)}</span>
+                                      ) : null}
+                                    </button>
+                                  ))}
+                                </div>
+                              </article>
+                            );
+                          })
+                        )}
                       </div>
                     </section>
                   ) : null}
@@ -1129,9 +1250,13 @@ export default function LocationFinder({ locations = [] }) {
                       <div
                         className={styles.resultsTag}
                         aria-label={
-                          hasActiveFinderSearch
-                            ? `Showing locations within ${DEFAULT_SEARCH_RADIUS_MILES} miles of ${resultsTagLabel}`
-                            : `Showing ${resultsTagLabel}`
+                          distanceDataUnavailable
+                            ? "Nearby distances could not be calculated for this search"
+                            : usedNearestFallback
+                              ? `No offices are within ${LOCATION_SEARCH_RADIUS_MILES} miles. Showing the nearest ${filteredLocationGroups.length} areas with FMA offices.`
+                              : hasActiveFinderSearch
+                                ? `Showing locations within ${LOCATION_SEARCH_RADIUS_MILES} miles of ${resultsTagLabel}`
+                                : `Showing ${resultsTagLabel}`
                         }
                       >
                         <span className={styles.resultsTagIcon} aria-hidden="true">
@@ -1150,37 +1275,125 @@ export default function LocationFinder({ locations = [] }) {
                       </button>
                     </div>
 
-                    <div className={styles.locationList} role="list">
+                    {searchErrorMessage || searchResultsSummary ? (
+                      <p className={styles.resultsSummary} role="status">
+                        {searchErrorMessage || searchResultsSummary}
+                      </p>
+                    ) : null}
+
+                    <div className={styles.locationList}>
                       {emptyResults ? (
                         <div className={styles.emptyState}>
-                          <strong>No locations match that search.</strong>
-                          <span>Try a different city, state, or ZIP code.</span>
+                          <strong>
+                            {distanceDataUnavailable
+                              ? "Nearby distances are temporarily unavailable."
+                              : "No locations are available."}
+                          </strong>
+                          <span>
+                            {distanceDataUnavailable
+                              ? "Clear the search to view every office, then try again."
+                              : "Please try again shortly."}
+                          </span>
                         </div>
                       ) : (
-                        filteredLocations.map((location) => {
-                          const isActive = activeLocation?.slug === location.slug;
+                        filteredLocationGroups.map((group) => {
+                          if (group.locations.length === 1) {
+                            const location = group.locations[0];
+                            const isActive = activeLocation?.slug === location.slug;
+
+                            return (
+                              <button
+                                key={location.slug}
+                                className={`${styles.locationRow} ${
+                                  isActive ? styles.locationRowActive : ""
+                                }`}
+                                type="button"
+                                onClick={() => selectOffice(location)}
+                              >
+                                <h3 className={styles.locationRowTitle}>{location.title}</h3>
+                                <p>
+                                  {location.addressLines[0] ||
+                                    location.address ||
+                                    "Address pending"}
+                                </p>
+                                <div className={styles.locationRowMeta}>
+                                  <span>
+                                    {location.addressLines.slice(1).join(", ") ||
+                                      location.title}
+                                  </span>
+                                  <span>
+                                    {hasActiveFinderSearch &&
+                                    typeof location.distanceMiles === "number"
+                                      ? formatDistanceMiles(location.distanceMiles)
+                                      : `${location.providerCount} providers`}
+                                  </span>
+                                </div>
+                              </button>
+                            );
+                          }
+
+                          const groupIsActive =
+                            focusedGroupKey === group.key ||
+                            group.locations.some(
+                              (location) => activeLocation?.slug === location.slug
+                            );
 
                           return (
-                            <button
-                              key={location.slug}
-                              className={`${styles.locationRow} ${isActive ? styles.locationRowActive : ""}`}
-                              type="button"
-                              onClick={() => {
-                                setPinnedSlug(location.slug);
-                                setHasPinnedSelection(true);
-                              }}
+                            <article
+                              key={group.key}
+                              className={`${styles.locationGroup} ${
+                                groupIsActive ? styles.locationGroupActive : ""
+                              }`}
                             >
-                              <h3 className={styles.locationRowTitle}>{location.title}</h3>
-                              <p>{location.addressLines[0] || location.address || "Address pending"}</p>
-                              <div className={styles.locationRowMeta}>
-                                <span>{location.addressLines.slice(1).join(", ") || location.title}</span>
-                                <span>
-                                  {hasActiveFinderSearch && typeof location.distanceMiles === "number"
-                                    ? formatDistanceMiles(location.distanceMiles)
-                                    : `${location.providerCount} providers`}
+                              <button
+                                type="button"
+                                className={styles.locationGroupHeader}
+                                onClick={() => focusLocationGroup(group)}
+                                aria-label={`Show all ${group.locations.length} ${group.title} office pins`}
+                              >
+                                <span className={styles.locationGroupHeading}>
+                                  <strong>{group.title}</strong>
+                                  <span>{group.locations.length} office locations</span>
                                 </span>
+                                <span className={styles.locationGroupMapAction}>View pins</span>
+                              </button>
+
+                              <div className={styles.locationBranches}>
+                                {group.locations.map((location) => {
+                                  const isActive = activeLocation?.slug === location.slug;
+
+                                  return (
+                                    <button
+                                      key={location.slug}
+                                      className={`${styles.locationBranch} ${
+                                        isActive ? styles.locationBranchActive : ""
+                                      }`}
+                                      type="button"
+                                      onClick={() => selectOffice(location)}
+                                    >
+                                      <strong>{location.title}</strong>
+                                      <p>
+                                        {location.addressLines[0] ||
+                                          location.address ||
+                                          "Address pending"}
+                                      </p>
+                                      <div className={styles.locationRowMeta}>
+                                        <span>
+                                          {location.addressLines.slice(1).join(", ") ||
+                                            location.title}
+                                        </span>
+                                        <span>
+                                          {hasActiveFinderSearch &&
+                                          typeof location.distanceMiles === "number"
+                                            ? formatDistanceMiles(location.distanceMiles)
+                                            : `${location.providerCount} providers`}
+                                        </span>
+                                      </div>
+                                    </button>
+                                  );
+                                })}
                               </div>
-                            </button>
+                            </article>
                           );
                         })
                       )}
