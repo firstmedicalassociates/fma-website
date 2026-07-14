@@ -3,7 +3,7 @@ import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import { prisma } from "../lib/prisma";
 import { VISIBLE_LOCATION_WHERE } from "../lib/locations";
-import { buildLocationTitleMap, mapProviderForDirectory } from "../lib/providers";
+import { buildLocationTitleMap, compareProvidersByLastName, mapProviderForDirectory } from "../lib/providers";
 import { providersIndexMetadata } from "../lib/seo";
 import ProvidersDirectory from "./providers-directory";
 
@@ -42,14 +42,15 @@ export default async function ProvidersPage() {
   ]);
 
   const locationTitleBySlug = buildLocationTitleMap(locations);
+  const directoryProviders = providers
+    .map((provider) => mapProviderForDirectory(provider, locationTitleBySlug))
+    .sort(compareProvidersByLastName);
 
   return (
     <>
       <SiteHeader />
       <div className={inter.className}>
-        <ProvidersDirectory
-          providers={providers.map((provider) => mapProviderForDirectory(provider, locationTitleBySlug))}
-        />
+        <ProvidersDirectory providers={directoryProviders} />
       </div>
       <SiteFooter />
     </>
