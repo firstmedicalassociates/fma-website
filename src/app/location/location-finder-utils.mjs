@@ -1,4 +1,4 @@
-export const LOCATION_SEARCH_RADIUS_MILES = 50;
+export const LOCATION_SEARCH_RADIUS_MILES = 25;
 export const LOCATION_SEARCH_FALLBACK_GROUPS = 3;
 
 function cleanText(value = "") {

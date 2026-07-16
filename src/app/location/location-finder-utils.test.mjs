@@ -84,11 +84,11 @@ test("matches an office state whether the search uses MD or Maryland", () => {
   assert.deepEqual(selection.groups.map(({ title }) => title), ["Columbia"]);
 });
 
-test("returns every city group within 50 miles without exact ZIP matching", () => {
+test("returns every city group within 25 miles without exact ZIP matching", () => {
   const groups = groupLocationsByStructuredCity([
-    office("/nearby", "Nearby", "Nearby", "MD", 49.9),
-    office("/boundary", "Boundary", "Boundary", "MD", 50),
-    office("/far", "Far", "Far", "MD", 50.1),
+    office("/nearby", "Nearby", "Nearby", "MD", 24.9),
+    office("/boundary", "Boundary", "Boundary", "MD", 25),
+    office("/far", "Far", "Far", "MD", 25.1),
   ]);
   const selection = selectLocationGroupsForSearch(groups);
 
