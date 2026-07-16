@@ -118,6 +118,7 @@ export default async function LocationFinderPage() {
   const finderLocations = locations.map((location) => {
     const assignedProviders = providersByLocationSlug[location.slug] || [];
     const addressLines = normalizeAddressLines(location);
+    const addressParts = resolveLocationAddressParts(location);
     const { geocodeQuery, fallbackGeocodeQuery } = buildGeocodeQuery(location);
     const primaryImage = resolveLocationPrimaryImage(location);
 
@@ -129,9 +130,9 @@ export default async function LocationFinderPage() {
       intro: location.intro || "",
       address: location.address || "",
       addressLines,
-      addressCity: location.addressCity || "",
-      addressState: location.addressState || "",
-      postalCode: location.postalCode || "",
+      addressCity: addressParts.addressCity || "",
+      addressState: addressParts.addressState || "",
+      postalCode: addressParts.postalCode || "",
       directionsUrl: location.directionsUrl || "",
       bookingUrl: location.bookingUrl || "",
       mapImageUrl: primaryImage?.src || location.mapImageUrl || "",

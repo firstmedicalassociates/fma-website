@@ -661,6 +661,8 @@
 
 .locationList {
   display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
   gap: 12px;
   min-height: 0;
   flex: 1 1 auto;
@@ -1553,6 +1555,8 @@
 
 .mobileLocationList {
   display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
   gap: 8px;
 }
 

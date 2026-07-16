@@ -11,6 +11,7 @@ import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_MAP_ID } from "../lib/config/site";
 import { formatOfficeHourTime, normalizeOfficeHours } from "../lib/locations";
 import {
   calculateDistanceMiles,
+  findExactLocationGroups,
   flattenLocationGroups,
   groupLocationsByStructuredCity,
   LOCATION_SEARCH_RADIUS_MILES,
@@ -396,13 +397,18 @@ export default function LocationFinder({ locations = [] }) {
     if (!searchOrigin?.position) {
       return {
         groups: allLocationGroups,
+        usedExactMatch: false,
         usedNearestFallback: false,
         hasDistanceData: true,
       };
     }
 
-    return selectLocationGroupsForSearch(allLocationGroups);
-  }, [allLocationGroups, searchOrigin]);
+    return selectLocationGroupsForSearch(allLocationGroups, {
+      city: searchCity,
+      state: searchState,
+      zip: searchZip,
+    });
+  }, [allLocationGroups, searchCity, searchOrigin, searchState, searchZip]);
   const filteredLocationGroups = locationSearchSelection.groups;
   const filteredLocations = useMemo(
     () => flattenLocationGroups(filteredLocationGroups),
@@ -708,10 +714,18 @@ export default function LocationFinder({ locations = [] }) {
     setSearchStatus("loading");
     setSearchErrorMessage("");
 
-    const result = await geocodeAddress(
-      geocoderRef.current,
-      buildFinderSearchAttempts({ state: searchState, city: searchCity, zip: searchZip })
-    );
+    const exactLocalGroups = findExactLocationGroups(allLocationGroups, {
+      city: searchCity,
+      state: searchState,
+      zip: searchZip,
+    });
+    const localCityAttempts = exactLocalGroups
+      .map((group) => [group.city, group.state].filter(Boolean).join(", "))
+      .filter(Boolean);
+    const result = await geocodeAddress(geocoderRef.current, [
+      ...localCityAttempts,
+      ...buildFinderSearchAttempts({ state: searchState, city: searchCity, zip: searchZip }),
+    ]);
 
     if (!result) {
       setSearchStatus("error");
@@ -790,25 +804,33 @@ export default function LocationFinder({ locations = [] }) {
 
   const selectedLocationCallHref = buildCallHref(activeLocation?.publicPhone);
   const emptyResults = filteredLocationGroups.length === 0;
+  const usedExactMatch =
+    hasActiveFinderSearch && locationSearchSelection.usedExactMatch;
   const usedNearestFallback =
     hasActiveFinderSearch && locationSearchSelection.usedNearestFallback;
   const distanceDataUnavailable =
     hasActiveFinderSearch && !locationSearchSelection.hasDistanceData;
   const resultsTagLabel = hasActiveFinderSearch
-    ? usedNearestFallback
+    ? usedExactMatch
+      ? `${filteredLocationGroups[0]?.title || searchCity} locations`
+      : usedNearestFallback
       ? `Nearest locations to ${searchOrigin?.label || finderSearchQuery}`
       : searchOrigin?.label || finderSearchQuery
     : "All locations";
-  const searchResultsSummary = usedNearestFallback
-    ? `No offices are within ${LOCATION_SEARCH_RADIUS_MILES} miles. Showing the nearest ${filteredLocationGroups.length} areas with FMA offices.`
-    : hasActiveFinderSearch && !distanceDataUnavailable
-      ? `Showing offices within ${LOCATION_SEARCH_RADIUS_MILES} miles.`
-      : "";
-  const mobileResultsHeading = usedNearestFallback
-    ? "Nearest Locations"
-    : hasActiveFinderSearch
-      ? `Within ${LOCATION_SEARCH_RADIUS_MILES} Miles`
-      : "All Locations";
+  const searchResultsSummary = usedExactMatch
+    ? `${filteredLocations.length} office ${filteredLocations.length === 1 ? "location" : "locations"} in ${filteredLocationGroups[0]?.title || searchCity}.`
+    : usedNearestFallback
+      ? `No offices are within ${LOCATION_SEARCH_RADIUS_MILES} miles. Showing the nearest ${filteredLocationGroups.length} areas with FMA offices.`
+      : hasActiveFinderSearch && !distanceDataUnavailable
+        ? `Showing offices within ${LOCATION_SEARCH_RADIUS_MILES} miles.`
+        : "";
+  const mobileResultsHeading = usedExactMatch
+    ? `${filteredLocationGroups[0]?.title || searchCity} Locations`
+    : usedNearestFallback
+      ? "Nearest Locations"
+      : hasActiveFinderSearch
+        ? `Within ${LOCATION_SEARCH_RADIUS_MILES} Miles`
+        : "All Locations";
   const showResultsPanel = true;
   const showDesktopDetailView = !isMobileViewport && Boolean(activeLocation);
   const stageContentClassName = `${styles.stageContent} ${styles.stageContentResultsOnly}`;
@@ -1252,7 +1274,9 @@ export default function LocationFinder({ locations = [] }) {
                         aria-label={
                           distanceDataUnavailable
                             ? "Nearby distances could not be calculated for this search"
-                            : usedNearestFallback
+                            : usedExactMatch
+                              ? `Showing all ${filteredLocationGroups[0]?.title || searchCity} office locations`
+                              : usedNearestFallback
                               ? `No offices are within ${LOCATION_SEARCH_RADIUS_MILES} miles. Showing the nearest ${filteredLocationGroups.length} areas with FMA offices.`
                               : hasActiveFinderSearch
                                 ? `Showing locations within ${LOCATION_SEARCH_RADIUS_MILES} miles of ${resultsTagLabel}`

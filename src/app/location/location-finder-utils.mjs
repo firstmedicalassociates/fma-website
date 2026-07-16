@@ -9,6 +9,17 @@ function normalizeGroupPart(value = "") {
   return cleanText(value).toLocaleLowerCase("en-US");
 }
 
+function normalizeStateGroupPart(value = "") {
+  const normalized = normalizeGroupPart(value).replace(/\./g, "");
+
+  if (normalized === "maryland") return "md";
+  return normalized;
+}
+
+function normalizePostalCode(value = "") {
+  return cleanText(value).replace(/\s+/g, "").toLocaleLowerCase("en-US");
+}
+
 function isFiniteDistance(value) {
   return typeof value === "number" && Number.isFinite(value);
 }
@@ -61,7 +72,7 @@ export function groupLocationsByStructuredCity(locations = []) {
     const hasStructuredCity = Boolean(addressCity && addressState);
     const locationIdentity = cleanText(location?.slug) || cleanText(location?.id) || String(index);
     const key = hasStructuredCity
-      ? `city:${normalizeGroupPart(addressCity)}|${normalizeGroupPart(addressState)}`
+      ? `city:${normalizeGroupPart(addressCity)}|${normalizeStateGroupPart(addressState)}`
       : `location:${locationIdentity}`;
 
     if (!groupsByKey.has(key)) {
@@ -110,13 +121,59 @@ export function groupLocationsByStructuredCity(locations = []) {
   });
 }
 
+export function findExactLocationGroups(
+  groups = [],
+  { city = "", state = "", zip = "" } = {}
+) {
+  const normalizedCity = normalizeGroupPart(city);
+  const normalizedState = normalizeStateGroupPart(state);
+  const normalizedZip = normalizePostalCode(zip);
+
+  if (!normalizedCity && !normalizedZip) return [];
+
+  return groups.filter((group) => {
+    if (normalizedCity && normalizeGroupPart(group?.city) !== normalizedCity) {
+      return false;
+    }
+
+    if (normalizedState && normalizeStateGroupPart(group?.state) !== normalizedState) {
+      return false;
+    }
+
+    if (
+      normalizedZip &&
+      !(group?.locations || []).some(
+        (location) => normalizePostalCode(location?.postalCode) === normalizedZip
+      )
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
 export function selectLocationGroupsForSearch(
   groups = [],
   {
     radiusMiles = LOCATION_SEARCH_RADIUS_MILES,
     fallbackGroupCount = LOCATION_SEARCH_FALLBACK_GROUPS,
+    city = "",
+    state = "",
+    zip = "",
   } = {}
 ) {
+  const exactGroups = findExactLocationGroups(groups, { city, state, zip });
+
+  if (exactGroups.length > 0) {
+    return {
+      groups: exactGroups,
+      usedExactMatch: true,
+      usedNearestFallback: false,
+      hasDistanceData: true,
+    };
+  }
+
   const measurableGroups = groups
     .filter((group) => isFiniteDistance(group?.nearestDistanceMiles))
     .sort((left, right) => {
@@ -133,6 +190,7 @@ export function selectLocationGroupsForSearch(
   if (groupsWithinRadius.length > 0) {
     return {
       groups: groupsWithinRadius,
+      usedExactMatch: false,
       usedNearestFallback: false,
       hasDistanceData: true,
     };
@@ -140,6 +198,7 @@ export function selectLocationGroupsForSearch(
 
   return {
     groups: measurableGroups.slice(0, fallbackGroupCount),
+    usedExactMatch: false,
     usedNearestFallback: measurableGroups.length > 0,
     hasDistanceData: measurableGroups.length > 0,
   };

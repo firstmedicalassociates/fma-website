@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   calculateDistanceMiles,
+  findExactLocationGroups,
   flattenLocationGroups,
   groupLocationsByStructuredCity,
   selectLocationGroupsForSearch,
@@ -35,6 +36,52 @@ test("groups offices only when their structured city and state match", () => {
   ]);
   assert.equal(groups[0].title, "Bowie");
   assert.equal(groups[0].nearestDistanceMiles, 12);
+});
+
+test("treats Maryland and MD as the same state for future city groups", () => {
+  const groups = groupLocationsByStructuredCity([
+    office("/columbia-one", "Columbia, MD", "Columbia", "MD", null),
+    office("/columbia-two", "Columbia II, MD", "Columbia", "Maryland", null),
+  ]);
+
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].title, "Columbia");
+  assert.equal(groups[0].locations.length, 2);
+});
+
+test("finds an exact office city before using ambiguous geocoded distance results", () => {
+  const groups = groupLocationsByStructuredCity([
+    office("/bowie-one", "Bowie, MD", "Bowie", "MD", 1200),
+    office("/bowie-two", "Bowie II, MD", "Bowie", "MD", 1202),
+    office("/columbia-one", "Columbia, MD", "Columbia", "MD", 1180),
+    office("/columbia-two", "Columbia II, MD", "Columbia", "MD", 1182),
+  ]);
+
+  const exactGroups = findExactLocationGroups(groups, { city: "bowie" });
+  const selection = selectLocationGroupsForSearch(groups, { city: "bowie" });
+
+  assert.deepEqual(exactGroups.map(({ title }) => title), ["Bowie"]);
+  assert.equal(selection.usedExactMatch, true);
+  assert.equal(selection.usedNearestFallback, false);
+  assert.deepEqual(flattenLocationGroups(selection.groups).map(({ slug }) => slug), [
+    "/bowie-one",
+    "/bowie-two",
+  ]);
+});
+
+test("matches an office state whether the search uses MD or Maryland", () => {
+  const groups = groupLocationsByStructuredCity([
+    office("/columbia-one", "Columbia, MD", "Columbia", "MD", 4),
+    office("/columbia-two", "Columbia II, MD", "Columbia", "MD", 6),
+  ]);
+
+  const selection = selectLocationGroupsForSearch(groups, {
+    city: "Columbia",
+    state: "Maryland",
+  });
+
+  assert.equal(selection.usedExactMatch, true);
+  assert.deepEqual(selection.groups.map(({ title }) => title), ["Columbia"]);
 });
 
 test("returns every city group within 50 miles without exact ZIP matching", () => {
