@@ -532,6 +532,14 @@
   flex-wrap: wrap;
 }
 
+.resultsSummary {
+  margin: -4px 2px 0;
+  color: #5c6b84;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .resultsTag {
   max-width: min(100%, 100%);
   display: inline-flex;
@@ -653,6 +661,8 @@
 
 .locationList {
   display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
   gap: 12px;
   min-height: 0;
   flex: 1 1 auto;
@@ -729,6 +739,128 @@
 .locationRow p,
 .locationRowMeta span {
   min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.locationGroup {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(19, 36, 73, 0.1);
+  border-radius: 22px;
+  background: rgba(248, 250, 255, 0.92);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.locationGroup:hover,
+.locationGroupActive {
+  transform: translateY(-1px);
+  border-color: rgba(27, 78, 201, 0.28);
+  background: #ffffff;
+  box-shadow: 0 18px 42px rgba(15, 35, 88, 0.08);
+}
+
+.locationGroupHeader {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  padding: 16px 18px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+}
+
+.locationGroupHeader:hover,
+.locationGroupHeader:focus-visible {
+  background: rgba(230, 238, 252, 0.64);
+}
+
+.locationGroupHeader:focus-visible,
+.locationBranch:focus-visible,
+.mobileLocationGroupHeader:focus-visible,
+.mobileLocationBranch:focus-visible {
+  outline: 3px solid rgba(27, 78, 201, 0.28);
+  outline-offset: -3px;
+}
+
+.locationGroupHeading {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.locationGroupHeading strong {
+  min-width: 0;
+  color: #173a88;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.locationGroupHeading span {
+  color: #5c6b84;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.locationGroupMapAction {
+  flex: 0 0 auto;
+  color: #1b4ec9;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.locationBranches {
+  border-top: 1px solid rgba(19, 36, 73, 0.09);
+  display: grid;
+}
+
+.locationBranch {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  border-top: 1px solid rgba(19, 36, 73, 0.07);
+  background: rgba(255, 255, 255, 0.42);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  padding: 14px 18px;
+  display: grid;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.locationBranch:first-child {
+  border-top: none;
+}
+
+.locationBranch:hover,
+.locationBranchActive {
+  background: rgba(230, 238, 252, 0.7);
+}
+
+.locationBranch strong {
+  color: #173a88;
+  font-size: 0.92rem;
+  line-height: 1.3;
+}
+
+.locationBranch p {
+  min-width: 0;
+  margin: 0;
+  color: #34435f;
+  font-size: 0.88rem;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
@@ -1413,8 +1545,18 @@
   font-size: 13px;
 }
 
+.mobileResultsSummary {
+  margin: -4px 0 0;
+  color: #5c6b84;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .mobileLocationList {
   display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
   gap: 8px;
 }
 
@@ -1442,6 +1584,103 @@
 .mobileLocationRowActive {
   border-color: rgba(27, 78, 201, 0.45);
   background: #ffffff;
+}
+
+.mobileLocationGroup {
+  overflow: hidden;
+  border: 1px solid rgba(19, 36, 73, 0.1);
+  border-radius: 16px;
+  background: #f6f9ff;
+}
+
+.mobileLocationGroupActive {
+  border-color: rgba(27, 78, 201, 0.45);
+  background: #ffffff;
+}
+
+.mobileLocationGroupHeader {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  padding: 11px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mobileLocationGroupHeader strong {
+  color: #173a88;
+  font-size: 14px;
+}
+
+.mobileLocationGroupHeader span {
+  flex: 0 0 auto;
+  color: #1b4ec9;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.mobileLocationBranches {
+  border-top: 1px solid rgba(19, 36, 73, 0.08);
+  display: grid;
+}
+
+.mobileLocationBranch {
+  border: none;
+  border-top: 1px solid rgba(19, 36, 73, 0.07);
+  background: rgba(255, 255, 255, 0.38);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  padding: 10px 12px;
+  display: grid;
+  gap: 3px;
+}
+
+.mobileLocationBranch:first-child {
+  border-top: none;
+}
+
+.mobileLocationBranch:hover,
+.mobileLocationBranch.mobileLocationRowActive {
+  background: rgba(230, 238, 252, 0.7);
+}
+
+.mobileLocationBranch strong {
+  color: #173a88;
+  font-size: 12px;
+}
+
+.mobileLocationBranch span {
+  color: #5c6b84;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.mobileEmptyState {
+  min-height: 92px;
+  padding: 14px;
+  border: 1px dashed rgba(19, 36, 73, 0.16);
+  border-radius: 16px;
+  background: #f6f9ff;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+}
+
+.mobileEmptyState strong {
+  color: #173a88;
+  font-size: 13px;
+}
+
+.mobileEmptyState span {
+  color: #5c6b84;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .mobileSheetFooter {

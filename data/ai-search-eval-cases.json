@@ -150,6 +150,12 @@
     "appointmentAvailability": false
   },
   {
+    "id": "self_pay_pricing",
+    "query": "what are the self-pay prices for new and existing patients",
+    "expectedIntent": "insurance_question",
+    "appointmentAvailability": false
+  },
+  {
     "id": "locations",
     "query": "where are your offices located",
     "expectedIntent": "location_question",

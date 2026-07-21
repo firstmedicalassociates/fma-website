@@ -157,12 +157,23 @@ const DEFAULT_PAGE_CONTENT = {
   commitmentItems: DEFAULT_COMMITMENT_ITEMS,
   detailHeading: "What is Primary Care?",
   detailParagraphs: DEFAULT_DETAIL_PARAGRAPHS,
-  detailLinkLabel: "Find a Primary Care Doctor",
+  detailLinkLabel: "Find a Primary Care Provider",
   detailLinkHref: "/providers",
   faqItems: DEFAULT_FAQ_ITEMS,
   ctaTitle: "Ready to Take the Next Step?",
   ctaDescription:
     "Our team is here to help you and your family stay healthier with consistent, connected care.",
+};
+
+const KNOWN_SERVICE_COPY_REPLACEMENTS = {
+  "Find a Doctor": "Find a Provider",
+  "Find a Primary Care Doctor": "Find a Primary Care Provider",
+  "Primary care gives you a consistent clinical home for preventive visits, urgent concerns, and long-term condition management.":
+    "Primary care gives you a consistent clinical home for preventive visits, pressing concerns, and long-term condition management.",
+  "How do I choose same-day specialized care vs. my regular PCP visit?":
+    "How do I choose same-day care vs. my regular PCP visit?",
+  "How do I choose specialized care vs. my regular PCP visit?":
+    "How do I choose same-day care vs. my regular PCP visit?",
 };
 
 function cleanText(value = "") {
@@ -180,7 +191,11 @@ function normalizeRequiredText(value) {
 
 function fixKnownServiceCopyTypos(value) {
   if (!value) return value;
-  return value.replace(/\bduring an(?: a)? same-day visit\b/gi, "during a same-day visit");
+  const correctedValue = value.replace(
+    /\bduring an(?: a)? same-day visit\b/gi,
+    "during a same-day visit"
+  );
+  return KNOWN_SERVICE_COPY_REPLACEMENTS[correctedValue] || correctedValue;
 }
 
 function normalizeList(values, fallback = []) {

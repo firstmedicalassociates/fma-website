@@ -8,7 +8,7 @@ const NAV_COLUMNS = [
     title: "Explore",
     icon: "explore",
     links: [
-      { href: "/providers", label: "Find a Doctor", icon: "user" },
+      { href: "/providers", label: "Find a Provider", icon: "user" },
       { href: "/services", label: "Services", icon: "heart" },
       { href: "/locations", label: "Locations", icon: "pin" },
       { href: "/patient-resources", label: "Patient Resources", icon: "doc" },
@@ -294,7 +294,7 @@ function NeedCareCard() {
         <SmartFooterLink href="/providers" className={`${styles.needCareAction} ${styles.needCareActionSecondary}`}>
           <span className={styles.needCareActionInner}>
             <FooterIcon name="calendar" className={styles.needCareActionIcon} />
-            Find a Doctor
+            Find a Provider
           </span>
           <FooterIcon name="arrow" className={styles.needCareActionArrow} />
         </SmartFooterLink>

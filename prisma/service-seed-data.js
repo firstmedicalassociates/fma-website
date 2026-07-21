@@ -50,7 +50,7 @@ module.exports = [
         "Your provider reviews medical history, medications, risk factors, and any symptoms you want addressed.",
         "Based on age and history, your care plan may include screening labs, imaging referrals, and vaccine updates.",
       ],
-      detailLinkLabel: "Find a Primary Care Doctor",
+      detailLinkLabel: "Find a Primary Care Provider",
       detailLinkHref: "/providers",
       faqItems: [
         {
@@ -85,7 +85,7 @@ module.exports = [
       eyebrow: "Primary Care",
       heroSubtitle: "Your Partner in Lifelong Health",
       heroDescription:
-        "Primary care gives you a consistent clinical home for preventive visits, urgent concerns, and long-term condition management.",
+        "Primary care gives you a consistent clinical home for preventive visits, pressing concerns, and long-term condition management.",
       features: [
         {
           title: "Connected Care",
@@ -123,7 +123,7 @@ module.exports = [
         "A PCP manages routine wellness, preventive screenings, and common medical conditions for all ages.",
         "If specialty care is needed, your PCP coordinates referrals and stays connected to your complete treatment plan.",
       ],
-      detailLinkLabel: "Find a Primary Care Doctor",
+      detailLinkLabel: "Find a Primary Care Provider",
       detailLinkHref: "/providers",
       faqItems: [
         {
@@ -201,19 +201,19 @@ module.exports = [
       detailLinkHref: "/location",
       faqItems: [
         {
-          question: "What if my issue needs attention but is not life-threatening?",
+          question: "When should I use FMA same-day care, urgent care, or the emergency room?",
           answer:
-            "Schedule online or call for same-day evaluation. Our team can assess your symptoms and start treatment quickly.",
+            "Choose FMA same-day care for new or worsening, non-life-threatening concerns when an appointment is available. Urgent care is an option for prompt, non-emergency care when FMA is unavailable. Use the emergency room for possible emergencies, and call 911 for life-threatening symptoms such as chest pain or pressure, severe trouble breathing, signs of stroke, loss of consciousness, or bleeding that will not stop. Do not delay emergency care.",
         },
         {
-          question: "How do I choose same-day specialized care vs. my regular PCP visit?",
+          question: "How do I choose same-day care vs. my regular PCP visit?",
           answer:
-            "Use same-day care for immediate problems. Ongoing issues and long-term planning are best managed in routine PCP follow-up.",
+            "Use same-day care for a new or worsening, non-life-threatening concern that should not wait for your next routine appointment. Use a regular PCP visit for preventive care, ongoing concerns, and long-term condition management.",
         },
         {
           question: "What happens during a same-day visit?",
           answer:
-            "We review symptoms and history, perform an exam, start treatment, and provide instructions for recovery and follow-up.",
+            "A provider reviews your symptoms and medical history, performs an appropriate exam, and discusses testing, treatment, and follow-up based on your needs.",
         },
       ],
       ctaTitle: "Need Care Today?",
@@ -272,7 +272,7 @@ module.exports = [
         "Diagnosis usually combines clinical history, symptom patterns, and objective breathing tests.",
         "Ongoing care focuses on trigger reduction, medication optimization, and timely response to symptom changes.",
       ],
-      detailLinkLabel: "Find a Doctor",
+      detailLinkLabel: "Find a Provider",
       detailLinkHref: "/providers",
       faqItems: [
         {
@@ -347,7 +347,7 @@ module.exports = [
         "Care starts with a comprehensive evaluation of symptoms, duration, and impact on daily life.",
         "Based on findings, we create a tailored plan and coordinate outside therapy resources as needed.",
       ],
-      detailLinkLabel: "Find a Doctor",
+      detailLinkLabel: "Find a Provider",
       detailLinkHref: "/providers",
       faqItems: [
         {
@@ -421,7 +421,7 @@ module.exports = [
         "Management usually combines nutrition changes, physical activity, and medication based on diabetes type and risk profile.",
         "Follow-up includes monitoring blood pressure, glucose trends, and treatment response to guide adjustments.",
       ],
-      detailLinkLabel: "Find a Doctor",
+      detailLinkLabel: "Find a Provider",
       detailLinkHref: "/providers",
       faqItems: [
         {
@@ -496,7 +496,7 @@ module.exports = [
         "See a provider for persistent abdominal pain, nausea, constipation, diarrhea, reflux, or unexplained digestive changes.",
         "Prompt care is especially important for severe symptoms, weight loss, blood in stool, or symptoms not improving at home.",
       ],
-      detailLinkLabel: "Find a Doctor",
+      detailLinkLabel: "Find a Provider",
       detailLinkHref: "/providers",
       faqItems: [
         {
@@ -571,7 +571,7 @@ module.exports = [
         "Common concerns include arthritis, osteoporosis, heart disease, COPD, diabetes, cognitive changes, and fall risk.",
         "Care includes preventive health checks, coordinated specialist communication, and ongoing treatment refinement.",
       ],
-      detailLinkLabel: "Find a Doctor",
+      detailLinkLabel: "Find a Provider",
       detailLinkHref: "/providers",
       faqItems: [
         {
@@ -646,7 +646,7 @@ module.exports = [
         "Services may include cardiovascular risk monitoring, prostate health screening, hormone evaluation, and chronic condition follow-up.",
         "We coordinate ongoing care so your treatment plan remains practical, measurable, and sustainable.",
       ],
-      detailLinkLabel: "Find a Doctor",
+      detailLinkLabel: "Find a Provider",
       detailLinkHref: "/providers",
       faqItems: [
         {
@@ -721,7 +721,7 @@ module.exports = [
         "Treatment typically combines symptom control with trigger avoidance and skin-barrier support.",
         "Early follow-up helps adjust therapy before minor flares become persistent or widespread.",
       ],
-      detailLinkLabel: "Find a Doctor",
+      detailLinkLabel: "Find a Provider",
       detailLinkHref: "/providers",
       faqItems: [
         {
@@ -871,7 +871,7 @@ module.exports = [
         "Services include wellness exams, screening guidance, hormonal evaluation, and care planning for reproductive health goals.",
         "Your provider helps determine the right screening timeline based on age, history, and risk factors.",
       ],
-      detailLinkLabel: "Find a Doctor",
+      detailLinkLabel: "Find a Provider",
       detailLinkHref: "/providers",
       faqItems: [
         {

@@ -810,7 +810,7 @@ function buildAppointmentLeakageFallback(query, intentResult, routeContext) {
       },
       {
         type: "link",
-        label: "Find a Doctor",
+        label: "Find a Provider",
         value: "providers",
         href: "/providers",
       },

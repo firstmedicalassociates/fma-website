@@ -59,8 +59,17 @@ export default function InsurancePage() {
         }
         .self-pay-card .icon-label { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
         .self-pay-card h3 { font-size: 1.125rem; font-weight: 700; }
-        .self-pay-card .price { font-size: 2.5rem; font-weight: 800; }
-        .self-pay-card .sub { font-size: 0.75rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.05em; }
+        .self-pay-rates { display: flex; flex-direction: column; margin: 0; }
+        .self-pay-rate {
+           display: flex;
+           align-items: center;
+           justify-content: space-between;
+           gap: 1rem;
+           padding: 0.875rem 0;
+           border-top: 1px solid rgba(255, 255, 255, 0.14);
+        }
+        .self-pay-rate dt { font-size: 0.8125rem; font-weight: 700; line-height: 1.35; }
+        .self-pay-rate dd { margin: 0; font-size: 1.75rem; font-weight: 800; line-height: 1; }
         .self-pay-card .desc { font-size: 0.8125rem; opacity: 0.7; margin-top: 1.5rem; line-height: 1.5; }
 
         .accepted-card {
@@ -143,16 +152,24 @@ export default function InsurancePage() {
           <h2>Insurance & Payment Options</h2>
           <p>
             We strive to make quality care accessible and transparent. 
-            Below you'll find our self-pay rate and the insurance plans we accept.
+            Below you'll find our self-pay rates and the insurance plans we accept.
           </p>
           <div className="self-pay-card">
             <div className="icon-label">
               <FileText size={20} />
-              <h3>Self-Pay Option</h3>
+              <h3>Self-Pay Options</h3>
             </div>
-            <div className="price">$150</div>
-            <div className="sub">/ Consultation</div>
-            <p className="desc">A simple, transparent self-pay rate for patients without insurance.</p>
+            <dl className="self-pay-rates">
+              <div className="self-pay-rate">
+                <dt>New Patients</dt>
+                <dd>$180</dd>
+              </div>
+              <div className="self-pay-rate">
+                <dt>Existing Patients</dt>
+                <dd>$150</dd>
+              </div>
+            </dl>
+            <p className="desc">Transparent self-pay pricing for patients without insurance.</p>
           </div>
         </aside>
 

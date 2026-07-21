@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Activity, ShieldCheck, Sparkles } from "../(protected)/admin-icons";
+import { Activity } from "../(protected)/admin-icons";
 import styles from "./page.module.css";
 
 export default function AdminLoginPage() {
@@ -43,40 +43,6 @@ export default function AdminLoginPage() {
   return (
     <main className={styles.page}>
       <div className={styles.shell}>
-        <section className={styles.brandPanel}>
-          <span className={styles.brandBadge}>
-            <ShieldCheck />
-            Secure control center
-          </span>
-
-          <div className={styles.brandHeading}>
-            <span className={styles.brandEyebrow}>First Medical admin suite</span>
-            <h1>Run the CMS with clarity.</h1>
-            <p>
-              Sign in to manage posts, locations, and providers inside the Aspire-style
-              admin workspace.
-            </p>
-          </div>
-
-          <div className={styles.featureGrid}>
-            <article className={styles.featureCard}>
-              <Sparkles />
-              <h2>Polished publishing flow</h2>
-              <p>Draft content, upload media, and preview changes before they go live.</p>
-            </article>
-            <article className={styles.featureCard}>
-              <Activity />
-              <h2>Live visibility</h2>
-              <p>Track recent updates across locations, providers, and posts at a glance.</p>
-            </article>
-            <article className={styles.featureCard}>
-              <ShieldCheck />
-              <h2>Protected access</h2>
-              <p>Your admin session is secured and scoped for authenticated staff only.</p>
-            </article>
-          </div>
-        </section>
-
         <section className={styles.formPanel}>
           <div className={styles.formHeader}>
             <span className={styles.statusPill}>

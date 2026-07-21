@@ -141,3 +141,60 @@ export function mapProviderForDirectory(provider, locationTitleBySlug = {}) {
     languages,
   };
 }
+
+const PROVIDER_NAME_SUFFIXES = new Set(["jr", "jr.", "sr", "sr.", "ii", "iii", "iv", "v"]);
+const providerNameCollator = new Intl.Collator("en", { sensitivity: "base" });
+
+function normalizeProviderNameToken(value = "") {
+  return String(value || "")
+    .trim()
+    .replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
+}
+
+function splitProviderName(name = "") {
+  return String(name || "")
+    .trim()
+    .split(/\s+/)
+    .map(normalizeProviderNameToken)
+    .filter(Boolean);
+}
+
+export function getProviderLastName(name = "") {
+  const parts = splitProviderName(name);
+  if (parts.length === 0) return "";
+
+  let index = parts.length - 1;
+  while (index > 0 && PROVIDER_NAME_SUFFIXES.has(parts[index].toLowerCase())) {
+    index -= 1;
+  }
+
+  return parts[index] || "";
+}
+
+export function getProviderFirstNames(name = "") {
+  const parts = splitProviderName(name);
+  if (parts.length <= 1) return parts[0] || "";
+
+  let lastNameIndex = parts.length - 1;
+  while (lastNameIndex > 0 && PROVIDER_NAME_SUFFIXES.has(parts[lastNameIndex].toLowerCase())) {
+    lastNameIndex -= 1;
+  }
+
+  return parts.slice(0, lastNameIndex).join(" ");
+}
+
+export function compareProvidersByLastName(first = {}, second = {}) {
+  const lastNameComparison = providerNameCollator.compare(
+    getProviderLastName(first.name),
+    getProviderLastName(second.name)
+  );
+  if (lastNameComparison !== 0) return lastNameComparison;
+
+  const firstNamesComparison = providerNameCollator.compare(
+    getProviderFirstNames(first.name),
+    getProviderFirstNames(second.name)
+  );
+  if (firstNamesComparison !== 0) return firstNamesComparison;
+
+  return providerNameCollator.compare(String(first.name || ""), String(second.name || ""));
+}

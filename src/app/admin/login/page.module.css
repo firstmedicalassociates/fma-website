@@ -27,10 +27,10 @@
   position: relative;
   z-index: 1;
   min-height: 100vh;
-  width: min(1160px, calc(100% - 32px));
+  width: min(420px, calc(100% - 32px));
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   align-items: center;
   padding: 32px 0;

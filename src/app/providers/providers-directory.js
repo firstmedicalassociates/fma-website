@@ -116,11 +116,11 @@ export default function ProvidersDirectory({ providers }) {
             <div>
               <HeroEyebrow>Clinical Team</HeroEyebrow>
               <h1>
-                Find a Doctor
+                Find a Provider
               </h1>
             </div>
             <p className={styles.heroCopy}>
-              Find physicians by location, language, or specialty and quickly jump to each profile.
+              Find providers by location, language, or specialty and quickly jump to each profile.
             </p>
           </div>
           <div className={styles.heroLines} aria-hidden="true">

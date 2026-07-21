@@ -440,9 +440,6 @@ export default function AboutPage() {
                 We have had some key milestones and services added over time to better serve our patients and ensure our doctors had the best resources at their fingertips. In 2011, we enrolled in CareFirst Patient-Centered Medical Home. This is a program designed to incentivize and provide resources, data and programs to assist health care providers in delivering quality, cost efficient care.
               </p>
               <p>
-                The CareFirst PCMH program places an emphasis on helping providers provide comprehensive, coordinated care for their CareFirst patients with the greatest health needs, typically those suffering from multiple chronic health conditions. The program requires significant provider and patient engagement and meaningfully compensates primary care providers for that engagement. For patients, this program ensures healthier outcomes.
-              </p>
-              <p>
                 In 2019, when Maryland began the Maryland Primary Care Program (MDPCP) to transition the health care system away from encouraging more services and higher costs to one that rewards efficiency, value, and better health outcomes, we were one of the first to join. We have been proud to be a part of a program intended to support the delivery of advanced primary care throughout the state and allow community providers to play a vital role in prevention, improving health outcomes and controlling total health care spending growth.
               </p>
               <p>

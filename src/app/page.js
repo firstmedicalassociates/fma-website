@@ -714,7 +714,7 @@ export default async function Home() {
                 health care across multiple locations in Maryland.
               </p>
               <SmartLink href="/providers" className={styles.commitButton}>
-                Find a Doctor
+                Find a Provider
               </SmartLink>
             </div>
 

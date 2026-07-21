@@ -26,11 +26,62 @@ function formatTag(value = "") {
 export default function ServiceDetailTemplate({ service }) {
   const content = normalizeServicePageContent(service?.pageContent || {});
   const seo = getServiceSeoContent(service);
+  const isSameDayCare = service?.slug === "same-day-care";
   const features = content.features;
   const infoParagraphs = content.infoParagraphs;
   const commitmentItems = content.commitmentItems;
   const detailParagraphs = content.detailParagraphs;
   const faqItems = content.faqItems;
+
+  const renderCommitmentPanel = () => (
+    <aside className="commitment">
+      <div className="commitment-icon">
+        <ShieldCheck size={26} />
+      </div>
+      <h3>{content.commitmentTitle}</h3>
+      <div className="commitment-list">
+        {commitmentItems.map((item, index) => (
+          <div className="commitment-item" key={`commitment-${index}`}>
+            <CheckCircle2 size={19} /> {item}
+          </div>
+        ))}
+      </div>
+    </aside>
+  );
+
+  const renderDetailPanel = () => (
+    <article className="detail-copy surface-panel">
+      <h2>{content.detailHeading}</h2>
+      {detailParagraphs.map((paragraph, index) => (
+        <p key={`detail-${index}`}>{paragraph}</p>
+      ))}
+      <Link href={content.detailLinkHref} className="detail-link">
+        {content.detailLinkLabel} <ArrowRight size={17} />
+      </Link>
+    </article>
+  );
+
+  const renderFaqList = () => (
+    <div className="faq-list">
+      {faqItems.map((item, index) => {
+        const FaqIcon = FAQ_ICONS[index] || ClipboardList;
+        return (
+          <details className="faq-item" key={`faq-${index}`}>
+            <summary>
+              <div className="faq-left">
+                <div className="faq-icon">
+                  <FaqIcon size={21} />
+                </div>
+                <span className="faq-question">{item.question}</span>
+              </div>
+              <ChevronDown size={20} className="faq-arrow" />
+            </summary>
+            <p className="faq-answer">{item.answer}</p>
+          </details>
+        );
+      })}
+    </div>
+  );
 
   return (
     <main className="service-page">
@@ -400,6 +451,30 @@ export default function ServiceDetailTemplate({ service }) {
           gap: 16px;
         }
 
+        .same-day-overview-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+          gap: 16px;
+        }
+
+        .same-day-overview-grid .commitment {
+          box-shadow: 0 18px 42px rgba(10, 43, 130, 0.06);
+        }
+
+        .same-day-faq-section {
+          display: grid;
+          gap: 18px;
+        }
+
+        .same-day-faq-heading {
+          margin: 0;
+          padding: 0 2px;
+          color: #13388f;
+          font-size: clamp(1.75rem, 3.8vw, 2.35rem);
+          line-height: 1.03;
+          letter-spacing: -0.04em;
+        }
+
         .detail-copy {
           padding: 32px;
         }
@@ -584,6 +659,10 @@ export default function ServiceDetailTemplate({ service }) {
             grid-template-columns: 1fr;
           }
 
+          .same-day-overview-grid {
+            grid-template-columns: 1fr;
+          }
+
           .cta-banner {
             grid-template-columns: 1fr;
           }
@@ -690,7 +769,7 @@ export default function ServiceDetailTemplate({ service }) {
                 <Calendar size={18} /> Schedule an Appointment
               </Link>
               <Link href="/providers" className="button-outline">
-                <User size={18} /> Find a Primary Care Doctor
+                <User size={18} /> Find a Primary Care Provider
               </Link>
             </div>
           </div>
@@ -713,59 +792,37 @@ export default function ServiceDetailTemplate({ service }) {
           })}
         </section>
 
-        <section className="info-grid surface-panel">
-          <div className="info-copy">
-            {infoParagraphs.map((paragraph, index) => (
-              <p key={`info-${index}`}>{paragraph}</p>
-            ))}
-          </div>
+        {isSameDayCare ? (
+          <>
+            <section className="same-day-overview-grid" aria-label="Same-day care guidance">
+              {renderDetailPanel()}
+              {renderCommitmentPanel()}
+            </section>
 
-          <aside className="commitment">
-            <div className="commitment-icon">
-              <ShieldCheck size={26} />
-            </div>
-            <h3>{content.commitmentTitle}</h3>
-            <div className="commitment-list">
-              {commitmentItems.map((item, index) => (
-                <div className="commitment-item" key={`commitment-${index}`}>
-                  <CheckCircle2 size={19} /> {item}
-                </div>
-              ))}
-            </div>
-          </aside>
-        </section>
+            <section className="same-day-faq-section" aria-labelledby="same-day-faq-heading">
+              <h2 className="same-day-faq-heading" id="same-day-faq-heading">
+                Frequently Asked Questions
+              </h2>
+              {renderFaqList()}
+            </section>
+          </>
+        ) : (
+          <>
+            <section className="info-grid surface-panel">
+              <div className="info-copy">
+                {infoParagraphs.map((paragraph, index) => (
+                  <p key={`info-${index}`}>{paragraph}</p>
+                ))}
+              </div>
+              {renderCommitmentPanel()}
+            </section>
 
-        <section className="details-grid">
-          <article className="detail-copy surface-panel">
-            <h2>{content.detailHeading}</h2>
-            {detailParagraphs.map((paragraph, index) => (
-              <p key={`detail-${index}`}>{paragraph}</p>
-            ))}
-            <Link href={content.detailLinkHref} className="detail-link">
-              {content.detailLinkLabel} <ArrowRight size={17} />
-            </Link>
-          </article>
-
-          <div className="faq-list">
-            {faqItems.map((item, index) => {
-              const FaqIcon = FAQ_ICONS[index] || ClipboardList;
-              return (
-                <details className="faq-item" key={`faq-${index}`}>
-                  <summary>
-                    <div className="faq-left">
-                      <div className="faq-icon">
-                        <FaqIcon size={21} />
-                      </div>
-                      <span className="faq-question">{item.question}</span>
-                    </div>
-                    <ChevronDown size={20} className="faq-arrow" />
-                  </summary>
-                  <p className="faq-answer">{item.answer}</p>
-                </details>
-              );
-            })}
-          </div>
-        </section>
+            <section className="details-grid">
+              {renderDetailPanel()}
+              {renderFaqList()}
+            </section>
+          </>
+        )}
 
         <InternalLinkHub
           title="Explore related care paths"
@@ -773,8 +830,8 @@ export default function ServiceDetailTemplate({ service }) {
           links={[
             {
               href: "/providers",
-              label: "Find a Doctor",
-              description: "Browse primary care doctors and providers who can help with this service.",
+              label: "Find a Provider",
+              description: "Browse primary care providers who can help with this service.",
             },
             {
               href: "/locations",
@@ -805,7 +862,7 @@ export default function ServiceDetailTemplate({ service }) {
               <Calendar size={18} /> Schedule an Appointment
             </Link>
             <Link href="/providers" className="cta-btn-outline">
-              Find a Doctor <ArrowRight size={18} />
+              Find a Provider <ArrowRight size={18} />
             </Link>
           </div>
         </section>
