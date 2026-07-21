@@ -9,6 +9,7 @@ export const AI_SEARCH_INTENTS = Object.freeze({
   LOCATION_QUESTION: "location_question",
   INSURANCE_QUESTION: "insurance_question",
   BILLING_QUESTION: "billing_question",
+  POLICY_QUESTION: "policy_question",
   PATIENT_RESOURCES: "patient_resources",
   CONTACT_QUESTION: "contact_question",
   PRIVACY_BLOCKED: "privacy_blocked",
@@ -41,6 +42,21 @@ export function classifyAiSearchIntent(query = "", options = {}) {
     /\b(schedules?|next\s+week|this\s+week|book\s+with|when\s+can\s+i\s+see|can\s+i\s+(?:see|visit|book|schedule)|see\s+(?:a\s+)?(?:doctor|provider|physician|clinician)|visit\s+(?:a\s+)?(?:doctor|provider|physician|clinician))\b/i;
   const bookingHelpPattern =
     /\b(how|where|can|could)\b.{0,40}\b(book|schedule|make)\b.{0,40}\b(appointment|appt|visit)\b|\b(book|schedule)\s+(?:an?\s+)?(?:appointment|appt)\b/;
+  const billingPattern =
+    /\b(billing|bill|payment|pay|invoice|cost|fee|fees|charge|charges|charged|copay|self-pay|self pay)\b/;
+  const policyPattern =
+    /\b(polic(?:y|ies)|rules?|requirements?|no[-\s]?shows?|missed appointments?|grace period|late arrivals?|arriv(?:e|al|ing)|same[-\s]?day cancellations?|cancell?(?:ation|ations|ed|ing)?|reschedul(?:e|ed|ing)|do(?:n't| not)\s+show(?:\s+up)?|fail(?:ed|ing)?\s+to\s+show|attendance)\b/;
+
+  // Policy and billing language must win over generic appointment vocabulary.
+  // Otherwise phrases such as "no-show fee for my scheduled appointment" are
+  // incorrectly sent to the live appointment-availability route.
+  if (has(billingPattern, normalized)) {
+    return { intent: AI_SEARCH_INTENTS.BILLING_QUESTION, confidence: "high", phiCategories: [] };
+  }
+
+  if (has(policyPattern, normalized)) {
+    return { intent: AI_SEARCH_INTENTS.POLICY_QUESTION, confidence: "high", phiCategories: [] };
+  }
 
   if (has(providerAppointmentPattern, normalized)) {
     return { intent: AI_SEARCH_INTENTS.APPOINTMENT_AVAILABILITY, confidence: "high", phiCategories: [] };
@@ -93,10 +109,6 @@ export function classifyAiSearchIntent(query = "", options = {}) {
     return { intent: AI_SEARCH_INTENTS.INSURANCE_QUESTION, confidence: "high", phiCategories: [] };
   }
 
-  if (has(/\b(billing|bill|payment|pay|invoice|cost|fee)\b/, normalized)) {
-    return { intent: AI_SEARCH_INTENTS.BILLING_QUESTION, confidence: "medium", phiCategories: [] };
-  }
-
   if (has(/\b(portal|records|forms|medical records|hipaa|privacy|resources)\b/, normalized)) {
     return { intent: AI_SEARCH_INTENTS.PATIENT_RESOURCES, confidence: "medium", phiCategories: [] };
   }
@@ -117,6 +129,7 @@ export function toLegacyAiSearchIntent(intent = "") {
   if (intent === AI_SEARCH_INTENTS.LOCATION_QUESTION) return "location";
   if (intent === AI_SEARCH_INTENTS.INSURANCE_QUESTION) return "insurance";
   if (intent === AI_SEARCH_INTENTS.BILLING_QUESTION) return "billing";
+  if (intent === AI_SEARCH_INTENTS.POLICY_QUESTION) return "policy";
   if (intent === AI_SEARCH_INTENTS.PATIENT_RESOURCES) return "patient_resources";
   if (intent === AI_SEARCH_INTENTS.CONTACT_QUESTION) return "contact";
   if (intent === AI_SEARCH_INTENTS.PRIVACY_BLOCKED) return "privacy_blocked";

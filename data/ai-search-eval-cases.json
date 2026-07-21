@@ -156,6 +156,18 @@
     "appointmentAvailability": false
   },
   {
+    "id": "no_show_fee_policy",
+    "query": "will I pay a fee if I don't show up for my scheduled appointment?",
+    "expectedIntent": "billing_question",
+    "appointmentAvailability": false
+  },
+  {
+    "id": "late_arrival_grace_period_policy",
+    "query": "what is the grace period for late arrivals",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false
+  },
+  {
     "id": "privacy_block",
     "query": "my name is Example Person and I have strep throat",
     "expectedBlocked": true,

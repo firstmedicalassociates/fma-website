@@ -26,7 +26,7 @@ import {
 } from "./ai-search-domain-graph.js";
 import { GENERAL_BOOK_APPOINTMENT_URL } from "./config/site.js";
 import { detectPromptInjection, sanitizeGeneratedAnswerResult } from "./ai-search-output-guard.js";
-import { classifyAiSearchIntent } from "./ai-search-intent.js";
+import { AI_SEARCH_INTENTS, classifyAiSearchIntent } from "./ai-search-intent.js";
 import { buildAiSearchRoute, AI_SEARCH_ROUTES } from "./ai-search-router.js";
 import {
   AI_SEARCH_RESPONSE_STATUS,
@@ -291,7 +291,26 @@ function formatProviderLocationsForContext(values = [], locationLookup = new Map
   return [...new Set(formatted)].join(", ");
 }
 
-async function findStructuredSiteContext(query) {
+export function getAllowedStructuredContextTypes(intent = "") {
+  if (intent === AI_SEARCH_INTENTS.PROVIDER_SEARCH) return new Set(["provider", "article"]);
+  if (intent === AI_SEARCH_INTENTS.LOCATION_QUESTION) return new Set(["location", "article"]);
+  if (intent === AI_SEARCH_INTENTS.SERVICE_QUESTION) return new Set(["service", "article"]);
+  if (intent === AI_SEARCH_INTENTS.CONTACT_QUESTION) return new Set(["location", "article"]);
+  if (
+    intent === AI_SEARCH_INTENTS.APPOINTMENT_AVAILABILITY ||
+    intent === AI_SEARCH_INTENTS.BOOKING_HELP
+  ) {
+    return new Set(["provider", "location", "service", "article"]);
+  }
+
+  // General policy, billing, insurance, resource, and unknown questions should
+  // not acquire entity cards from a coincidental name match (for example,
+  // "grace period" matching a provider named Grace).
+  return new Set(["article"]);
+}
+
+async function findStructuredSiteContext(query, intent = "") {
+  const allowedTypes = getAllowedStructuredContextTypes(intent);
   const [providers, locations, services, posts] = await Promise.all([
     prisma.provider.findMany({
       where: { isActive: true },
@@ -428,7 +447,7 @@ async function findStructuredSiteContext(query) {
   ];
 
   return contexts
-    .filter((context) => context.score >= 28)
+    .filter((context) => allowedTypes.has(context.type) && context.score >= 28)
     .sort((first, second) => {
       if (second.score !== first.score) return second.score - first.score;
       return first.title.localeCompare(second.title, undefined, { sensitivity: "base" });
@@ -816,8 +835,30 @@ function buildAppointmentLeakageFallback(query, intentResult, routeContext) {
   });
 }
 
-function formatKnowledgeBaseSources(query, citations = []) {
+function formatKnowledgeBaseSources(query, citations = [], intent = "") {
   const normalized = normalizeContextText(`${query} ${citations.join(" ")}`);
+
+  if (intent === AI_SEARCH_INTENTS.POLICY_QUESTION || intent === AI_SEARCH_INTENTS.PATIENT_RESOURCES) {
+    return [
+      {
+        title: "Patient Policies & Forms",
+        url: "/patient-resources/patients",
+        type: "page",
+        category: "Patient resources",
+      },
+    ];
+  }
+
+  if (intent === AI_SEARCH_INTENTS.BILLING_QUESTION) {
+    return [
+      {
+        title: "Billing & Insurance",
+        url: "/patient-resources/insurance",
+        type: "page",
+        category: "Patient resources",
+      },
+    ];
+  }
 
   if (/\b(appointment|appointments|schedule|scheduling|book|booking)\b/.test(normalized)) {
     return [
@@ -1028,7 +1069,7 @@ export async function runAiSearch(rawQuery, options = {}) {
 
   const [queryEmbedding, structuredContext] = await Promise.all([
     generateEmbedding(searchQuery),
-    findStructuredSiteContext(searchQuery),
+    findStructuredSiteContext(searchQuery, intentResult.intent),
   ]);
 
   const similarContent = await findSimilarContent(queryEmbedding, Number(options.limit) || 8);
@@ -1040,7 +1081,7 @@ export async function runAiSearch(rawQuery, options = {}) {
   const { answer, confidence: aiConfidence, grounded, citations, safetyIssue } = generatedAnswer;
   const domainGraphSources = formatFmaDomainGraphSources(domainGraphContext);
   const structuredSources = formatStructuredSources(structuredContext);
-  const knowledgeBaseSources = formatKnowledgeBaseSources(query, citations);
+  const knowledgeBaseSources = formatKnowledgeBaseSources(query, citations, intentResult.intent);
   const hasDirectStructuredSources = structuredSources.some((source) => source.type !== "article");
   const sources =
     domainGraphSources.length > 0

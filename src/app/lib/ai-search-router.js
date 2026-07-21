@@ -22,10 +22,14 @@ export function buildAiSearchRoute({ intent = "", appointmentRouteRequired = fal
     };
   }
 
-  if (appointmentRouteRequired || isAppointmentAvailabilityIntent(intent)) {
+  // `appointmentRouteRequired` is the dedicated availability detector and is
+  // the single authority for entering the hard live-scheduling route. Intent
+  // classification alone is deliberately insufficient because policy questions
+  // often contain generic words such as "appointment", "schedule", or "time".
+  if (appointmentRouteRequired) {
     return {
       route: AI_SEARCH_ROUTES.APPOINTMENT_AVAILABILITY,
-      reason: appointmentRouteRequired ? "appointment_signal" : "appointment_intent",
+      reason: "appointment_signal",
       allowGenericFallback: false,
     };
   }

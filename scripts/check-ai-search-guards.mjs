@@ -26,6 +26,7 @@ import { classifyAiSearchIntent } from "../src/app/lib/ai-search-intent.js";
 import { buildAiSearchRoute } from "../src/app/lib/ai-search-router.js";
 import { buildAiSearchResponse } from "../src/app/lib/ai-search-response-contract.js";
 import { resolveProviderSearch } from "../src/app/lib/ai-search-provider-resolution.js";
+import { getAllowedStructuredContextTypes } from "../src/app/lib/ai-search.js";
 
 const results = [];
 
@@ -191,6 +192,11 @@ check("routes provider time availability wording to appointment availability", (
 
   assert.equal(isAppointmentAvailabilityQuery("what services are available"), false);
   assert.equal(isAppointmentAvailabilityQuery("what time do you open"), false);
+  assert.equal(
+    isAppointmentAvailabilityQuery("will I pay a fee if I don't show up for my scheduled appointment?"),
+    false
+  );
+  assert.equal(isAppointmentAvailabilityQuery("what is the grace period for late arrivals"), false);
 });
 
 check("extracts provider names from conversational appointment wording", () => {
@@ -353,6 +359,22 @@ check("uses hard route contract for appointment availability", () => {
   assert.equal(route.allowGenericFallback, false);
 });
 
+check("does not enter live scheduling from appointment intent alone", () => {
+  const route = buildAiSearchRoute({
+    intent: "appointment_availability",
+    appointmentRouteRequired: false,
+  });
+
+  assert.equal(route.route, "general_fma_answer");
+  assert.equal(route.allowGenericFallback, true);
+});
+
+check("keeps provider cards out of policy and billing answers", () => {
+  assert.equal(getAllowedStructuredContextTypes("policy_question").has("provider"), false);
+  assert.equal(getAllowedStructuredContextTypes("billing_question").has("provider"), false);
+  assert.equal(getAllowedStructuredContextTypes("provider_search").has("provider"), true);
+});
+
 check("normalizes AI search response schema", () => {
   const response = buildAiSearchResponse({
     intent: "appointment_availability",
@@ -401,6 +423,14 @@ check("classifies public FMA intents with detailed labels", () => {
   assert.equal(classifyAiSearchIntent("what insurance do you accept").intent, "insurance_question");
   assert.equal(classifyAiSearchIntent("who speaks Spanish near Rockville").intent, "provider_search");
   assert.equal(classifyAiSearchIntent("what services are available").intent, "service_question");
+  assert.equal(
+    classifyAiSearchIntent("will I pay a fee if I don't show up for my scheduled appointment?").intent,
+    "billing_question"
+  );
+  assert.equal(
+    classifyAiSearchIntent("what is the grace period for late arrivals").intent,
+    "policy_question"
+  );
 });
 
 check("prefers full provider home department over partial location match", () => {

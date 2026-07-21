@@ -60,6 +60,8 @@ const SERVICE_APPOINTMENT_REQUEST_PATTERN =
   /\b(primary\s+care|same[-\s]?day|annual\s+physicals?|physicals?|wellness|urgent\s+care|sick\s+visits?)\b.{0,40}\b(appointments?|schedule|scheduling|book|booking)\b|\b(appointments?|schedule|scheduling|book|booking)\b.{0,40}\b(primary\s+care|same[-\s]?day|annual\s+physicals?|physicals?|wellness|urgent\s+care|sick\s+visits?)\b/i;
 const NON_APPOINTMENT_AVAILABILITY_PATTERN =
   /\b(what|which)\s+(services?|insurance|forms?|resources?|locations?)\s+(?:are|is)\s+available\b|\boffice\s+hours?\b|\bwhat\s+time\s+(?:do|does|is|are)\s+(?:you|fma|office|clinic|location|locations)\s+open\b/i;
+const APPOINTMENT_POLICY_PATTERN =
+  /\b(polic(?:y|ies)|no[-\s]?shows?|missed appointments?|grace period|late arrivals?|same[-\s]?day cancellations?|cancell?(?:ation|ations|ed|ing)?|reschedul(?:e|ed|ing)|do(?:n't| not)\s+show(?:\s+up)?|fail(?:ed|ing)?\s+to\s+show|fees?|charges?)\b/i;
 const FAST_APPOINTMENT_PATTERN =
   /\b(quick|quickest|fast|fastest|earliest|soonest|next|asap|now|today|tomorrow|first available)\b/i;
 const EXPLICIT_GLOBAL_APPOINTMENT_PATTERN = AI_SEARCH_PATTERNS.globalAppointment;
@@ -161,7 +163,11 @@ function getProviderIntentTokens(query) {
 
 function hasAppointmentAvailabilityLanguage(query) {
   const normalized = normalizeText(query);
-  if (!normalized || NON_APPOINTMENT_AVAILABILITY_PATTERN.test(normalized)) return false;
+  if (
+    !normalized ||
+    NON_APPOINTMENT_AVAILABILITY_PATTERN.test(normalized) ||
+    APPOINTMENT_POLICY_PATTERN.test(normalized)
+  ) return false;
   return (
     PROVIDER_AVAILABILITY_LANGUAGE_PATTERN.test(normalized) ||
     PROVIDER_ACTION_LANGUAGE_PATTERN.test(normalized)
@@ -1564,7 +1570,11 @@ async function getProviderOpenSlots(
 
 export function isAppointmentAvailabilityQuery(query) {
   const normalized = normalizeText(query);
-  if (!normalized || NON_APPOINTMENT_AVAILABILITY_PATTERN.test(normalized)) return false;
+  if (
+    !normalized ||
+    NON_APPOINTMENT_AVAILABILITY_PATTERN.test(normalized) ||
+    APPOINTMENT_POLICY_PATTERN.test(normalized)
+  ) return false;
 
   const hasAppointmentWord = APPOINTMENT_WORD_PATTERN.test(normalized);
   const hasAvailabilityWord = AVAILABILITY_WORD_PATTERN.test(normalized);
