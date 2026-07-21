@@ -27,6 +27,7 @@ import { buildAiSearchRoute } from "../src/app/lib/ai-search-router.js";
 import { buildAiSearchResponse } from "../src/app/lib/ai-search-response-contract.js";
 import { resolveProviderSearch } from "../src/app/lib/ai-search-provider-resolution.js";
 import { getAllowedStructuredContextTypes } from "../src/app/lib/ai-search.js";
+import { FMA_KNOWLEDGE_BASE } from "../src/app/lib/fma-knowledge-base.js";
 
 const results = [];
 
@@ -197,6 +198,23 @@ check("routes provider time availability wording to appointment availability", (
     false
   );
   assert.equal(isAppointmentAvailabilityQuery("what is the grace period for late arrivals"), false);
+});
+
+check("keeps the July 2026 late-arrival policy current", () => {
+  assert.match(FMA_KNOWLEDGE_BASE, /Updated: July 17, 2026/);
+  assert.match(
+    FMA_KNOWLEDGE_BASE,
+    /not been seen by an FMA provider within the past 36 months\.\s+New patients must arrive 30 minutes/
+  );
+  assert.match(
+    FMA_KNOWLEDGE_BASE,
+    /seen by an FMA provider within the past 36 months\.\s+Established patients must arrive 15 minutes/
+  );
+  assert.match(FMA_KNOWLEDGE_BASE, /5-minute grace period/);
+  assert.doesNotMatch(
+    FMA_KNOWLEDGE_BASE,
+    /Arriving more than 5 minutes late is classified as a missed appointment/
+  );
 });
 
 check("extracts provider names from conversational appointment wording", () => {

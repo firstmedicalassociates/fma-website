@@ -152,7 +152,7 @@
   {
     "id": "self_pay_pricing",
     "query": "what are the self-pay prices for new and existing patients",
-    "expectedIntent": "insurance_question",
+    "expectedIntent": "billing_question",
     "appointmentAvailability": false
   },
   {
@@ -170,6 +170,18 @@
   {
     "id": "late_arrival_grace_period_policy",
     "query": "what is the grace period for late arrivals",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false
+  },
+  {
+    "id": "established_patient_arrival_time_policy",
+    "query": "how early should an established patient arrive",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false
+  },
+  {
+    "id": "new_patient_36_month_definition_policy",
+    "query": "under the late arrival policy, am I considered a new patient if I have not been seen in 36 months",
     "expectedIntent": "policy_question",
     "appointmentAvailability": false
   },

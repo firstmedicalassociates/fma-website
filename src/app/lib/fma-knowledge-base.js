@@ -1,6 +1,6 @@
 // Static knowledge base built from official FMA/DrsFirst website content and operations scripts.
 // Sources: drsfirst.com homepage, about page, insurance page, contact page,
-// Late Arrival Policy PDF, FMLA/Disability Forms Policy PDF,
+// Late Arrival Policy PDF (updated July 17, 2026), FMLA/Disability Forms Policy PDF,
 // Contact Center Operations Script Document.
 // GLP-1 Insurance Coverage PDF, HIPAA Privacy Notice PDF (all April 2023 / 2025–2026 revisions).
 
@@ -126,17 +126,22 @@ Medication refill triage:
   in-person or virtual.
 
 Attendance, lateness, and fees:
-- Established patients have a strict 5-minute grace period after the scheduled appointment time.
-- Arriving more than 5 minutes late is classified as a missed appointment, triggers a $50 fee, and
-  requires rescheduling.
-- If the patient is past the 5-minute window, staff may check whether the original provider or
-  another provider at that location has a later same-day opening.
-- If the patient is successfully rescheduled into a same-day available slot, the $50 fee
-  may be waived.
-- New patients must arrive at least 30 minutes before the scheduled time to complete required
-  paperwork. If that window has passed, the appointment must be rescheduled.
+- The Late Arrival Policy updated July 17, 2026 controls answers about late arrivals.
+- A new patient is someone who has not been seen by an FMA provider within the past 36 months.
+  New patients must arrive 30 minutes before their first scheduled appointment.
+- An established patient is someone who has been seen by an FMA provider within the past 36 months.
+  Established patients must arrive 15 minutes before their scheduled appointment and have a strict
+  5-minute grace period after the scheduled appointment time.
+- Within the grace period, staff will do their best to accommodate the patient immediately if the
+  schedule allows.
+- More than 5 minutes late, or a fully booked provider who cannot see the patient without
+  significantly delaying others, requires rescheduling. Staff may check another provider for
+  immediate availability or reschedule for a convenient future date and time.
 - Same-day cancellation or same-day rescheduling incurs a $50 administrative fee.
 - No-show or missed appointments incur a $50 missed appointment fee.
+- The updated Late Arrival Policy does not classify a late arrival by itself as a missed appointment
+  and does not specify whether a fee applies when staff reschedules a late arrival. Do not infer a
+  fee solely from lateness; ask the patient to call 301-515-2901 to confirm fee applicability.
 
 Motor vehicle accident (MVA) and PIP scheduling:
 - MVA appointments cannot be scheduled until all Personal Injury Protection (PIP) details are
@@ -312,15 +317,24 @@ Fax for billing: 866-701-4905
 ---
 
 POLICY: LATE ARRIVAL POLICY
+Updated: July 17, 2026
 At First Medical Associates, we are committed to providing timely and focused care to all patients.
 
-- New patients: Must arrive 30 minutes prior to their first scheduled appointment.
-- Established patients: A 5-minute grace period is allowed for late arrivals.
-- Within the grace period: We will do our best to accommodate you immediately, as schedule allows.
-- More than 5 minutes late OR provider fully booked: Your appointment must be rescheduled.
+- New patients: Patients who have not been seen by an FMA provider within the past 36 months must
+  arrive 30 minutes prior to their first scheduled appointment.
+- Established patients: Patients who have been seen by an FMA provider within the past 36 months
+  must arrive 15 minutes prior to their scheduled appointment.
+- Grace period: A 5-minute grace period is allowed for late arrivals for all established-patient
+  appointments.
+- Within the grace period: We will do our best to accommodate you immediately, as the schedule allows.
+- More than 5 minutes late OR the provider is fully booked and cannot see you without significantly
+  delaying other patients: Your appointment must be rescheduled.
   Options in this case:
   (1) See an Alternate Provider — we check if another provider has immediate availability.
   (2) Reschedule — we book you for a convenient future date and time.
+- This policy does not state that a late arrival is automatically a missed appointment and does not
+  specify a late-arrival fee. Do not infer a fee solely from lateness; call 301-515-2901 to confirm
+  whether a fee applies in a specific rescheduling situation.
 - If you anticipate being late, call us as soon as possible at 301-515-2901.
 
 ---
