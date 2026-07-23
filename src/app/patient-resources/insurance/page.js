@@ -1,10 +1,8 @@
 /* eslint-disable react/no-unescaped-entities */
 import { buildStaticMetadata } from "../../lib/seo";
 import { 
-  CreditCard, 
   CheckCircle2, 
   ArrowRight,
-  MapPin,
   Users,
   ShieldCheck,
   HelpCircle,
@@ -23,13 +21,11 @@ export const metadata = buildStaticMetadata({
 
 export default function InsurancePage() {
   const nationalProviders = ["Aetna", "Blue Choice", "Blue Cross Blue Shield", "Cigna", "Humana", "United Healthcare (UHC)"];
-  const regionalProviders = ["CareFirst", "Johns Hopkins Health", "Kaiser Permanente"];
+  const regionalProviders = ["CareFirst", "Johns Hopkins Health"];
   const governmentPrograms = [
     { name: "Maryland Medicaid", sub: "(See details below)" },
-    { name: "Medicare", sub: "(See details below)" },
-    { name: "TRICARE" }
+    { name: "Medicare", sub: "(See details below)" }
   ];
-  const otherPlans = ["Oscar Health", "Magellan", "Beacon Health"];
 
   return (
     <div className="insurance-page-container">
@@ -84,7 +80,7 @@ export default function InsurancePage() {
         .accepted-header h2 { font-size: 1.5rem; font-weight: 800; color: #001c55; margin-bottom: 0.5rem; }
         .accepted-header p { font-size: 0.875rem; color: #64748b; }
         
-        .providers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+        .providers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
         .provider-col h5 { font-size: 0.6875rem; font-weight: 700; color: #0070f3; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem; }
         .provider-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
         .provider-item { font-size: 0.8125rem; font-weight: 600; color: #1e293b; display: flex; align-items: flex-start; gap: 0.5rem; }
@@ -161,12 +157,8 @@ export default function InsurancePage() {
             </div>
             <dl className="self-pay-rates">
               <div className="self-pay-rate">
-                <dt>New Patients</dt>
+                <dt>Per Consultation</dt>
                 <dd>$180</dd>
-              </div>
-              <div className="self-pay-rate">
-                <dt>Existing Patients</dt>
-                <dd>$150</dd>
               </div>
             </dl>
             <p className="desc">Transparent self-pay pricing for patients without insurance.</p>
@@ -177,7 +169,10 @@ export default function InsurancePage() {
           <div className="accepted-header">
             <div>
               <h2>Accepted Insurance Plans</h2>
-              <p>We accept a wide range of insurance plans to help you get the care you need.</p>
+              <p>
+                Plan acceptance can vary by location and visit type. Please confirm your exact
+                plan before scheduling.
+              </p>
             </div>
           </div>
 
@@ -212,18 +207,10 @@ export default function InsurancePage() {
                 ))}
               </ul>
             </div>
-            <div className="provider-col">
-              <h5>OTHER PLANS</h5>
-              <ul className="provider-list">
-                {otherPlans.map((p, i) => (
-                  <li key={i} className="provider-item"><span className="dot">•</span> {p}</li>
-                ))}
-              </ul>
-            </div>
           </div>
 
           <div className="view-all-link">
-            View All 50+ Partners <ArrowRight size={16} />
+            Commercial Cigna and UHC acceptance must be confirmed for the selected location
           </div>
         </section>
       </div>

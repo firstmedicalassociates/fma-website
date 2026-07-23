@@ -1116,10 +1116,57 @@
   opacity: 0.62;
 }
 
+.feedbackReasons {
+  display: flex;
+  flex: 1 0 100%;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding-top: 2px;
+}
+
+.feedbackReasonButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.feedbackReasonButton {
+  min-height: 32px;
+  border: 1px solid rgba(255, 193, 193, 0.24);
+  border-radius: 999px;
+  padding: 0 11px;
+  color: #ffe2e2;
+  background: rgba(255, 111, 111, 0.08);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.feedbackReasonButton:hover:not(:disabled),
+.feedbackReasonButton:focus-visible {
+  border-color: rgba(255, 193, 193, 0.52);
+  background: rgba(255, 111, 111, 0.16);
+}
+
+.feedbackReasonButton:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
 .feedbackMessage {
   margin: 0;
   color: rgba(200, 220, 255, 0.68);
   font-size: 12px;
+}
+
+.feedbackPrivacyNotice {
+  margin: 0;
+  max-width: 62ch;
+  color: rgba(200, 220, 255, 0.62);
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .sourceList {

@@ -26,7 +26,20 @@ import { classifyAiSearchIntent } from "../src/app/lib/ai-search-intent.js";
 import { buildAiSearchRoute } from "../src/app/lib/ai-search-router.js";
 import { buildAiSearchResponse } from "../src/app/lib/ai-search-response-contract.js";
 import { resolveProviderSearch } from "../src/app/lib/ai-search-provider-resolution.js";
-import { getAllowedStructuredContextTypes } from "../src/app/lib/ai-search.js";
+import {
+  calibrateAiConfidence,
+  getAllowedEmbeddingTypes,
+  getAllowedStructuredContextTypes,
+} from "../src/app/lib/ai-search.js";
+import {
+  buildDeterministicPolicyAnswer,
+  findPolicyDocumentsForQuery,
+} from "../src/app/lib/ai-search-policy-documents.mjs";
+import {
+  buildFeedbackSnapshotUpdate,
+  createAiSearchFeedbackHashes,
+  normalizeFeedbackPayload,
+} from "../src/app/lib/ai-search-analytics.js";
 import { FMA_KNOWLEDGE_BASE } from "../src/app/lib/fma-knowledge-base.js";
 
 const results = [];
@@ -58,10 +71,14 @@ check("normalizes public search text", () => {
 check("allows general public FMA service searches", () => {
   const risk = getPhiRisk("do you offer strep throat visits at FMA");
   assert.equal(risk.hasPotentialPhi, false);
+  assert.equal(getPhiRisk("Can I get a flu vaccine?").hasPotentialPhi, false);
 });
 
 check("flags self-referenced medical detail", () => {
   assertPhiCategories("I have strep throat and need an appointment", [
+    "patient_specific_medical_detail",
+  ]);
+  assertPhiCategories("I have the flu and need help", [
     "patient_specific_medical_detail",
   ]);
 });
@@ -112,6 +129,32 @@ check("allows generic appointment booking dates", () => {
     const risk = getPhiRisk(query);
     assert.equal(risk.hasPotentialPhi, false, query);
   }
+});
+
+check("allows generic appointment and medication policy scenarios", () => {
+  const queries = [
+    "I forgot about my appointment yesterday. Is there a charge?",
+    "I didn't miss my appointment—I was six minutes late",
+    "Can I get a temporary refill while finding a specialist?",
+    "Can an existing FMA patient get a temporary GLP-1 refill while finding a specialist?",
+  ];
+
+  for (const query of queries) {
+    const risk = getPhiRisk(query);
+    assert.equal(risk.hasPotentialPhi, false, query);
+  }
+});
+
+check("keeps patient-specific appointment and medication details blocked", () => {
+  assertPhiCategories("My appointment with Dr. Smith is tomorrow at 3 pm", [
+    "appointment_detail",
+  ]);
+  assertPhiCategories("I take Wegovy and need a temporary refill while finding a specialist", [
+    "patient_specific_medical_detail",
+  ]);
+  assertPhiCategories("Can I get a temporary insulin refill while finding a specialist?", [
+    "patient_specific_medical_detail",
+  ]);
 });
 
 check("parses explicit public appointment date requests", () => {
@@ -198,22 +241,185 @@ check("routes provider time availability wording to appointment availability", (
     false
   );
   assert.equal(isAppointmentAvailabilityQuery("what is the grace period for late arrivals"), false);
+  assert.equal(isAppointmentAvailabilityQuery("can I see a provider 24/7"), false);
+  assert.equal(isAppointmentAvailabilityQuery("can I walk in without an appointment"), false);
+  assert.equal(isAppointmentAvailabilityQuery("are same-day appointments guaranteed"), false);
+  assert.equal(isAppointmentAvailabilityQuery("can I schedule an emergency appointment at FMA"), false);
+  assert.equal(isAppointmentAvailabilityQuery("can a 17-year-old book an appointment"), false);
+  assert.equal(isAppointmentAvailabilityQuery("do I need to give two hours notice for same-day care"), false);
+});
+
+check("does not confuse public prose with identifiers", () => {
+  assert.equal(getPhiRisk("Social Security Administration").hasPotentialPhi, false);
+  assert.equal(getPhiRisk("Sneezing is common during allergy season").hasPotentialPhi, false);
+  assertPhiCategories("device serial SN A12345XYZ", ["device_identifier"]);
+});
+
+check("normalizes feedback ratings and reason tags", () => {
+  assert.deepEqual(
+    normalizeFeedbackPayload({
+      rating: "not_helpful",
+      tags: ["wrong_info", "wrong_info", "unsupported"],
+    }),
+    {
+      rating: "not_helpful",
+      tags: ["wrong_info"],
+    }
+  );
+  assert.deepEqual(normalizeFeedbackPayload({ rating: "bad", tags: [] }), {
+    rating: "",
+    tags: [],
+  });
+});
+
+check("stores only verified privacy-screened negative feedback snapshots", () => {
+  const query = "will I pay a fee if I do not show up for my appointment";
+  const answer =
+    "A no-show or missed appointment incurs a $50 missed-appointment fee. Call 301-515-2901.";
+  const hashes = createAiSearchFeedbackHashes({ query, answer });
+  assert.ok(hashes.queryHash);
+  assert.ok(hashes.answerHash);
+
+  const stored = buildFeedbackSnapshotUpdate({
+    event: {
+      ...hashes,
+      phiCategories: [],
+    },
+    rating: "not_helpful",
+    query,
+    answer,
+  });
+  assert.equal(stored.feedbackSnapshotStatus, "stored");
+  assert.equal(stored.feedbackReviewStatus, "pending");
+  assert.equal(stored.feedbackQuerySnapshot, query);
+  assert.equal(stored.feedbackAnswerSnapshot, answer);
+
+  const mismatched = buildFeedbackSnapshotUpdate({
+    event: {
+      ...hashes,
+      phiCategories: [],
+    },
+    rating: "not_helpful",
+    query: "different question",
+    answer,
+  });
+  assert.equal(mismatched.feedbackSnapshotStatus, "mismatch");
+  assert.equal(mismatched.feedbackQuerySnapshot, null);
+
+  const withheld = buildFeedbackSnapshotUpdate({
+    event: {
+      ...hashes,
+      phiCategories: ["date_of_birth"],
+    },
+    rating: "not_helpful",
+    query,
+    answer,
+  });
+  assert.equal(withheld.feedbackSnapshotStatus, "withheld_phi");
+
+  const helpful = buildFeedbackSnapshotUpdate({
+    event: {
+      ...hashes,
+      phiCategories: [],
+    },
+    rating: "helpful",
+    query,
+    answer,
+  });
+  assert.equal(helpful.feedbackSnapshotStatus, "not_requested");
+  assert.equal(helpful.feedbackReviewStatus, "not_required");
 });
 
 check("keeps the July 2026 late-arrival policy current", () => {
   assert.match(FMA_KNOWLEDGE_BASE, /Updated: July 17, 2026/);
   assert.match(
     FMA_KNOWLEDGE_BASE,
-    /not been seen by an FMA provider within the past 36 months\.\s+New patients must arrive 30 minutes/
+    /New patients who have not been seen by an FMA provider within the past 36 months must arrive\s+30 minutes/
   );
   assert.match(
     FMA_KNOWLEDGE_BASE,
-    /seen by an FMA provider within the past 36 months\.\s+Established patients must arrive 15 minutes/
+    /Established patients who have been seen by an FMA provider within the past 36 months must arrive\s+15 minutes/
   );
   assert.match(FMA_KNOWLEDGE_BASE, /5-minute grace period/);
+  assert.match(
+    FMA_KNOWLEDGE_BASE,
+    /Late-Arrival-Policy-FMA_07-17-2026\.docx-2\.pdf/
+  );
   assert.doesNotMatch(
     FMA_KNOWLEDGE_BASE,
     /Arriving more than 5 minutes late is classified as a missed appointment/
+  );
+});
+
+check("returns a deterministic answer from the current late-arrival source", () => {
+  const query = "how early should an established patient arrive";
+  const documents = findPolicyDocumentsForQuery(query);
+  const result = buildDeterministicPolicyAnswer(query, documents);
+
+  assert.equal(result.code, "policy_exact_match");
+  assert.equal(result.grounded, true);
+  assert.match(result.answer, /15 minutes before/);
+  assert.match(result.answer, /past 36 months/);
+  assert.equal(
+    result.sources[0].url,
+    "https://drsfirst.com/wp-content/uploads/2026/07/Late-Arrival-Policy-FMA_07-17-2026.docx-2.pdf"
+  );
+});
+
+check("answers late-arrival and patient-status durations instead of keyword guessing", () => {
+  const fourMinutesQuery = "I was four minutes late";
+  const fourMinutesResult = buildDeterministicPolicyAnswer(
+    fourMinutesQuery,
+    findPolicyDocumentsForQuery(fourMinutesQuery)
+  );
+  assert.match(fourMinutesResult.answer, /within the 5-minute grace period/);
+
+  const sixMinutesQuery = "I was six minutes late";
+  const sixMinutesResult = buildDeterministicPolicyAnswer(
+    sixMinutesQuery,
+    findPolicyDocumentsForQuery(sixMinutesQuery)
+  );
+  assert.match(sixMinutesResult.answer, /More than 5 minutes late/);
+  assert.match(sixMinutesResult.answer, /not say that lateness alone is automatically a missed appointment/);
+
+  const twoYearsQuery = "I haven't been seen for two years. Am I a new patient?";
+  const twoYearsResult = buildDeterministicPolicyAnswer(
+    twoYearsQuery,
+    findPolicyDocumentsForQuery(twoYearsQuery)
+  );
+  assert.match(twoYearsResult.answer, /established patient/);
+  assert.match(twoYearsResult.answer, /15 minutes before/);
+
+  const fourYearsQuery = "I haven't been seen for four years. Am I a new patient?";
+  const fourYearsResult = buildDeterministicPolicyAnswer(
+    fourYearsQuery,
+    findPolicyDocumentsForQuery(fourYearsQuery)
+  );
+  assert.match(fourYearsResult.answer, /treated as a new patient/);
+  assert.match(fourYearsResult.answer, /30 minutes before/);
+});
+
+check("routes no-show fees to attendance policy instead of forms", () => {
+  const query = "will I have to pay a fee if I don't show up for my appointment";
+  const documents = findPolicyDocumentsForQuery(query);
+  const result = buildDeterministicPolicyAnswer(query, documents);
+
+  assert.deepEqual(
+    documents.map((document) => document.id),
+    ["appointment-attendance-fees"]
+  );
+  assert.equal(result.code, "policy_exact_match");
+  assert.match(result.answer, /\$50 missed-appointment fee/);
+  assert.doesNotMatch(result.answer, /FMLA|disability forms/i);
+});
+
+check("does not confuse self-pay pricing with the late-arrival policy", () => {
+  const documents = findPolicyDocumentsForQuery(
+    "How much is a self-pay visit for a new patient?"
+  );
+  assert.equal(
+    documents.some((document) => document.id === "late-arrival-policy"),
+    false
   );
 });
 
@@ -391,6 +597,41 @@ check("keeps provider cards out of policy and billing answers", () => {
   assert.equal(getAllowedStructuredContextTypes("policy_question").has("provider"), false);
   assert.equal(getAllowedStructuredContextTypes("billing_question").has("provider"), false);
   assert.equal(getAllowedStructuredContextTypes("provider_search").has("provider"), true);
+  assert.equal(getAllowedEmbeddingTypes("policy_question").includes("provider"), false);
+  assert.equal(getAllowedEmbeddingTypes("policy_question").includes("policy"), true);
+});
+
+check("calibrates generated confidence against retrieved evidence", () => {
+  assert.equal(
+    calibrateAiConfidence({
+      reportedConfidence: "high",
+      grounded: true,
+      sourceCount: 1,
+      citationCount: 1,
+      retrievalScore: 0.28,
+    }),
+    "medium"
+  );
+  assert.equal(
+    calibrateAiConfidence({
+      reportedConfidence: "high",
+      grounded: true,
+      sourceCount: 1,
+      citationCount: 1,
+      hasAuthoritativeContext: true,
+    }),
+    "high"
+  );
+  assert.equal(
+    calibrateAiConfidence({
+      reportedConfidence: "high",
+      grounded: false,
+      sourceCount: 1,
+      citationCount: 1,
+      retrievalScore: 0.8,
+    }),
+    "low"
+  );
 });
 
 check("normalizes AI search response schema", () => {
@@ -449,6 +690,65 @@ check("classifies public FMA intents with detailed labels", () => {
     classifyAiSearchIntent("what is the grace period for late arrivals").intent,
     "policy_question"
   );
+  assert.equal(
+    classifyAiSearchIntent("I haven't been seen in three years. Am I a new patient?").intent,
+    "policy_question"
+  );
+  assert.equal(
+    classifyAiSearchIntent("I didn't miss my appointment—I was six minutes late").intent,
+    "policy_question"
+  );
+  assert.equal(
+    classifyAiSearchIntent("Can I get a temporary refill while finding a specialist?").intent,
+    "policy_question"
+  );
+  assert.equal(
+    classifyAiSearchIntent("Is Victoria Thee accepting new patients?").intent,
+    "provider_search"
+  );
+  assert.equal(
+    classifyAiSearchIntent("Can I see a provider 24/7?").intent,
+    "location_question"
+  );
+  assert.equal(
+    classifyAiSearchIntent("Can I walk in without an appointment?").intent,
+    "service_question"
+  );
+  assert.equal(
+    classifyAiSearchIntent("Are same-day appointments guaranteed?").intent,
+    "service_question"
+  );
+  assert.equal(
+    classifyAiSearchIntent("Can I schedule an emergency appointment at FMA?").intent,
+    "service_question"
+  );
+  assert.equal(
+    classifyAiSearchIntent("Does the Gaithersburg office accept commercial UnitedHealthcare?").intent,
+    "insurance_question"
+  );
+  assert.equal(
+    classifyAiSearchIntent("What is the cash price for an existing patient office visit?").intent,
+    "billing_question"
+  );
+  assert.equal(classifyAiSearchIntent("What is FMA's fax number?").intent, "contact_question");
+  assert.equal(
+    classifyAiSearchIntent("Can a 17-year-old book an appointment?").intent,
+    "service_question"
+  );
+  assert.equal(
+    classifyAiSearchIntent("Do I need to give two hours notice for same-day care?").intent,
+    "service_question"
+  );
+  assert.equal(classifyAiSearchIntent("Does FMA take TRICARE?").intent, "insurance_question");
+  assert.equal(
+    classifyAiSearchIntent("Who is the CEO of First Medical Associates?").intent,
+    "contact_question"
+  );
+  assert.equal(
+    classifyAiSearchIntent("Are labs on site at each clinic?").intent,
+    "location_question"
+  );
+  assert.equal(classifyAiSearchIntent("Do you treat children?").intent, "service_question");
 });
 
 check("prefers full provider home department over partial location match", () => {

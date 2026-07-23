@@ -28,7 +28,55 @@ const RUN_ALL_PROVIDERS =
   process.env.RUN_ALL_PROVIDER_AI_EVALS === "1" || ARGS.has("--all-providers");
 
 async function loadCases() {
-  return JSON.parse(await fs.readFile(CASES_PATH, "utf8"));
+  const fileCases = JSON.parse(await fs.readFile(CASES_PATH, "utf8"));
+  if (!prisma?.aiSearchEvalCase?.findMany) return fileCases;
+
+  try {
+    const promotedCases = await prisma.aiSearchEvalCase.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        query: true,
+        expectedBehavior: true,
+        expectedIntent: true,
+        appointmentAvailability: true,
+        expectedCode: true,
+        expectedSourceUrl: true,
+        requiredAnswerPhrases: true,
+        forbiddenAnswerPhrases: true,
+      },
+    });
+
+    return [
+      ...fileCases,
+      ...promotedCases.map((testCase) => ({
+        id: `feedback_${testCase.id}`,
+        query: testCase.query,
+        expectedBehavior: testCase.expectedBehavior,
+        ...(testCase.expectedIntent ? { expectedIntent: testCase.expectedIntent } : {}),
+        ...(typeof testCase.appointmentAvailability === "boolean"
+          ? { appointmentAvailability: testCase.appointmentAvailability }
+          : {}),
+        ...(testCase.expectedCode ? { expectedCode: testCase.expectedCode } : {}),
+        ...(testCase.expectedSourceUrl
+          ? { expectedSourceUrl: testCase.expectedSourceUrl }
+          : {}),
+        ...(testCase.requiredAnswerPhrases.length
+          ? { requiredAnswerPhrases: testCase.requiredAnswerPhrases }
+          : {}),
+        ...(testCase.forbiddenAnswerPhrases.length
+          ? { forbiddenAnswerPhrases: testCase.forbiddenAnswerPhrases }
+          : {}),
+      })),
+    ];
+  } catch (error) {
+    const message = String(error?.message || "").toLowerCase();
+    if (error?.code === "P2021" || message.includes("aisearchevalcase")) {
+      return fileCases;
+    }
+    throw error;
+  }
 }
 
 const PROVIDER_PROMPT_TEMPLATES = [
@@ -480,6 +528,102 @@ async function evaluateLiveCase(testCase) {
   };
 }
 
+function hasExpectedAnswerAssertions(testCase) {
+  return Boolean(
+    testCase.expectedCode ||
+      testCase.expectedSourceUrl ||
+      testCase.expectedModelVersion ||
+      typeof testCase.expectedGrounded === "boolean" ||
+      testCase.expectedAiConfidence ||
+      testCase.requiredAnswerPhrases?.length ||
+      testCase.forbiddenAnswerPhrases?.length ||
+      testCase.expectedNoProviderCards === true
+  );
+}
+
+async function evaluateExpectedAnswer(testCase) {
+  if (!hasExpectedAnswerAssertions(testCase) || testCase.expectedBlocked) return null;
+
+  const result = await runAiSearch(testCase.query, { limit: 8 });
+  const answer = String(result?.answer || "");
+  const normalizedAnswer = answer.toLowerCase();
+  const failures = [];
+
+  if (testCase.expectedCode && result?.code !== testCase.expectedCode) {
+    failures.push(`expected answer code ${testCase.expectedCode}, got ${result?.code || "none"}`);
+  }
+  if (
+    typeof testCase.expectedGrounded === "boolean" &&
+    result?.grounded !== testCase.expectedGrounded
+  ) {
+    failures.push(`expected grounded=${testCase.expectedGrounded}, got ${result?.grounded}`);
+  }
+  if (testCase.expectedAiConfidence && result?.aiConfidence !== testCase.expectedAiConfidence) {
+    failures.push(
+      `expected AI confidence ${testCase.expectedAiConfidence}, got ${result?.aiConfidence || "none"}`
+    );
+  }
+  if (
+    testCase.expectedModelVersion &&
+    result?.meta?.modelVersion !== testCase.expectedModelVersion
+  ) {
+    failures.push(
+      `expected model version ${testCase.expectedModelVersion}, got ${result?.meta?.modelVersion || "none"}`
+    );
+  }
+  if (
+    testCase.expectedSourceUrl &&
+    !result?.sources?.some((source) => source?.url === testCase.expectedSourceUrl)
+  ) {
+    failures.push(`missing expected source ${testCase.expectedSourceUrl}`);
+  }
+
+  for (const phrase of testCase.requiredAnswerPhrases || []) {
+    if (!normalizedAnswer.includes(String(phrase).toLowerCase())) {
+      failures.push(`answer missing required phrase "${phrase}"`);
+    }
+  }
+  for (const phrase of testCase.forbiddenAnswerPhrases || []) {
+    if (normalizedAnswer.includes(String(phrase).toLowerCase())) {
+      failures.push(`answer contains forbidden phrase "${phrase}"`);
+    }
+  }
+  if (testCase.expectedNoProviderCards === true) {
+    const providerCards = (result?.cards || result?.structuredCards || []).filter(
+      (card) => card?.type === "provider"
+    );
+    const providerSources = (result?.sources || []).filter(
+      (source) => source?.type === "provider"
+    );
+    const providerMatches = Array.isArray(result?.providerMatches)
+      ? result.providerMatches
+      : [];
+    if (providerCards.length || providerSources.length || providerMatches.length) {
+      failures.push(
+        `expected no provider results, got ${providerCards.length} cards, ${providerSources.length} sources, and ${providerMatches.length} matches`
+      );
+    }
+  }
+
+  return {
+    code: result?.code || "",
+    grounded: result?.grounded === true,
+    aiConfidence: result?.aiConfidence || "",
+    modelVersion: result?.meta?.modelVersion || "",
+    sourceUrls: Array.isArray(result?.sources)
+      ? result.sources.map((source) => source?.url).filter(Boolean)
+      : [],
+    providerResultCount:
+      (result?.cards || result?.structuredCards || []).filter(
+        (card) => card?.type === "provider"
+      ).length +
+      (result?.sources || []).filter((source) => source?.type === "provider").length +
+      (Array.isArray(result?.providerMatches) ? result.providerMatches.length : 0),
+    answer,
+    failures,
+  };
+}
+
 async function runWithConcurrency(items, limit, worker) {
   const results = new Array(items.length);
   let index = 0;
@@ -572,8 +716,12 @@ const results = [];
 
 for (const testCase of cases) {
   const staticResult = await evaluateStaticCase(testCase);
+  const answerResult = await evaluateExpectedAnswer(testCase);
+  if (answerResult?.failures?.length) {
+    staticResult.failures.push(...answerResult.failures);
+  }
   const liveResult = RUN_LIVE ? await evaluateLiveCase(testCase) : null;
-  results.push({ ...staticResult, live: liveResult });
+  results.push({ ...staticResult, answer: answerResult, live: liveResult });
 }
 
 const providerPromptCoverageResults = await evaluateAllProviderPromptCoverage();

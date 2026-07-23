@@ -21,12 +21,12 @@ const SEARCH_RATE_LIMIT = {
   requireShared: process.env.NODE_ENV === "production",
 };
 
-function buildAiError(error, code = "invalid_query") {
+function buildAiError(error, code = "invalid_query", options = {}) {
   return {
     ok: false,
-    status: "failed",
+    status: options.aiStatus || "failed",
     code,
-    intent: "unknown",
+    intent: options.intent || "unknown",
     answer: "",
     sources: [],
     confidence: 0,
@@ -60,6 +60,7 @@ async function buildInvalidSearchResponse(error, status, code, query = "", extra
     appointmentOptionCount: 0,
     disclaimer: true,
     phiCategories: extra.phiCategories || null,
+    intent: extra.intent || "unknown",
   });
 
   return NextResponse.json(
@@ -68,7 +69,7 @@ async function buildInvalidSearchResponse(error, status, code, query = "", extra
       query: responseQuery,
       results: [],
       ai: {
-        ...buildAiError(error, code),
+        ...buildAiError(error, code, extra),
         eventId: eventId || "",
       },
       error,
@@ -144,6 +145,8 @@ export async function POST(request) {
       return await buildInvalidSearchResponse(getNoPhiError("AI search"), 400, "potential_phi", query, {
         phiCategories: phiRisk.categories,
         responseQuery: "",
+        intent: "privacy_blocked",
+        aiStatus: "blocked",
       });
     }
 
@@ -271,6 +274,15 @@ export async function POST(request) {
       disclaimer: ai.disclaimer,
       intent: ai.intent,
       latencyMs: Date.now() - startedAt,
+      searchRoute: ai.meta?.route || "",
+      promptVersion: ai.meta?.promptVersion || "",
+      modelVersion: ai.meta?.modelVersion || "",
+      knowledgeVersion: ai.meta?.knowledgeVersion || "",
+      sourceRefs: Array.isArray(ai.sources)
+        ? ai.sources.map((source) => source.id || `${source.type || "source"}:${source.url || source.title || ""}`)
+        : [],
+      retrievalScore: ai.confidence,
+      answer: ai.answer || "",
     });
     const aiWithEvent = {
       ...ai,

@@ -9,6 +9,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const { pathToFileURL } = require('url');
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
@@ -19,6 +20,7 @@ const { OpenAI } = require('openai');
 const EMBEDDING_MODEL = 'text-embedding-3-small';
 const WRITE_DELAY_MS = 200;
 const HIDDEN_LOCATION_SLUGS = ['/location/laurel'];
+const MANAGED_EMBEDDING_TYPES = new Set(['location', 'provider', 'service', 'post', 'policy']);
 const QUARANTINE_OUTPUT_PATH = path.resolve(
   __dirname,
   '../artifacts/ai-search/embedding-phi-quarantine.json'
@@ -109,24 +111,22 @@ function getPublicContentPhiRisk(content) {
         /\b(?:born|birth(?:day|date)?|dob)\b.{0,40}\b(?:\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i,
     },
     { category: 'ssn', pattern: /\b\d{3}-\d{2}-\d{4}\b/i },
-    { category: 'ssn', pattern: /\b(ssn|social security)\b/i },
+    { category: 'ssn', pattern: /\b(?:ssn|social security(?!\s+administration\b))\b/i },
     {
       category: 'insurance_or_record_id',
       pattern: /\b(member id|insurance id|policy number|claim number|medical record number|mrn)\b/i,
     },
     { category: 'account_number', pattern: /\b(account number|account #|acct number|acct #)\b/i },
     { category: 'device_identifier', pattern: /\b(device id|device serial|serial number)\b/i },
-    { category: 'device_identifier', pattern: /\b(?:sn|serial)\s*[:#-]?\s*[a-z0-9-]{6,}\b/i },
+    {
+      category: 'device_identifier',
+      pattern: /\b(?:sn\s*[:#-]?\s+|serial\s*[:#-]?\s*)[a-z0-9-]{6,}\b/i,
+    },
     { category: 'email_address', pattern: /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i },
     {
       category: 'age_89_or_older',
       pattern:
         /\b(?:patient|my mother|my father|my parent|my wife|my husband|resident)\s+(?:is|age)?\s*(?:89|9\d|1\d{2})\b/i,
-    },
-    {
-      category: 'patient_specific_medical_detail',
-      pattern:
-        /\b(?:patient|my son|my daughter|my child|my wife|my husband|my mother|my father)\b.{0,80}\b(?:diagnosed|diagnosis|takes|medication|test result|lab result|symptoms?|strep throat|diabetes|insulin)\b/i,
     },
   ];
   const categories = patterns
@@ -187,10 +187,29 @@ async function upsertEmbedding(id, content, metadata, embedding) {
   );
 }
 
+async function reuseEmbeddingIfUnchanged(id, content, metadata) {
+  const rows = await prisma.$queryRawUnsafe(
+    `UPDATE "SearchEmbedding"
+     SET metadata = $3::jsonb, "updatedAt" = NOW()
+     WHERE id = $1
+       AND content = $2
+       AND COALESCE(metadata->>'embeddingModel', 'text-embedding-3-small') = $4
+       AND embedding IS NOT NULL
+     RETURNING id`,
+    id,
+    content,
+    JSON.stringify(metadata),
+    EMBEDDING_MODEL
+  );
+  return Array.isArray(rows) && rows.length > 0;
+}
+
 function createResult(total) {
   return {
     count: 0,
     errors: [],
+    expectedIds: [],
+    reused: 0,
     total,
   };
 }
@@ -235,20 +254,27 @@ async function indexLocations() {
         continue;
       }
 
-      const embedding = await generateEmbedding(content);
+      const embeddingId = `location-${location.id}`;
+      result.expectedIds.push(embeddingId);
       const url = buildLocationUrl(location.slug);
+      const metadata = {
+        type: 'location',
+        embeddingModel: EMBEDDING_MODEL,
+        sourceId: location.id,
+        slug: url,
+        url,
+        title: location.title,
+      };
+      if (await reuseEmbeddingIfUnchanged(embeddingId, content, metadata)) {
+        result.count += 1;
+        result.reused += 1;
+        console.log(`  Reused location: ${location.title}`);
+        continue;
+      }
+      const embedding = await generateEmbedding(content);
 
       await upsertEmbedding(
-        `location-${location.id}`,
-        content,
-        {
-          type: 'location',
-          sourceId: location.id,
-          slug: url,
-          url,
-          title: location.title,
-        },
-        embedding
+        embeddingId, content, metadata, embedding
       );
 
       result.count += 1;
@@ -293,21 +319,26 @@ async function indexProviders() {
         continue;
       }
 
+      const embeddingId = `provider-${provider.id}`;
+      result.expectedIds.push(embeddingId);
+      const metadata = {
+        type: 'provider',
+        embeddingModel: EMBEDDING_MODEL,
+        sourceId: provider.id,
+        slug: provider.slug,
+        url: buildProviderUrl(provider.slug),
+        title: provider.name,
+        locations: provider.locations,
+      };
+      if (await reuseEmbeddingIfUnchanged(embeddingId, content, metadata)) {
+        result.count += 1;
+        result.reused += 1;
+        console.log(`  Reused provider: ${provider.name}`);
+        continue;
+      }
       const embedding = await generateEmbedding(content);
 
-      await upsertEmbedding(
-        `provider-${provider.id}`,
-        content,
-        {
-          type: 'provider',
-          sourceId: provider.id,
-          slug: provider.slug,
-          url: buildProviderUrl(provider.slug),
-          title: provider.name,
-          locations: provider.locations,
-        },
-        embedding
-      );
+      await upsertEmbedding(embeddingId, content, metadata, embedding);
 
       result.count += 1;
       console.log(`  Indexed provider: ${provider.name}`);
@@ -363,21 +394,26 @@ async function indexServices() {
         continue;
       }
 
+      const embeddingId = `service-${service.id}`;
+      result.expectedIds.push(embeddingId);
+      const metadata = {
+        type: 'service',
+        embeddingModel: EMBEDDING_MODEL,
+        sourceId: service.id,
+        slug: service.slug,
+        url: buildServiceUrl(service.slug),
+        title: service.title,
+        category: service.category,
+      };
+      if (await reuseEmbeddingIfUnchanged(embeddingId, content, metadata)) {
+        result.count += 1;
+        result.reused += 1;
+        console.log(`  Reused service: ${service.title}`);
+        continue;
+      }
       const embedding = await generateEmbedding(content);
 
-      await upsertEmbedding(
-        `service-${service.id}`,
-        content,
-        {
-          type: 'service',
-          sourceId: service.id,
-          slug: service.slug,
-          url: buildServiceUrl(service.slug),
-          title: service.title,
-          category: service.category,
-        },
-        embedding
-      );
+      await upsertEmbedding(embeddingId, content, metadata, embedding);
 
       result.count += 1;
       console.log(`  Indexed service: ${service.title}`);
@@ -421,20 +457,25 @@ async function indexBlogPosts() {
         continue;
       }
 
+      const embeddingId = `post-${post.id}`;
+      result.expectedIds.push(embeddingId);
+      const metadata = {
+        type: 'post',
+        embeddingModel: EMBEDDING_MODEL,
+        sourceId: post.id,
+        slug: post.slug,
+        url: buildPostUrl(post.slug),
+        title: post.title,
+      };
+      if (await reuseEmbeddingIfUnchanged(embeddingId, content, metadata)) {
+        result.count += 1;
+        result.reused += 1;
+        console.log(`  Reused post: ${post.title}`);
+        continue;
+      }
       const embedding = await generateEmbedding(content);
 
-      await upsertEmbedding(
-        `post-${post.id}`,
-        content,
-        {
-          type: 'post',
-          sourceId: post.id,
-          slug: post.slug,
-          url: buildPostUrl(post.slug),
-          title: post.title,
-        },
-        embedding
-      );
+      await upsertEmbedding(embeddingId, content, metadata, embedding);
 
       result.count += 1;
       console.log(`  Indexed post: ${post.title}`);
@@ -448,6 +489,90 @@ async function indexBlogPosts() {
   return result;
 }
 
+async function indexPolicyDocuments() {
+  const policyModuleUrl = pathToFileURL(
+    path.resolve(__dirname, '../src/app/lib/ai-search-policy-documents.mjs')
+  ).href;
+  const {
+    AI_SEARCH_KNOWLEDGE_VERSION,
+    getActivePolicyDocuments,
+    getPolicyDocumentContent,
+    getPolicyEmbeddingId,
+  } = await import(policyModuleUrl);
+  const documents = getActivePolicyDocuments();
+  const result = createResult(documents.length);
+
+  console.log(`Indexing ${documents.length} active policy documents...`);
+
+  for (const document of documents) {
+    const content = getPolicyDocumentContent(document);
+    const embeddingId = getPolicyEmbeddingId(document);
+
+    try {
+      if (
+        await hasPotentialEmbeddingPhi({
+          type: 'policy',
+          id: document.id,
+          title: document.title,
+          content,
+        })
+      ) {
+        result.errors.push(`${document.title}: skipped potential PHI in public content`);
+        console.error(`  Skipped policy ${document.title}: potential PHI in public content`);
+        continue;
+      }
+
+      result.expectedIds.push(embeddingId);
+      const metadata = {
+        type: 'policy',
+        embeddingModel: EMBEDDING_MODEL,
+        sourceId: document.id,
+        slug: document.sourceUrl,
+        url: document.sourceUrl,
+        title: document.title,
+        category: document.category,
+        sourceVersion: document.sourceVersion,
+        knowledgeVersion: AI_SEARCH_KNOWLEDGE_VERSION,
+      };
+      if (await reuseEmbeddingIfUnchanged(embeddingId, content, metadata)) {
+        result.count += 1;
+        result.reused += 1;
+        console.log(`  Reused policy: ${document.title}`);
+        continue;
+      }
+      const embedding = await generateEmbedding(content);
+
+      await upsertEmbedding(embeddingId, content, metadata, embedding);
+
+      result.count += 1;
+      console.log(`  Indexed policy: ${document.title}`);
+      await sleep(WRITE_DELAY_MS);
+    } catch (error) {
+      result.errors.push(`${document.title}: ${error.message}`);
+      console.error(`  Failed policy ${document.title}: ${error.message}`);
+    }
+  }
+
+  return result;
+}
+
+async function deleteStaleManagedEmbeddings(expectedIds) {
+  const expected = new Set(expectedIds);
+  const rows = await prisma.searchEmbedding.findMany({
+    select: { id: true, metadata: true },
+  });
+  const staleIds = rows
+    .filter((row) => MANAGED_EMBEDDING_TYPES.has(row.metadata?.type) && !expected.has(row.id))
+    .map((row) => row.id);
+
+  if (staleIds.length === 0) return 0;
+
+  const result = await prisma.searchEmbedding.deleteMany({
+    where: { id: { in: staleIds } },
+  });
+  return result.count;
+}
+
 async function main() {
   const results = {};
 
@@ -458,19 +583,23 @@ async function main() {
     results.providers = await indexProviders();
     results.services = await indexServices();
     results.posts = await indexBlogPosts();
+    results.policies = await indexPolicyDocuments();
 
-    const totalIndexed =
-      results.locations.count +
-      results.providers.count +
-      results.services.count +
-      results.posts.count;
+    const expectedIds = Object.values(results).flatMap((result) => result.expectedIds);
+    const removed = await deleteStaleManagedEmbeddings(expectedIds);
+    console.log(`Removed ${removed} stale managed embeddings.`);
+
+    const totalIndexed = Object.values(results).reduce((sum, result) => sum + result.count, 0);
+    const totalReused = Object.values(results).reduce((sum, result) => sum + result.reused, 0);
     const totalRows = await prisma.searchEmbedding.count();
     const totalErrors = Object.values(results).reduce(
       (sum, result) => sum + result.errors.length,
       0
     );
 
-    console.log(`Indexing complete. Indexed ${totalIndexed} items. SearchEmbedding rows: ${totalRows}.`);
+    console.log(
+      `Indexing complete. Synced ${totalIndexed} items (${totalReused} reused). SearchEmbedding rows: ${totalRows}.`
+    );
 
     if (totalErrors > 0) {
       console.error(`Completed with ${totalErrors} item errors.`);

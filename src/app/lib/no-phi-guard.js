@@ -29,7 +29,7 @@ const DIRECT_IDENTIFIER_PATTERNS = [
       /\b(?:my|our|patient|home|residential|i live in|i am in|i'm in)\b.{0,30}\b(?:zip(?: code)?|postal code)\b.{0,20}\b\d{5}(?:-\d{4})?\b/i,
   },
   { category: "ssn", pattern: /\b\d{3}-\d{2}-\d{4}\b/i },
-  { category: "ssn", pattern: /\b(ssn|social security)\b/i },
+  { category: "ssn", pattern: /\b(?:ssn|social security(?!\s+administration\b))\b/i },
   {
     category: "insurance_or_record_id",
     pattern: /\b(member id|insurance id|policy number|claim number|medical record number|mrn)\b/i,
@@ -38,7 +38,10 @@ const DIRECT_IDENTIFIER_PATTERNS = [
   { category: "license_or_certificate", pattern: /\b(license number|license #|certificate number|certificate #)\b/i },
   { category: "vehicle_identifier", pattern: /\b(license plate|vin number|vehicle identification number)\b/i },
   { category: "device_identifier", pattern: /\b(device id|device serial|serial number)\b/i },
-  { category: "device_identifier", pattern: /\b(?:sn|serial)\s*[:#-]?\s*[a-z0-9-]{6,}\b/i },
+  {
+    category: "device_identifier",
+    pattern: /\b(?:sn\s*[:#-]?\s+|serial\s*[:#-]?\s*)[a-z0-9-]{6,}\b/i,
+  },
   { category: "personal_name", pattern: /\b(my name is|name is)\s+[a-z][a-z' -]{1,60}\b/i },
   { category: "email_address", pattern: /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i },
   { category: "phone_number", pattern: /\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]\d{3}[-.\s]\d{4}\b/i },
@@ -65,6 +68,15 @@ const GENERIC_APPOINTMENT_BOOKING_REQUEST_PATTERN =
   /\b(?:can|could|may|how|where|when|do|does|is|are)\b.{0,50}\b(?:book|schedule|make|get|find|see|visit)\b.{0,60}\b(?:appointment|appt|visit|doctor|provider)\b|\b(?:i|we)\b.{0,30}\b(?:want|need|would like|can|could|may)\b.{0,40}\b(?:book|schedule|make|get)\b.{0,50}\b(?:appointment|appt|visit)\b/i;
 const EXISTING_APPOINTMENT_REFERENCE_PATTERN =
   /\b(?:my|our|patient)\b.{0,20}\b(?:appointment|appt|visit|booking)\b/i;
+const GENERIC_APPOINTMENT_POLICY_REQUEST_PATTERN =
+  /\b(?:appointment|appt|visit)\b.{0,100}\b(?:fee|charge|charged|pay|no[-\s]?show|missed|forgot|late|cancel|reschedul|grace period)\b|\b(?:fee|charge|charged|pay|no[-\s]?show|missed|forgot|late|cancel|reschedul|grace period)\b.{0,100}\b(?:appointment|appt|visit)\b/i;
+const GENERIC_MEDICATION_POLICY_REQUEST_PATTERN =
+  /\b(?:can|could|does|do|will|would|policy|what|is|are)\b.{0,100}\b(?:temporary|one[-\s]?time|30[-\s]?day|bridge)\b.{0,80}\b(?:refill|prescription)\b.{0,100}\b(?:specialist|endocrinolog(?:ist|y)?|bariatric|transition)\b|\b(?:temporary|one[-\s]?time|30[-\s]?day|bridge)\b.{0,80}\b(?:refill|prescription)\b.{0,100}\b(?:specialist|endocrinolog(?:ist|y)?|bariatric|transition)\b/i;
+const PERSONAL_MEDICATION_USE_PATTERN =
+  /\b(?:i|i'm|i am|i've|i have|my|patient)\b.{0,30}\b(?:take|taking|use|using|was prescribed|am prescribed|ran out|dose|dosage)\b/i;
+const NON_POLICY_MEDICATION_PATTERN = /\b(?:insulin|mounjaro)\b/i;
+const GENERIC_ROUTINE_SERVICE_REQUEST_PATTERN =
+  /\bcan\s+i\b.{0,25}\b(?:get|receive|schedule)\b.{0,35}\b(?:flu\s+(?:shot|vaccine)|vaccines?|vaccinations?|immunizations?)\b/i;
 
 const NAMED_HEALTH_STATEMENT_PATTERN =
   /\b([a-z][a-z' -]{1,40})\s+(?:has|had|needs|takes|is taking|was diagnosed with|is diagnosed with)\s+([^?.!,;]{0,80})/gi;
@@ -111,8 +123,23 @@ function hasAppointmentDetail(text) {
   const isGenericBookingRequest =
     GENERIC_APPOINTMENT_BOOKING_REQUEST_PATTERN.test(text) &&
     !EXISTING_APPOINTMENT_REFERENCE_PATTERN.test(text);
+  const isGenericPolicyRequest = GENERIC_APPOINTMENT_POLICY_REQUEST_PATTERN.test(text);
 
-  return !isGenericBookingRequest;
+  return !isGenericBookingRequest && !isGenericPolicyRequest;
+}
+
+function hasPatientSpecificMedicalDetail(text) {
+  if (!SELF_REFERENCE_PATTERN.test(text) || !MEDICAL_DETAIL_PATTERN.test(text)) {
+    return false;
+  }
+
+  const isGenericMedicationPolicyRequest =
+    GENERIC_MEDICATION_POLICY_REQUEST_PATTERN.test(text) &&
+    !PERSONAL_MEDICATION_USE_PATTERN.test(text) &&
+    !NON_POLICY_MEDICATION_PATTERN.test(text);
+  const isGenericRoutineServiceRequest = GENERIC_ROUTINE_SERVICE_REQUEST_PATTERN.test(text);
+
+  return !isGenericMedicationPolicyRequest && !isGenericRoutineServiceRequest;
 }
 
 export function getPhiRisk(value = "") {
@@ -127,15 +154,14 @@ export function getPhiRisk(value = "") {
 
   const directIdentifierCategories = collectPatternMatches(text, DIRECT_IDENTIFIER_PATTERNS);
   const healthValueCategories = collectPatternMatches(text, HEALTH_VALUE_PATTERNS);
-  const hasPatientSpecificMedicalDetail =
-    SELF_REFERENCE_PATTERN.test(text) && MEDICAL_DETAIL_PATTERN.test(text);
+  const hasPatientSpecificMedicalDetailRisk = hasPatientSpecificMedicalDetail(text);
   const hasNamedOrThirdPartyMedicalDetail = hasThirdPartyMedicalDetail(text);
   const hasAppointmentDetailRisk = hasAppointmentDetail(text);
 
   const categories = [
     ...directIdentifierCategories,
     ...healthValueCategories,
-    ...(hasPatientSpecificMedicalDetail ? ["patient_specific_medical_detail"] : []),
+    ...(hasPatientSpecificMedicalDetailRisk ? ["patient_specific_medical_detail"] : []),
     ...(hasNamedOrThirdPartyMedicalDetail ? ["third_party_medical_detail"] : []),
     ...(hasAppointmentDetailRisk ? ["appointment_detail"] : []),
   ];
@@ -156,7 +182,8 @@ export function getPhiRisk(value = "") {
 export function getPublicContentPhiRisk(value = "") {
   const risk = getPhiRisk(value);
   const categories = risk.categories.filter(
-    (category) => !["address", "phone_number", "url"].includes(category)
+    (category) =>
+      !["address", "phone_number", "url", "patient_specific_medical_detail"].includes(category)
   );
 
   return {

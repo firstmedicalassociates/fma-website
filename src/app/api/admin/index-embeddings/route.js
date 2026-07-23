@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { OpenAI } from 'openai';
 import { requireAdminRequest } from '../../../lib/admin-auth';
+import {
+  AI_SEARCH_KNOWLEDGE_VERSION,
+  getActivePolicyDocuments,
+  getPolicyDocumentContent,
+  getPolicyEmbeddingId,
+} from '../../../lib/ai-search-policy-documents.mjs';
 import { VISIBLE_LOCATION_WHERE } from '../../../lib/locations';
 import { getPublicContentPhiRisk } from '../../../lib/no-phi-guard';
 import { prisma } from '../../../lib/prisma';
@@ -20,6 +26,7 @@ function getOpenAI() {
 }
 
 const EMBEDDING_MODEL = 'text-embedding-3-small';
+const MANAGED_EMBEDDING_TYPES = new Set(['location', 'provider', 'service', 'post', 'policy']);
 
 function cleanPath(value = '') {
   const text = String(value || '').trim();
@@ -90,10 +97,29 @@ function getEmbeddingPhiRisk(content) {
   return risk.hasPotentialPhi ? risk : null;
 }
 
+async function reuseEmbeddingIfUnchanged(db, id, content, metadata) {
+  const rows = await db.$queryRawUnsafe(
+    `UPDATE "SearchEmbedding"
+     SET metadata = $3::jsonb, "updatedAt" = NOW()
+     WHERE id = $1
+       AND content = $2
+       AND COALESCE(metadata->>'embeddingModel', 'text-embedding-3-small') = $4
+       AND embedding IS NOT NULL
+     RETURNING id`,
+    id,
+    content,
+    JSON.stringify(metadata),
+    EMBEDDING_MODEL
+  );
+  return Array.isArray(rows) && rows.length > 0;
+}
+
 async function indexLocations(db) {
   const locations = await db.location.findMany({ where: VISIBLE_LOCATION_WHERE });
   let count = 0;
   const errors = [];
+  const expectedIds = [];
+  let reused = 0;
 
   for (const location of locations) {
     const content = [
@@ -117,26 +143,33 @@ async function indexLocations(db) {
         continue;
       }
 
+      const embeddingId = `location-${location.id}`;
+      expectedIds.push(embeddingId);
+      const metadata = {
+        type: 'location',
+        embeddingModel: EMBEDDING_MODEL,
+        sourceId: location.id,
+        slug: buildLocationUrl(location.slug),
+        url: buildLocationUrl(location.slug),
+        title: location.title,
+      };
+      if (await reuseEmbeddingIfUnchanged(db, embeddingId, content, metadata)) {
+        count++;
+        reused++;
+        continue;
+      }
       const embedding = await generateEmbedding(content);
       if (!embedding) {
         errors.push(`${location.title}: no embedding generated`);
         continue;
       }
 
-      const metadata = {
-        type: 'location',
-        sourceId: location.id,
-        slug: buildLocationUrl(location.slug),
-        url: buildLocationUrl(location.slug),
-        title: location.title,
-      };
-
       await db.$executeRawUnsafe(
         `INSERT INTO "SearchEmbedding" (id, content, embedding, metadata, "createdAt", "updatedAt")
          VALUES ($1, $2, $3::vector, $4::jsonb, NOW(), NOW())
          ON CONFLICT(id) DO UPDATE SET
          content = $2, embedding = $3::vector, metadata = $4::jsonb, "updatedAt" = NOW()`,
-        `location-${location.id}`,
+        embeddingId,
         content,
         `[${embedding.join(',')}]`,
         JSON.stringify(metadata)
@@ -149,7 +182,7 @@ async function indexLocations(db) {
     }
   }
 
-  return { count, errors, total: locations.length };
+  return { count, errors, expectedIds, reused, total: locations.length };
 }
 
 async function indexProviders(db) {
@@ -159,6 +192,8 @@ async function indexProviders(db) {
   });
   let count = 0;
   const errors = [];
+  const expectedIds = [];
+  let reused = 0;
 
   for (const provider of providers) {
     const content = [provider.name, provider.title, provider.bio]
@@ -174,27 +209,34 @@ async function indexProviders(db) {
         continue;
       }
 
-      const embedding = await generateEmbedding(content);
-      if (!embedding) {
-        errors.push(`${provider.name}: no embedding generated`);
-        continue;
-      }
-
+      const embeddingId = `provider-${provider.id}`;
+      expectedIds.push(embeddingId);
       const metadata = {
         type: 'provider',
+        embeddingModel: EMBEDDING_MODEL,
         sourceId: provider.id,
         slug: provider.slug,
         url: buildProviderUrl(provider.slug),
         title: provider.name,
         locations: provider.locations,
       };
+      if (await reuseEmbeddingIfUnchanged(db, embeddingId, content, metadata)) {
+        count++;
+        reused++;
+        continue;
+      }
+      const embedding = await generateEmbedding(content);
+      if (!embedding) {
+        errors.push(`${provider.name}: no embedding generated`);
+        continue;
+      }
 
       await db.$executeRawUnsafe(
         `INSERT INTO "SearchEmbedding" (id, content, embedding, metadata, "createdAt", "updatedAt")
          VALUES ($1, $2, $3::vector, $4::jsonb, NOW(), NOW())
          ON CONFLICT(id) DO UPDATE SET
          content = $2, embedding = $3::vector, metadata = $4::jsonb, "updatedAt" = NOW()`,
-        `provider-${provider.id}`,
+        embeddingId,
         content,
         `[${embedding.join(',')}]`,
         JSON.stringify(metadata)
@@ -207,7 +249,7 @@ async function indexProviders(db) {
     }
   }
 
-  return { count, errors, total: providers.length };
+  return { count, errors, expectedIds, reused, total: providers.length };
 }
 
 async function indexServices(db) {
@@ -217,6 +259,8 @@ async function indexServices(db) {
   });
   let count = 0;
   const errors = [];
+  const expectedIds = [];
+  let reused = 0;
 
   for (const service of services) {
     let content = [service.title, service.description, service.category]
@@ -243,27 +287,34 @@ async function indexServices(db) {
         continue;
       }
 
-      const embedding = await generateEmbedding(content);
-      if (!embedding) {
-        errors.push(`${service.title}: no embedding generated`);
-        continue;
-      }
-
+      const embeddingId = `service-${service.id}`;
+      expectedIds.push(embeddingId);
       const metadata = {
         type: 'service',
+        embeddingModel: EMBEDDING_MODEL,
         sourceId: service.id,
         slug: service.slug,
         url: buildServiceUrl(service.slug),
         title: service.title,
         category: service.category,
       };
+      if (await reuseEmbeddingIfUnchanged(db, embeddingId, content, metadata)) {
+        count++;
+        reused++;
+        continue;
+      }
+      const embedding = await generateEmbedding(content);
+      if (!embedding) {
+        errors.push(`${service.title}: no embedding generated`);
+        continue;
+      }
 
       await db.$executeRawUnsafe(
         `INSERT INTO "SearchEmbedding" (id, content, embedding, metadata, "createdAt", "updatedAt")
          VALUES ($1, $2, $3::vector, $4::jsonb, NOW(), NOW())
          ON CONFLICT(id) DO UPDATE SET
          content = $2, embedding = $3::vector, metadata = $4::jsonb, "updatedAt" = NOW()`,
-        `service-${service.id}`,
+        embeddingId,
         content,
         `[${embedding.join(',')}]`,
         JSON.stringify(metadata)
@@ -276,7 +327,7 @@ async function indexServices(db) {
     }
   }
 
-  return { count, errors, total: services.length };
+  return { count, errors, expectedIds, reused, total: services.length };
 }
 
 async function indexBlogPosts(db) {
@@ -285,6 +336,8 @@ async function indexBlogPosts(db) {
   });
   let count = 0;
   const errors = [];
+  const expectedIds = [];
+  let reused = 0;
 
   for (const post of posts) {
     const content = [post.title, post.excerpt, post.metaDescription]
@@ -300,26 +353,33 @@ async function indexBlogPosts(db) {
         continue;
       }
 
+      const embeddingId = `post-${post.id}`;
+      expectedIds.push(embeddingId);
+      const metadata = {
+        type: 'post',
+        embeddingModel: EMBEDDING_MODEL,
+        sourceId: post.id,
+        slug: post.slug,
+        url: buildPostUrl(post.slug),
+        title: post.title,
+      };
+      if (await reuseEmbeddingIfUnchanged(db, embeddingId, content, metadata)) {
+        count++;
+        reused++;
+        continue;
+      }
       const embedding = await generateEmbedding(content);
       if (!embedding) {
         errors.push(`${post.title}: no embedding generated`);
         continue;
       }
 
-      const metadata = {
-        type: 'post',
-        sourceId: post.id,
-        slug: post.slug,
-        url: buildPostUrl(post.slug),
-        title: post.title,
-      };
-
       await db.$executeRawUnsafe(
         `INSERT INTO "SearchEmbedding" (id, content, embedding, metadata, "createdAt", "updatedAt")
          VALUES ($1, $2, $3::vector, $4::jsonb, NOW(), NOW())
          ON CONFLICT(id) DO UPDATE SET
          content = $2, embedding = $3::vector, metadata = $4::jsonb, "updatedAt" = NOW()`,
-        `post-${post.id}`,
+        embeddingId,
         content,
         `[${embedding.join(',')}]`,
         JSON.stringify(metadata)
@@ -332,7 +392,88 @@ async function indexBlogPosts(db) {
     }
   }
 
-  return { count, errors, total: posts.length };
+  return { count, errors, expectedIds, reused, total: posts.length };
+}
+
+async function indexPolicyDocuments(db) {
+  const documents = getActivePolicyDocuments();
+  let count = 0;
+  const errors = [];
+  const expectedIds = [];
+  let reused = 0;
+
+  for (const document of documents) {
+    const content = getPolicyDocumentContent(document);
+    const embeddingId = getPolicyEmbeddingId(document);
+
+    try {
+      const phiRisk = getEmbeddingPhiRisk(content);
+      if (phiRisk) {
+        errors.push(
+          `${document.title}: skipped potential PHI in public content (${phiRisk.categories.join(', ')})`
+        );
+        continue;
+      }
+
+      expectedIds.push(embeddingId);
+      const metadata = {
+        type: 'policy',
+        embeddingModel: EMBEDDING_MODEL,
+        sourceId: document.id,
+        slug: document.sourceUrl,
+        url: document.sourceUrl,
+        title: document.title,
+        category: document.category,
+        sourceVersion: document.sourceVersion,
+        knowledgeVersion: AI_SEARCH_KNOWLEDGE_VERSION,
+      };
+      if (await reuseEmbeddingIfUnchanged(db, embeddingId, content, metadata)) {
+        count++;
+        reused++;
+        continue;
+      }
+      const embedding = await generateEmbedding(content);
+      if (!embedding) {
+        errors.push(`${document.title}: no embedding generated`);
+        continue;
+      }
+
+      await db.$executeRawUnsafe(
+        `INSERT INTO "SearchEmbedding" (id, content, embedding, metadata, "createdAt", "updatedAt")
+         VALUES ($1, $2, $3::vector, $4::jsonb, NOW(), NOW())
+         ON CONFLICT(id) DO UPDATE SET
+         content = $2, embedding = $3::vector, metadata = $4::jsonb, "updatedAt" = NOW()`,
+        embeddingId,
+        content,
+        `[${embedding.join(',')}]`,
+        JSON.stringify(metadata)
+      );
+
+      count++;
+      await sleep(200);
+    } catch (error) {
+      errors.push(`${document.title}: ${error.message}`);
+    }
+  }
+
+  return { count, errors, expectedIds, reused, total: documents.length };
+}
+
+async function deleteStaleManagedEmbeddings(db, expectedIds) {
+  const expected = new Set(expectedIds);
+  const rows = await db.searchEmbedding.findMany({
+    select: { id: true, metadata: true },
+  });
+  const staleIds = rows
+    .filter((row) => MANAGED_EMBEDDING_TYPES.has(row.metadata?.type) && !expected.has(row.id))
+    .map((row) => row.id);
+
+  if (staleIds.length === 0) return 0;
+
+  const result = await db.searchEmbedding.deleteMany({
+    where: { id: { in: staleIds } },
+  });
+  return result.count;
 }
 
 export async function POST(request) {
@@ -340,7 +481,7 @@ export async function POST(request) {
   if (!auth.ok) return auth.response;
 
   const logs = [];
-  const errors = { locations: [], providers: [], services: [], posts: [] };
+  const errors = { locations: [], providers: [], services: [], posts: [], policies: [] };
 
   try {
     logs.push('Starting indexing...');
@@ -361,7 +502,32 @@ export async function POST(request) {
     logs.push(`Indexed ${postResult.count}/${postResult.total} posts`);
     if (postResult.errors.length) errors.posts = postResult.errors;
 
-    const totalCount = locationResult.count + providerResult.count + serviceResult.count + postResult.count;
+    const policyResult = await indexPolicyDocuments(prisma);
+    logs.push(`Indexed ${policyResult.count}/${policyResult.total} policy documents`);
+    if (policyResult.errors.length) errors.policies = policyResult.errors;
+
+    const expectedIds = [
+      ...locationResult.expectedIds,
+      ...providerResult.expectedIds,
+      ...serviceResult.expectedIds,
+      ...postResult.expectedIds,
+      ...policyResult.expectedIds,
+    ];
+    const removed = await deleteStaleManagedEmbeddings(prisma, expectedIds);
+    logs.push(`Removed ${removed} stale managed embeddings`);
+
+    const totalCount =
+      locationResult.count +
+      providerResult.count +
+      serviceResult.count +
+      postResult.count +
+      policyResult.count;
+    const totalReused =
+      locationResult.reused +
+      providerResult.reused +
+      serviceResult.reused +
+      postResult.reused +
+      policyResult.reused;
 
     return NextResponse.json(
       {
@@ -372,8 +538,11 @@ export async function POST(request) {
           providers: providerResult.count,
           services: serviceResult.count,
           posts: postResult.count,
+          policies: policyResult.count,
           total: totalCount,
         },
+        removed,
+        reused: totalReused,
         logs,
         errors: Object.values(errors).flat().length > 0 ? errors : null,
       },

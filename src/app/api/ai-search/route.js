@@ -86,6 +86,15 @@ export async function POST(request) {
       disclaimer: result.disclaimer === true,
       intent: result.intent || "",
       latencyMs: Date.now() - startedAt,
+      searchRoute: result.meta?.route || "",
+      promptVersion: result.meta?.promptVersion || "",
+      modelVersion: result.meta?.modelVersion || "",
+      knowledgeVersion: result.meta?.knowledgeVersion || "",
+      sourceRefs: Array.isArray(result.sources)
+        ? result.sources.map((source) => source.id || `${source.type || "source"}:${source.url || source.title || ""}`)
+        : [],
+      retrievalScore: result.confidence,
+      answer: result.answer || "",
     });
     const status = getStatusForAiResult(result);
     return NextResponse.json(

@@ -35,6 +35,8 @@ export async function POST(request) {
   const payload = await request.json().catch(() => ({}));
   const eventId = String(payload?.eventId || "").trim();
   const { rating, tags } = normalizeFeedbackPayload(payload);
+  const query = String(payload?.query || "");
+  const answer = String(payload?.answer || "");
 
   if (!eventId || !rating) {
     return NextResponse.json(
@@ -46,9 +48,31 @@ export async function POST(request) {
     );
   }
 
-  await recordAiSearchFeedback({ eventId, rating, tags });
+  const result = await recordAiSearchFeedback({
+    eventId,
+    rating,
+    tags,
+    query,
+    answer,
+  });
+  if (!result.ok) {
+    const status = result.reason === "not_found" ? 404 : result.reason === "unavailable" || result.reason === "disabled" ? 503 : 400;
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          status === 404
+            ? "The AI search event could not be found."
+            : status === 503
+              ? "Feedback is temporarily unavailable. Please try again soon."
+              : "The feedback request was invalid.",
+      },
+      { status }
+    );
+  }
 
   return NextResponse.json({
     ok: true,
+    snapshotStatus: result.snapshotStatus,
   });
 }

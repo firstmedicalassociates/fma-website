@@ -35,7 +35,17 @@ const DEFAULT_FEEDBACK_STATE = {
   status: "idle",
   rating: "",
   message: "",
+  showReasons: false,
 };
+const NEGATIVE_FEEDBACK_REASONS = [
+  { tag: "wrong_info", label: "Wrong information" },
+  { tag: "missing_info", label: "Missing information" },
+  { tag: "outdated", label: "Outdated" },
+  { tag: "booking_issue", label: "Booking problem" },
+  { tag: "source_issue", label: "Bad source" },
+  { tag: "confusing", label: "Confusing" },
+  { tag: "too_generic", label: "Too generic" },
+];
 
 function getPageContextFromPathname(pathname = "") {
   const match = String(pathname || "").match(/^\/providers\/([a-z0-9-]+)\/?$/i);
@@ -489,6 +499,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
 
       const nextPayload = {
         summary,
+        querySnapshot: searchQuery,
         cards,
         sources,
         citations,
@@ -548,13 +559,14 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
     }
   }, [conversationMessages, pageContext, stopLoadingTicker]);
 
-  async function submitFeedback(eventId, rating, tags = []) {
+  async function submitFeedback(eventId, rating, tags = [], snapshot = {}) {
     if (!eventId || feedbackState.status === "submitting") return;
 
     setFeedbackState({
       status: "submitting",
       rating,
       message: "",
+      showReasons: false,
     });
 
     try {
@@ -567,19 +579,26 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
           eventId,
           rating,
           tags,
+          query: rating === "not_helpful" ? snapshot.query || "" : "",
+          answer: rating === "not_helpful" ? snapshot.answer || "" : "",
         }),
       });
 
+      const data = await response.json().catch(() => ({}));
       setFeedbackState({
         status: response.ok ? "sent" : "error",
         rating: response.ok ? rating : "",
-        message: response.ok ? "Feedback saved." : "Feedback could not be saved.",
+        message: response.ok
+          ? "Feedback saved."
+          : data?.error || "Feedback could not be saved.",
+        showReasons: false,
       });
     } catch {
       setFeedbackState({
         status: "error",
         rating: "",
         message: "Feedback could not be saved.",
+        showReasons: false,
       });
     }
   }
@@ -800,6 +819,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
 
                   const payload = message.payload || {
                     summary: DEFAULT_SUMMARY,
+                    querySnapshot: "",
                     cards: [],
                     appointmentOptions: [],
                     appointmentMeta: null,
@@ -998,21 +1018,63 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                                 aria-pressed={feedbackState.rating === "helpful"}
                                 className={styles.feedbackButton}
                                 disabled={feedbackState.status === "submitting"}
-                                onClick={() => submitFeedback(payload.eventId, "helpful", ["good_match"])}
+                                onClick={() =>
+                                  submitFeedback(payload.eventId, "helpful", ["good_match"])
+                                }
                                 type="button"
                               >
                                 Helpful
                               </button>
                               <button
                                 aria-pressed={feedbackState.rating === "not_helpful"}
+                                aria-expanded={feedbackState.showReasons}
                                 className={styles.feedbackButton}
                                 disabled={feedbackState.status === "submitting"}
-                                onClick={() => submitFeedback(payload.eventId, "not_helpful", ["too_generic"])}
+                                onClick={() =>
+                                  setFeedbackState({
+                                    status: "idle",
+                                    rating: "not_helpful",
+                                    message: "",
+                                    showReasons: true,
+                                  })
+                                }
                                 type="button"
                               >
                                 Needs work
                               </button>
                             </div>
+                            {feedbackState.showReasons ? (
+                              <div className={styles.feedbackReasons}>
+                                <span>What should we improve?</span>
+                                <div className={styles.feedbackReasonButtons}>
+                                  {NEGATIVE_FEEDBACK_REASONS.map((reason) => (
+                                    <button
+                                      className={styles.feedbackReasonButton}
+                                      disabled={feedbackState.status === "submitting"}
+                                      key={reason.tag}
+                                      onClick={() =>
+                                        submitFeedback(
+                                          payload.eventId,
+                                          "not_helpful",
+                                          [reason.tag],
+                                          {
+                                            query: payload.querySnapshot,
+                                            answer: payload.summary,
+                                          }
+                                        )
+                                      }
+                                      type="button"
+                                    >
+                                      {reason.label}
+                                    </button>
+                                  ))}
+                                </div>
+                                <p className={styles.feedbackPrivacyNotice}>
+                                  A privacy-screened copy of this question and answer will be saved
+                                  for an administrator to review.
+                                </p>
+                              </div>
+                            ) : null}
                             {feedbackState.message ? (
                               <p className={styles.feedbackMessage}>{feedbackState.message}</p>
                             ) : null}

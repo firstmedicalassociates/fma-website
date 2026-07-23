@@ -123,30 +123,68 @@ model SearchEmbedding {
 }
 
 model AiSearchEvent {
-  id                     String    @id @default(cuid())
+  id                     String            @id @default(cuid())
   queryHash              String?
-  queryLength            Int       @default(0)
-  surface                String    @default("api")
+  answerHash             String?
+  queryLength            Int               @default(0)
+  surface                String            @default("api")
   intent                 String?
-  status                 String    @default("unknown")
+  status                 String            @default("unknown")
   code                   String?
-  resultCount            Int       @default(0)
-  sourceCount            Int       @default(0)
-  appointmentOptionCount Int       @default(0)
+  resultCount            Int               @default(0)
+  sourceCount            Int               @default(0)
+  appointmentOptionCount Int               @default(0)
   aiConfidence           String?
-  grounded               Boolean   @default(false)
-  disclaimer             Boolean   @default(false)
+  grounded               Boolean           @default(false)
+  disclaimer             Boolean           @default(false)
   latencyMs              Int?
-  phiCategories          String[]  @default([])
+  phiCategories          String[]          @default([])
   feedbackRating         String?
-  feedbackTags           String[]  @default([])
+  feedbackTags           String[]          @default([])
   feedbackCreatedAt      DateTime?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  feedbackQuerySnapshot  String?
+  feedbackAnswerSnapshot String?
+  feedbackSnapshotStatus String?
+  feedbackReviewStatus   String?
+  feedbackReviewNotes    String?
+  feedbackReviewedAt     DateTime?
+  feedbackReviewedBy     String?
+  searchRoute            String?
+  promptVersion          String?
+  modelVersion           String?
+  knowledgeVersion       String?
+  sourceRefs             String[]          @default([])
+  retrievalScore         Float?
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  evalCase               AiSearchEvalCase?
 
   @@index([createdAt])
   @@index([status, createdAt])
   @@index([code, createdAt])
   @@index([intent, createdAt])
   @@index([feedbackRating, createdAt])
+  @@index([feedbackReviewStatus, feedbackCreatedAt])
+  @@index([searchRoute, createdAt])
+  @@index([promptVersion, createdAt])
+}
+
+model AiSearchEvalCase {
+  id                      String        @id @default(cuid())
+  sourceEventId           String        @unique
+  sourceEvent             AiSearchEvent @relation(fields: [sourceEventId], references: [id], onDelete: Cascade)
+  query                   String
+  expectedBehavior        String
+  expectedIntent          String?
+  appointmentAvailability Boolean?
+  expectedCode            String?
+  expectedSourceUrl       String?
+  requiredAnswerPhrases   String[]      @default([])
+  forbiddenAnswerPhrases  String[]      @default([])
+  isActive                Boolean       @default(true)
+  createdBy               String?
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+
+  @@index([isActive, createdAt])
 }

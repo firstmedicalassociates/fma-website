@@ -165,25 +165,881 @@
     "id": "no_show_fee_policy",
     "query": "will I pay a fee if I don't show up for my scheduled appointment?",
     "expectedIntent": "billing_question",
-    "appointmentAvailability": false
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "requiredAnswerPhrases": [
+      "no-show or missed appointment",
+      "$50 missed-appointment fee",
+      "301-515-2901"
+    ],
+    "forbiddenAnswerPhrases": [
+      "FMLA paperwork",
+      "disability forms",
+      "fees vary with complexity"
+    ]
+  },
+  {
+    "id": "same_day_cancellation_fee_policy",
+    "query": "is there a fee if I cancel my appointment the same day",
+    "expectedIntent": "billing_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "requiredAnswerPhrases": [
+      "same-day cancellation",
+      "$50 administrative fee",
+      "301-515-2901"
+    ],
+    "forbiddenAnswerPhrases": [
+      "FMLA paperwork"
+    ]
   },
   {
     "id": "late_arrival_grace_period_policy",
     "query": "what is the grace period for late arrivals",
     "expectedIntent": "policy_question",
-    "appointmentAvailability": false
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/07/Late-Arrival-Policy-FMA_07-17-2026.docx-2.pdf",
+    "requiredAnswerPhrases": [
+      "5-minute grace period",
+      "more than 5 minutes late",
+      "30 minutes before"
+    ]
   },
   {
     "id": "established_patient_arrival_time_policy",
     "query": "how early should an established patient arrive",
     "expectedIntent": "policy_question",
-    "appointmentAvailability": false
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/07/Late-Arrival-Policy-FMA_07-17-2026.docx-2.pdf",
+    "requiredAnswerPhrases": [
+      "15 minutes before",
+      "past 36 months",
+      "5-minute grace period"
+    ]
   },
   {
     "id": "new_patient_36_month_definition_policy",
     "query": "under the late arrival policy, am I considered a new patient if I have not been seen in 36 months",
     "expectedIntent": "policy_question",
-    "appointmentAvailability": false
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/07/Late-Arrival-Policy-FMA_07-17-2026.docx-2.pdf",
+    "requiredAnswerPhrases": [
+      "new patient",
+      "past 36 months",
+      "30 minutes before",
+      "15 minutes before"
+    ]
+  },
+  {
+    "id": "late_arrival_fee_policy",
+    "query": "is there a fee if I arrive late to my appointment",
+    "expectedIntent": "billing_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/07/Late-Arrival-Policy-FMA_07-17-2026.docx-2.pdf",
+    "requiredAnswerPhrases": [
+      "does not list a late-arrival fee",
+      "more than 5 minutes late",
+      "301-515-2901"
+    ],
+    "forbiddenAnswerPhrases": [
+      "$50"
+    ]
+  },
+  {
+    "id": "fmla_eligibility_policy",
+    "query": "what are the eligibility requirements for FMLA paperwork",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2025/03/FMLA-Disability-and-Other-Forms.docx.pdf",
+    "requiredAnswerPhrases": [
+      "seen at least six times",
+      "more than one year",
+      "past six months"
+    ]
+  },
+  {
+    "id": "glp1_weight_loss_prior_authorization_policy",
+    "query": "will FMA process a prior authorization for Wegovy for weight loss",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/03/Policy-Regarding-GLP-1-Weight-Loss-Medications-.docx.pdf",
+    "requiredAnswerPhrases": [
+      "does not process or appeal prior authorizations",
+      "one-time 30-day bridge prescription",
+      "specialist"
+    ]
+  },
+  {
+    "id": "glp1_insurance_coverage_policy",
+    "query": "what BMI does insurance usually require for GLP-1 coverage",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/02/GLP-1-Medications-Insurance-Coverage.pdf",
+    "requiredAnswerPhrases": [
+      "BMI of at least 30",
+      "at least 27",
+      "coverage can still be denied"
+    ]
+  },
+  {
+    "id": "screenshot_forgot_appointment_charge",
+    "query": "I forgot about my appointment yesterday. Is there a charge?",
+    "expectedIntent": "billing_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "no-show or missed appointment",
+      "$50 missed-appointment fee",
+      "301-515-2901"
+    ]
+  },
+  {
+    "id": "screenshot_three_year_new_patient",
+    "query": "I haven't been seen in three years. Am I a new patient?",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/07/Late-Arrival-Policy-FMA_07-17-2026.docx-2.pdf",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "new patient",
+      "past 36 months",
+      "30 minutes before",
+      "15 minutes before"
+    ],
+    "forbiddenAnswerPhrases": [
+      "Victoria Thee"
+    ]
+  },
+  {
+    "id": "screenshot_six_minutes_late",
+    "query": "I didn't miss my appointment—I was six minutes late",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/07/Late-Arrival-Policy-FMA_07-17-2026.docx-2.pdf",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "5-minute grace period",
+      "more than 5 minutes late",
+      "not say that lateness alone is automatically a missed appointment",
+      "does not list a late-arrival fee"
+    ]
+  },
+  {
+    "id": "screenshot_temporary_refill_specialist",
+    "query": "Can I get a temporary refill while finding a specialist?",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/03/Policy-Regarding-GLP-1-Weight-Loss-Medications-.docx.pdf",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "existing patients",
+      "one-time 30-day bridge prescription",
+      "specialist"
+    ]
+  },
+  {
+    "id": "glp1_temporary_refill_specialist",
+    "query": "Can an existing FMA patient get a temporary GLP-1 refill while finding a specialist?",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/03/Policy-Regarding-GLP-1-Weight-Loss-Medications-.docx.pdf",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "existing patients",
+      "one-time 30-day bridge prescription",
+      "specialist"
+    ]
+  },
+  {
+    "id": "common_self_pay_new_patient",
+    "query": "How much is a self-pay visit for a new patient?",
+    "expectedIntent": "billing_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/insurance",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "$180 per consultation",
+      "does not publish a separate new-patient rate"
+    ],
+    "forbiddenAnswerPhrases": [
+      "Late Arrival Policy"
+    ]
+  },
+  {
+    "id": "common_self_pay_telemedicine",
+    "query": "How much is a self-pay telemedicine consultation?",
+    "expectedIntent": "billing_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/telemedicine",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "$180 per consultation"
+    ]
+  },
+  {
+    "id": "common_24_7_hours_clarification",
+    "query": "Does available 24/7 mean the clinics are always open?",
+    "expectedIntent": "location_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/locations",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "closed Saturday and Sunday",
+      "after-hours support",
+      "does not mean the clinics are always open"
+    ]
+  },
+  {
+    "id": "common_gaithersburg_phone",
+    "query": "What is the Gaithersburg office phone number?",
+    "expectedIntent": "location_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/location/gaithersburg",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "301-515-2902"
+    ],
+    "forbiddenAnswerPhrases": [
+      "main First Medical Associates phone number"
+    ]
+  },
+  {
+    "id": "common_rockville_address",
+    "query": "What is the Rockville address?",
+    "expectedIntent": "location_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/location/rockville",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "9601 Blackwell Road",
+      "Suite 210",
+      "Rockville, MD 20850"
+    ]
+  },
+  {
+    "id": "common_walk_in_availability",
+    "query": "Can I walk in without an appointment?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/same-day-care",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "most locations",
+      "non-emergency",
+      "not guaranteed at every office"
+    ]
+  },
+  {
+    "id": "common_same_day_not_emergency",
+    "query": "Is same-day care for emergencies?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/same-day-care",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "not an emergency department",
+      "call 911",
+      "nearest emergency department"
+    ],
+    "forbiddenAnswerPhrases": [
+      "seek specialized care"
+    ]
+  },
+  {
+    "id": "common_minimum_patient_age",
+    "query": "Do you treat children?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "require patients to be age 18 or older",
+      "live public site also contains"
+    ]
+  },
+  {
+    "id": "common_new_patient_telehealth",
+    "query": "Can a new patient use telehealth?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/telemedicine",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "telehealth is available to new patients",
+      "appropriate new-patient appointment type"
+    ],
+    "forbiddenAnswerPhrases": [
+      "must first schedule and complete"
+    ]
+  },
+  {
+    "id": "common_cigna_telemedicine",
+    "query": "Do you accept Cigna for telemedicine?",
+    "expectedIntent": "insurance_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/insurance",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "Cigna commercial plans are not accepted",
+      "Medicare or Medicaid versions"
+    ]
+  },
+  {
+    "id": "common_glp1_appeal_denied_pa",
+    "query": "Can FMA appeal a denied GLP-1 prior authorization?",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/03/Policy-Regarding-GLP-1-Weight-Loss-Medications-.docx.pdf",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "does not process or appeal prior authorizations",
+      "one-time 30-day bridge prescription",
+      "specialist"
+    ]
+  },
+  {
+    "id": "common_same_day_appointment_required",
+    "query": "Do I need an appointment for same-day care?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/same-day-care",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "same-day walk-in services",
+      "most locations",
+      "not guaranteed at every office"
+    ]
+  },
+  {
+    "id": "common_walk_in_emergency",
+    "query": "Can I walk in for an emergency?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/same-day-care",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "not an emergency department",
+      "call 911",
+      "nearest emergency department"
+    ]
+  },
+  {
+    "id": "common_flu_vaccine",
+    "query": "Can I get a flu vaccine?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/annual-physicals",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "routine vaccination updates",
+      "flu shots",
+      "tetanus boosters"
+    ]
+  },
+  {
+    "id": "common_all_offices_lab",
+    "query": "Does every office have a lab?",
+    "expectedIntent": "location_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/locations",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "each facility",
+      "on-site laboratory and diagnostic tools"
+    ]
+  },
+  {
+    "id": "common_telemedicine_new_patients_plural",
+    "query": "Is telemedicine offered to new patients?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/telemedicine",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "telehealth is available to new patients",
+      "appropriate new-patient appointment type"
+    ]
+  },
+  {
+    "id": "common_glp1_insurance_denial_appeal",
+    "query": "Can you appeal GLP1 insurance denial?",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/03/Policy-Regarding-GLP-1-Weight-Loss-Medications-.docx.pdf",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "does not process or appeal prior authorizations",
+      "one-time 30-day bridge prescription"
+    ]
+  },
+  {
+    "id": "common_existing_patient_self_pay_current",
+    "query": "What is the cash price for an existing patient office visit?",
+    "expectedIntent": "billing_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/insurance",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "$180 per consultation",
+      "does not publish a separate existing-patient rate"
+    ],
+    "forbiddenAnswerPhrases": [
+      "$150"
+    ]
+  },
+  {
+    "id": "common_gaithersburg_commercial_uhc",
+    "query": "Does the Gaithersburg office accept commercial UnitedHealthcare?",
+    "expectedIntent": "insurance_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/location/gaithersburg",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "UnitedHealthcare commercial plans are not accepted",
+      "Medicare and Medicaid versions are accepted"
+    ]
+  },
+  {
+    "id": "common_same_day_not_guaranteed",
+    "query": "Are same-day appointments guaranteed?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/same-day-care",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "not guaranteed at every office",
+      "at least two hours' notice"
+    ]
+  },
+  {
+    "id": "common_emergency_booking_boundary",
+    "query": "Can I schedule an emergency appointment at FMA?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/same-day-care",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "not an emergency department",
+      "call 911",
+      "nearest emergency department"
+    ]
+  },
+  {
+    "id": "common_walk_into_every_location",
+    "query": "Can I walk into every FMA location without calling?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/same-day-care",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "most locations",
+      "not guaranteed at every office"
+    ]
+  },
+  {
+    "id": "common_main_fax",
+    "query": "What is FMA's fax number?",
+    "expectedIntent": "contact_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/contact",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "866-701-4905"
+    ],
+    "forbiddenAnswerPhrases": [
+      "main FMA phone number"
+    ]
+  },
+  {
+    "id": "common_under_18_booking_boundary",
+    "query": "Can a 17-year-old book an appointment?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "require patients to be age 18 or older",
+      "call 301-515-2901"
+    ]
+  },
+  {
+    "id": "common_same_day_two_hour_notice",
+    "query": "Do I need to give two hours notice for same-day care?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/same-day-care",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "at least two hours' notice"
+    ]
+  },
+  {
+    "id": "late_arrival_new_patient_no_grace_inference",
+    "query": "Do new patients get a five-minute late grace period?",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/07/Late-Arrival-Policy-FMA_07-17-2026.docx-2.pdf",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "only for established-patient appointments",
+      "does not state a separate new-patient grace period"
+    ],
+    "forbiddenAnswerPhrases": [
+      "within the 5-minute grace period"
+    ]
+  },
+  {
+    "id": "records_encrypted_email_fee",
+    "query": "How much are medical records by encrypted email?",
+    "expectedIntent": "patient_resources",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2025/03/FMLA-Disability-and-Other-Forms.docx.pdf",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "Encrypted-email requests have a flat $50 fee"
+    ],
+    "forbiddenAnswerPhrases": [
+      "main FMA email address"
+    ]
+  },
+  {
+    "id": "glp1_bmi_pa_newer_policy_controls",
+    "query": "Will FMA submit a GLP-1 prior authorization if my BMI is 30?",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/03/Policy-Regarding-GLP-1-Weight-Loss-Medications-.docx.pdf",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "does not process or appeal prior authorizations"
+    ],
+    "forbiddenAnswerPhrases": [
+      "submits one only when"
+    ]
+  },
+  {
+    "id": "glp1_diabetes_scope_not_overgeneralized",
+    "query": "Does FMA manage Ozempic when it is prescribed for diabetes rather than weight loss?",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "only when the medication is explicitly used to treat Type II Diabetes",
+      "does not confirm a new prescription"
+    ]
+  },
+  {
+    "id": "glp1_mounjaro_generic_scope",
+    "query": "Can FMA prescribe Mounjaro?",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/03/Policy-Regarding-GLP-1-Weight-Loss-Medications-.docx.pdf",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "does not publish a blanket prescribing rule",
+      "use the patient portal"
+    ]
+  },
+  {
+    "id": "insurance_unlisted_kaiser",
+    "query": "Do you accept Kaiser Permanente?",
+    "expectedIntent": "insurance_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/insurance",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "not listed on the current FMA accepted-insurance page",
+      "does not prove the plan is denied"
+    ]
+  },
+  {
+    "id": "organization_ceo_not_inferred",
+    "query": "Who is the CEO of First Medical Associates?",
+    "expectedIntent": "contact_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/about",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "does not identify a chief executive officer"
+    ]
+  },
+  {
+    "id": "common_same_day_two_hour_call_paraphrase",
+    "query": "Should I call two hours before asking for same day care?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/same-day-care",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "at least two hours' notice"
+    ]
+  },
+  {
+    "id": "late_arrival_new_patient_grace_paraphrase",
+    "query": "Is the 5 minute grace allowed for a new patient?",
+    "expectedIntent": "policy_question",
+    "appointmentAvailability": false,
+    "expectedCode": "policy_exact_match",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-policy",
+    "expectedSourceUrl": "https://drsfirst.com/wp-content/uploads/2026/07/Late-Arrival-Policy-FMA_07-17-2026.docx-2.pdf",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "only for established-patient appointments",
+      "does not state a separate new-patient grace period"
+    ]
+  },
+  {
+    "id": "common_after_hours_midnight_phone",
+    "query": "Can I reach FMA by phone at midnight?",
+    "expectedIntent": "location_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/locations",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "after-hours support by phone",
+      "does not mean the clinics are always open"
+    ]
+  },
+  {
+    "id": "common_flu_shot_paraphrase",
+    "query": "Does FMA offer flu shots?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/annual-physicals",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "routine vaccination updates",
+      "flu shots"
+    ]
+  },
+  {
+    "id": "common_labs_plural_on_site",
+    "query": "Are labs on site at each clinic?",
+    "expectedIntent": "location_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/locations",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "each facility",
+      "on-site laboratory"
+    ]
+  },
+  {
+    "id": "common_location_number_without_phone_word",
+    "query": "What is the number for the Silver Spring office?",
+    "expectedIntent": "location_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "301-593-7792"
+    ]
   },
   {
     "id": "privacy_block",

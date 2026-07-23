@@ -1,7 +1,6 @@
 // Static knowledge base built from official FMA/DrsFirst website content and operations scripts.
 // Sources: drsfirst.com homepage, about page, insurance page, contact page,
-// Late Arrival Policy PDF (updated July 17, 2026), FMLA/Disability Forms Policy PDF,
-// Contact Center Operations Script Document.
+// current live policy documents, and the Contact Center Operations Script Document.
 // GLP-1 Insurance Coverage PDF, HIPAA Privacy Notice PDF (all April 2023 / 2025–2026 revisions).
 
 export const FMA_KNOWLEDGE_BASE = `
@@ -106,8 +105,10 @@ Prior authorization (PA) timelines and limits:
 GLP-1 medications under contact-center script:
 - Per clinic management guidelines, First Medical Associates only authorizes refills or prior
   authorizations for GLP-1 medications when they are explicitly used to treat Type II Diabetes.
-- FMA no longer manages or prescribes GLP-1 medications for weight loss, even for patients who
-  received them through FMA in the past.
+- FMA does not initiate or manage long-term GLP-1 prescriptions for weight loss.
+- Existing patients who previously received these medications through FMA may receive a one-time
+  30-day bridge prescription while transitioning their weight-management care to a specialist.
+- FMA does not process or appeal prior authorizations for GLP-1 medications used for weight loss.
 - For weight-loss management, FMA defers care to bariatric or endocrinology specialists and can
   submit a referral when appropriate.
 
@@ -126,12 +127,13 @@ Medication refill triage:
   in-person or virtual.
 
 Attendance, lateness, and fees:
-- The Late Arrival Policy updated July 17, 2026 controls answers about late arrivals.
-- A new patient is someone who has not been seen by an FMA provider within the past 36 months.
-  New patients must arrive 30 minutes before their first scheduled appointment.
-- An established patient is someone who has been seen by an FMA provider within the past 36 months.
-  Established patients must arrive 15 minutes before their scheduled appointment and have a strict
-  5-minute grace period after the scheduled appointment time.
+- The versioned Late Arrival Policy document supplied separately in AI context controls answers
+  about late arrivals.
+- New patients who have not been seen by an FMA provider within the past 36 months must arrive
+  30 minutes before their first scheduled appointment.
+- Established patients who have been seen by an FMA provider within the past 36 months must arrive
+  15 minutes before their scheduled appointment.
+- Established-patient appointments have a 5-minute grace period after the scheduled appointment time.
 - Within the grace period, staff will do their best to accommodate the patient immediately if the
   schedule allows.
 - More than 5 minutes late, or a fully booked provider who cannot see the patient without
@@ -139,9 +141,9 @@ Attendance, lateness, and fees:
   immediate availability or reschedule for a convenient future date and time.
 - Same-day cancellation or same-day rescheduling incurs a $50 administrative fee.
 - No-show or missed appointments incur a $50 missed appointment fee.
-- The updated Late Arrival Policy does not classify a late arrival by itself as a missed appointment
-  and does not specify whether a fee applies when staff reschedules a late arrival. Do not infer a
-  fee solely from lateness; ask the patient to call 301-515-2901 to confirm fee applicability.
+- The current Late Arrival Policy does not classify a late arrival by itself as a missed appointment
+  and does not list a late-arrival fee. Do not infer a fee solely from lateness; ask the patient to
+  call 301-515-2901 to confirm whether a separate cancellation or no-show policy applies.
 
 Motor vehicle accident (MVA) and PIP scheduling:
 - MVA appointments cannot be scheduled until all Personal Injury Protection (PIP) details are
@@ -153,7 +155,10 @@ Motor vehicle accident (MVA) and PIP scheduling:
   through the patient's standard health insurance and does not require PIP details.
 
 Core scheduling constraints:
-- Patients must be 18 years of age or older to be scheduled or treated at FMA.
+- The operational scheduling script requires patients to be 18 years of age or older to be
+  scheduled or treated at FMA. The public marketing site also contains general family-medicine
+  language about care for all ages, so under-18 requests must be confirmed by phone and must not
+  be sent directly into online booking from AI search.
 - Medicaid Managed Care Organization (MCO) patients must have Dr. Malik designated as their
   assigned PCP with the insurer.
 - New patient intakes, annual physicals / H&Ps, Medicare Annual Wellness visits, and pre-operative
@@ -200,7 +205,8 @@ Clinical scope:
   reduction, surgical lancing or draining of abscesses, in-office diagnostic X-rays, official
   immigration physicals, specialized exotic travel vaccines such as Yellow Fever, clinical ear
   cleaning / cerumen impaction removal, or medical marijuana cards / certifications.
-- Patients with chest pain or shortness of breath should be directed to specialized care or the ER.
+- For a medical emergency, direct the patient to call 911 or go to the nearest emergency
+  department. Same-day FMA care is for non-emergency illnesses and minor injuries.
 
 Clinical forms and fees:
 - Unless a clinic exception applies, patients who need provider-signed forms must schedule an
@@ -254,8 +260,8 @@ General Services:
 On-site: Laboratory and diagnostic tools at each location.
 
 IMPORTANT NOTE ON GLP-1 MEDICATIONS:
-FMA does NOT initiate GLP-1 therapy (e.g., Ozempic, Wegovy, Mounjaro). Referrals to
-specialists are available if appropriate.
+FMA does NOT initiate or manage long-term GLP-1 therapy (e.g., Ozempic, Wegovy, Mounjaro)
+for weight loss. Referrals to specialists are available if appropriate.
 
 TELEMEDICINE / VIRTUAL VISITS
 FMA offers secure virtual healthcare consultations across Maryland via video call and messaging.
@@ -275,7 +281,7 @@ Telemedicine insurance:
   Johns Hopkins Health
 - NOT accepted for telemedicine: Cigna or United Health Care commercial plans
   (Medicare/Medicaid versions of these plans are accepted)
-- Self-pay: $180 for new patients; $150 for existing patients
+- Self-pay telemedicine: $180 per consultation, as listed on the current live Telemedicine page
 
 ANNUAL PHYSICALS
 Recommended yearly for all patients. FMA annual physicals include:
@@ -291,7 +297,7 @@ Insurance for annual physicals:
   Johns Hopkins Health, Medicare (including Advantage Plans), Medicaid (multiple plans)
 - NOT accepted: Cigna Healthcare or United Health Care commercial plans
   (Medicaid and Medicare UHC/Cigna plans ARE accepted)
-- Self-pay: $180 for new patients; $150 for existing patients
+- Self-pay: $180 per consultation
 
 PROVIDERS
 FMA employs board-certified internists and family medicine physicians, plus nurse practitioners
@@ -301,7 +307,10 @@ Visit www.DrsFirst.com/providers for the full list.
 
 INSURANCE ACCEPTED
 Commercial: Aetna, Blue Choice, Blue Cross Blue Shield, CareFirst, Humana,
-Johns Hopkins Health, Cigna, UHC (United Healthcare)
+and Johns Hopkins Health. The general insurance directory also lists Cigna and UHC, but every
+current individual location page states that Cigna and United Health Care commercial plans are
+not accepted. Because the public pages conflict, patients must verify the exact plan, location,
+and visit type by phone before scheduling.
 
 Medicare: Accepted, including Medicare Advantage Plans (UHC, CareFirst, Johns Hopkins, Aetna).
 All secondary insurances accepted.
@@ -309,7 +318,8 @@ All secondary insurances accepted.
 Medicaid Plans: Wellpoint/Amerigroup, CareFirst Community Plan, Aetna Medicaid, United Health
 Medicaid, Priority Partner–Johns Hopkins, Amerigroup, Maryland Physicians Care, straight Medicaid.
 
-Self-Pay: $180 for new patients; $150 for existing patients (uninsured patients).
+Self-Pay: $180 per consultation. The current public pages do not publish separate new- and
+existing-patient rates.
 
 Billing questions: call 301-515-2901 or use online bill pay at www.DrsFirst.com.
 Fax for billing: 866-701-4905
@@ -318,12 +328,13 @@ Fax for billing: 866-701-4905
 
 POLICY: LATE ARRIVAL POLICY
 Updated: July 17, 2026
+Canonical source: https://drsfirst.com/wp-content/uploads/2026/07/Late-Arrival-Policy-FMA_07-17-2026.docx-2.pdf
 At First Medical Associates, we are committed to providing timely and focused care to all patients.
 
-- New patients: Patients who have not been seen by an FMA provider within the past 36 months must
-  arrive 30 minutes prior to their first scheduled appointment.
-- Established patients: Patients who have been seen by an FMA provider within the past 36 months
-  must arrive 15 minutes prior to their scheduled appointment.
+- New patients who have not been seen by an FMA provider within the past 36 months must arrive
+  30 minutes prior to their first scheduled appointment.
+- Established patients who have been seen by an FMA provider within the past 36 months must arrive
+  15 minutes prior to their scheduled appointment.
 - Grace period: A 5-minute grace period is allowed for late arrivals for all established-patient
   appointments.
 - Within the grace period: We will do our best to accommodate you immediately, as the schedule allows.
@@ -333,8 +344,8 @@ At First Medical Associates, we are committed to providing timely and focused ca
   (1) See an Alternate Provider — we check if another provider has immediate availability.
   (2) Reschedule — we book you for a convenient future date and time.
 - This policy does not state that a late arrival is automatically a missed appointment and does not
-  specify a late-arrival fee. Do not infer a fee solely from lateness; call 301-515-2901 to confirm
-  whether a fee applies in a specific rescheduling situation.
+  list a late-arrival fee. Do not infer a fee solely from lateness; call 301-515-2901 to confirm
+  whether a separate cancellation or no-show policy applies.
 - If you anticipate being late, call us as soon as possible at 301-515-2901.
 
 ---
@@ -371,7 +382,7 @@ disability documentation is critical to your case.
 
 POLICY: REQUESTING MEDICAL RECORDS
 Patients may request copies of medical records through the patient portal or by completing a
-medical records request form (available at www.DrsFirst.com/Forms or any FMA location).
+medical records request form (available on the Patient Forms & Policies page or at an FMA location).
 
 Fees for medical records:
 - Paper copies mailed: subject to postage costs if the total exceeds $3.00.
@@ -388,7 +399,7 @@ Available forms:
 
 POLICY: GLP-1 MEDICATIONS & INSURANCE COVERAGE
 GLP-1 medications (e.g., Ozempic, Wegovy, Mounjaro) can be effective but insurance coverage
-is limited and FMA does not initiate GLP-1 therapy.
+is limited. FMA does not initiate or manage long-term GLP-1 therapy for weight loss.
 
 Why doesn't insurance always cover GLP-1s?
 Insurance companies have strict rules. Most require one of the following:

@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { requireAdminRequest } from "../../../../lib/admin-auth";
+import {
+  getActivePolicyDocuments,
+  getPolicyEmbeddingId,
+} from "../../../../lib/ai-search-policy-documents.mjs";
+import { VISIBLE_LOCATION_WHERE } from "../../../../lib/locations";
 import { isDatabaseConfigured, prisma } from "../../../../lib/prisma";
 
 export const runtime = "nodejs";
@@ -19,6 +24,8 @@ const EMBEDDING_MAX_AGE_DAYS = Math.max(
   Number(process.env.AI_SEARCH_EMBEDDING_MAX_AGE_DAYS) || 14,
   1
 );
+const MANAGED_EMBEDDING_TYPES = new Set(["location", "provider", "service", "post", "policy"]);
+const EXPECTED_EMBEDDING_MODEL = "text-embedding-3-small";
 
 function hasEnvValue(key) {
   return Boolean(process.env[key]?.trim());
@@ -91,11 +98,9 @@ async function checkSearchEmbeddings() {
     return { ok: false, error: "model_missing" };
   }
 
-  const [totalEmbeddings, newestEmbedding, indexes] = await Promise.all([
-    prisma.searchEmbedding.count(),
-    prisma.searchEmbedding.findFirst({
-      orderBy: { updatedAt: "desc" },
-      select: { updatedAt: true },
+  const [embeddingRows, indexes, locations, providers, services, posts] = await Promise.all([
+    prisma.searchEmbedding.findMany({
+      select: { id: true, metadata: true, updatedAt: true },
     }),
     prisma.$queryRawUnsafe(
       `SELECT indexname::text AS indexname
@@ -104,22 +109,81 @@ async function checkSearchEmbeddings() {
          AND tablename = 'SearchEmbedding'
        ORDER BY indexname`
     ),
+    prisma.location.findMany({
+      where: VISIBLE_LOCATION_WHERE,
+      select: { id: true },
+    }),
+    prisma.provider.findMany({
+      where: { isActive: true },
+      select: { id: true },
+    }),
+    prisma.service.findMany({
+      where: { isActive: true },
+      select: { id: true },
+    }),
+    prisma.blogPost.findMany({
+      where: { status: "PUBLISHED" },
+      select: { id: true },
+    }),
   ]);
 
+  const expectedIds = new Set([
+    ...locations.map((location) => `location-${location.id}`),
+    ...providers.map((provider) => `provider-${provider.id}`),
+    ...services.map((service) => `service-${service.id}`),
+    ...posts.map((post) => `post-${post.id}`),
+    ...getActivePolicyDocuments().map(getPolicyEmbeddingId),
+  ]);
+  const managedRows = embeddingRows.filter((row) =>
+    MANAGED_EMBEDDING_TYPES.has(row.metadata?.type)
+  );
+  const managedIds = new Set(managedRows.map((row) => row.id));
+  const missingIds = [...expectedIds].filter((id) => !managedIds.has(id));
+  const orphanIds = managedRows.filter((row) => !expectedIds.has(row.id)).map((row) => row.id);
+  const expectedRows = managedRows.filter((row) => expectedIds.has(row.id));
+  const staleRows = expectedRows.filter(
+    (row) =>
+      (Date.now() - row.updatedAt.getTime()) / (24 * 60 * 60 * 1000) >
+      EMBEDDING_MAX_AGE_DAYS
+  );
+  const modelMismatchRows = expectedRows.filter(
+    (row) =>
+      String(row.metadata?.embeddingModel || EXPECTED_EMBEDDING_MODEL) !==
+      EXPECTED_EMBEDDING_MODEL
+  );
+  const oldestUpdatedAt =
+    expectedRows.length > 0
+      ? expectedRows.reduce(
+          (oldest, row) => (row.updatedAt < oldest ? row.updatedAt : oldest),
+          expectedRows[0].updatedAt
+        )
+      : null;
   const indexNames = indexes.map((row) => row.indexname).filter(Boolean);
   const hasHnswIndex = indexNames.includes("SearchEmbedding_embedding_hnsw_idx");
   const hasMetadataTypeIndex = indexNames.includes("SearchEmbedding_metadata_type_idx");
-  const newestUpdatedAt = newestEmbedding?.updatedAt || null;
-  const ageDays = newestUpdatedAt
-    ? (Date.now() - newestUpdatedAt.getTime()) / (24 * 60 * 60 * 1000)
+  const ageDays = oldestUpdatedAt
+    ? (Date.now() - oldestUpdatedAt.getTime()) / (24 * 60 * 60 * 1000)
     : null;
-  const fresh = Number.isFinite(ageDays) && ageDays <= EMBEDDING_MAX_AGE_DAYS;
+  const parity =
+    expectedIds.size > 0 && missingIds.length === 0 && orphanIds.length === 0;
+  const fresh =
+    expectedRows.length === expectedIds.size &&
+    staleRows.length === 0 &&
+    modelMismatchRows.length === 0;
 
   return {
-    ok: totalEmbeddings > 0 && hasHnswIndex && hasMetadataTypeIndex && fresh,
-    totalEmbeddings,
-    newestUpdatedAt: newestUpdatedAt ? newestUpdatedAt.toISOString() : null,
-    ageDays: Number.isFinite(ageDays) ? Number(ageDays.toFixed(2)) : null,
+    ok: parity && hasHnswIndex && hasMetadataTypeIndex && fresh,
+    totalEmbeddings: embeddingRows.length,
+    expectedEmbeddings: expectedIds.size,
+    managedEmbeddings: managedRows.length,
+    missingEmbeddings: missingIds.length,
+    orphanEmbeddings: orphanIds.length,
+    staleEmbeddings: staleRows.length,
+    embeddingModelMismatches: modelMismatchRows.length,
+    embeddingModel: EXPECTED_EMBEDDING_MODEL,
+    parity,
+    oldestUpdatedAt: oldestUpdatedAt ? oldestUpdatedAt.toISOString() : null,
+    oldestAgeDays: Number.isFinite(ageDays) ? Number(ageDays.toFixed(2)) : null,
     maxAgeDays: EMBEDDING_MAX_AGE_DAYS,
     fresh,
     hasHnswIndex,

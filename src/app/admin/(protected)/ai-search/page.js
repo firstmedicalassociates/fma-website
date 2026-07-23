@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "../../../lib/prisma";
 import { getAthenaProviderMappingCoverage } from "../../../lib/athena-availability";
 
@@ -49,6 +50,8 @@ async function loadAiSearchAnalytics() {
       feedbackCount,
       helpful,
       notHelpful,
+      pendingReviews,
+      activeEvalCases,
       topIntents,
       topCodes,
       recentFeedback,
@@ -69,6 +72,18 @@ async function loadAiSearchAnalytics() {
       }),
       prisma.aiSearchEvent.count({
         where: { createdAt: { gte: since }, feedbackRating: "not_helpful" },
+      }),
+      prisma.aiSearchEvent.count({
+        where: {
+          feedbackRating: "not_helpful",
+          OR: [
+            { feedbackReviewStatus: null },
+            { feedbackReviewStatus: { in: ["pending", "in_review"] } },
+          ],
+        },
+      }),
+      prisma.aiSearchEvalCase.count({
+        where: { isActive: true },
       }),
       prisma.aiSearchEvent.groupBy({
         by: ["intent"],
@@ -94,6 +109,11 @@ async function loadAiSearchAnalytics() {
           feedbackCreatedAt: true,
           feedbackRating: true,
           feedbackTags: true,
+          feedbackQuerySnapshot: true,
+          feedbackSnapshotStatus: true,
+          feedbackReviewStatus: true,
+          feedbackReviewedAt: true,
+          feedbackReviewedBy: true,
           intent: true,
           code: true,
           aiConfidence: true,
@@ -101,6 +121,18 @@ async function loadAiSearchAnalytics() {
           sourceCount: true,
           appointmentOptionCount: true,
           latencyMs: true,
+          searchRoute: true,
+          promptVersion: true,
+          modelVersion: true,
+          knowledgeVersion: true,
+          sourceRefs: true,
+          retrievalScore: true,
+          evalCase: {
+            select: {
+              id: true,
+              isActive: true,
+            },
+          },
         },
       }),
     ]);
@@ -116,6 +148,8 @@ async function loadAiSearchAnalytics() {
       feedbackCount,
       helpful,
       notHelpful,
+      pendingReviews,
+      activeEvalCases,
       topIntents,
       topCodes,
       recentFeedback,
@@ -197,7 +231,8 @@ export default async function AdminAiSearchPage() {
         { label: "Provider misses", value: analytics.providerResolutionMisses, detail: "Provider-like searches without a confident match" },
         { label: "Blocked", value: analytics.blocked, detail: "Privacy, length, or safety blocks" },
         { label: "Failed", value: analytics.failed, detail: "Errors needing review" },
-        { label: "Feedback", value: analytics.feedbackCount, detail: `${formatNumber(analytics.notHelpful)} need review` },
+        { label: "Feedback", value: analytics.feedbackCount, detail: `${formatNumber(analytics.pendingReviews)} pending review` },
+        { label: "Active evals", value: analytics.activeEvalCases, detail: "Promoted feedback regression cases" },
       ]
     : [];
 
@@ -208,7 +243,8 @@ export default async function AdminAiSearchPage() {
           <span className="admin-kicker">Privacy-safe analytics</span>
           <h1 className="admin-title">AI Search</h1>
           <p className="admin-subtitle">
-            Review AI search performance without storing or displaying raw patient questions.
+            Review AI search performance with privacy-screened feedback evidence and repeatable
+            regression cases.
           </p>
         </div>
         <span className={`admin-pill ${analytics.available ? "admin-live-pill" : ""}`}>
@@ -404,7 +440,7 @@ export default async function AdminAiSearchPage() {
               <div className="admin-panel-header">
                 <div>
                   <h2>Recent feedback</h2>
-                  <p>Only ratings, tags, and response metadata are shown here.</p>
+                  <p>Open negative cases to review evidence, document a fix, or create an eval.</p>
                 </div>
               </div>
               {analytics.recentFeedback.length === 0 ? (
@@ -414,24 +450,65 @@ export default async function AdminAiSearchPage() {
                   {analytics.recentFeedback.map((event) => (
                     <article className="admin-record" key={event.id}>
                       <div className="admin-record-identity">
-                        <p className="admin-record-title">
-                          {event.feedbackRating === "helpful" ? "Helpful" : "Needs review"} - {event.intent || "general"}
-                        </p>
-                        <p className="admin-record-secondary">
-                          {[
-                            event.feedbackTags.join(", "),
-                            event.aiConfidence ? `confidence: ${event.aiConfidence}` : "",
-                            event.code ? `code: ${event.code}` : "",
-                            `${event.sourceCount} sources`,
-                            `${event.resultCount} results`,
-                            event.appointmentOptionCount ? `${event.appointmentOptionCount} appointments` : "",
-                            event.latencyMs ? `${event.latencyMs} ms` : "",
-                            formatDate(event.feedbackCreatedAt || event.createdAt),
-                          ]
-                            .filter(Boolean)
-                            .join(" | ")}
-                        </p>
+                        <div>
+                          <p className="admin-record-title">
+                            {event.feedbackRating === "helpful" ? "Helpful" : "Needs review"} -{" "}
+                            {event.intent || "general"}
+                          </p>
+                          {event.feedbackQuerySnapshot ? (
+                            <p className="admin-record-path">{event.feedbackQuerySnapshot}</p>
+                          ) : null}
+                          <p className="admin-record-secondary">
+                            {[
+                              event.feedbackTags.join(", "),
+                              event.feedbackSnapshotStatus
+                                ? `snapshot: ${event.feedbackSnapshotStatus}`
+                                : "",
+                              event.feedbackReviewStatus
+                                ? `review: ${event.feedbackReviewStatus}`
+                                : "",
+                              event.evalCase?.id
+                                ? event.evalCase.isActive
+                                  ? "active eval"
+                                  : "eval draft"
+                                : "",
+                              event.aiConfidence ? `confidence: ${event.aiConfidence}` : "",
+                              event.code ? `code: ${event.code}` : "",
+                              event.searchRoute ? `route: ${event.searchRoute}` : "",
+                              event.modelVersion ? `model: ${event.modelVersion}` : "",
+                              event.promptVersion ? `prompt: ${event.promptVersion}` : "",
+                              event.knowledgeVersion
+                                ? `knowledge: ${event.knowledgeVersion}`
+                                : "",
+                              Number.isFinite(event.retrievalScore)
+                                ? `retrieval: ${event.retrievalScore.toFixed(2)}`
+                                : "",
+                              `${event.sourceCount} sources`,
+                              `${event.resultCount} results`,
+                              event.appointmentOptionCount
+                                ? `${event.appointmentOptionCount} appointments`
+                                : "",
+                              event.latencyMs ? `${event.latencyMs} ms` : "",
+                              formatDate(event.feedbackCreatedAt || event.createdAt),
+                            ]
+                              .filter(Boolean)
+                              .join(" | ")}
+                          </p>
+                        </div>
                       </div>
+                      {event.feedbackRating === "not_helpful" ? (
+                        <div className="admin-record-actions">
+                          <span className="feedback-review-status">
+                            {formatMappingStatus(event.feedbackReviewStatus || "pending")}
+                          </span>
+                          <Link
+                            className="builder-button secondary"
+                            href={`/admin/ai-search/feedback/${event.id}`}
+                          >
+                            Review case
+                          </Link>
+                        </div>
+                      ) : null}
                     </article>
                   ))}
                 </div>

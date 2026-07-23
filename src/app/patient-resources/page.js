@@ -205,7 +205,9 @@ export default function ResourcesOverview() {
           <div className="ins-header">
             <div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>Accepted Insurance</h2>
-              <p style={{ color: '#666', fontSize: '0.875rem' }}>Updated weekly. Please verify with your carrier.</p>
+              <p style={{ color: '#666', fontSize: '0.875rem' }}>
+                Plan acceptance varies by location and visit type. Please verify before scheduling.
+              </p>
             </div>
           </div>
 
@@ -214,16 +216,16 @@ export default function ResourcesOverview() {
               <h5>National</h5>
               <ul className="ins-list">
                 <li className="ins-item"><span className="dot"></span> Aetna</li>
-                <li className="ins-item" style={{ opacity: 0.8 }}><span className="dot" style={{ opacity: 0.5 }}></span> BlueCross BlueShield</li>
-                <li className="ins-item"><span className="dot"></span> Cigna</li>
+                <li className="ins-item"><span className="dot"></span> Blue Choice</li>
+                <li className="ins-item"><span className="dot"></span> BlueCross BlueShield</li>
               </ul>
             </div>
             <div className="ins-col">
               <h5>Regional</h5>
               <ul className="ins-list">
+                <li className="ins-item"><span className="dot"></span> CareFirst</li>
                 <li className="ins-item"><span className="dot"></span> Humana</li>
-                <li className="ins-item"><span className="dot"></span> Kaiser Permanente</li>
-                <li className="ins-item"><span className="dot"></span> UnitedHealthcare</li>
+                <li className="ins-item"><span className="dot"></span> Johns Hopkins Health</li>
               </ul>
             </div>
             <div className="ins-col">
@@ -231,22 +233,20 @@ export default function ResourcesOverview() {
               <ul className="ins-list">
                 <li className="ins-item"><span className="dot"></span> Medicare</li>
                 <li className="ins-item"><span className="dot"></span> Medicaid</li>
-                <li className="ins-item"><span className="dot"></span> TRICARE</li>
               </ul>
             </div>
             <div className="ins-col">
-              <h5>Specialized</h5>
+              <h5>Confirm First</h5>
               <ul className="ins-list">
-                <li className="ins-item"><span className="dot"></span> Oscar Health</li>
-                <li className="ins-item"><span className="dot"></span> Magellan</li>
-                <li className="ins-item"><span className="dot"></span> Beacon Health</li>
+                <li className="ins-item"><span className="dot"></span> Commercial Cigna</li>
+                <li className="ins-item"><span className="dot"></span> Commercial UHC</li>
               </ul>
             </div>
           </div>
 
           <div style={{ marginTop: '2.5rem', textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '1.5rem' }}>
              <Link href="/patient-resources/insurance" style={{ color: '#001c55', fontWeight: 700, fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-               View All 50+ Partners <ArrowRight size={16} />
+               Review Insurance Details <ArrowRight size={16} />
              </Link>
           </div>
         </section>
