@@ -150,7 +150,7 @@ const FAQS = [
 const HOME_SERVICE_SHOWCASE = [
   {
     title: "Primary Care",
-    image: "/assets/drs-first-primary-care.jpg",
+    image: "/assets/FMA-Primary-Care.webp",
     alt: "A physician smiling with an older adult patient during a primary care visit.",
     href: "/service/primary-care",
   },
