@@ -92,8 +92,9 @@ export default function SiteHeader() {
     {
       key: "call",
       label: "Call",
-      href: headerActionHref,
-      external: headerActionExternal,
+      href: SITE_CALL_HREF,
+      external: true,
+      newTab: false,
       icon: "phone",
     },
     {
@@ -101,6 +102,7 @@ export default function SiteHeader() {
       label: "Patient Portal",
       href: patientPortalHref,
       external: patientPortalExternal,
+      newTab: patientPortalExternal,
       icon: "users",
     },
     {
@@ -108,6 +110,7 @@ export default function SiteHeader() {
       label: "Book Online",
       href: GENERAL_BOOK_APPOINTMENT_URL,
       external: true,
+      newTab: true,
       icon: "calendar",
     },
   ];
@@ -261,8 +264,8 @@ export default function SiteHeader() {
                   className={styles.mobileQuickAction}
                   href={action.href}
                   onClick={closeMobileMenu}
-                  rel="noopener noreferrer"
-                  target="_blank"
+                  rel={action.newTab ? "noopener noreferrer" : undefined}
+                  target={action.newTab ? "_blank" : undefined}
                 >
                   <span className={styles.mobileQuickActionButton}>
                     <QuickActionIcon name={action.icon} />

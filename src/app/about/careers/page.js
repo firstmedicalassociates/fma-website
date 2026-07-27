@@ -286,14 +286,6 @@ export default function CareersPage() {
             <p>Browse current openings for provider, clinic, and corporate roles.</p>
           </div>
         </div>
-        <a
-          className="view-jobs-btn"
-          href={jobBoardUrl}
-          target="_blank"
-          rel="noreferrer"
-        >
-          View Open Positions <ArrowRight size={18} />
-        </a>
       </div>
 
       <section>

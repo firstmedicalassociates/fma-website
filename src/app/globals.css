@@ -35,6 +35,11 @@ a {
   text-decoration: none;
 }
 
+#emitrr_widget_root {
+  color: #171717;
+  color-scheme: light;
+}
+
 .material-symbols-outlined {
   font-family: "Material Symbols Outlined", sans-serif;
   font-weight: normal;

@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unescaped-entities, @next/next/no-img-element */
+import Link from "next/link";
 import { buildStaticMetadata } from "../../lib/seo";
 import { getSiteImageSrc } from "../../lib/site-images";
 import { 
@@ -227,7 +228,9 @@ export default function PartnersPage() {
             <p>Explore partnership opportunities and discover how we can achieve more together.</p>
           </div>
         </div>
-        <button className="white-btn">Contact Our Team <ArrowRight size={16} /></button>
+        <Link className="white-btn" href="/contact">
+          Contact Our Team <ArrowRight size={16} />
+        </Link>
       </div>
 
       {/* Who We Partner With */}
@@ -273,7 +276,9 @@ export default function PartnersPage() {
         <div className="cta-left">
           <h2>Ready to Partner?</h2>
           <p>Our team is ready to connect and explore how we can work together to make a difference.</p>
-          <button className="white-btn" style={{ marginTop: 'auto' }}>Get in Touch <ArrowRight size={18} /></button>
+          <Link className="white-btn" href="/contact" style={{ marginTop: 'auto' }}>
+            Get in Touch <ArrowRight size={18} />
+          </Link>
         </div>
         <div className="quote-side">
           <Quote size={40} className="quote-icon" />

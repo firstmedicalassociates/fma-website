@@ -44,13 +44,27 @@ const LEGAL_LINKS = [
 
 const SOCIAL_LINKS = [
   { href: "https://www.facebook.com/FirstMedicalAssociates", label: "Facebook", glyph: "f" },
-  { href: "https://www.instagram.com/firstmedicalassociates/", label: "Instagram", glyph: "◎" },
+  { href: "https://www.instagram.com/firstmedicalassociates/", label: "Instagram", icon: "instagram" },
   { href: "https://www.linkedin.com/company/first-medical-associates/", label: "LinkedIn", glyph: "in" },
   { href: "https://twitter.com/1stMedicalAssoc", label: "X", glyph: "𝕏" },
 ];
 
 function isExternalUrl(url = "") {
   return /^https?:\/\//i.test(url);
+}
+
+function SocialIcon({ name, glyph }) {
+  if (name === "instagram") {
+    return (
+      <svg className={styles.socialIcon} viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle className={styles.socialIconDot} cx="17.4" cy="6.6" r="1" />
+      </svg>
+    );
+  }
+
+  return glyph;
 }
 
 function FooterIcon({ name, className }) {
@@ -404,7 +418,7 @@ export default function SiteFooter() {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                {social.glyph}
+                <SocialIcon name={social.icon} glyph={social.glyph} />
               </a>
             ))}
           </div>

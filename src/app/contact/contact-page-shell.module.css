@@ -247,6 +247,10 @@
   .layout {
     grid-template-columns: 1fr;
   }
+
+  .formCard {
+    order: -1;
+  }
 }
 
 @media (max-width: 720px) {
