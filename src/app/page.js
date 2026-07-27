@@ -513,14 +513,6 @@ export default async function Home() {
                 priority
                 sizes="100vw"
               />
-              <Image
-                src={heroBackgroundImageMobile}
-                alt=""
-                className={styles.heroBackgroundImageMobile}
-                fill
-                priority
-                sizes="100vw"
-              />
               <div className={styles.heroBackgroundWash} />
             </div>
 

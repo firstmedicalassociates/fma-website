@@ -243,10 +243,6 @@
   transform-origin: right center;
 }
 
-.heroBackgroundImageMobile {
-  display: none;
-}
-
 .heroMobileFigure {
   display: none;
 }
@@ -2878,10 +2874,6 @@
   }
 
   .heroBackgroundImage {
-    display: none;
-  }
-
-  .heroBackgroundImageMobile {
     display: none;
   }
 
