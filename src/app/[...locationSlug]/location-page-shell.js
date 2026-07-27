@@ -355,6 +355,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
     event.preventDefault();
     setInfoFormStatus("sending");
     setInfoFormMessage("");
+    const submittedEmail = infoFormValues.email.trim();
 
     try {
       const response = await fetch("/api/location-info-contact", {
@@ -375,7 +376,11 @@ export default function LocationPageShell({ location, providers, serviceGroups }
       }
 
       setInfoFormStatus("success");
-      setInfoFormMessage("Thanks. Your message was sent to our care team.");
+      setInfoFormMessage(
+        payload.confirmationSent
+          ? `Thanks. Your message was sent to our care team, and a confirmation email is on its way to ${submittedEmail}.`
+          : "Your message was received, but we could not send the confirmation email. Our care team will still follow up."
+      );
       setInfoFormValues({
         firstName: "",
         lastName: "",
@@ -535,22 +540,6 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                       <span>Education</span>
                       <span className="material-symbols-outlined">arrow_forward</span>
                     </Link>
-                    {location.reviewUrl ? (
-                      <a
-                        href={location.reviewUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={styles.locationInfoLink}
-                      >
-                        <span>Leave a Review</span>
-                        <span className="material-symbols-outlined">arrow_forward</span>
-                      </a>
-                    ) : (
-                      <span className={`${styles.locationInfoLink} ${styles.locationInfoLinkDisabled}`}>
-                        <span>Leave a Review</span>
-                        <span className="material-symbols-outlined">arrow_forward</span>
-                      </span>
-                    )}
                   </div>
                 </article>
               </div>

@@ -163,7 +163,7 @@
   gap: 12px;
 }
 
-.heroMeta span {
+.heroMeta > span {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -511,7 +511,7 @@
     font-size: 0.95rem;
   }
 
-  .heroMeta span {
+  .heroMeta > span {
     width: 100%;
     justify-content: center;
   }

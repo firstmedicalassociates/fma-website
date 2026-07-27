@@ -2905,6 +2905,8 @@
   }
 
   .heroScheduler {
+    position: relative;
+    z-index: 20;
     width: 100%;
     gap: 12px;
   }
@@ -2962,6 +2964,7 @@
 
   .heroMobileFigure {
     position: relative;
+    z-index: 1;
     display: block;
     width: min(100%, 560px);
     margin: 16px auto 0;

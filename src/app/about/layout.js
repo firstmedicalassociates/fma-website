@@ -71,6 +71,7 @@ export default function AboutLayout({ children }) {
             activeHref={pathname}
             ariaLabel="About navigation"
             fullBleedMobile
+            showScrollIndicator
           />
 
           <div>{children}</div>

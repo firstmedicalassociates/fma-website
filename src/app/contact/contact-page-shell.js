@@ -59,6 +59,8 @@ export default function ContactPageShell() {
     event.preventDefault();
     setFormStatus("sending");
     setFormMessage("");
+    const submittedFirstName = formValues.firstName.trim();
+    const submittedEmail = formValues.email.trim();
 
     try {
       const response = await fetch("/api/location-info-contact", {
@@ -79,7 +81,11 @@ export default function ContactPageShell() {
       }
 
       setFormStatus("success");
-      setFormMessage("Thanks. Your message has been sent.");
+      setFormMessage(
+        payload.confirmationSent
+          ? `Thanks, ${submittedFirstName}. Your message has been sent, and a confirmation email is on its way to ${submittedEmail}.`
+          : "Your message was received, but we could not send the confirmation email. Our team will still follow up."
+      );
       setFormValues(INITIAL_FORM_VALUES);
     } catch {
       setFormStatus("error");

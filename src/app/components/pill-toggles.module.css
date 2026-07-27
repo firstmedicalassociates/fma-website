@@ -1,3 +1,8 @@
+.navWrap {
+  width: 100%;
+  min-width: 0;
+}
+
 .bar {
   display: flex;
   gap: 0.85rem;
@@ -69,6 +74,10 @@
   flex: 0 0 auto;
 }
 
+.scrollTrack {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .bar {
     flex-wrap: nowrap;
@@ -98,5 +107,40 @@
     margin-right: -1.5rem;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
+  }
+
+  .barWithScrollIndicator {
+    scrollbar-width: none;
+  }
+
+  .barWithScrollIndicator::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollTrack {
+    position: relative;
+    display: block;
+    width: min(230px, calc(100% - 3rem));
+    height: 6px;
+    margin: -10px auto 14px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(15, 35, 88, 0.08);
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .scrollTrackVisible {
+    opacity: 1;
+  }
+
+  .scrollThumb {
+    position: absolute;
+    inset-block: 0;
+    min-width: 44px;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #1b4ec9 0%, #11a5cf 100%);
+    box-shadow: 0 2px 7px rgba(15, 35, 88, 0.22);
+    transition: left 80ms linear;
   }
 }
