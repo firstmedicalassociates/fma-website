@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@fontsource/material-symbols-outlined";
+import ThirdPartyScripts from "./components/third-party-scripts";
 import { SITE_NAME, getSiteUrl } from "./lib/config/site";
 
 const geistSans = Geist({
@@ -28,6 +29,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
+        <ThirdPartyScripts />
       </body>
     </html>
   );
