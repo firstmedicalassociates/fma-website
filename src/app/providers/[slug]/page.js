@@ -265,7 +265,10 @@ export default async function ProviderDetailPage({ params }) {
     notFound();
   }
 
-  const visibleProviderLocationSlugs = provider.locations.filter((locationSlug) => !isHiddenLocationSlug(locationSlug));
+  const providerLocationSlugs = provider.locations;
+  const visibleProviderLocationSlugs = providerLocationSlugs.filter(
+    (locationSlug) => !isHiddenLocationSlug(locationSlug)
+  );
 
   const assignedLocations = visibleProviderLocationSlugs.length
     ? await prisma.location.findMany({
@@ -290,7 +293,7 @@ export default async function ProviderDetailPage({ params }) {
     : [];
 
   const locationTitleBySlug = buildLocationTitleMap(assignedLocations);
-  const locationTitles = resolveLocationTitles(visibleProviderLocationSlugs, locationTitleBySlug);
+  const locationTitles = resolveLocationTitles(providerLocationSlugs, locationTitleBySlug);
   const assignedLocationBySlug = new Map(assignedLocations.map((location) => [location.slug, location]));
   const locationLinks = visibleProviderLocationSlugs.map((locationSlug) => {
     const location = assignedLocationBySlug.get(locationSlug);
