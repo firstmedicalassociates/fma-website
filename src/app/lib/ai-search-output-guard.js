@@ -5,7 +5,7 @@ const ALLOWED_ANSWER_HOSTS = new Set([
   "4332.portal.athenahealth.com",
   "drsfirst.com",
   "first-medical-associates.inquicker.com",
-  "workforcenow.adp.com",
+  "payment.patient.athenahealth.com",
   "www.drsfirst.com",
 ]);
 
