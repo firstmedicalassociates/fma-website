@@ -35,7 +35,7 @@ import {
   formatFmaDomainGraphContext,
   formatFmaDomainGraphSources,
 } from "./ai-search-domain-graph.js";
-import { GENERAL_BOOK_APPOINTMENT_URL } from "./config/site.js";
+import { BILL_PAY_URL, GENERAL_BOOK_APPOINTMENT_URL } from "./config/site.js";
 import { detectPromptInjection, sanitizeGeneratedAnswerResult } from "./ai-search-output-guard.js";
 import { AI_SEARCH_INTENTS, classifyAiSearchIntent } from "./ai-search-intent.js";
 import { buildAiSearchRoute, AI_SEARCH_ROUTES } from "./ai-search-router.js";
@@ -922,10 +922,15 @@ function formatKnowledgeBaseSources(query, citations = [], intent = "") {
   }
 
   if (intent === AI_SEARCH_INTENTS.BILLING_QUESTION) {
+    const isBillPayQuery =
+      /\b(pay|paying|payment)\b.{0,40}\b(bill|statement)\b|\b(bill|statement)\b.{0,40}\b(pay|paying|payment)\b|\bonline bill\b/.test(
+        normalized
+      );
+
     return [
       {
-        title: "Billing & Insurance",
-        url: "/patient-resources/insurance",
+        title: isBillPayQuery ? "Pay Bill" : "Billing & Insurance",
+        url: isBillPayQuery ? BILL_PAY_URL : "/patient-resources/insurance",
         type: "page",
         category: "Patient resources",
       },
