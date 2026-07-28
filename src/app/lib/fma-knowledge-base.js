@@ -20,7 +20,7 @@ Fax: 866-701-4905
 Email: info@DrsFirst.com
 Patient Portal: https://4332.portal.athenahealth.com/
 Online Booking: https://first-medical-associates.inquicker.com/ (also available via ZocDoc)
-Online Bill Pay: Available at www.DrsFirst.com
+Online Bill Pay: https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html?cid=7ee8b673-7155-41a3-9ef1-249815a30f92&ccId=19000101_000001&type=JS&lang=en_US
 
 HOURS OF OPERATION
 Office Hours: Monday-Friday, 8:00 AM - 5:00 PM. Saturday and Sunday: Closed.
@@ -321,7 +321,7 @@ Medicaid, Priority Partner–Johns Hopkins, Amerigroup, Maryland Physicians Care
 Self-Pay: $180 per consultation. The current public pages do not publish separate new- and
 existing-patient rates.
 
-Billing questions: call 301-515-2901 or use online bill pay at www.DrsFirst.com.
+Billing questions: call 301-515-2901 or use online bill pay at https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html?cid=7ee8b673-7155-41a3-9ef1-249815a30f92&ccId=19000101_000001&type=JS&lang=en_US.
 Fax for billing: 866-701-4905
 
 ---
@@ -475,7 +475,8 @@ HIPAA Privacy Notice and all forms available at: www.DrsFirst.com/Forms
 ---
 
 ONLINE RESOURCES
-- Patient Portal (view records, message providers, pay bills): https://4332.portal.athenahealth.com/
+- Patient Portal (view records and message providers): https://4332.portal.athenahealth.com/
+- Online Bill Pay: https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html?cid=7ee8b673-7155-41a3-9ef1-249815a30f92&ccId=19000101_000001&type=JS&lang=en_US
 - Online Booking: https://first-medical-associates.inquicker.com/
 - ZocDoc Booking: Search "First Medical Associates"
 - Medical Records & HIPAA Forms: www.DrsFirst.com/Forms
