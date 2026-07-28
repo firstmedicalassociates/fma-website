@@ -615,4 +615,15 @@ module.exports = [
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/7195042",
     bio: "Dr. George completed their medical education at Government Medical College in Trivandrum, India, before completing an Internal Medicine residency at MedStar Harbor Hospital. Passionate about preventive care and chronic disease management, she provides comprehensive care for conditions such as diabetes, high blood pressure, asthma, COPD, and general respiratory illnesses. In their free time, Dr. George is an avid oil painter and home cook who loves spending time with their children.",
   },
+  {
+    name: "Josie Joy Go",
+    title: "M.D.",
+    locations: ["Germantown"],
+    languages: ["English"],
+    imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/josie-joy-go.webp",
+    imageAlt: "Josie Joy Go headshot",
+    slug: "josie-joy-go",
+    linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/7195041",
+    bio: "Josie Go, MD is a board-certified Internal Medicine physician dedicated to partnering with patients to achieve long-term health and wellness. Her areas of focus include preventive care, hypertension management, and building lasting relationships to deliver personalized, compassionate care.",
+  },
 ];
