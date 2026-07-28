@@ -593,4 +593,15 @@ module.exports = [
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/7195043",
     bio: "Dr. Anmol Singh is a board-certified family medicine physician in Columbia, Maryland. He earned a B.S. in Biology from the University of Maryland, College Park, and his medical degree from Campbell University School of Osteopathic Medicine, then completed family medicine residency at the University of Maryland Medical Center.\n\nHis clinical interests include primary care, sports medicine, non-operative orthopedics, and ultrasound-guided procedures. He has worked in urgent care and provided sideline coverage for high school and collegiate athletics. In clinic, he performs office-based procedures such as joint injections, nerve hydrodissections, and diagnostic musculoskeletal ultrasound.\n\nDr. Singh is an active member of the American Medical Society for Sports Medicine and practices evidence-based, patient-centered care. His professional interests include concussion and chronic disease management, preventive care, and facilitating safe returns to work, sport, and daily activity. He prioritizes long-term therapeutic relationships and empowering patients to meet their health and wellness goals.\n\nHe has contributed to medical research and education through publications and presentations on sports medicine, traumatic brain injury, and diabetes. A Columbia native, he stays active in his community and has provided medical coverage for Howard County athletics. Outside of medicine, he enjoys swimming, running, and cycling on trails around Baltimore and Washington, D.C., and is an avid Ravens fan.",
   },
+  {
+    name: "Audrey Boadu",
+    title: "M.D.",
+    locations: ["Silver Spring"],
+    languages: ["English"],
+    imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/audrey-boadu.webp",
+    imageAlt: "Audrey Boadu headshot",
+    slug: "audrey-boadu",
+    linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/7195496",
+    bio: "Bio coming soon.",
+  },
 ];
