@@ -248,7 +248,7 @@
   min-height: 38px;
   border: 0;
   border-radius: 10px;
-  padding: 9px 12px;
+  padding: 0 12px;
   background: transparent;
   color: #244b86;
   font: inherit;
@@ -258,11 +258,6 @@
   text-align: left;
   cursor: pointer;
   transition: background-color 140ms ease, color 140ms ease;
-}
-
-.providerTitleDropdownMenu {
-  left: auto;
-  width: min(440px, calc(100vw - 24px));
 }
 
 .providerDropdownOption:hover,
@@ -662,10 +657,6 @@
   .providerDropdownMenu {
     left: 2px;
     right: 2px;
-  }
-
-  .providerTitleDropdownMenu {
-    width: auto;
   }
 
   .providerDropdownOption {
