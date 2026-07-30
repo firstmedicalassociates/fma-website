@@ -252,19 +252,19 @@ export default function ProvidersDirectory({ providers }) {
                   openFilter === "specialty" ? styles.providerFilterFieldOpen : ""
                 }`}
               >
-                <span className={styles.providerFilterLabel}>Specialty</span>
+                <span className={styles.providerFilterLabel}>Provider Titles</span>
                 <button
                   type="button"
                   className={styles.providerDropdownTrigger}
                   onClick={() => setOpenFilter((current) => (current === "specialty" ? null : "specialty"))}
                   aria-expanded={openFilter === "specialty"}
                   aria-haspopup="listbox"
-                  aria-label="Filter providers by specialty"
+                  aria-label="Filter providers by title"
                 >
-                  {getActiveLabel(activeSpecialty, specialtyOptions, "All Specialties")}
+                  {getActiveLabel(activeSpecialty, specialtyOptions, "All Titles")}
                 </button>
                 {openFilter === "specialty" ? (
-                  <ul className={styles.providerDropdownMenu} role="listbox" aria-label="Specialty options">
+                  <ul className={styles.providerDropdownMenu} role="listbox" aria-label="Provider title options">
                     <li>
                       <button
                         type="button"
@@ -276,7 +276,7 @@ export default function ProvidersDirectory({ providers }) {
                           setOpenFilter(null);
                         }}
                       >
-                        All Specialties
+                        All Titles
                       </button>
                     </li>
                     {specialtyOptions.map((specialty) => {
