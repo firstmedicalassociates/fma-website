@@ -6,6 +6,25 @@ import HeroEyebrow from "../components/hero-eyebrow";
 import { splitProviderCredentialTags } from "../lib/providers";
 import styles from "./providers-directory.module.css";
 
+const PROVIDER_TITLE_OPTIONS = [
+  { credential: "MD", label: "Doctor of Medicine" },
+  { credential: "DO", label: "Doctor of Osteopathic Medicine" },
+  { credential: "PA-C", label: "Physician Assistant–Certified" },
+  {
+    credential: "AGPCNP",
+    label: "Adult-Gerontology Primary Care Nurse Practitioner",
+  },
+  { credential: "FNP", label: "Family Nurse Practitioner" },
+  {
+    credential: "FNP-BC",
+    label: "Family Nurse Practitioner–Board Certified",
+  },
+  {
+    credential: "FNP-C",
+    label: "Family Nurse Practitioner–Certified",
+  },
+];
+
 function slugify(value) {
   return String(value || "")
     .toLowerCase()
@@ -35,6 +54,12 @@ function getActiveLabel(activeValue, options, allLabel) {
   return match || allLabel;
 }
 
+function getActiveProviderTitleLabel(activeValue, options) {
+  if (activeValue === "all") return "All Titles";
+  const match = options.find((option) => slugify(option.credential) === activeValue);
+  return match?.label || "All Titles";
+}
+
 export default function ProvidersDirectory({ providers }) {
   const [activeCity, setActiveCity] = useState("all");
   const [activeLanguage, setActiveLanguage] = useState("all");
@@ -59,13 +84,15 @@ export default function ProvidersDirectory({ providers }) {
   }, [providers]);
 
   const specialtyOptions = useMemo(() => {
-    return [
-      ...new Set(
-        providers
-          .flatMap((provider) => provider.credentialTags || splitProviderCredentialTags(provider.role))
-          .filter(Boolean)
-      ),
-    ].sort();
+    const availableCredentials = new Set(
+      providers
+        .flatMap((provider) => provider.credentialTags || splitProviderCredentialTags(provider.role))
+        .filter(Boolean)
+    );
+
+    return PROVIDER_TITLE_OPTIONS.filter((option) =>
+      availableCredentials.has(option.credential)
+    );
   }, [providers]);
 
   const filteredProviders = useMemo(() => {
@@ -261,10 +288,14 @@ export default function ProvidersDirectory({ providers }) {
                   aria-haspopup="listbox"
                   aria-label="Filter providers by title"
                 >
-                  {getActiveLabel(activeSpecialty, specialtyOptions, "All Titles")}
+                  {getActiveProviderTitleLabel(activeSpecialty, specialtyOptions)}
                 </button>
                 {openFilter === "specialty" ? (
-                  <ul className={styles.providerDropdownMenu} role="listbox" aria-label="Provider title options">
+                  <ul
+                    className={`${styles.providerDropdownMenu} ${styles.providerTitleDropdownMenu}`}
+                    role="listbox"
+                    aria-label="Provider title options"
+                  >
                     <li>
                       <button
                         type="button"
@@ -280,9 +311,9 @@ export default function ProvidersDirectory({ providers }) {
                       </button>
                     </li>
                     {specialtyOptions.map((specialty) => {
-                      const value = slugify(specialty);
+                      const value = slugify(specialty.credential);
                       return (
-                        <li key={specialty}>
+                        <li key={specialty.credential}>
                           <button
                             type="button"
                             className={`${styles.providerDropdownOption} ${
@@ -293,7 +324,7 @@ export default function ProvidersDirectory({ providers }) {
                               setOpenFilter(null);
                             }}
                           >
-                            {specialty}
+                            {specialty.label}
                           </button>
                         </li>
                       );
