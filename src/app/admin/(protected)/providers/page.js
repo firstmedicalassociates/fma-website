@@ -7,6 +7,7 @@ import { prisma } from "../../../lib/prisma";
 import {
   buildLocationTitleMap,
   formatProviderList,
+  resolveAdminProviderImageSrc,
   resolveLocationTitles,
 } from "../../../lib/providers";
 import ProviderActions from "./provider-actions";
@@ -125,7 +126,10 @@ export default async function AdminProvidersPage() {
                             <div className="admin-record-header">
                               <div className="admin-record-identity">
                                 <div className="admin-record-avatar">
-                                  <img src={provider.imageUrl} alt={provider.name} />
+                                  <img
+                                    src={resolveAdminProviderImageSrc(provider)}
+                                    alt={provider.name}
+                                  />
                                 </div>
                                 <div>
                                   <h3 className="admin-record-title">{provider.name}</h3>
@@ -198,7 +202,10 @@ export default async function AdminProvidersPage() {
                         <div className="admin-record-header">
                           <div className="admin-record-identity">
                             <div className="admin-record-avatar">
-                              <img src={provider.imageUrl} alt={provider.name} />
+                              <img
+                                src={resolveAdminProviderImageSrc(provider)}
+                                alt={provider.name}
+                              />
                             </div>
                             <div>
                               <h3 className="admin-record-title">{provider.name}</h3>

@@ -3,12 +3,12 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   formatProviderList,
   normalizeProviderSlug,
   normalizeStringList,
-  resolveProviderImageSrc,
+  resolveAdminProviderImageSrc,
   resolveLocationTitles,
 } from "../../../lib/providers";
 
@@ -71,6 +71,7 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
   const [athenaDepartmentId, setAthenaDepartmentId] = useState(initialValues.athenaDepartmentId);
   const [athenaSchedulingName, setAthenaSchedulingName] = useState(initialValues.athenaSchedulingName);
   const [imageStatus, setImageStatus] = useState("idle");
+  const [localImagePreviewUrl, setLocalImagePreviewUrl] = useState("");
   const [selectedLocations, setSelectedLocations] = useState(initialValues.locations);
   const [languagesInput, setLanguagesInput] = useState(formatProviderList(initialValues.languages));
   const [sortOrder, setSortOrder] = useState(initialValues.sortOrder);
@@ -90,8 +91,17 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
 
   const languages = useMemo(() => normalizeStringList(languagesInput), [languagesInput]);
   const previewImageSrc = useMemo(
-    () => resolveProviderImageSrc({ imageUrl, slug }),
-    [imageUrl, slug]
+    () =>
+      localImagePreviewUrl ||
+      resolveAdminProviderImageSrc({ id: initialValues.id, imageUrl }),
+    [imageUrl, initialValues.id, localImagePreviewUrl]
+  );
+
+  useEffect(
+    () => () => {
+      if (localImagePreviewUrl) URL.revokeObjectURL(localImagePreviewUrl);
+    },
+    [localImagePreviewUrl]
   );
 
   function handleNameChange(event) {
@@ -148,7 +158,9 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
       }
 
       setImageUrl(data.url);
+      setLocalImagePreviewUrl(URL.createObjectURL(file));
       setImageStatus("done");
+      setMessage("Image uploaded. Save the provider to publish this change.");
     } catch {
       setImageStatus("error");
       setMessage("Image upload failed.");

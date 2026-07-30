@@ -112,12 +112,46 @@ export function isPrivateBlobUrl(value = "") {
   }
 }
 
+function getProviderImageVersion(imageUrl = "") {
+  try {
+    const url = new URL(String(imageUrl || "").trim());
+    return url.pathname.split("/").filter(Boolean).at(-1) || "";
+  } catch {
+    return "";
+  }
+}
+
+function buildProviderImageProxyUrl(pathname, imageUrl) {
+  const version = getProviderImageVersion(imageUrl);
+  return version ? `${pathname}?v=${encodeURIComponent(version)}` : pathname;
+}
+
 export function resolveProviderImageSrc(provider = {}) {
   const imageUrl = String(provider.imageUrl || "").trim();
   const slug = String(provider.slug || "").trim();
 
   if (!imageUrl) return "";
-  if (slug && isPrivateBlobUrl(imageUrl)) return `/api/provider-images/${slug}`;
+  if (slug && isPrivateBlobUrl(imageUrl)) {
+    return buildProviderImageProxyUrl(
+      `/api/provider-images/${encodeURIComponent(slug)}`,
+      imageUrl
+    );
+  }
+
+  return imageUrl;
+}
+
+export function resolveAdminProviderImageSrc(provider = {}) {
+  const imageUrl = String(provider.imageUrl || "").trim();
+  const id = String(provider.id || "").trim();
+
+  if (!imageUrl) return "";
+  if (id && isPrivateBlobUrl(imageUrl)) {
+    return buildProviderImageProxyUrl(
+      `/api/admin/provider-images/${encodeURIComponent(id)}`,
+      imageUrl
+    );
+  }
 
   return imageUrl;
 }
