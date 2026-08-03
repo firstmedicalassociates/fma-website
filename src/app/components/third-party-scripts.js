@@ -42,6 +42,11 @@ export default function ThirdPartyScripts() {
         strategy="afterInteractive"
         onReady={initializeEmitrrWidget}
       />
+      <Script
+        id="rlets-campaign-tracking"
+        src="https://cdn.rlets.com/capture_static/mms/mms.js"
+        strategy="afterInteractive"
+      />
     </>
   );
 }
