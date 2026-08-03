@@ -6,6 +6,24 @@ import HeroEyebrow from "../components/hero-eyebrow";
 import { splitProviderCredentialTags } from "../lib/providers";
 import styles from "./providers-directory.module.css";
 
+const PROVIDER_TYPE_OPTIONS = [
+  {
+    value: "physician",
+    label: "Physician",
+    credentials: ["MD", "DO"],
+  },
+  {
+    value: "physician-assistant",
+    label: "Physician Assistant",
+    credentials: ["PA-C"],
+  },
+  {
+    value: "nurse-practitioner",
+    label: "Nurse Practitioner",
+    credentials: ["AGPCNP", "FNP", "FNP-BC", "FNP-C"],
+  },
+];
+
 function slugify(value) {
   return String(value || "")
     .toLowerCase()
@@ -35,6 +53,12 @@ function getActiveLabel(activeValue, options, allLabel) {
   return match || allLabel;
 }
 
+function getActiveProviderTypeLabel(activeValue) {
+  if (activeValue === "all") return "All Provider Types";
+  const match = PROVIDER_TYPE_OPTIONS.find((option) => option.value === activeValue);
+  return match?.label || "All Provider Types";
+}
+
 export default function ProvidersDirectory({ providers }) {
   const [activeCity, setActiveCity] = useState("all");
   const [activeLanguage, setActiveLanguage] = useState("all");
@@ -58,17 +82,11 @@ export default function ProvidersDirectory({ providers }) {
     return [...new Set(providers.flatMap((provider) => provider.languages || []).filter(Boolean))].sort();
   }, [providers]);
 
-  const specialtyOptions = useMemo(() => {
-    return [
-      ...new Set(
-        providers
-          .flatMap((provider) => provider.credentialTags || splitProviderCredentialTags(provider.role))
-          .filter(Boolean)
-      ),
-    ].sort();
-  }, [providers]);
-
   const filteredProviders = useMemo(() => {
+    const selectedProviderType = PROVIDER_TYPE_OPTIONS.find(
+      (option) => option.value === activeSpecialty
+    );
+
     return providers.filter((provider) => {
       const matchesCity =
         activeCity === "all" ||
@@ -78,8 +96,11 @@ export default function ProvidersDirectory({ providers }) {
         (provider.languages || []).some((language) => slugify(language) === activeLanguage);
       const matchesSpecialty =
         activeSpecialty === "all" ||
-        (provider.credentialTags || splitProviderCredentialTags(provider.role)).some(
-          (credential) => slugify(credential) === activeSpecialty
+        Boolean(
+          selectedProviderType &&
+            (provider.credentialTags || splitProviderCredentialTags(provider.role)).some(
+              (credential) => selectedProviderType.credentials.includes(credential)
+            )
         );
 
       return matchesCity && matchesLanguage && matchesSpecialty;
@@ -252,19 +273,19 @@ export default function ProvidersDirectory({ providers }) {
                   openFilter === "specialty" ? styles.providerFilterFieldOpen : ""
                 }`}
               >
-                <span className={styles.providerFilterLabel}>Specialty</span>
+                <span className={styles.providerFilterLabel}>Provider Type</span>
                 <button
                   type="button"
                   className={styles.providerDropdownTrigger}
                   onClick={() => setOpenFilter((current) => (current === "specialty" ? null : "specialty"))}
                   aria-expanded={openFilter === "specialty"}
                   aria-haspopup="listbox"
-                  aria-label="Filter providers by specialty"
+                  aria-label="Filter providers by type"
                 >
-                  {getActiveLabel(activeSpecialty, specialtyOptions, "All Specialties")}
+                  {getActiveProviderTypeLabel(activeSpecialty)}
                 </button>
                 {openFilter === "specialty" ? (
-                  <ul className={styles.providerDropdownMenu} role="listbox" aria-label="Specialty options">
+                  <ul className={styles.providerDropdownMenu} role="listbox" aria-label="Provider type options">
                     <li>
                       <button
                         type="button"
@@ -276,24 +297,25 @@ export default function ProvidersDirectory({ providers }) {
                           setOpenFilter(null);
                         }}
                       >
-                        All Specialties
+                        All Provider Types
                       </button>
                     </li>
-                    {specialtyOptions.map((specialty) => {
-                      const value = slugify(specialty);
+                    {PROVIDER_TYPE_OPTIONS.map((providerType) => {
                       return (
-                        <li key={specialty}>
+                        <li key={providerType.value}>
                           <button
                             type="button"
                             className={`${styles.providerDropdownOption} ${
-                              activeSpecialty === value ? styles.providerDropdownOptionActive : ""
+                              activeSpecialty === providerType.value
+                                ? styles.providerDropdownOptionActive
+                                : ""
                             }`}
                             onClick={() => {
-                              setActiveSpecialty(value);
+                              setActiveSpecialty(providerType.value);
                               setOpenFilter(null);
                             }}
                           >
-                            {specialty}
+                            {providerType.label}
                           </button>
                         </li>
                       );

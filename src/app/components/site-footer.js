@@ -1,6 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { GENERAL_BOOK_APPOINTMENT_URL, PATIENT_PORTAL_URL } from "../lib/config/site";
+import {
+  BILL_PAY_URL,
+  GENERAL_BOOK_APPOINTMENT_URL,
+  PATIENT_PORTAL_URL,
+} from "../lib/config/site";
 import styles from "./site-footer.module.css";
 
 const NAV_COLUMNS = [
@@ -31,7 +35,7 @@ const NAV_COLUMNS = [
       { href: "/patient-resources/patients", label: "Policies & Forms", icon: "policy" },
       { href: "/privacy-policy", label: "Privacy Policy", icon: "shield" },
       { href: GENERAL_BOOK_APPOINTMENT_URL, label: "Book Online", icon: "calendar" },
-      { href: "/patient-resources/insurance", label: "Pay Bill", icon: "card" },
+      { href: BILL_PAY_URL, label: "Pay Bill", icon: "card" },
     ],
   },
 ];

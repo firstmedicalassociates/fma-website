@@ -2,6 +2,8 @@ export const SITE_NAME = "First Medical Associates";
 export const DEFAULT_SITE_URL = "https://drsfirst.com";
 export const PATIENT_PORTAL_URL =
   process.env.NEXT_PUBLIC_PATIENT_PORTAL_URL?.trim() || "https://4332.portal.athenahealth.com/";
+export const BILL_PAY_URL =
+  "https://payment.patient.athenahealth.com/statement/?src=statement";
 export const SITE_CALL_HREF =
   process.env.NEXT_PUBLIC_SITE_CALL_HREF?.trim() || "tel:+13012843181";
 export const SITE_CALL_LABEL =
