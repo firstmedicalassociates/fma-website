@@ -88,6 +88,7 @@ const nextConfig = {
       { source: "/susana-beza-2", destination: "/providers/susana-beza-2", permanent: true },
       { source: "/liu-manchang-2", destination: "/providers/liu-manchang-2", permanent: true },
       { source: "/monica-braland", destination: "/providers/monica-braland", permanent: true },
+      { source: "/owen-glister-2", destination: "/providers/owen-glister-2", permanent: true },
       { source: "/providers/anita-kunwar-md", destination: "/providers/anita-kunwar", permanent: true },
       { source: "/providers/angelique-ramirez", destination: "/providers", permanent: true },
       { source: "/providers/ashley-myatt", destination: "/providers", permanent: true },

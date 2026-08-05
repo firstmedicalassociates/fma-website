@@ -1711,32 +1711,7 @@
 
   .mapBackdrop {
     inset: 0 10px 10px;
-  }
-
-  .mapSearchDock {
-    width: min(760px, calc(100% - 28px));
-  }
-
-  .stageContent {
-    grid-template-columns: 1fr;
-    min-height: 0;
-    padding: 14px;
-  }
-
-  .centerSpacer {
-    display: none;
-  }
-
-}
-
-@media (max-width: 720px) {
-  .stage {
-    padding: 0 8px 8px;
-  }
-
-  .mapBackdrop {
-    inset: 0 8px 8px;
-    border-radius: 26px;
+    border-radius: 30px;
   }
 
   .mapSearchDock,
@@ -1757,5 +1732,16 @@
     top: 10px;
     left: 10px;
     right: 10px;
+  }
+}
+
+@media (max-width: 720px) {
+  .stage {
+    padding: 0 8px 8px;
+  }
+
+  .mapBackdrop {
+    inset: 0 8px 8px;
+    border-radius: 26px;
   }
 }
