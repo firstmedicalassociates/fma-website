@@ -7,6 +7,11 @@ import { requireAdminRequest } from "../../../lib/admin-auth";
 
 export const runtime = "nodejs";
 
+const PRIVATE_UPLOAD_PATHS = {
+  blog: "blog-images",
+  location: "location-images",
+};
+
 async function fileExists(filePath) {
   try {
     await fs.access(filePath);
@@ -62,22 +67,41 @@ export async function POST(request) {
     .replace(/[^a-z0-9.-]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
-  const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim();
 
   if (blobToken) {
-    const safePath = kind === "provider" ? `providers/${safeName}` : `uploads/${safeName}`;
-    const access = kind === "provider" ? "private" : "public";
-    const blob = await put(safePath, buffer, {
-      access,
-      addRandomSuffix: true,
-      contentType: file.type || undefined,
-      token: blobToken,
-    });
+    const uploadKind = kind === "provider" ? "provider" : kind === "location" ? "location" : "blog";
+    const directory =
+      uploadKind === "provider" ? "providers" : PRIVATE_UPLOAD_PATHS[uploadKind];
 
-    return NextResponse.json({
-      ok: true,
-      url: blob.url,
-    });
+    try {
+      const blob = await put(`${directory}/${safeName}`, buffer, {
+        access: "private",
+        addRandomSuffix: true,
+        contentType: file.type || undefined,
+        token: blobToken,
+      });
+
+      const url =
+        uploadKind === "provider"
+          ? blob.url
+          : `/api/uploaded-images/${blob.pathname
+              .split("/")
+              .map((segment) => encodeURIComponent(segment))
+              .join("/")}`;
+
+      return NextResponse.json({ ok: true, url });
+    } catch (error) {
+      console.error("Failed to upload an admin image to Vercel Blob.", {
+        kind: uploadKind,
+        name: error?.name,
+        message: error?.message,
+      });
+      return NextResponse.json(
+        { ok: false, error: "Image storage is temporarily unavailable. Please try again." },
+        { status: 503 }
+      );
+    }
   }
 
   const uploadDir = path.join(process.cwd(), "public", "uploads");
