@@ -18,7 +18,7 @@ module.exports = [
     cityStatePhone: "301-262-6797",
     addressLines: ["14999 Health Center Dr Ste 201", "Bowie, MD 20716"],
     img: "https://drsfirst.com/wp-content/uploads/2023/03/Bowie-1.webp",
-    href: "/bowie-dev/",
+    href: "/bowie-2/",
   },
   {
     name: "Columbia, MD",
@@ -32,7 +32,7 @@ module.exports = [
     cityStatePhone: "443-979-9281",
     addressLines: ["9841 Broken Land Parkway, STE 115", "Columbia, MD 21046"],
     img: "https://drsfirst.com/wp-content/uploads/2023/04/health-clinic-80.jpg",
-    href: "/columbia-dev/",
+    href: "/columbia-2/",
   },
   {
     name: "Crofton, MD",

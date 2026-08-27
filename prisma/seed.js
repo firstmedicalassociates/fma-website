@@ -204,16 +204,16 @@ const locationSlugByProviderLabel = new Map(
   ])
 );
 
-locationSlugByProviderLabel.set("Bowie (Health Center Dr)", "/bowie-dev");
+locationSlugByProviderLabel.set("Bowie (Health Center Dr)", "/bowie-2");
 locationSlugByProviderLabel.set("Bowie (Gallant Fox Ln)", "/location/bowie");
 locationSlugByProviderLabel.set("Columbia (Snowden River Pkwy)", "/location/columbia");
-locationSlugByProviderLabel.set("Columbia (Broken Land Pkwy)", "/columbia-dev");
-locationSlugByProviderLabel.set("Columbia (Broken Land Parkway)", "/columbia-dev");
+locationSlugByProviderLabel.set("Columbia (Broken Land Pkwy)", "/columbia-2");
+locationSlugByProviderLabel.set("Columbia (Broken Land Parkway)", "/columbia-2");
 // Preserve legacy provider-import labels after correcting the public address.
-locationSlugByProviderLabel.set("Columbia (Broken Land Dr)", "/columbia-dev");
-locationSlugByProviderLabel.set("Columbia (Broken Land Drive)", "/columbia-dev");
+locationSlugByProviderLabel.set("Columbia (Broken Land Dr)", "/columbia-2");
+locationSlugByProviderLabel.set("Columbia (Broken Land Drive)", "/columbia-2");
 locationSlugByProviderLabel.set("Columbia I", "/location/columbia");
-locationSlugByProviderLabel.set("Columbia II", "/columbia-dev");
+locationSlugByProviderLabel.set("Columbia II", "/columbia-2");
 
 function normalizeProviderLocationSlug(locationLabel = "") {
   const normalizedLabel = cleanText(locationLabel);
@@ -411,8 +411,8 @@ async function main() {
     };
     const shouldForceSeedAddressFields =
       seededLocation.slug === "/location/bowie" ||
-      seededLocation.slug === "/bowie-dev" ||
-      seededLocation.slug === "/columbia-dev";
+      seededLocation.slug === "/bowie-2" ||
+      seededLocation.slug === "/columbia-2";
     const existingLocation = await prisma.location.findUnique({
       where: { slug: seededLocation.slug },
     });

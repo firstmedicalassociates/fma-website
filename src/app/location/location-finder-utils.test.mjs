@@ -23,7 +23,7 @@ function office(slug, title, city, state, distanceMiles) {
 test("groups offices only when their structured city and state match", () => {
   const groups = groupLocationsByStructuredCity([
     office("/location/bowie", "Bowie, MD", "Bowie", "MD", 12),
-    office("/bowie-dev", "Bowie II, MD", "Bowie", "MD", 15),
+    office("/bowie-2", "Bowie II, MD", "Bowie", "MD", 15),
     office("/location/bowie-pa", "Bowie, PA", "Bowie", "PA", 140),
     office("/unstructured-one", "Unstructured", "", "", 20),
     office("/unstructured-two", "Unstructured II", "", "", 21),
@@ -32,7 +32,7 @@ test("groups offices only when their structured city and state match", () => {
   assert.equal(groups.length, 4);
   assert.deepEqual(groups[0].locations.map(({ slug }) => slug), [
     "/location/bowie",
-    "/bowie-dev",
+    "/bowie-2",
   ]);
   assert.equal(groups[0].title, "Bowie");
   assert.equal(groups[0].nearestDistanceMiles, 12);

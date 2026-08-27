@@ -17,7 +17,7 @@ const GERIATRIC_CARE_SECTION = {
 };
 
 module.exports = {
-  "/columbia-dev": {
+  "/columbia-2": {
     sourceUrl: "https://drsfirst.com/columbia-dev/",
     sections: [
       {
@@ -253,7 +253,7 @@ module.exports = {
       GERIATRIC_CARE_SECTION,
     ],
   },
-  "/bowie-dev": {
+  "/bowie-2": {
     sourceUrl: "https://drsfirst.com/bowie-dev/",
     sections: [
       {

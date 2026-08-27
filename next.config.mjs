@@ -75,6 +75,8 @@ const nextConfig = {
         permanent: true,
       },
       { source: "/columbia", destination: "/location/columbia", permanent: true },
+      { source: "/columbia-dev", destination: "/columbia-2", permanent: true },
+      { source: "/bowie-dev", destination: "/bowie-2", permanent: true },
       { source: "/robin-codjoe", destination: "/providers/robin-codjoe", permanent: true },
       { source: "/elesa-yihdego", destination: "/providers/elesa-yihdego", permanent: true },
       { source: "/ilan-kokotek-2", destination: "/providers/ilan-kokotek-2", permanent: true },
