@@ -50,11 +50,11 @@ const PHOTO_ALTS = {
 };
 
 const LOCATION_PHOTO_SETS = {
-  "/bowie-dev": {
+  "/bowie-2": {
     primary: "bowie-health-center-dr",
     gallery: ["bowie-health-center-dr", "bowie-ii-md"],
   },
-  "/columbia-dev": {
+  "/columbia-2": {
     primary: "columbia-broken-land",
     gallery: ["columbia-broken-land"],
   },
