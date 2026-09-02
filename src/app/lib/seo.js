@@ -42,7 +42,7 @@ const LOCATION_SEO_BY_SLUG = {
   },
   "/location/crofton": {
     title: "Crofton | Primary Care Doctor at First Medical Associates",
-    h1: "Primary care Doctor in Crofton , MD",
+    h1: "Primary care Doctor in Crofton, MD",
   },
   "/location/frederick": {
     title: "Primary Care & Family Doctors | Same-Day Appointments in Frederick, MD | First Medical Associates",
@@ -66,7 +66,7 @@ const LOCATION_SEO_BY_SLUG = {
   },
   "/location/lutherville": {
     title: "Primary Care Doctor in Lutherville | First Medical Associates",
-    h1: "Primary care Doctor in Lutherville , MD",
+    h1: "Primary care Doctor in Lutherville, MD",
   },
   "/location/nottingham": {
     title: "Primary Care Doctor in Nottingham, MD | Family & Same-Day Appointments | First Medical Associates",

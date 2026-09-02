@@ -36,7 +36,8 @@
     "node-html-parser": "^7.1.0",
     "openai": "^6.38.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "ws": "^8.21.3"
   },
   "devDependencies": {
     "eslint": "^9.39.4",

@@ -8,7 +8,7 @@ export const OFFICE_HOUR_DAYS = [
   { value: "Saturday", shortLabel: "Sat" },
 ];
 
-export const HIDDEN_LOCATION_SLUGS = ["/location/laurel"];
+export const HIDDEN_LOCATION_SLUGS = [];
 export const VISIBLE_LOCATION_WHERE = {
   slug: {
     notIn: HIDDEN_LOCATION_SLUGS,

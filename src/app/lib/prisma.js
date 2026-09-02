@@ -1,15 +1,22 @@
 import "dotenv/config";
+import { neonConfig } from "@neondatabase/serverless";
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
+import ws from "ws";
 
 const globalForPrisma = globalThis;
-const databaseUrl = process.env.DATABASE_URL?.trim() || "";
+const databaseUrl =
+  process.env.DATABASE_URL?.trim() || process.env.DIRECT_URL?.trim() || "";
+
+if (typeof globalThis.WebSocket === "undefined") {
+  neonConfig.webSocketConstructor = ws;
+}
 
 export const isDatabaseConfigured = Boolean(databaseUrl);
 
 function createMissingDatabaseError(modelName = "database", methodName = "query") {
   return new Error(
-    `DATABASE_URL is not set, so ${modelName}.${methodName} cannot run. Add DATABASE_URL to your environment before using database-backed routes.`
+    `DATABASE_URL or DIRECT_URL is not set, so ${modelName}.${methodName} cannot run. Add a database URL to your environment before using database-backed routes.`
   );
 }
 

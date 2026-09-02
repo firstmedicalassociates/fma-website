@@ -1,16 +1,20 @@
 require("dotenv/config");
 const bcrypt = require("bcryptjs");
+const { neonConfig } = require("@neondatabase/serverless");
 const { PrismaClient } = require("@prisma/client");
 const { PrismaNeon } = require("@prisma/adapter-neon");
+const ws = require("ws");
 const locationSeedData = require("./location-seed-data");
 const locationInfoSeedData = require("./location-info-seed-data");
 const providerSeedData = require("./provider-seed-data");
 const serviceSeedData = require("./service-seed-data");
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL || process.env.DIRECT_URL;
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL is not set for seeding.");
+  throw new Error("DATABASE_URL or DIRECT_URL is not set for seeding.");
 }
+
+neonConfig.webSocketConstructor = ws;
 
 const prisma = new PrismaClient({
   adapter: new PrismaNeon({ connectionString: databaseUrl }),
@@ -107,6 +111,7 @@ function buildSeedLocation(entry) {
     serviceIds: [],
     services: [],
     hideOfficePhone: false,
+    bookingUrl: cleanText(entry.bookingUrl),
   };
 }
 
@@ -181,7 +186,7 @@ function mergeLocation(existingLocation, seededLocation) {
     callTextPhone: pickText(existingLocation.callTextPhone, null),
     hideOfficePhone: pickBoolean(existingLocation.hideOfficePhone, seededLocation.hideOfficePhone),
     directionsUrl: pickText(existingLocation.directionsUrl, seededLocation.directionsUrl),
-    bookingUrl: pickText(existingLocation.bookingUrl, null),
+    bookingUrl: pickText(existingLocation.bookingUrl, seededLocation.bookingUrl),
     reviewUrl: pickText(existingLocation.reviewUrl, null),
     mapImageUrl: pickText(existingLocation.mapImageUrl, seededLocation.mapImageUrl),
     mapImageAlt: pickText(existingLocation.mapImageAlt, seededLocation.mapImageAlt),
@@ -412,7 +417,8 @@ async function main() {
     const shouldForceSeedAddressFields =
       seededLocation.slug === "/location/bowie" ||
       seededLocation.slug === "/bowie-2" ||
-      seededLocation.slug === "/columbia-2";
+      seededLocation.slug === "/columbia-2" ||
+      seededLocation.slug === "/location/laurel";
     const existingLocation = await prisma.location.findUnique({
       where: { slug: seededLocation.slug },
     });
@@ -436,6 +442,7 @@ async function main() {
                 mapImageAlt: seededLocation.mapImageAlt,
               }
             : mergedLocation),
+          ...(entry.clearExistingImage ? { mapImageUrl: null } : {}),
           serviceIds: allActiveServiceIds,
         },
       });
