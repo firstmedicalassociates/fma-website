@@ -263,6 +263,10 @@
   text-wrap: balance;
 }
 
+.locationHeroPlace {
+  white-space: nowrap;
+}
+
 .locationHeroAccent {
   margin: 0;
   color: #5470b2;

@@ -83,6 +83,23 @@ function normalizeCategory(value = "") {
     .toLowerCase();
 }
 
+function renderLocationHeroTitle(title = "", placeLabel = "") {
+  const normalizedTitle = String(title || "");
+  const normalizedPlaceLabel = String(placeLabel || "").trim();
+  const placeIndex = normalizedTitle
+    .toLocaleLowerCase("en-US")
+    .lastIndexOf(normalizedPlaceLabel.toLocaleLowerCase("en-US"));
+
+  if (!normalizedPlaceLabel || placeIndex < 0) return normalizedTitle;
+
+  return (
+    <>
+      {normalizedTitle.slice(0, placeIndex)}
+      <span className={styles.locationHeroPlace}>{normalizedTitle.slice(placeIndex)}</span>
+    </>
+  );
+}
+
 function getCategoryVariant(category = "") {
   const key = normalizeCategory(category);
 
@@ -421,7 +438,12 @@ export default function LocationPageShell({ location, providers, serviceGroups }
               <div className={styles.locationHero}>
                 <div className={styles.locationHeroCopy}>
                   <HeroEyebrow>{locationSeoPlaceLabel}</HeroEyebrow>
-                  <h1 className={styles.locationHeroTitle}>{location.seoH1 || location.title}</h1>
+                  <h1 className={styles.locationHeroTitle}>
+                    {renderLocationHeroTitle(
+                      location.seoH1 || location.title,
+                      locationSeoPlaceLabel
+                    )}
+                  </h1>
                   <p className={styles.locationHeroAccent}>
                     {location.accent || `Primary care in ${locationSeoPlaceLabel}`}
                   </p>
