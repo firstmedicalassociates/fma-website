@@ -28,7 +28,7 @@ const MAP_BOUNDS_PADDING = 96;
 const MOBILE_BREAKPOINT_PX = 1040;
 const DEFAULT_MARKER_SIZE_PX = 18;
 const SELECTED_MARKER_SIZE_PX = 22;
-const FMA_MAP_MARKER_URL = "./uploads/FMAicon.svg";
+const FMA_MAP_MARKER_URL = "/uploads/FMAicon.svg";
 const WEEKDAY_LABELS = [
   "Sunday",
   "Monday",
