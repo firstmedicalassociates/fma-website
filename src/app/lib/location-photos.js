@@ -45,7 +45,12 @@ const PHOTO_BLOBS = {
   "silver-spring-building": `${PHOTO_BLOB_BASE_URL}/silver-spring-building.webp`,
 };
 
+const STATIC_PHOTOS = {
+  laurel: "/assets/locations/entaa-care-laurel.jpg",
+};
+
 const PHOTO_ALTS = {
+  laurel: "Exterior of the Greater Laurel Professional Building in Laurel, Maryland",
   "silver-spring-building": "Exterior of the First Medical Associates Silver Spring office building",
 };
 
@@ -94,6 +99,10 @@ const LOCATION_PHOTO_SETS = {
     primary: "greenbelt",
     gallery: ["greenbelt", "greenbelt-md"],
   },
+  "/location/laurel": {
+    primary: "laurel",
+    gallery: ["laurel"],
+  },
   "/location/lutherville": {
     primary: "lutherville-2",
     gallery: ["lutherville-2", "lutherville-1", "lutherville-md"],
@@ -129,7 +138,7 @@ function buildPhotoAlt(location, index) {
 function buildPhoto(key, location, index) {
   return {
     key,
-    src: `/api/location-photos/${encodeURIComponent(key)}`,
+    src: STATIC_PHOTOS[key] || `/api/location-photos/${encodeURIComponent(key)}`,
     alt: PHOTO_ALTS[key] || buildPhotoAlt(location, index),
   };
 }
@@ -143,7 +152,7 @@ export function getLocationPhotoSet(location = {}) {
   if (!photoSet) return null;
 
   const galleryKeys = [...new Set([photoSet.primary, ...(photoSet.gallery || [])])].filter((key) =>
-    Boolean(PHOTO_BLOBS[key])
+    Boolean(PHOTO_BLOBS[key] || STATIC_PHOTOS[key])
   );
   const gallery = galleryKeys.map((key, index) => buildPhoto(key, location, index));
   const primaryIndex = gallery.findIndex((photo) => photo.key === photoSet.primary);

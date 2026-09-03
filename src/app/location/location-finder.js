@@ -3,9 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import {
   GOOGLE_MAPS_API_KEY,
@@ -333,7 +331,6 @@ function ActionLink({ href, className, children, external = false }) {
 }
 
 export default function LocationFinder({ locations = [] }) {
-  const pathname = usePathname();
   const [searchState, setSearchState] = useState("");
   const [searchCity, setSearchCity] = useState("");
   const [searchZip, setSearchZip] = useState("");
@@ -842,7 +839,6 @@ export default function LocationFinder({ locations = [] }) {
     isSheetExpanded ? styles.mobileSheetExpanded : styles.mobileSheetCollapsed
   } ${mobileViewMode === "detail" ? styles.mobileSheetDetail : styles.mobileSheetList}`;
   const showDesktopPanels = !isMobileViewport && showResultsPanel;
-  const shouldShowFooter = pathname !== "/locations";
   const detailAddressPrimary = activeLocation?.addressLines?.[0] || activeLocation?.address || "Address pending";
   const detailAddressSecondary =
     activeLocation?.addressLines?.slice(1).join(", ") || "Address details";
@@ -1433,7 +1429,6 @@ export default function LocationFinder({ locations = [] }) {
           ) : null}
         </main>
       </div>
-      {shouldShowFooter ? <SiteFooter /> : null}
     </div>
   );
 }
