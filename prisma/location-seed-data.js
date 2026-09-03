@@ -105,6 +105,16 @@ module.exports = [
     href: "/location/lutherville/",
   },
   {
+    name: "Laurel, MD",
+    cityStatePhone: "443-917-3101",
+    addressLines: ["14201 Laurel Park Drive, Suite #111", "Laurel, MD 20707"],
+    img: null,
+    clearExistingImage: true,
+    bookingUrl:
+      "https://pmc-firstmedicalassociates.provider-match.com/search?tracking_consent=true&tracking_consent_type=none&shuffle_seed=8fbd5b17-17b4-41ed-94b4-41a01d57d304&categories=primary_care%2Cclinical_keywords%2Cspecialties%2Cprovider_name%2Clocation_name&sort=relevance%2Cnetworks%2Cavailability_density_best&search_alerts=false&include_value_add_programs=false&use_knowledge_graph_results=false&provider_fields=-clinical_keywords&location_name=Laurel",
+    href: "/location/laurel/",
+  },
+  {
     name: "Greenbelt, MD",
     cityStatePhone: "227-997-3903",
     addressLines: ["7500 Greenway Center Dr, Ste 620", "Greenbelt, MD 21093"],
