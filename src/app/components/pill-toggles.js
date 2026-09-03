@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { normalizeInternalPageHref } from "../lib/config/site";
 import styles from "./pill-toggles.module.css";
 
 function joinClassNames(...values) {
@@ -15,6 +16,11 @@ function renderIcon(Icon) {
       <Icon size={18} />
     </span>
   );
+}
+
+function comparablePath(value = "") {
+  const pathname = String(value || "").split(/[?#]/, 1)[0];
+  return pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
 }
 
 export function PillToggleNav({
@@ -79,11 +85,11 @@ export function PillToggleNav({
         )}
       >
         {items.map((item) => {
-          const isActive = item.href === activeHref;
+          const isActive = comparablePath(item.href) === comparablePath(activeHref);
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={normalizeInternalPageHref(item.href)}
               className={joinClassNames(styles.item, isActive ? styles.itemActive : "")}
             >
               {renderIcon(item.icon)}

@@ -115,7 +115,7 @@ const MOCK_RESULT_CARDS = [
     categoryLabel: "Provider Search",
     title: "Find a Provider",
     description: "Search providers by specialty, city, state, or appointment type.",
-    href: "/providers",
+    href: "/providers/",
     actionLabel: "View provider options",
   },
   {
@@ -123,7 +123,7 @@ const MOCK_RESULT_CARDS = [
     title: "Care Services",
     description:
       "Explore annual physicals, sick visits, preventive care, and chronic care management.",
-    href: "/services",
+    href: "/services/",
     actionLabel: "Explore services",
   },
   {
@@ -131,7 +131,7 @@ const MOCK_RESULT_CARDS = [
     title: "Nearby Offices",
     description:
       "Find the office that works best for your appointment, provider, or service need.",
-    href: "/locations",
+    href: "/locations/",
     actionLabel: "View locations",
   },
 ];
@@ -1002,10 +1002,10 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                           <Link className={`${styles.quickAction} ${styles.quickActionPrimary}`} href={GENERAL_BOOK_APPOINTMENT_URL}>
                             Schedule Appointment
                           </Link>
-                          <Link className={styles.quickAction} href="/providers">
+                          <Link className={styles.quickAction} href="/providers/">
                             Find a Provider
                           </Link>
-                          <Link className={styles.quickAction} href="/locations">
+                          <Link className={styles.quickAction} href="/locations/">
                             View Locations
                           </Link>
                         </div>

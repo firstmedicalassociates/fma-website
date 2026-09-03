@@ -171,7 +171,7 @@ export default function ServicesDirectory({ services = [], initialCategory = "" 
                   key={service.id}
                   className={`${styles.card} ${telehealth ? styles.cardTelehealth : ""}`}
                 >
-                  <Link href={`/service/${service.slug}`}>
+                  <Link href={`/service/${service.slug}/`}>
                     <div className={styles.cardHeader}>
                       <span className={`material-symbols-outlined ${styles.cardIcon}`}>
                         {normalizeServiceIcon(service.icon)}
@@ -183,7 +183,7 @@ export default function ServicesDirectory({ services = [], initialCategory = "" 
                     <h2>{service.title}</h2>
                     <p>{service.description}</p>
                   </Link>
-                  <Link href={`/service/${service.slug}`} className={styles.cardCta}>
+                  <Link href={`/service/${service.slug}/`} className={styles.cardCta}>
                     {telehealth ? "Launch Visit" : "Learn More"}
                     <span className="material-symbols-outlined">arrow_forward</span>
                   </Link>
@@ -204,9 +204,9 @@ export default function ServicesDirectory({ services = [], initialCategory = "" 
               chronic disease management.
             </p>
             <div className={styles.ctaActions}>
-              <Link href="/providers">Find a Clinician</Link>
-              <Link href="/locations">Find a Location</Link>
-              <Link href="/patient-resources">Patient Resources</Link>
+              <Link href="/providers/">Find a Clinician</Link>
+              <Link href="/locations/">Find a Location</Link>
+              <Link href="/patient-resources/">Patient Resources</Link>
             </div>
           </div>
         </div>

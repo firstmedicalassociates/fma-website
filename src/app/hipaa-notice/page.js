@@ -1,10 +1,12 @@
 import PublicInfoPage from "../components/public-info-page";
+import { buildStaticMetadata } from "../lib/seo";
 
-export const metadata = {
+export const metadata = buildStaticMetadata({
   title: "HIPAA Notice | First Medical Associates",
   description:
     "Access the First Medical Associates HIPAA notice contact page for questions about patient privacy rights and protected health information.",
-};
+  pathname: "/hipaa-notice",
+});
 
 export default function HipaaNoticePage() {
   return (

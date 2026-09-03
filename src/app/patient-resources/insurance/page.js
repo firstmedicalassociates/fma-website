@@ -284,7 +284,7 @@ export default function InsurancePage() {
                <p>Our team is happy to help you understand your benefits and options.</p>
             </div>
          </div>
-         <Link className="contact-btn" href="/contact">
+         <Link className="contact-btn" href="/contact/">
              Contact Our Team <ArrowRight size={18} />
          </Link>
       </section>

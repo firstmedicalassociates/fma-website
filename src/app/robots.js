@@ -1,17 +1,15 @@
-import { getSiteUrl } from "./lib/config/site";
+import { CANONICAL_ORIGIN, absoluteUrl } from "./lib/config/site";
 
 export default function robots() {
-  const siteUrl = getSiteUrl();
-
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/api", "/search"],
+        disallow: ["/admin", "/api"],
       },
     ],
-    sitemap: `${siteUrl}/sitemap.xml`,
-    host: siteUrl,
+    sitemap: absoluteUrl("/sitemap.xml"),
+    host: CANONICAL_ORIGIN,
   };
 }

@@ -1,4 +1,4 @@
-import { SITE_NAME, absoluteUrl } from "./config/site";
+import { SITE_NAME, absoluteUrl, pageUrl } from "./config/site";
 
 function cleanText(value = "") {
   return String(value || "").replace(/\s+/g, " ").trim();
@@ -130,7 +130,7 @@ const SERVICE_SEO_TITLES_BY_SLUG = {
 };
 
 export function buildStaticMetadata({ title, description, pathname, image } = {}) {
-  const canonicalUrl = pathname ? absoluteUrl(pathname) : undefined;
+  const canonicalUrl = pathname ? pageUrl(pathname) : undefined;
   const imageUrl = image?.url
     ? image.url
     : image?.pathname

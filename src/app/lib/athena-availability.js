@@ -1,5 +1,5 @@
 import { prisma } from "./prisma.js";
-import { GENERAL_BOOK_APPOINTMENT_URL } from "./config/site.js";
+import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
 import {
   AI_SEARCH_CORE_STOPWORDS,
   AI_SEARCH_PATTERNS,
@@ -1698,7 +1698,7 @@ function buildProviderResolutionFallbackResult(providerResolution, lookaheadDays
     .filter((candidate) => candidate?.name && candidate?.slug)
     .map((candidate) => ({
       title: candidate.name,
-      url: `/providers/${candidate.slug}`,
+      url: normalizeInternalPageHref(`/providers/${candidate.slug}`),
       type: "provider",
       category: [candidate.title, ...(candidate.locations || []).slice(0, 1)]
         .filter(Boolean)
@@ -1717,7 +1717,7 @@ function buildProviderResolutionFallbackResult(providerResolution, lookaheadDays
     sources:
       candidateSources.length > 0
         ? candidateSources
-        : [{ title: "Find a Provider", url: "/providers", type: "provider" }],
+        : [{ title: "Find a Provider", url: "/providers/", type: "provider" }],
     citations: ["Appointment search"],
     disclaimer: true,
     recoveryActions: [
@@ -1731,7 +1731,7 @@ function buildProviderResolutionFallbackResult(providerResolution, lookaheadDays
         type: "link",
         label: "Find a Provider",
         value: "providers",
-        href: "/providers",
+        href: "/providers/",
       },
       {
         type: "link",
@@ -1768,7 +1768,7 @@ function buildProviderSchedulingNotConfirmedResult(
     .filter((provider) => provider.slug)
     .map((provider) => ({
       title: provider.name,
-      url: `/providers/${provider.slug}`,
+      url: normalizeInternalPageHref(`/providers/${provider.slug}`),
       type: "provider",
     }))
     .slice(0, MAX_RESULTS);
@@ -1976,7 +1976,9 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
         providerName,
         providerTitle: siteProvider?.title || provider.providertype || "",
         providerSlug: siteProvider?.slug || "",
-        providerUrl: siteProvider?.slug ? `/providers/${siteProvider.slug}` : "",
+        providerUrl: siteProvider?.slug
+          ? normalizeInternalPageHref(`/providers/${siteProvider.slug}`)
+          : "",
         bookingUrl,
         locationName: getDepartmentName(providerDepartment),
         departmentId: providerDepartment.departmentid,
@@ -2129,7 +2131,7 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
 
       return {
         title: siteProvider.name || getProviderName(provider),
-        url: `/providers/${siteProvider.slug}`,
+        url: normalizeInternalPageHref(`/providers/${siteProvider.slug}`),
         type: "provider",
       };
     })
@@ -2152,7 +2154,7 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
           : [
               {
                 title: locationName,
-                url: "/locations",
+                url: "/locations/",
                 type: "location",
               },
             ],

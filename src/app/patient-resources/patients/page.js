@@ -23,7 +23,7 @@ export default function PatientsPage() {
     {
       title: 'Privacy Policy',
       desc: 'Learn how we protect your personal and health information.',
-      href: '/privacy-policy',
+      href: '/privacy-policy/',
       action: 'View Policy',
     },
     {

@@ -467,7 +467,7 @@
     "expectedGrounded": true,
     "expectedAiConfidence": "high",
     "expectedModelVersion": "deterministic-fma-fact",
-    "expectedSourceUrl": "/location/gaithersburg",
+    "expectedSourceUrl": "/location/gaithersburg/",
     "expectedNoProviderCards": true,
     "requiredAnswerPhrases": [
       "301-515-2902"
@@ -485,7 +485,7 @@
     "expectedGrounded": true,
     "expectedAiConfidence": "high",
     "expectedModelVersion": "deterministic-fma-fact",
-    "expectedSourceUrl": "/location/rockville",
+    "expectedSourceUrl": "/location/rockville/",
     "expectedNoProviderCards": true,
     "requiredAnswerPhrases": [
       "9601 Blackwell Road",
@@ -725,7 +725,7 @@
     "expectedGrounded": true,
     "expectedAiConfidence": "high",
     "expectedModelVersion": "deterministic-fma-fact",
-    "expectedSourceUrl": "/location/gaithersburg",
+    "expectedSourceUrl": "/location/gaithersburg/",
     "expectedNoProviderCards": true,
     "requiredAnswerPhrases": [
       "UnitedHealthcare commercial plans are not accepted",

@@ -532,11 +532,11 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                   </div>
 
                   <div className={styles.locationResourceLinks}>
-                    <Link href="/patient-resources/patients" className={styles.locationInfoLink}>
+                    <Link href="/patient-resources/patients/" className={styles.locationInfoLink}>
                       <span>Patient Forms</span>
                       <span className="material-symbols-outlined">arrow_forward</span>
                     </Link>
-                    <Link href="/patient-resources/education" className={styles.locationInfoLink}>
+                    <Link href="/patient-resources/education/" className={styles.locationInfoLink}>
                       <span>Education</span>
                       <span className="material-symbols-outlined">arrow_forward</span>
                     </Link>
@@ -671,7 +671,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                       {filteredServices.map((service) => {
                         const telehealth = isTelehealthService(service);
                         const categoryPillClass = getCategoryPillClass(styles, service.category);
-                        const serviceHref = service.slug ? `/service/${service.slug}` : "";
+                        const serviceHref = service.slug ? `/service/${service.slug}/` : "";
                         return (
                           <article
                             key={`${service.category}-${service.title}`}

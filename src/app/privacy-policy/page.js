@@ -1,10 +1,12 @@
 import PublicInfoPage from "../components/public-info-page";
+import { buildStaticMetadata } from "../lib/seo";
 
-export const metadata = {
+export const metadata = buildStaticMetadata({
   title: "Privacy Policy | First Medical Associates",
   description:
     "Learn how First Medical Associates handles website privacy questions, patient communications, and requests for more information.",
-};
+  pathname: "/privacy-policy",
+});
 
 export default function PrivacyPolicyPage() {
   return (

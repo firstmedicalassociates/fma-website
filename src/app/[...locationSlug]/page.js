@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { SITE_NAME, absoluteUrl } from "../lib/config/site";
+import { SITE_NAME, absoluteUrl, normalizePagePath, pageUrl } from "../lib/config/site";
 import {
   buildPostalAddressSchema,
   buildOpeningHoursSpecification,
@@ -102,11 +102,11 @@ export async function generateMetadata({ params }) {
     title: seo.title,
     description: seo.description,
     alternates: {
-      canonical: absoluteUrl(location.slug),
+      canonical: pageUrl(location.slug),
     },
     openGraph: {
       type: "website",
-      url: absoluteUrl(location.slug),
+      url: pageUrl(location.slug),
       title: seo.title,
       description: seo.description,
       images: imageUrl ? [{ url: imageUrl, alt: imageAlt }] : undefined,
@@ -179,7 +179,7 @@ export default async function LocationLandingPage({ params }) {
   const primaryImageSrc = primaryImage?.src || location.mapImageUrl || "";
   const primaryImageAlt = primaryImage?.alt || location.mapImageAlt || location.title;
   const imageUrl = resolveImageUrl(primaryImageSrc);
-  const locationUrl = absoluteUrl(location.slug);
+  const locationUrl = pageUrl(location.slug);
   const openingHours = formatOfficeHoursForDisplay(location.officeHours);
   const openingHoursSpecification = buildOpeningHoursSpecification(location.officeHours);
   const serviceRecordsById = Object.fromEntries(serviceRecords.map((service) => [service.id, service]));
@@ -233,8 +233,8 @@ export default async function LocationLandingPage({ params }) {
           ...provider,
           imageUrl: resolveProviderImageSrc(provider),
           imageAlt: provider.imageAlt || provider.name,
-          profileHref: `/providers/${provider.slug}`,
-          ctaHref: provider.linkUrl || `/providers/${provider.slug}`,
+          profileHref: normalizePagePath(`/providers/${provider.slug}`),
+          ctaHref: provider.linkUrl || normalizePagePath(`/providers/${provider.slug}`),
           ctaLabel: provider.linkUrl ? "Book Appointment" : "View Profile",
         }))}
         serviceGroups={groupLocationServices(locationServices)}

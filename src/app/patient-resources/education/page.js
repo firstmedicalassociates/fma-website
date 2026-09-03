@@ -52,7 +52,7 @@ function preparePost(post) {
     category,
     summary: summarizePost(post),
     readTime: estimateReadTime(post),
-    href: post.slug ? `/blog/${post.slug}` : "/blog",
+    href: post.slug ? `/blog/${post.slug}/` : "/blog/",
     coverImageUrl: post.coverImageUrl || fallbackImage,
     coverImageAlt: post.coverImageAlt || post.title || "Patient education article",
   };
@@ -402,7 +402,7 @@ export default async function EducationPage({ searchParams }) {
             className={`edu-cat-card ${
               category.value === selectedCategory.value ? "is-active" : ""
             }`}
-            href={`/patient-resources/education?category=${category.slug}`}
+            href={`/patient-resources/education/?category=${category.slug}`}
           >
             <span>{category.label}</span>
             <h5>
@@ -464,7 +464,7 @@ export default async function EducationPage({ searchParams }) {
                 New posts assigned to this blog category will appear here as soon as they are
                 published.
               </p>
-              <Link className="side-link" href="/blog">
+              <Link className="side-link" href="/blog/">
                 View All Articles <ArrowRight size={16} />
               </Link>
             </article>

@@ -7,7 +7,11 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
-import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_MAP_ID } from "../lib/config/site";
+import {
+  GOOGLE_MAPS_API_KEY,
+  GOOGLE_MAPS_MAP_ID,
+  normalizeInternalPageHref,
+} from "../lib/config/site";
 import { formatOfficeHourTime, normalizeOfficeHours } from "../lib/locations";
 import {
   calculateDistanceMiles,
@@ -322,7 +326,7 @@ function ActionLink({ href, className, children, external = false }) {
   }
 
   return (
-    <Link className={className} href={href}>
+    <Link className={className} href={normalizeInternalPageHref(href)}>
       {children}
     </Link>
   );

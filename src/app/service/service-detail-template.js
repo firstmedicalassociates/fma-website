@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import InternalLinkHub from "../components/internal-link-hub";
+import { normalizeInternalPageHref } from "../lib/config/site";
 import { getServiceSeoContent } from "../lib/seo";
 import { normalizeServicePageContent } from "../lib/services";
 
@@ -55,7 +56,7 @@ export default function ServiceDetailTemplate({ service }) {
       {detailParagraphs.map((paragraph, index) => (
         <p key={`detail-${index}`}>{paragraph}</p>
       ))}
-      <Link href={content.detailLinkHref} className="detail-link">
+      <Link href={normalizeInternalPageHref(content.detailLinkHref)} className="detail-link">
         {content.detailLinkLabel} <ArrowRight size={17} />
       </Link>
     </article>
@@ -753,7 +754,7 @@ export default function ServiceDetailTemplate({ service }) {
           <div className="breadcrumbs">
             <Link href="/">Home</Link>
             <span>&gt;</span>
-            <Link href="/services">Services</Link>
+            <Link href="/services/">Services</Link>
             <span>&gt;</span>
             <span className="active">{service?.title || "Service"}</span>
           </div>
@@ -765,10 +766,10 @@ export default function ServiceDetailTemplate({ service }) {
             <p className="hero-desc">{content.heroDescription}</p>
 
             <div className="hero-actions">
-              <Link href="/locations" className="button-primary">
+              <Link href="/locations/" className="button-primary">
                 <Calendar size={18} /> Schedule an Appointment
               </Link>
-              <Link href="/providers" className="button-outline">
+              <Link href="/providers/" className="button-outline">
                 <User size={18} /> Find a Primary Care Provider
               </Link>
             </div>
@@ -829,22 +830,22 @@ export default function ServiceDetailTemplate({ service }) {
           intro={`Continue from ${service.title} to the most relevant next-step pages on the site.`}
           links={[
             {
-              href: "/providers",
+              href: "/providers/",
               label: "Find a Provider",
               description: "Browse primary care providers who can help with this service.",
             },
             {
-              href: "/locations",
+              href: "/locations/",
               label: "Find a Location",
               description: "See Maryland clinic locations where you can book care or visit a nearby office.",
             },
             {
-              href: "/services",
+              href: "/services/",
               label: "Browse All Services",
               description: "Compare related treatment options, chronic care, specialized care, and telehealth.",
             },
             {
-              href: "/patient-resources/insurance",
+              href: "/patient-resources/insurance/",
               label: "Check Insurance",
               description: "Review accepted insurance plans before scheduling your appointment.",
             },
@@ -858,10 +859,10 @@ export default function ServiceDetailTemplate({ service }) {
           </div>
 
           <div className="cta-actions">
-            <Link href="/locations" className="cta-btn-primary">
+            <Link href="/locations/" className="cta-btn-primary">
               <Calendar size={18} /> Schedule an Appointment
             </Link>
-            <Link href="/providers" className="cta-btn-outline">
+            <Link href="/providers/" className="cta-btn-outline">
               Find a Provider <ArrowRight size={18} />
             </Link>
           </div>

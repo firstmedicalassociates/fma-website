@@ -1,5 +1,6 @@
 import { prisma } from "./prisma.js";
 import { VISIBLE_LOCATION_WHERE } from "./locations.js";
+import { normalizeInternalPageHref } from "./config/site.js";
 
 export const AI_SEARCH_COMMON_KNOWLEDGE_VERSION = "2026-07-23.2";
 
@@ -19,9 +20,11 @@ function normalizeText(value = "") {
 
 function locationUrl(value = "") {
   const text = String(value || "").trim();
-  if (!text) return "/locations";
-  if (text.startsWith("/location/")) return text;
-  return `/location/${text.replace(/^\/+/, "").replace(/^locations?\//, "")}`;
+  if (!text) return "/locations/";
+  if (text.startsWith("/location/")) return normalizeInternalPageHref(text);
+  return normalizeInternalPageHref(
+    `/location/${text.replace(/^\/+/, "").replace(/^locations?\//, "")}`
+  );
 }
 
 function buildSource(title, url, type = "page", category = null) {

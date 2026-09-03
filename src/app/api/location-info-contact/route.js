@@ -96,7 +96,7 @@ function buildBrandedEmail({ preheader, eyebrow, title, content }) {
                   First Medical Associates &nbsp;•&nbsp;
                   <a href="tel:3012843181" style="color:#001662;text-decoration:none;font-weight:700;">301-284-3181</a>
                   &nbsp;•&nbsp;
-                  <a href="https://www.drsfirst.com" style="color:#001662;text-decoration:none;font-weight:700;">DrsFirst.com</a>
+                  <a href="https://drsfirst.com/" style="color:#001662;text-decoration:none;font-weight:700;">DrsFirst.com</a>
                 </td>
               </tr>
             </table>
@@ -282,7 +282,7 @@ export async function POST(request) {
           For medical records, prescriptions, results, or care-team messages, please use the patient portal.
         </p>
       </div>
-      <a href="https://www.drsfirst.com/locations" style="display:inline-block;padding:13px 22px;border-radius:999px;background:#001662;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;">
+      <a href="https://drsfirst.com/locations/" style="display:inline-block;padding:13px 22px;border-radius:999px;background:#001662;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;">
         View FMA Locations
       </a>
       <p style="margin:26px 0 0;color:#7a879d;font-size:12px;line-height:1.6;">
@@ -298,7 +298,7 @@ export async function POST(request) {
     "For appointment or clinic questions, call or text 301-284-3181. For medical records, prescriptions, results, or care-team messages, please use the patient portal.",
     "",
     "First Medical Associates",
-    "https://www.drsfirst.com",
+    "https://drsfirst.com/",
   ].join("\n");
 
   try {

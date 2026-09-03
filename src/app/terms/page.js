@@ -1,10 +1,12 @@
 import PublicInfoPage from "../components/public-info-page";
+import { buildStaticMetadata } from "../lib/seo";
 
-export const metadata = {
+export const metadata = buildStaticMetadata({
   title: "Terms & Conditions | First Medical Associates",
   description:
     "Review the website terms page for First Medical Associates and find the correct point of contact for questions about site use.",
-};
+  pathname: "/terms",
+});
 
 export default function TermsPage() {
   return (

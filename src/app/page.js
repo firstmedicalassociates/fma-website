@@ -12,6 +12,7 @@ import { VISIBLE_LOCATION_WHERE } from "./lib/locations";
 import { buildStaticMetadata } from "./lib/seo";
 import styles from "./page.module.css";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
+import { normalizeInternalPageHref } from "./lib/config/site";
 
 const displayFont = Manrope({
   subsets: ["latin"],
@@ -40,7 +41,7 @@ export const metadata = buildStaticMetadata({
 });
 
 const FALLBACK_LOCATION = {
-  slug: "/locations",
+  slug: "/locations/",
   title: "Find care close to home",
   accent: "Schedule visits, explore locations, and meet your care team in one place.",
   intro:
@@ -51,7 +52,7 @@ const FALLBACK_LOCATION = {
   directPhone: "(555) 123-4567",
   callTextPhone: "(555) 123-4567",
   hideOfficePhone: false,
-  bookingUrl: "/locations",
+  bookingUrl: "/locations/",
 };
 
 const FALLBACK_SERVICES = [
@@ -152,19 +153,19 @@ const HOME_SERVICE_SHOWCASE = [
     title: "Primary Care",
     image: "/assets/Primary-Care-Doctors.webp",
     alt: "A physician smiling with an older adult patient during a primary care visit.",
-    href: "/service/primary-care",
+    href: "/service/primary-care/",
   },
   {
     title: "Chronic Conditions",
     image: "/assets/drs-first-chronic-conditions.jpg",
     alt: "An older couple reviewing chronic care information together.",
-    href: "/services?category=Chronic%20Conditions",
+    href: "/services/?category=Chronic%20Conditions",
   },
   {
     title: "Specialized Care",
     image: "/assets/drs-first-urgent-needs.jpg",
     alt: "A child pretending to check a man's heartbeat with a stethoscope.",
-    href: "/services?category=Specialized%20Care",
+    href: "/services/?category=Specialized%20Care",
   },
 ];
 
@@ -344,7 +345,7 @@ function SmartLink({ href, className, children, ...props }) {
   }
 
   return (
-    <Link className={className} href={target} {...props}>
+    <Link className={className} href={normalizeInternalPageHref(target)} {...props}>
       {children}
     </Link>
   );
@@ -612,7 +613,7 @@ export default async function Home() {
                 internists and receive personalized care to increase their health outcomes.
               </p>
 
-              <SmartLink href="/about" className={styles.whyChooseButton}>
+              <SmartLink href="/about/" className={styles.whyChooseButton}>
                 Learn More
               </SmartLink>
             </div>
@@ -705,7 +706,7 @@ export default async function Home() {
                 First Medical Associates provides a comprehensive and collaborative approach to
                 health care across multiple locations in Maryland.
               </p>
-              <SmartLink href="/providers" className={styles.commitButton}>
+              <SmartLink href="/providers/" className={styles.commitButton}>
                 Find a Provider
               </SmartLink>
             </div>

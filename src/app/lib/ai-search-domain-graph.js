@@ -1,5 +1,5 @@
 import { prisma } from "./prisma.js";
-import { GENERAL_BOOK_APPOINTMENT_URL } from "./config/site.js";
+import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
 import { VISIBLE_LOCATION_WHERE } from "./locations.js";
 import {
   AI_SEARCH_CORE_STOPWORDS,
@@ -49,18 +49,22 @@ function normalizeLocationPath(value = "") {
   const path = cleanPath(value);
   if (!path || /^https?:\/\//i.test(path)) return path;
   const normalized = path.replace(/^\/+/, "");
-  if (normalized.startsWith("location/")) return `/${normalized}`;
-  if (normalized.startsWith("locations/")) return `/${normalized.replace(/^locations\//, "location/")}`;
-  return `/location/${normalized}`;
+  if (normalized.startsWith("location/")) return normalizeInternalPageHref(`/${normalized}`);
+  if (normalized.startsWith("locations/")) {
+    return normalizeInternalPageHref(`/${normalized.replace(/^locations\//, "location/")}`);
+  }
+  return normalizeInternalPageHref(`/location/${normalized}`);
 }
 
 function normalizeServicePath(value = "") {
   const path = cleanPath(value);
   if (!path || /^https?:\/\//i.test(path)) return path;
   const normalized = path.replace(/^\/+/, "");
-  if (normalized.startsWith("service/")) return `/${normalized}`;
-  if (normalized.startsWith("services/")) return `/${normalized.replace(/^services\//, "service/")}`;
-  return `/service/${normalized}`;
+  if (normalized.startsWith("service/")) return normalizeInternalPageHref(`/${normalized}`);
+  if (normalized.startsWith("services/")) {
+    return normalizeInternalPageHref(`/${normalized.replace(/^services\//, "service/")}`);
+  }
+  return normalizeInternalPageHref(`/service/${normalized}`);
 }
 
 function locationKey(value = "") {
@@ -375,7 +379,7 @@ async function buildDomainGraph() {
   const providerNodes = providers.map((provider) => ({
     ...provider,
     type: "provider",
-    url: `/providers/${provider.slug}`,
+    url: normalizeInternalPageHref(`/providers/${provider.slug}`),
     locationRecords: resolveProviderLocations(provider, locationByAlias),
     schedulingMapped: Boolean(provider.athenaProviderId || provider.athenaSchedulingName),
   }));
@@ -592,7 +596,7 @@ function formatProviderCard(match) {
     type: "provider",
     title: provider.name,
     subtitle: provider.title || "FMA provider",
-    href: `/providers/${provider.slug}`,
+    href: normalizeInternalPageHref(`/providers/${provider.slug}`),
     actionLabel: "View profile",
     bookingUrl: provider.linkUrl || GENERAL_BOOK_APPOINTMENT_URL,
     details: [
@@ -644,7 +648,7 @@ export function formatFmaDomainGraphSources(result = {}) {
   for (const match of result.providerMatches || []) {
     sources.push({
       title: match.provider.name,
-      url: `/providers/${match.provider.slug}`,
+      url: normalizeInternalPageHref(`/providers/${match.provider.slug}`),
       type: "provider",
       category: null,
     });
@@ -736,7 +740,10 @@ export function buildFmaDomainGraphAnswer(result = {}) {
       ok: true,
       code: "directory_no_provider_match",
       answer,
-      sources: sources.length > 0 ? sources : [{ title: "Providers", url: "/providers", type: "provider", category: null }],
+      sources:
+        sources.length > 0
+          ? sources
+          : [{ title: "Providers", url: "/providers/", type: "provider", category: null }],
       confidence: 0.7,
       aiConfidence: "medium",
       grounded: true,

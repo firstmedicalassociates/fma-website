@@ -5,7 +5,12 @@ import { notFound } from "next/navigation";
 import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
 import InternalLinkHub from "../../components/internal-link-hub";
-import { absoluteUrl } from "../../lib/config/site";
+import {
+  absoluteUrl,
+  normalizeInternalPageHref,
+  normalizePagePath,
+  pageUrl,
+} from "../../lib/config/site";
 import {
   buildDisplayAddress,
   isHiddenLocationSlug,
@@ -151,7 +156,7 @@ function ActionLink({ href, className, external = false, icon, children }) {
   }
 
   return (
-    <Link className={className} href={resolvedHref}>
+    <Link className={className} href={normalizeInternalPageHref(resolvedHref)}>
       {sharedContent}
     </Link>
   );
@@ -186,7 +191,10 @@ function QuickInfoCard({ label, value, icon, href, external = false }) {
   }
 
   return (
-    <Link className={`${styles.quickInfoCard} ${styles.quickInfoCardLink}`} href={href}>
+    <Link
+      className={`${styles.quickInfoCard} ${styles.quickInfoCardLink}`}
+      href={normalizeInternalPageHref(href)}
+    >
       {content}
     </Link>
   );
@@ -211,7 +219,7 @@ export async function generateMetadata({ params }) {
 
   if (!provider || !provider.isActive) return {};
 
-  const canonicalUrl = absoluteUrl(`/providers/${slug}`);
+  const canonicalUrl = pageUrl(`/providers/${slug}`);
   const seo = getProviderSeoContent(provider);
   const providerImageSrc = resolveProviderImageSrc(provider);
   const imageUrl = providerImageSrc.startsWith("http")
@@ -312,7 +320,7 @@ export default async function ProviderDetailPage({ params }) {
       : "";
 
     return {
-      href: location?.slug || null,
+      href: location?.slug ? normalizePagePath(location.slug) : null,
       label,
       address,
       bookingUrl: location?.bookingUrl || "",
@@ -321,13 +329,13 @@ export default async function ProviderDetailPage({ params }) {
 
   const primaryLocation = locationLinks[0] || null;
   const bookingSource = String(provider.linkUrl || primaryLocation?.bookingUrl || "").trim();
-  const bookingHref = bookingSource || primaryLocation?.href || "/locations";
+  const bookingHref = bookingSource || primaryLocation?.href || "/locations/";
   const bookingExternal = isExternalUrl(bookingSource);
   const zocdocHref = getProviderZocdocUrl(provider.slug);
   const locationsHref =
     locationLinks.length > 1
       ? "#provider-locations"
-      : primaryLocation?.href || "/providers";
+      : primaryLocation?.href || "/providers/";
   const locationsLabel =
     locationLinks.length > 1
       ? "View Locations"
@@ -356,7 +364,7 @@ export default async function ProviderDetailPage({ params }) {
         : "Contact First Medical Associates for current scheduling details.",
   ].filter(Boolean);
 
-  const canonicalUrl = absoluteUrl(`/providers/${slug}`);
+  const canonicalUrl = pageUrl(`/providers/${slug}`);
   const providerImageSrc = resolveProviderImageSrc(provider);
   const imageUrl = providerImageSrc.startsWith("http")
     ? providerImageSrc
@@ -385,7 +393,7 @@ export default async function ProviderDetailPage({ params }) {
         />
 
         <div className={styles.shell}>
-          <Link className={styles.backLink} href="/providers">
+          <Link className={styles.backLink} href="/providers/">
             <span className={styles.backIcon} aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <path d="m14.5 6.5-5 5 5 5M8.75 11.5h9.75" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
@@ -558,7 +566,7 @@ export default async function ProviderDetailPage({ params }) {
                 intro={`Use ${provider.name}'s profile as a starting point to explore services, locations, and patient resources.`}
                 links={[
                   {
-                    href: "/services",
+                    href: "/services/",
                     label: "Browse Services",
                     description: "See primary care, specialized care, chronic care, and telehealth options.",
                   },
@@ -568,7 +576,7 @@ export default async function ProviderDetailPage({ params }) {
                     description: "Open the clinic page for directions, hours, and location-specific care details.",
                   },
                   {
-                    href: "/patient-resources",
+                    href: "/patient-resources/",
                     label: "Patient Resources",
                     description: "Access forms, insurance information, education, and support resources.",
                   },

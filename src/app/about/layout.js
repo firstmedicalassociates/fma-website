@@ -13,6 +13,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function AboutLayout({ children }) {
   const pathname = usePathname();
+  const comparablePathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
 
   const heroContent = {
     "/about": {
@@ -41,12 +42,12 @@ export default function AboutLayout({ children }) {
     },
   };
 
-  const currentHero = heroContent[pathname] || heroContent["/about"];
+  const currentHero = heroContent[comparablePathname] || heroContent["/about"];
   const tabs = [
-    { name: "About", href: "/about", icon: Info },
-    { name: "Mission & Values", href: "/about/mission", icon: Target },
-    { name: "Careers", href: "/about/careers", icon: Briefcase },
-    { name: "Partner With Us", href: "/about/partners", icon: Handshake },
+    { name: "About", href: "/about/", icon: Info },
+    { name: "Mission & Values", href: "/about/mission/", icon: Target },
+    { name: "Careers", href: "/about/careers/", icon: Briefcase },
+    { name: "Partner With Us", href: "/about/partners/", icon: Handshake },
   ];
 
   return (

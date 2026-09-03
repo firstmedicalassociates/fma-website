@@ -1,3 +1,5 @@
+import { normalizeInternalPageHref } from "./config/site";
+
 export function normalizeProviderSlug(value) {
   return String(value || "")
     .trim()
@@ -165,7 +167,7 @@ export function mapProviderForDirectory(provider, locationTitleBySlug = {}) {
     ...provider,
     image: resolveProviderImageSrc(provider),
     imageAlt: provider.imageAlt || provider.name,
-    link: `/providers/${provider.slug}`,
+    link: normalizeInternalPageHref(`/providers/${provider.slug}`),
     role: formatProviderList(credentialTags) || provider.title,
     credentialTags,
     location: formatProviderList(locationTitles),

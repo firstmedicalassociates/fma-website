@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import HeroEyebrow from "../components/hero-eyebrow";
-import { PATIENT_PORTAL_URL, SITE_CALL_HREF, SITE_CALL_LABEL } from "../lib/config/site";
+import {
+  PATIENT_PORTAL_URL,
+  SITE_CALL_HREF,
+  SITE_CALL_LABEL,
+  normalizeInternalPageHref,
+} from "../lib/config/site";
 import { NO_PHI_NOTICE } from "../lib/no-phi-guard";
 import styles from "./contact-page-shell.module.css";
 
@@ -39,7 +44,7 @@ function ActionLink({ href, className, children, external = false }) {
   }
 
   return (
-    <Link className={className} href={href}>
+    <Link className={className} href={normalizeInternalPageHref(href)}>
       {children}
     </Link>
   );
@@ -50,7 +55,7 @@ export default function ContactPageShell() {
   const [formStatus, setFormStatus] = useState("idle");
   const [formMessage, setFormMessage] = useState("");
 
-  const callHref = SITE_CALL_HREF || "/locations";
+  const callHref = SITE_CALL_HREF || "/locations/";
   const callLabel = SITE_CALL_HREF ? SITE_CALL_LABEL : "Call our team";
   const portalHref = PATIENT_PORTAL_URL !== "#" ? PATIENT_PORTAL_URL : "";
   const portalExternal = PATIENT_PORTAL_URL !== "#";
@@ -128,7 +133,7 @@ export default function ContactPageShell() {
             <article className={styles.infoCard}>
               <h2>Find A Location</h2>
               <p>Explore Maryland clinics and choose the office that works best for you.</p>
-              <ActionLink className={styles.infoAction} href="/locations">
+              <ActionLink className={styles.infoAction} href="/locations/">
                 Browse Locations
               </ActionLink>
             </article>
@@ -136,7 +141,7 @@ export default function ContactPageShell() {
             <article className={styles.infoCard}>
               <h2>Find a Doctor</h2>
               <p>Review provider profiles and choose the right clinician for your care needs.</p>
-              <ActionLink className={styles.infoAction} href="/providers">
+              <ActionLink className={styles.infoAction} href="/providers/">
                 Browse Providers
               </ActionLink>
             </article>
@@ -144,7 +149,7 @@ export default function ContactPageShell() {
             <article className={styles.infoCard}>
               <h2>Browse Services</h2>
               <p>Compare primary care, specialized care, chronic care, and telehealth services.</p>
-              <ActionLink className={styles.infoAction} href="/services">
+              <ActionLink className={styles.infoAction} href="/services/">
                 View Services
               </ActionLink>
             </article>

@@ -1,6 +1,7 @@
 import { prisma } from "./prisma";
 import { withVisibleLocationWhere } from "./locations";
 import { buildLocationTitleMap, formatProviderList, resolveLocationTitles } from "./providers";
+import { normalizeInternalPageHref } from "./config/site";
 
 function cleanText(value = "") {
   return String(value || "").trim();
@@ -166,7 +167,7 @@ export async function searchSite(rawQuery, options = {}) {
       kind: "provider",
       categoryLabel: "Provider",
       title: provider.name,
-      href: `/providers/${provider.slug}`,
+      href: normalizeInternalPageHref(`/providers/${provider.slug}`),
       description: description || cleanText(provider.bio),
       score:
         buildResultScore(normalizedQuery, provider.name, `${provider.title} ${provider.bio}`) + 300,
@@ -186,7 +187,7 @@ export async function searchSite(rawQuery, options = {}) {
       kind: "location",
       categoryLabel: "Location",
       title: location.title,
-      href: location.slug,
+      href: normalizeInternalPageHref(location.slug),
       description: locationMeta || "View this clinic location.",
       score:
         buildResultScore(
@@ -201,7 +202,7 @@ export async function searchSite(rawQuery, options = {}) {
     kind: "article",
     categoryLabel: "Article",
     title: post.title,
-    href: `/blog/${post.slug}`,
+    href: normalizeInternalPageHref(`/blog/${post.slug}`),
     description: cleanText(post.excerpt) || cleanText(post.metaDescription) || "Read the full article.",
     score:
       buildResultScore(normalizedQuery, post.title, `${post.excerpt || ""} ${post.metaDescription || ""}`) +
@@ -212,7 +213,7 @@ export async function searchSite(rawQuery, options = {}) {
     kind: "service",
     categoryLabel: "Service",
     title: service.title,
-    href: `/service/${service.slug}`,
+    href: normalizeInternalPageHref(`/service/${service.slug}`),
     description: [cleanText(service.category), cleanText(service.description)]
       .filter(Boolean)
       .join(" | "),

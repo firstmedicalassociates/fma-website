@@ -4,7 +4,7 @@ import InternalLinkHub from "../../components/internal-link-hub";
 import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
 import { isDatabaseConfigured, prisma } from "../../lib/prisma";
-import { getSiteUrl } from "../../lib/config/site";
+import { absoluteUrl, normalizeInternalHtmlLinks, pageUrl } from "../../lib/config/site";
 import styles from "../blog.module.css";
 
 export const runtime = "nodejs";
@@ -69,12 +69,11 @@ export async function generateMetadata({ params }) {
 
   if (!post) return {};
 
-  const siteUrl = getSiteUrl();
-  const canonicalUrl = `${siteUrl}/blog/${slug}`;
+  const canonicalUrl = pageUrl(`/blog/${slug}`);
   const ogImageUrl = post.coverImageUrl
     ? post.coverImageUrl.startsWith("http")
       ? post.coverImageUrl
-      : `${siteUrl}${post.coverImageUrl}`
+      : absoluteUrl(post.coverImageUrl)
     : undefined;
   const ogImageAlt = post.coverImageAlt || post.title;
   const title = post.metaTitle || post.title;
@@ -103,13 +102,15 @@ export async function generateMetadata({ params }) {
 }
 
 function extractPostBody(contentHtml = "") {
-  return String(contentHtml || "")
+  const cleanedHtml = String(contentHtml || "")
     .replace(/^<article>/i, "")
     .replace(/<\/article>\s*$/i, "")
     .replace(/^\s*<img\b[^>]*>\s*/i, "")
     .replace(/<header>[\s\S]*?<\/header>\s*/i, "")
     .replace(/\s*<footer>[\s\S]*?<\/footer>\s*$/i, "")
     .replace(/<p class="page-title">[\s\S]*?<\/p>/i, "");
+
+  return normalizeInternalHtmlLinks(cleanedHtml);
 }
 
 export default async function BlogPostPage({ params }) {
@@ -146,12 +147,11 @@ export default async function BlogPostPage({ params }) {
     notFound();
   }
 
-  const siteUrl = getSiteUrl();
-  const canonicalUrl = `${siteUrl}/blog/${slug}`;
+  const canonicalUrl = pageUrl(`/blog/${slug}`);
   const imageUrl = post.coverImageUrl
     ? post.coverImageUrl.startsWith("http")
       ? post.coverImageUrl
-      : `${siteUrl}${post.coverImageUrl}`
+      : absoluteUrl(post.coverImageUrl)
     : undefined;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -179,7 +179,7 @@ export default async function BlogPostPage({ params }) {
         />
 
         <div className={styles.postShell}>
-          <Link className={styles.backLink} href="/blog">
+          <Link className={styles.backLink} href="/blog/">
             Back to all posts
           </Link>
 
@@ -212,22 +212,22 @@ export default async function BlogPostPage({ params }) {
             intro="Move from this article into core patient-facing pages that support booking, provider discovery, and care planning."
             links={[
               {
-                href: "/services",
+                href: "/services/",
                 label: "Browse Services",
                 description: "Explore primary care, specialized care, chronic care, and telehealth services.",
               },
               {
-                href: "/providers",
+                href: "/providers/",
                 label: "Find a Doctor",
                 description: "Compare provider profiles and choose the right clinician for your needs.",
               },
               {
-                href: "/locations",
+                href: "/locations/",
                 label: "Find a Location",
                 description: "View Maryland clinic locations, hours, and directions.",
               },
               {
-                href: "/patient-resources",
+                href: "/patient-resources/",
                 label: "Patient Resources",
                 description: "Access insurance details, forms, and support resources.",
               },

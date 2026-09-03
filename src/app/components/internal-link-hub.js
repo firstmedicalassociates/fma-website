@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { normalizeInternalPageHref } from "../lib/config/site";
 
 function SmartLink({ href, children }) {
   const target = String(href || "").trim();
@@ -11,7 +12,7 @@ function SmartLink({ href, children }) {
     );
   }
 
-  return <Link href={target}>{children}</Link>;
+  return <Link href={normalizeInternalPageHref(target)}>{children}</Link>;
 }
 
 export default function InternalLinkHub({ title, intro, links = [] }) {

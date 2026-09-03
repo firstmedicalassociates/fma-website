@@ -4,6 +4,7 @@ import {
   BILL_PAY_URL,
   GENERAL_BOOK_APPOINTMENT_URL,
   PATIENT_PORTAL_URL,
+  normalizeInternalPageHref,
 } from "../lib/config/site";
 import styles from "./site-footer.module.css";
 
@@ -12,28 +13,28 @@ const NAV_COLUMNS = [
     title: "Explore",
     icon: "explore",
     links: [
-      { href: "/providers", label: "Find a Provider", icon: "user" },
-      { href: "/services", label: "Services", icon: "heart" },
-      { href: "/locations", label: "Locations", icon: "pin" },
-      { href: "/patient-resources", label: "Patient Resources", icon: "doc" },
+      { href: "/providers/", label: "Find a Provider", icon: "user" },
+      { href: "/services/", label: "Services", icon: "heart" },
+      { href: "/locations/", label: "Locations", icon: "pin" },
+      { href: "/patient-resources/", label: "Patient Resources", icon: "doc" },
     ],
   },
   {
     title: "Company",
     icon: "building",
     links: [
-      { href: "/about", label: "About Us", icon: "users" },
-      { href: "/providers", label: "Providers", icon: "stethoscope" },
-      { href: "/about/careers", label: "Careers", icon: "briefcase" },
-      { href: "/contact", label: "Contact Us", icon: "mail" },
+      { href: "/about/", label: "About Us", icon: "users" },
+      { href: "/providers/", label: "Providers", icon: "stethoscope" },
+      { href: "/about/careers/", label: "Careers", icon: "briefcase" },
+      { href: "/contact/", label: "Contact Us", icon: "mail" },
     ],
   },
   {
     title: "Patient Support",
     icon: "shield",
     links: [
-      { href: "/patient-resources/patients", label: "Policies & Forms", icon: "policy" },
-      { href: "/privacy-policy", label: "Privacy Policy", icon: "shield" },
+      { href: "/patient-resources/patients/", label: "Policies & Forms", icon: "policy" },
+      { href: "/privacy-policy/", label: "Privacy Policy", icon: "shield" },
       { href: GENERAL_BOOK_APPOINTMENT_URL, label: "Book Online", icon: "calendar" },
       { href: BILL_PAY_URL, label: "Pay Bill", icon: "card" },
     ],
@@ -41,9 +42,9 @@ const NAV_COLUMNS = [
 ];
 
 const LEGAL_LINKS = [
-  { href: "/privacy-policy", label: "Privacy Policy" },
-  { href: "/hipaa-notice", label: "HIPAA Notice" },
-  { href: "/accessibility", label: "Accessibility" },
+  { href: "/privacy-policy/", label: "Privacy Policy" },
+  { href: "/hipaa-notice/", label: "HIPAA Notice" },
+  { href: "/accessibility/", label: "Accessibility" },
 ];
 
 const SOCIAL_LINKS = [
@@ -222,6 +223,8 @@ function FooterIcon({ name, className }) {
 }
 
 function SmartFooterLink({ href, className, children }) {
+  const resolvedHref = normalizeInternalPageHref(href);
+
   if (isExternalUrl(href)) {
     return (
       <a className={className} href={href} rel="noopener noreferrer" target="_blank">
@@ -231,7 +234,7 @@ function SmartFooterLink({ href, className, children }) {
   }
 
   return (
-    <Link className={className} href={href}>
+    <Link className={className} href={resolvedHref}>
       {children}
     </Link>
   );
@@ -309,7 +312,7 @@ function NeedCareCard() {
           </span>
           <FooterIcon name="arrow" className={styles.needCareActionArrow} />
         </SmartFooterLink>
-        <SmartFooterLink href="/providers" className={`${styles.needCareAction} ${styles.needCareActionSecondary}`}>
+        <SmartFooterLink href="/providers/" className={`${styles.needCareAction} ${styles.needCareActionSecondary}`}>
           <span className={styles.needCareActionInner}>
             <FooterIcon name="calendar" className={styles.needCareActionIcon} />
             Find a Provider

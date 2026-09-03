@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
-import { SITE_NAME, absoluteUrl } from "../../lib/config/site";
+import { SITE_NAME, pageUrl } from "../../lib/config/site";
 import { prisma } from "../../lib/prisma";
 import { getServiceSeoContent } from "../../lib/seo";
 import { SERVICE_SELECT } from "../../lib/services";
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }) {
   }
 
   const seo = getServiceSeoContent(service);
-  const canonicalUrl = absoluteUrl(`/service/${slug}`);
+  const canonicalUrl = pageUrl(`/service/${slug}`);
 
   return {
     title: seo.title,
@@ -72,7 +72,7 @@ export default async function ServiceDetailPage({ params }) {
   }
 
   const seo = getServiceSeoContent(service);
-  const canonicalUrl = absoluteUrl(`/service/${slug}`);
+  const canonicalUrl = pageUrl(`/service/${slug}`);
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -82,7 +82,7 @@ export default async function ServiceDetailPage({ params }) {
         headline: seo.h1,
         description: seo.description,
         url: canonicalUrl,
-        isPartOf: absoluteUrl("/services"),
+        isPartOf: pageUrl("/services"),
         about: {
           "@id": `${canonicalUrl}#service`,
         },
@@ -96,7 +96,7 @@ export default async function ServiceDetailPage({ params }) {
         provider: {
           "@type": "MedicalClinic",
           name: SITE_NAME,
-          url: absoluteUrl("/locations"),
+          url: pageUrl("/locations"),
         },
       },
       {
@@ -106,13 +106,13 @@ export default async function ServiceDetailPage({ params }) {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: absoluteUrl("/"),
+            item: pageUrl("/"),
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Services",
-            item: absoluteUrl("/services"),
+            item: pageUrl("/services"),
           },
           {
             "@type": "ListItem",

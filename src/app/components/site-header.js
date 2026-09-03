@@ -10,6 +10,7 @@ import {
   SITE_CALL_HREF,
   SITE_CALL_LABEL,
   SITE_NAME,
+  normalizeInternalPageHref,
 } from "../lib/config/site";
 import AiSearchModal from "./ai-search-modal";
 import styles from "./site-chrome.module.css";
@@ -21,16 +22,18 @@ function isExternalUrl(value = "") {
 
 function isActivePath(pathname, href) {
   if (!pathname || !href || isExternalUrl(href) || href === "#") return false;
-  if (href === "/locations") {
+  const comparableHref = href === "/" ? href : href.replace(/\/+$/, "");
+  const comparablePathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
+  if (comparableHref === "/locations") {
     return (
-      pathname === "/location" ||
-      pathname === "/locations" ||
-      pathname.startsWith("/location/") ||
-      pathname.startsWith("/locations/")
+      comparablePathname === "/location" ||
+      comparablePathname === "/locations" ||
+      comparablePathname.startsWith("/location/") ||
+      comparablePathname.startsWith("/locations/")
     );
   }
-  if (href === "/") return pathname === href;
-  return pathname === href || pathname.startsWith(`${href}/`);
+  if (comparableHref === "/") return comparablePathname === comparableHref;
+  return comparablePathname === comparableHref || comparablePathname.startsWith(`${comparableHref}/`);
 }
 
 function QuickActionIcon({ name }) {
@@ -77,15 +80,16 @@ export default function SiteHeader() {
   const headerActionLabel = "Book Appointment";
 
   const navLinks = [
-    { href: "/providers", label: "Find a Provider" },
-    { href: "/locations", label: "Locations" },
-    { href: "/services", label: "Services" },
-    { href: "/patient-resources", label: "Resources" },
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
+    { href: "/providers/", label: "Find a Provider" },
+    { href: "/locations/", label: "Locations" },
+    { href: "/services/", label: "Services" },
+    { href: "/patient-resources/", label: "Resources" },
+    { href: "/about/", label: "About" },
+    { href: "/contact/", label: "Contact" },
   ];
 
-  const patientPortalHref = PATIENT_PORTAL_URL !== "#" ? PATIENT_PORTAL_URL : "/patient-resources";
+  const patientPortalHref =
+    PATIENT_PORTAL_URL !== "#" ? PATIENT_PORTAL_URL : normalizeInternalPageHref("/patient-resources");
   const patientPortalExternal = PATIENT_PORTAL_URL !== "#";
 
   const mobileQuickActions = [

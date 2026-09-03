@@ -23,9 +23,9 @@ export const metadata = buildStaticMetadata({
 
 export default function ResourcesOverview() {
   const sidebarActions = [
-    { title: 'Find Location', sub: 'Maryland clinic locations', icon: MapPin, href: '/locations' },
-    { title: 'Patient Portal', sub: 'Access records and results', icon: Users, href: '/patient-resources/patients' },
-    { title: 'Schedule Same-Day', sub: 'Same-Day appointment options', icon: Clock, href: '/services' },
+    { title: 'Find Location', sub: 'Maryland clinic locations', icon: MapPin, href: '/locations/' },
+    { title: 'Patient Portal', sub: 'Access records and results', icon: Users, href: '/patient-resources/patients/' },
+    { title: 'Schedule Same-Day', sub: 'Same-Day appointment options', icon: Clock, href: '/services/' },
   ];
 
   return (
@@ -190,7 +190,7 @@ export default function ResourcesOverview() {
             Our patient care team is available 24/7 for 
             urgent inquiries and navigation help.
           </p>
-          <Link href="/contact" className="call-btn">
+          <Link href="/contact/" className="call-btn">
             <Phone size={18} fill="currentColor" /> Call Support
           </Link>
           <div className="bg-pattern">
@@ -245,7 +245,7 @@ export default function ResourcesOverview() {
           </div>
 
           <div style={{ marginTop: '2.5rem', textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '1.5rem' }}>
-             <Link href="/patient-resources/insurance" style={{ color: '#001c55', fontWeight: 700, fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+             <Link href="/patient-resources/insurance/" style={{ color: '#001c55', fontWeight: 700, fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                Review Insurance Details <ArrowRight size={16} />
              </Link>
           </div>
@@ -258,7 +258,7 @@ export default function ResourcesOverview() {
               </div>
               <h3>New Patient Paperwork</h3>
               <p>Save 15 minutes at check-in by completing your initial intake online.</p>
-              <Link href="/patient-resources/patients" className="lite-link">
+              <Link href="/patient-resources/patients/" className="lite-link">
                  Start Form <span>PDF / WEB</span>
               </Link>
            </div>
@@ -268,7 +268,7 @@ export default function ResourcesOverview() {
               </div>
               <h3>Medical Records Release</h3>
               <p>HIPAA-compliant authorization to transfer your health history safely.</p>
-              <Link href="/hipaa-notice" className="lite-link">
+              <Link href="/hipaa-notice/" className="lite-link">
                  Request Access <span>Docusign</span>
               </Link>
            </div>
@@ -283,17 +283,17 @@ export default function ResourcesOverview() {
               <div className="right-item">
                  <h5>Privacy Policy</h5>
                  <p>How we protect and use your confidential medical data under HIPAA.</p>
-                 <Link href="/privacy-policy" className="lite-link">Read policy <span>Internal Link</span></Link>
+                 <Link href="/privacy-policy/" className="lite-link">Read policy <span>Internal Link</span></Link>
               </div>
               <div className="right-item">
                  <h5>Patient Code</h5>
                  <p>Our commitment to respectful, high-quality care for every visitor.</p>
-                 <Link href="/patient-resources/patients" className="lite-link">View patient forms <span>Internal Link</span></Link>
+                 <Link href="/patient-resources/patients/" className="lite-link">View patient forms <span>Internal Link</span></Link>
               </div>
               <div className="right-item">
                  <h5>No Surprises Act</h5>
                  <p>Clear pricing and protection against unexpected medical bills.</p>
-                 <Link href="/patient-resources/insurance" className="lite-link">Review insurance info <span>Internal Link</span></Link>
+                 <Link href="/patient-resources/insurance/" className="lite-link">Review insurance info <span>Internal Link</span></Link>
               </div>
            </div>
         </section>

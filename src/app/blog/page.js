@@ -88,7 +88,7 @@ export default async function BlogIndexPage() {
                   className={`${styles.postCard} ${index === 0 ? styles.postCardFeatured : ""}`}
                 >
                   {post.coverImageUrl ? (
-                    <Link className={styles.cardImageWrap} href={`/blog/${post.slug}`}>
+                    <Link className={styles.cardImageWrap} href={`/blog/${post.slug}/`}>
                       <img
                         src={post.coverImageUrl}
                         alt={post.coverImageAlt || post.title}
@@ -101,10 +101,10 @@ export default async function BlogIndexPage() {
                   <div className={styles.cardBody}>
                     <p className={styles.cardMeta}>{formatDate(post.publishedAt)}</p>
                     <h2 className={styles.cardTitle}>
-                      <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                      <Link href={`/blog/${post.slug}/`}>{post.title}</Link>
                     </h2>
                     <p className={styles.cardSummary}>{summarizePost(post)}</p>
-                    <Link className={styles.cardLink} href={`/blog/${post.slug}`}>
+                    <Link className={styles.cardLink} href={`/blog/${post.slug}/`}>
                       Read article
                     </Link>
                   </div>

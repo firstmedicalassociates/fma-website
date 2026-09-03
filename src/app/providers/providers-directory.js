@@ -371,9 +371,9 @@ export default function ProvidersDirectory({ providers }) {
                 few clicks.
               </p>
               <div className={styles.ctaActions}>
-                <Link href="/services" className={`${styles.ctaButton} ${styles.ctaButtonPrimary}`}>Browse Services</Link>
-                <Link href="/locations" className={`${styles.ctaButton} ${styles.ctaButtonSecondary}`}>Find a Location</Link>
-                <Link href="/patient-resources" className={`${styles.ctaButton} ${styles.ctaButtonTertiary}`}>Patient Resources</Link>
+                <Link href="/services/" className={`${styles.ctaButton} ${styles.ctaButtonPrimary}`}>Browse Services</Link>
+                <Link href="/locations/" className={`${styles.ctaButton} ${styles.ctaButtonSecondary}`}>Find a Location</Link>
+                <Link href="/patient-resources/" className={`${styles.ctaButton} ${styles.ctaButtonTertiary}`}>Patient Resources</Link>
               </div>
             </div>
           </div>

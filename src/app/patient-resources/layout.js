@@ -18,6 +18,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function PatientResourceLayout({ children }) {
   const pathname = usePathname();
+  const comparablePathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
 
   const heroContent = {
     "/patient-resources": {
@@ -42,13 +43,13 @@ export default function PatientResourceLayout({ children }) {
     },
   };
 
-  const currentHero = heroContent[pathname] || heroContent["/patient-resources"];
+  const currentHero = heroContent[comparablePathname] || heroContent["/patient-resources"];
 
   const tabs = [
-    { name: "Overview", href: "/patient-resources", icon: LayoutDashboard },
-    { name: "Insurance", href: "/patient-resources/insurance", icon: ShieldCheck },
-    { name: "Patients", href: "/patient-resources/patients", icon: Users },
-    { name: "Education", href: "/patient-resources/education", icon: GraduationCap },
+    { name: "Overview", href: "/patient-resources/", icon: LayoutDashboard },
+    { name: "Insurance", href: "/patient-resources/insurance/", icon: ShieldCheck },
+    { name: "Patients", href: "/patient-resources/patients/", icon: Users },
+    { name: "Education", href: "/patient-resources/education/", icon: GraduationCap },
   ];
 
   return (

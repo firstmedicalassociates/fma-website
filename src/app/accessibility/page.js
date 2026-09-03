@@ -1,10 +1,12 @@
 import PublicInfoPage from "../components/public-info-page";
+import { buildStaticMetadata } from "../lib/seo";
 
-export const metadata = {
+export const metadata = buildStaticMetadata({
   title: "Accessibility Notice | First Medical Associates",
   description:
     "Read the First Medical Associates accessibility notice and learn how to request assistance with website access or care-related accommodations.",
-};
+  pathname: "/accessibility",
+});
 
 export default function AccessibilityPage() {
   return (

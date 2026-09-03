@@ -383,7 +383,7 @@ export default function AboutPage() {
           <div>
             <h4 style={{ fontWeight: 800, color: '#001c55', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Advance Your Career</h4>
             <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>Build your career with a network that values clinician autonomy and patient satisfaction above all else.</p>
-            <Link className="cta-link-btn" href="/about/careers">
+            <Link className="cta-link-btn" href="/about/careers/">
               View Career Opportunities <ExternalLink size={14} />
             </Link>
           </div>
@@ -393,7 +393,7 @@ export default function AboutPage() {
            <div>
             <h4 style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.5rem' }}>Partnering With Our Community</h4>
             <p style={{ fontSize: '0.875rem', opacity: 0.7, marginBottom: '1rem' }}>Empowering independent practitioners through a shared community focus.</p>
-            <Link className="cta-link-btn" href="/about/partners">
+            <Link className="cta-link-btn" href="/about/partners/">
               Learn About Growth <ArrowRight size={14} />
             </Link>
            </div>

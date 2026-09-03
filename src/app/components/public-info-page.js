@@ -101,22 +101,22 @@ export default function PublicInfoPage({ eyebrow, title, intro, sections = [] })
               intro="Use these internal links to move from policy and legal pages into patient-facing care and support pages."
               links={[
                 {
-                  href: "/patient-resources",
+                  href: "/patient-resources/",
                   label: "Patient Resources",
                   description: "Review forms, insurance information, education, and support content.",
                 },
                 {
-                  href: "/providers",
+                  href: "/providers/",
                   label: "Find a Doctor",
                   description: "Browse provider profiles and choose the right care team.",
                 },
                 {
-                  href: "/locations",
+                  href: "/locations/",
                   label: "Find a Location",
                   description: "Open clinic pages for directions, hours, and appointment access.",
                 },
                 {
-                  href: "/contact",
+                  href: "/contact/",
                   label: "Contact Us",
                   description: "Reach the team directly if you need help with care or policy questions.",
                 },

@@ -18,7 +18,7 @@ import {
   Building2,
 } from 'lucide-react';
 
-const jobBoardUrl = 'https://drsfirst.com/jobs/';
+const jobBoardUrl = '/about/careers/';
 
 export const metadata = buildStaticMetadata({
   title: "Careers | First Medical Associates",
