@@ -677,12 +677,33 @@
   }
 
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    gap: 10px;
+    min-width: 0;
+    padding: 16px 10px;
   }
 
   .avatarWrap {
-    width: 132px;
-    height: 132px;
+    width: min(112px, 100%);
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  .provName {
+    font-size: 0.82rem;
+  }
+
+  .provRole {
+    font-size: 0.68rem;
+  }
+
+  .provLoc,
+  .provMore {
+    font-size: 0.76rem;
   }
 
   .ctaCard {

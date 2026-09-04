@@ -530,7 +530,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                       <span className="material-symbols-outlined">schedule</span>
                     </div>
                     <div>
-                      <h2>Patient Hours</h2>
+                      <h2>Location Hours</h2>
                       <div className={styles.locationHoursTable}>
                         {locationHeroHours.map((row) => (
                           <div key={`${row.label}-${row.value}`} className={styles.locationHoursRow}>
