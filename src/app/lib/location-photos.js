@@ -46,15 +46,22 @@ const PHOTO_BLOBS = {
 };
 
 const STATIC_PHOTOS = {
+  "alexandria-kenmore": "/assets/locations/alexandria-kenmore.webp",
   laurel: "/assets/locations/entaa-care-laurel.jpg",
 };
 
 const PHOTO_ALTS = {
+  "alexandria-kenmore":
+    "Exterior of the First Medical Associates office at 4660 Kenmore Avenue in Alexandria, Virginia",
   laurel: "Exterior of the Greater Laurel Professional Building in Laurel, Maryland",
   "silver-spring-building": "Exterior of the First Medical Associates Silver Spring office building",
 };
 
 const LOCATION_PHOTO_SETS = {
+  "/location/alexandria": {
+    primary: "alexandria-kenmore",
+    gallery: ["alexandria-kenmore"],
+  },
   "/bowie-2": {
     primary: "bowie-health-center-dr",
     gallery: ["bowie-health-center-dr", "bowie-ii-md"],

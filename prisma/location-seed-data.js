@@ -1,5 +1,14 @@
 module.exports = [
   {
+    name: "Alexandria, VA",
+    cityStatePhone: "571-200-7128",
+    addressLines: ["4660 Kenmore Ave Suite #1210", "Alexandria, VA 22304"],
+    img: "/assets/locations/alexandria-kenmore.webp",
+    bookingUrl:
+      "https://first-medical-associates.inquicker.com/search?appointmentTypes=2791&insurancePlans=&isVirtual=false&service=find-a-doctor&serviceName=Find%20A%20Doctor&service_id=5175%2C5176&specialtyId=&specialtyName=&specialtyType=&subservice_ids=5175&subservice_ids=5176&timestamp=2023-09-14T17%3A25%3A32-04%3A00&ux_mode=default&viewName=list&zip=",
+    href: "/location/alexandria/",
+  },
+  {
     name: "Annapolis, MD",
     cityStatePhone: "443-909-5718",
     addressLines: ["2448 Holly Avenue Ste 102", "Annapolis, Maryland 21401"],

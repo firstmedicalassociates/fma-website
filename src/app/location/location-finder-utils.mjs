@@ -13,6 +13,7 @@ function normalizeStateGroupPart(value = "") {
   const normalized = normalizeGroupPart(value).replace(/\./g, "");
 
   if (normalized === "maryland") return "md";
+  if (normalized === "virginia") return "va";
   return normalized;
 }
 

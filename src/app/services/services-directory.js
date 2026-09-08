@@ -116,7 +116,7 @@ export default function ServicesDirectory({ services = [], initialCategory = "" 
             <h1>
               Healthcare Services
               <br />
-              in Maryland.
+              in Maryland &amp; Northern Virginia.
             </h1>
           </div>
           <div className={styles.heroRight}>

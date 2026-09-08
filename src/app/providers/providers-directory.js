@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import HeroEyebrow from "../components/hero-eyebrow";
-import { splitProviderCredentialTags } from "../lib/providers";
+import { getProviderInitials, splitProviderCredentialTags } from "../lib/providers";
 import styles from "./providers-directory.module.css";
 
 const PROVIDER_TYPE_OPTIONS = [
@@ -29,16 +29,6 @@ function slugify(value) {
     .toLowerCase()
     .trim()
     .replace(/\s+/g, "-");
-}
-
-function getInitials(name = "") {
-  const parts = String(name || "")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-  if (parts.length === 0) return "MD";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
 function getCityFromLocation(value = "") {
@@ -346,7 +336,7 @@ export default function ProvidersDirectory({ providers }) {
                         style={{ backgroundImage: `url('${provider.image}')` }}
                       />
                     ) : (
-                      <div className={styles.avatarFallback}>{getInitials(provider.name)}</div>
+                      <div className={styles.avatarFallback}>{getProviderInitials(provider.name)}</div>
                     )}
                   </div>
                   <div className={styles.cardBody}>

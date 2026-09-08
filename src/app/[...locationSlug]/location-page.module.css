@@ -1431,6 +1431,20 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
+.providerAvatarFallback {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  background:
+    radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.7), transparent 34%),
+    linear-gradient(145deg, #e7f5fa 0%, #c8e7f2 50%, #b8d8e8 100%);
+  color: #005b82;
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+}
+
 .providerActions {
   width: 100%;
   flex-wrap: wrap;

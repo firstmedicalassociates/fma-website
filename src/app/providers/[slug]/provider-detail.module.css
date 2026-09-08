@@ -111,6 +111,21 @@
   object-fit: cover;
 }
 
+.imageFallback {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.28), transparent 34%),
+    linear-gradient(145deg, #1683a9 0%, #07567e 55%, #013b65 100%);
+  color: #ffffff;
+  font-size: clamp(2.8rem, 5vw, 4.4rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+}
+
 .heroCopy {
   display: grid;
   align-content: center;

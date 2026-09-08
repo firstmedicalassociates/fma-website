@@ -224,7 +224,7 @@ export default async function BlogPostPage({ params }) {
               {
                 href: "/locations/",
                 label: "Find a Location",
-                description: "View Maryland clinic locations, hours, and directions.",
+                description: "View clinic locations, hours, and directions across Maryland and Northern Virginia.",
               },
               {
                 href: "/patient-resources/",

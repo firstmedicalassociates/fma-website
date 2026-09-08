@@ -14,9 +14,9 @@ import {
 } from 'lucide-react';
 
 export const metadata = buildStaticMetadata({
-  title: "About First Medical Associates | Primary Care Team in Maryland",
+  title: "About First Medical Associates | Maryland & Northern Virginia",
   description:
-    "Learn about First Medical Associates, our mission, leadership, and patient-first approach to primary care and coordinated healthcare in Maryland.",
+    "Learn about First Medical Associates, our mission, leadership, and patient-first approach to primary care across Maryland and Northern Virginia.",
   pathname: "/about",
 });
 
@@ -349,14 +349,14 @@ export default function AboutPage() {
           <h3>Personalized Healthcare in a Trusted Environment</h3>
           <p>
             Founded in 2004, First Medical Associates has grown from a single community clinic 
-            to a leading regional healthcare network with 17 locations throughout Maryland. Our
+            to a leading regional healthcare network with 18 locations across Maryland and Northern Virginia. Our
             expert team of physicians and advanced care practitioners specialize in providing
             prompt, accurate diagnosis and comprehensive, personalized treatment by developing a
             trusting relationship with their patients.
           </p>
           <div className="stats-row">
             <div className="stat-item"><h4>20+</h4><p>Years of Service</p></div>
-            <div className="stat-item"><h4>17</h4><p>Premium Locations</p></div>
+            <div className="stat-item"><h4>18</h4><p>Premium Locations</p></div>
             <div className="stat-item"><h4>75+</h4><p>Clinical Providers</p></div>
           </div>
         </div>

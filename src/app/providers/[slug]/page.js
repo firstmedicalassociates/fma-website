@@ -24,6 +24,8 @@ import {
   buildLocationTitleMap,
   formatLocationSlugFallback,
   formatProviderList,
+  getProviderInitials,
+  resolveProviderBookingHref,
   resolveProviderImageSrc,
   resolveLocationTitles,
 } from "../../lib/providers";
@@ -55,6 +57,11 @@ function formatUpdatedDate(value) {
     day: "numeric",
     year: "numeric",
   }).format(new Date(value));
+}
+
+function getProviderTitleArticle(value = "") {
+  const firstLetter = String(value || "").trim().charAt(0).toUpperCase();
+  return "AEFHILMNORSX".includes(firstLetter) ? "an" : "a";
 }
 
 function renderInlineIcon(kind) {
@@ -222,9 +229,11 @@ export async function generateMetadata({ params }) {
   const canonicalUrl = pageUrl(`/providers/${slug}`);
   const seo = getProviderSeoContent(provider);
   const providerImageSrc = resolveProviderImageSrc(provider);
-  const imageUrl = providerImageSrc.startsWith("http")
-    ? providerImageSrc
-    : absoluteUrl(providerImageSrc);
+  const imageUrl = providerImageSrc
+    ? providerImageSrc.startsWith("http")
+      ? providerImageSrc
+      : absoluteUrl(providerImageSrc)
+    : "";
 
   return {
     title: seo.title,
@@ -328,7 +337,7 @@ export default async function ProviderDetailPage({ params }) {
   });
 
   const primaryLocation = locationLinks[0] || null;
-  const bookingSource = String(provider.linkUrl || primaryLocation?.bookingUrl || "").trim();
+  const bookingSource = resolveProviderBookingHref(provider, primaryLocation);
   const bookingHref = bookingSource || primaryLocation?.href || "/locations/";
   const bookingExternal = isExternalUrl(bookingSource);
   const zocdocHref = getProviderZocdocUrl(provider.slug);
@@ -350,7 +359,9 @@ export default async function ProviderDetailPage({ params }) {
   const bioParagraphs = splitBioParagraphs(provider.bio);
   const updatedLabel = formatUpdatedDate(provider.updatedAt);
   const snapshotItems = [
-    provider.title ? `${provider.name} serves patients as a ${provider.title}.` : "",
+    provider.title
+      ? `${provider.name} serves patients as ${getProviderTitleArticle(provider.title)} ${provider.title}.`
+      : "",
     locationTitles.length > 0
       ? `Practices at ${locationTitles.length === 1 ? locationTitles[0] : `${locationTitles.length} First Medical Associates locations`}.`
       : "Location assignments are being finalized for this provider.",
@@ -366,15 +377,17 @@ export default async function ProviderDetailPage({ params }) {
 
   const canonicalUrl = pageUrl(`/providers/${slug}`);
   const providerImageSrc = resolveProviderImageSrc(provider);
-  const imageUrl = providerImageSrc.startsWith("http")
-    ? providerImageSrc
-    : absoluteUrl(providerImageSrc);
+  const imageUrl = providerImageSrc
+    ? providerImageSrc.startsWith("http")
+      ? providerImageSrc
+      : absoluteUrl(providerImageSrc)
+    : "";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
     name: provider.name,
     jobTitle: provider.title,
-    image: imageUrl,
+    ...(imageUrl ? { image: imageUrl } : {}),
     knowsLanguage: provider.languages,
     workLocation: locationTitles.map((location) => ({
       "@type": "Place",
@@ -406,11 +419,21 @@ export default async function ProviderDetailPage({ params }) {
             <div className={styles.hero}>
               <div className={styles.heroPortrait}>
                 <div className={styles.imageFrame}>
-                  <img
-                    className={styles.image}
-                    src={providerImageSrc}
-                    alt={provider.imageAlt || provider.name}
-                  />
+                  {providerImageSrc ? (
+                    <img
+                      className={styles.image}
+                      src={providerImageSrc}
+                      alt={provider.imageAlt || provider.name}
+                    />
+                  ) : (
+                    <div
+                      className={styles.imageFallback}
+                      role="img"
+                      aria-label={`${provider.name} headshot placeholder`}
+                    >
+                      {getProviderInitials(provider.name)}
+                    </div>
+                  )}
                 </div>
               </div>
 

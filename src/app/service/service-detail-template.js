@@ -837,7 +837,7 @@ export default function ServiceDetailTemplate({ service }) {
             {
               href: "/locations/",
               label: "Find a Location",
-              description: "See Maryland clinic locations where you can book care or visit a nearby office.",
+              description: "See clinic locations across Maryland and Northern Virginia where you can book care.",
             },
             {
               href: "/services/",

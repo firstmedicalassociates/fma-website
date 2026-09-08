@@ -84,6 +84,20 @@ test("matches an office state whether the search uses MD or Maryland", () => {
   assert.deepEqual(selection.groups.map(({ title }) => title), ["Columbia"]);
 });
 
+test("matches an Alexandria office whether the search uses VA or Virginia", () => {
+  const groups = groupLocationsByStructuredCity([
+    office("/location/alexandria", "Alexandria, VA", "Alexandria", "VA", 3),
+  ]);
+
+  const selection = selectLocationGroupsForSearch(groups, {
+    city: "Alexandria",
+    state: "Virginia",
+  });
+
+  assert.equal(selection.usedExactMatch, true);
+  assert.deepEqual(selection.groups.map(({ title }) => title), ["Alexandria, VA"]);
+});
+
 test("returns every city group within 25 miles without exact ZIP matching", () => {
   const groups = groupLocationsByStructuredCity([
     office("/nearby", "Nearby", "Nearby", "MD", 24.9),

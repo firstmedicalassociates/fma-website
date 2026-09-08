@@ -23,7 +23,7 @@ export const metadata = buildStaticMetadata({
 
 export default function ResourcesOverview() {
   const sidebarActions = [
-    { title: 'Find Location', sub: 'Maryland clinic locations', icon: MapPin, href: '/locations/' },
+    { title: 'Find Location', sub: 'Maryland & Northern Virginia clinics', icon: MapPin, href: '/locations/' },
     { title: 'Patient Portal', sub: 'Access records and results', icon: Users, href: '/patient-resources/patients/' },
     { title: 'Schedule Same-Day', sub: 'Same-Day appointment options', icon: Clock, href: '/services/' },
   ];

@@ -253,7 +253,7 @@ function BrandBlock({ portalHref }) {
       </div>
 
       <div className={styles.brandRule} />
-      <p className={styles.brandCopy}>Patient-centered care across Maryland.</p>
+      <p className={styles.brandCopy}>Patient-centered care across Maryland and Northern Virginia.</p>
 
       <div className={styles.contactList}>
         <a className={styles.contactItem} href="tel:3012843181">

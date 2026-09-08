@@ -1,4 +1,4 @@
-import { SITE_NAME, absoluteUrl, pageUrl } from "./config/site";
+import { SITE_NAME, absoluteUrl, pageUrl } from "./config/site.js";
 
 function cleanText(value = "") {
   return String(value || "").replace(/\s+/g, " ").trim();
@@ -14,7 +14,7 @@ function truncateText(value = "", maxLength = 160) {
 function formatLocationSeoPlace(location = {}) {
   const city = cleanText(location.addressCity);
   const state = cleanText(location.addressState);
-  const title = cleanText(location.title) || "Maryland";
+  const title = cleanText(location.title) || "Maryland and Northern Virginia";
 
   if (city && state) {
     return `${city}, ${state}`;
@@ -24,6 +24,12 @@ function formatLocationSeoPlace(location = {}) {
 }
 
 const LOCATION_SEO_BY_SLUG = {
+  "/location/alexandria": {
+    title: "Primary Care in Alexandria, VA | First Medical Associates",
+    h1: "Primary Care Doctor in Alexandria, VA",
+    description:
+      "Visit First Medical Associates in Alexandria, VA for primary care, family medicine, same-day appointments, preventive care, and chronic condition support.",
+  },
   "/location/annapolis": {
     title: "Same-Day Healthcare at First Medical Associates in Annapolis | Convenient Care",
     h1: "Primary care Doctor in Annapolis, MD",
@@ -87,6 +93,12 @@ const LOCATION_SEO_BY_SLUG = {
 };
 
 const PROVIDER_SEO_OVERRIDES = {
+  "khai-el-johnson": {
+    titleName: "Khai-El Johnson, MD",
+    h1: "Khai-El Johnson, MD",
+    description:
+      "Khai-El Johnson, MD, sees patients at First Medical Associates in Alexandria, VA. View location details and request an appointment.",
+  },
   "jason-lowry": {
     titleName: "Jason Lowry",
   },
@@ -164,23 +176,23 @@ export function buildStaticMetadata({ title, description, pathname, image } = {}
 }
 
 export const providersIndexMetadata = buildStaticMetadata({
-  title: "Find Doctors & Primary Care Providers in Maryland | First Medical Associates",
+  title: "Find Doctors in Maryland & Northern Virginia | First Medical Associates",
   description:
-    "Browse primary care doctors, family medicine providers, and clinicians across Maryland locations at First Medical Associates.",
+    "Browse primary care doctors, family medicine providers, and clinicians across Maryland and Northern Virginia at First Medical Associates.",
   pathname: "/providers",
 });
 
 export const servicesIndexMetadata = buildStaticMetadata({
-  title: "Primary Care, Specialized Care & Telehealth Services in Maryland | First Medical Associates",
+  title: "Healthcare Services in Maryland & Northern Virginia | First Medical Associates",
   description:
-    "Explore primary care, specialized care, chronic care, telehealth, and same-day medical appointments from First Medical Associates across Maryland.",
+    "Explore primary care, specialized care, chronic care, telehealth, and same-day appointments from First Medical Associates in Maryland and Northern Virginia.",
   pathname: "/services",
 });
 
 export const locationsIndexMetadata = buildStaticMetadata({
-  title: "Primary Care & Same-Day Appointment Locations in Maryland | First Medical Associates",
+  title: "Primary Care Locations in Maryland & Northern Virginia | First Medical Associates",
   description:
-    "Find First Medical Associates primary care and same-day appointment locations across Maryland, with office details, directions, and appointment access.",
+    "Find First Medical Associates primary care and same-day appointment locations across Maryland and Northern Virginia, with directions and appointment access.",
   pathname: "/locations",
 });
 
@@ -197,10 +209,12 @@ export function getLocationSeoContent(location = {}) {
   const h1 = mapped?.h1 || `Primary care Doctor in ${placeName}`;
   const title = mapped?.title || `Primary Care Doctor in ${placeName} | First Medical Associates`;
   const description =
+    mapped?.description ||
     truncateText(
       `Visit First Medical Associates for primary care, family medicine, and same-day appointment support in ${placeName}. ${baseDescription}`,
       160
-    ) || `Visit First Medical Associates for primary care and same-day appointment support in ${placeName}.`;
+    ) ||
+    `Visit First Medical Associates for primary care and same-day appointment support in ${placeName}.`;
 
   return { title, h1, description, placeLabel: placeName };
 }
@@ -210,8 +224,10 @@ export function getProviderSeoContent(provider = {}) {
   const overrides = PROVIDER_SEO_OVERRIDES[slug] || {};
   const titleName = overrides.titleName || cleanText(provider.name) || "Provider";
   const h1 = overrides.h1 || cleanText(provider.name) || "Provider";
+  const bio = cleanText(provider.bio);
   const description =
-    truncateText(cleanText(provider.bio), 160) ||
+    overrides.description ||
+    (!isPlaceholderProviderBio(bio) ? truncateText(bio, 160) : "") ||
     `${titleName} is a primary care provider at First Medical Associates.`;
 
   return {
@@ -219,6 +235,10 @@ export function getProviderSeoContent(provider = {}) {
     h1,
     description,
   };
+}
+
+export function isPlaceholderProviderBio(value = "") {
+  return /^(?:provider\s+)?(?:bio\s+)?coming soon[.!]?$/i.test(cleanText(value));
 }
 
 export function getServiceSeoContent(service = {}) {

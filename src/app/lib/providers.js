@@ -1,4 +1,7 @@
-import { normalizeInternalPageHref } from "./config/site";
+import {
+  GENERAL_BOOK_APPOINTMENT_URL,
+  normalizeInternalPageHref,
+} from "./config/site.js";
 
 export function normalizeProviderSlug(value) {
   return String(value || "")
@@ -15,6 +18,23 @@ export function normalizeStringList(value) {
     .filter(Boolean);
 
   return [...new Set(items)];
+}
+
+export function getProviderInitials(name = "") {
+  const parts = String(name || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (parts.length === 0) return "MD";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
+
+export function resolveProviderBookingHref(provider = {}, location = {}) {
+  return String(
+    provider.linkUrl || location?.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL || ""
+  ).trim();
 }
 
 export function formatProviderList(items) {

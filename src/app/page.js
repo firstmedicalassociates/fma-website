@@ -34,9 +34,9 @@ export const runtime = "nodejs";
 export const revalidate = 60;
 
 export const metadata = buildStaticMetadata({
-  title: "Primary Care & Specialized Care Services in Maryland | First Medical Associates",
+  title: "Primary Care in Maryland & Northern Virginia | First Medical Associates",
   description:
-    "Primary care, specialized care, chronic care, and telehealth services across Maryland. Find doctors, locations, and same-day care at First Medical Associates.",
+    "Find primary care, specialized care, chronic care, telehealth, and same-day appointments across Maryland and Northern Virginia at First Medical Associates.",
   pathname: "/",
 });
 
@@ -171,7 +171,7 @@ const HOME_SERVICE_SHOWCASE = [
 
 const WHY_CHOOSE_ACCORDION = [
   {
-    title: "Comprehensive and collaborative approach to healthcare across multiple Maryland locations",
+    title: "Comprehensive and collaborative healthcare across Maryland and Northern Virginia",
     description:
       "Our care teams collaborate across locations to deliver coordinated treatment plans, smoother referrals, and more consistent follow-up.",
     expanded: false,
@@ -219,8 +219,8 @@ async function getHomeData() {
   if (!isDatabaseConfigured) {
     return {
       featuredLocation: FALLBACK_LOCATION,
-      providerCount: 48,
-      locationCount: 14,
+      providerCount: 59,
+      locationCount: 18,
       articleCount: 12,
       services: FALLBACK_SERVICES,
       heroSearchLocations: [
@@ -305,8 +305,8 @@ async function getHomeData() {
 
     return {
       featuredLocation: FALLBACK_LOCATION,
-      providerCount: 48,
-      locationCount: 14,
+      providerCount: 59,
+      locationCount: 18,
       articleCount: 12,
       services: FALLBACK_SERVICES,
       heroSearchLocations: [
@@ -527,14 +527,14 @@ export default async function Home() {
                       Primary Care &amp; Specialized Care
                     </span>
                     <span className={`${styles.heroTitleLine} ${styles.heroTitleAccentLine}`}>
-                      Across Maryland
+                      Across Maryland &amp; Northern Virginia
                     </span>
                   </h1>
                 </div>
 
                 <p className={styles.heroLead}>
                   First Medical Associates delivers patient-centered primary care, same-day visits,
-                  and coordinated support across Maryland.
+                  and coordinated support across Maryland and Northern Virginia.
                 </p>
 
                 <div className={styles.heroScheduler}>
@@ -704,7 +704,7 @@ export default async function Home() {
               </h2>
               <p className={styles.commitText}>
                 First Medical Associates provides a comprehensive and collaborative approach to
-                health care across multiple locations in Maryland.
+                health care across locations in Maryland and Northern Virginia.
               </p>
               <SmartLink href="/providers/" className={styles.commitButton}>
                 Find a Provider

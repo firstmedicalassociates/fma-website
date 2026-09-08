@@ -41,7 +41,7 @@ const PROVIDER_INTENT_STOPWORDS = new Set([
 export function getProviderIntentTokens(query = "") {
   return normalizeSearchText(query)
     .split(/\s+/)
-    .filter((token) => token.length > 2 && !PROVIDER_INTENT_STOPWORDS.has(token));
+    .filter((token) => token.length > 1 && !PROVIDER_INTENT_STOPWORDS.has(token));
 }
 
 export function isNearProviderTokenMatch(queryToken = "", providerToken = "") {
@@ -176,9 +176,16 @@ function scoreProviderEntry(entry, queryTokens, compactQuery) {
   }
   if (firstNameMatched && lastNameMatched) score = Math.max(score, 150);
   if (lastNameMatched && tokenMatchCount >= 2) score = Math.max(score, 132);
-  if (lastNameMatched && entry.lastNameUnique) score = Math.max(score, 110);
+  if (lastNameMatched && entry.lastNameUnique && entry.lastName.length >= 3) {
+    score = Math.max(score, 110);
+  }
   if (tokenMatchCount >= Math.min(3, entry.tokens.length)) score = Math.max(score, 118);
-  if (firstNameMatched && entry.firstNameUnique && queryTokens.length <= 1) {
+  if (
+    firstNameMatched &&
+    entry.firstNameUnique &&
+    entry.firstName.length >= 3 &&
+    queryTokens.length <= 1
+  ) {
     score = Math.max(score, 92);
   }
 

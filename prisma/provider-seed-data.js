@@ -637,4 +637,15 @@ module.exports = [
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/7195121",
     bio: "Dr. Rebecca Felsen is a board certified internal medicine physician who has been providing primary care to patients since 2011. A native to Montgomery County, she graduated from George Washington University School of Medicine and completed her residency at Robert Wood Johnson University Hospital in New Jersey. Dr. Felsen has been practicing outpatient medicine in Maryland since 2013. She has experience caring for diverse patient populations and is fluent in Spanish. Dr. Felsen values patient centered care and recognizes the importance of developing a patient-provider relationship and providing comprehensive care. When she is not working, Dr. Felsen enjoys spending time with her husband and four children, reading, and playing board games.",
   },
+  {
+    name: "Khai-El Johnson",
+    title: "MD",
+    locations: ["Alexandria"],
+    languages: [],
+    imageUrl: "",
+    imageAlt: "Khai-El Johnson, MD",
+    slug: "khai-el-johnson",
+    linkUrl: null,
+    bio: "Coming soon.",
+  },
 ];

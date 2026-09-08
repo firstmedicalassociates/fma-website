@@ -13,6 +13,7 @@ import {
   formatOfficeHoursForDisplay,
   resolveLocationAddressParts,
 } from "../lib/locations";
+import { getProviderInitials } from "../lib/providers";
 import { normalizeServiceIcon } from "../lib/services";
 import styles from "./location-page.module.css";
 
@@ -584,11 +585,21 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                   {providers.map((provider) => (
                     <article key={provider.slug} className={styles.providerCard}>
                       <div className={styles.providerAvatarWrap}>
-                        <img
-                          className={styles.providerAvatar}
-                          src={provider.imageUrl}
-                          alt={provider.imageAlt}
-                        />
+                        {provider.imageUrl ? (
+                          <img
+                            className={styles.providerAvatar}
+                            src={provider.imageUrl}
+                            alt={provider.imageAlt}
+                          />
+                        ) : (
+                          <div
+                            className={styles.providerAvatarFallback}
+                            role="img"
+                            aria-label={`${provider.name} headshot placeholder`}
+                          >
+                            {getProviderInitials(provider.name)}
+                          </div>
+                        )}
                       </div>
                       <h3>{provider.name}</h3>
                       <p>{provider.title}</p>

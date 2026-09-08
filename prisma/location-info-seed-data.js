@@ -17,6 +17,50 @@ const GERIATRIC_CARE_SECTION = {
 };
 
 module.exports = {
+  "/location/alexandria": {
+    sections: [
+      {
+        key: "same-day-clinic",
+        title: "Same-Day Appointments in Alexandria, VA",
+        paragraphs: [
+          "When an illness or other non-emergency health concern cannot wait, First Medical Associates in Alexandria offers same-day appointment options designed to help you get timely medical guidance. Our care team evaluates new symptoms, minor injuries, and other time-sensitive concerns with attention to your immediate needs and your broader health history.",
+          "Our Alexandria office combines convenient access with coordinated follow-up, so the care you receive during a same-day visit can remain connected to your ongoing primary care plan. Availability may vary, and patients can use our online scheduling system or call the office to request an appointment.",
+        ],
+      },
+      {
+        key: "family-doctor",
+        title: "Family Doctor in Alexandria, VA",
+        paragraphs: [
+          "A trusted family doctor can help you make informed decisions through routine wellness visits, preventive screenings, new health concerns, and long-term condition management. At First Medical Associates in Alexandria, we take time to understand each patient's medical history, priorities, and everyday needs.",
+          "Our patient-centered approach supports continuity across different stages of life. By building an ongoing relationship with your Alexandria care team, you have a consistent place to discuss changes in your health, review treatment plans, and coordinate additional care when needed.",
+        ],
+      },
+      {
+        key: "doctors",
+        title: "Doctors in Alexandria, VA",
+        paragraphs: [
+          "The physicians and advanced care professionals at First Medical Associates focus on clear communication, thoughtful evaluation, and care plans tailored to the individual. Patients can visit our Alexandria location for preventive care, acute concerns, and ongoing support for chronic health conditions.",
+          "Our Alexandria clinicians work within the broader First Medical Associates network to help coordinate referrals, testing, and follow-up care. This connected approach makes it easier to keep your health information and next steps organized over time.",
+        ],
+      },
+      {
+        key: "primary-care",
+        title: "Primary Care in Alexandria, VA",
+        paragraphs: [
+          "Primary care provides a foundation for protecting your health and addressing concerns early. Our Alexandria primary care services include routine checkups, preventive visits, health screenings, chronic condition support, and evaluation of common illnesses.",
+          "First Medical Associates is committed to accessible, personalized care for patients in Alexandria and nearby Northern Virginia communities. We work with you to set practical health goals and develop a plan that reflects your needs.",
+        ],
+      },
+      {
+        key: "geriatric-care",
+        title: "Geriatric Care in Alexandria, VA",
+        paragraphs: [
+          "Older adults often benefit from care that considers medications, mobility, preventive needs, chronic conditions, and personal goals together. Our Alexandria team provides attentive geriatric primary care designed to support health, independence, and quality of life.",
+          "We collaborate with patients, families, caregivers, and specialists when appropriate, helping make complex care plans easier to understand and manage. Regular visits also give our team an opportunity to identify changes early and adjust support as needs evolve.",
+        ],
+      },
+    ],
+  },
   "/columbia-2": {
     sourceUrl: "https://drsfirst.com/columbia-dev/",
     sections: [

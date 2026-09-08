@@ -23,7 +23,7 @@ const jobBoardUrl = '/about/careers/';
 export const metadata = buildStaticMetadata({
   title: "Careers | First Medical Associates",
   description:
-    "Explore provider, clinic, and corporate career opportunities at First Medical Associates across Maryland.",
+    "Explore provider, clinic, and corporate career opportunities at First Medical Associates across Maryland and Northern Virginia.",
   pathname: "/about/careers",
 });
 
@@ -344,8 +344,8 @@ export default function CareersPage() {
           <h2>A Step Above</h2>
           <p>
             Founded in 2004 by one doctor, First Medical Associates has grown from a single
-            community clinic to a leading regional healthcare network with 17 locations throughout
-            Maryland, expanding into Virginia in 2026. We offer a strong supportive infrastructure,
+            community clinic to a leading regional healthcare network with 18 locations across
+            Maryland and Northern Virginia. We offer a strong supportive infrastructure,
             allowing our providers to focus on patient care, with an amazing support team that
             ensures our offices run smoothly and efficiently.
           </p>
@@ -377,7 +377,7 @@ export default function CareersPage() {
             </div>
             <div className="fact-item">
               <CircleCheck size={18} />
-              <span>17 Maryland locations create room for advancement and internal movement.</span>
+              <span>18 locations across Maryland and Northern Virginia create room for advancement and internal movement.</span>
             </div>
             <div className="fact-item">
               <CircleCheck size={18} />

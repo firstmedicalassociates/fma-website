@@ -132,7 +132,7 @@ export default function ContactPageShell() {
 
             <article className={styles.infoCard}>
               <h2>Find A Location</h2>
-              <p>Explore Maryland clinics and choose the office that works best for you.</p>
+              <p>Explore clinics in Maryland and Northern Virginia and choose the office that works best for you.</p>
               <ActionLink className={styles.infoAction} href="/locations/">
                 Browse Locations
               </ActionLink>

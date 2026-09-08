@@ -248,7 +248,7 @@ function buildSeedProvider(entry, sortOrder) {
     name: cleanText(entry.name),
     title: cleanText(entry.title),
     bio: cleanText(entry.bio) || buildProviderBio(entry),
-    imageUrl: cleanText(entry.imageUrl),
+    imageUrl: cleanText(entry.imageUrl) || "",
     imageAlt: cleanText(entry.imageAlt) || `${cleanText(entry.name)} headshot`,
     linkUrl: cleanText(entry.linkUrl),
     locations: cleanStringList(entry.locations)

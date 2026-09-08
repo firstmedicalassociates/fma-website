@@ -13,7 +13,10 @@ import {
   resolveLocationPrimaryImage,
 } from "../lib/location-photos";
 import { prisma } from "../lib/prisma";
-import { resolveProviderImageSrc } from "../lib/providers";
+import {
+  resolveProviderBookingHref,
+  resolveProviderImageSrc,
+} from "../lib/providers";
 import { getLocationSeoContent } from "../lib/seo";
 import LocationPageShell from "./location-page-shell";
 
@@ -234,8 +237,8 @@ export default async function LocationLandingPage({ params }) {
           imageUrl: resolveProviderImageSrc(provider),
           imageAlt: provider.imageAlt || provider.name,
           profileHref: normalizePagePath(`/providers/${provider.slug}`),
-          ctaHref: provider.linkUrl || normalizePagePath(`/providers/${provider.slug}`),
-          ctaLabel: provider.linkUrl ? "Book Appointment" : "View Profile",
+          ctaHref: resolveProviderBookingHref(provider, location),
+          ctaLabel: "Book Appointment",
         }))}
         serviceGroups={groupLocationServices(locationServices)}
       />

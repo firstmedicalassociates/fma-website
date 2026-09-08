@@ -8,7 +8,7 @@ export const FMA_KNOWLEDGE_BASE = `
 
 COMPANY OVERVIEW
 First Medical Associates (FMA), formerly known as Doctors First, is a primary care network
-operating across Maryland. Our mission: "Your Health, Our Priority." We deliver highly
+operating across Maryland and Northern Virginia. Our mission: "Your Health, Our Priority." We deliver highly
 personalized, neighborhood-based care from acute illness through chronic disease management
 and preventive care. Each facility features on-site laboratory and diagnostic tools.
 Website: www.DrsFirst.com
@@ -26,16 +26,25 @@ HOURS OF OPERATION
 Office Hours: Monday-Friday, 8:00 AM - 5:00 PM. Saturday and Sunday: Closed.
 After-Hours Support: Available 24/7 — call 301-515-2901 for time-sensitive needs
 
-LOCATIONS (14 Maryland locations)
-- Germantown: 12800 Middlebrook Rd, Suite 400, Germantown, MD 20874
-- Gaithersburg: 806 West Diamond Ave, Suite 110, Gaithersburg, MD 20878
-- Rockville: 9601 Blackwell Road, Suite 210, Rockville, MD 20850
-- Columbia: 8600 Snowden River Pkwy, Suite 207, Columbia, MD 21045
+LOCATIONS (18 locations across Maryland and Northern Virginia)
+- Alexandria: 4660 Kenmore Ave Suite #1210, Alexandria, VA 22304; 571-200-7128
+- Annapolis: 2448 Holly Avenue, Suite 102, Annapolis, MD 21401
 - Bowie: 14300 Gallant Fox Ln, Suite 110, Bowie, MD 20715
-- Silver Spring: 9801 Georgia Ave, Suite 229, Silver Spring, MD 20902
-- Joppa: 1415 S Mountain Rd, Suite 100, Joppa, MD 21085
-- Annapolis, Crofton, Frederick, Glen Burnie, Greenbelt, Lutherville, Nottingham, Severna Park
-  (call 301-515-2901 or visit www.DrsFirst.com for exact addresses)
+- Bowie II: 14999 Health Center Dr, Suite 201, Bowie, MD 20716
+- Columbia: 8600 Snowden River Pkwy, Suite 207, Columbia, MD 21045
+- Columbia II: 9841 Broken Land Parkway, Suite 115, Columbia, MD 21046
+- Crofton: 2200 Defense Highway, Suite 309, Crofton, MD 21114
+- Frederick: 196 Thomas Johnson Dr, Suite 235, Frederick, MD 21702
+- Gaithersburg: 806 West Diamond Ave, Suite 110, Gaithersburg, MD 20878
+- Germantown: 12800 Middlebrook Rd, Suite 400, Germantown, MD 20874
+- Glen Burnie: 1600 Crain Highway, Suite 202, Glen Burnie, MD 21061
+- Greenbelt: 7500 Greenway Center Dr, Suite 620, Greenbelt, MD 21093
+- Laurel: 14201 Laurel Park Drive, Suite 111, Laurel, MD 20707
+- Lutherville: 1205 York Road, Suite 38, Lutherville, MD 21093
+- Nottingham: 8100 Sandpiper Cir, Suite 308, Baltimore, MD 21236
+- Rockville: 9601 Blackwell Road, Suite 210, Rockville, MD 20850
+- Severna Park: 877 Baltimore Annapolis Boulevard, Suite 112, Severna Park, MD 21146
+- Silver Spring: 700 Roeder Rd, Suite 100 B, Silver Spring, MD 20910
 
 SCHEDULING APPOINTMENTS
 - Online: https://first-medical-associates.inquicker.com/
@@ -264,7 +273,7 @@ FMA does NOT initiate or manage long-term GLP-1 therapy (e.g., Ozempic, Wegovy, 
 for weight loss. Referrals to specialists are available if appropriate.
 
 TELEMEDICINE / VIRTUAL VISITS
-FMA offers secure virtual healthcare consultations across Maryland via video call and messaging.
+FMA offers secure virtual healthcare consultations across Maryland and Northern Virginia via video call and messaging.
 - Book via phone (301-515-2901) or online booking: https://first-medical-associates.inquicker.com/
 - Available 24/7 with flexible scheduling and reduced wait times
 - Same personalized care as in-person visits in a secure, confidential environment
@@ -303,6 +312,7 @@ PROVIDERS
 FMA employs board-certified internists and family medicine physicians, plus nurse practitioners
 and physician assistants working under physician supervision. Providers include:
 Dr. Meera Ramakrishnan, Dr. Aashish Dewan, Dr. Kahsu Tsehay, Dr. Karthya Potti, and others.
+Khai-El Johnson, MD, sees patients at the Alexandria, Virginia location.
 Visit www.DrsFirst.com/providers for the full list.
 
 INSURANCE ACCEPTED
