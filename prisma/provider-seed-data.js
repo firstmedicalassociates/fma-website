@@ -200,7 +200,7 @@ module.exports = [
   {
     name: "Zainab Kebbie Turay",
     title: "FNP",
-    locations: ["Annapolis", "Glen Burnie"],
+    locations: ["Glen Burnie"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/zainab-turay.webp",
     imageAlt: "Zainab Kebbie Turay headshot",
@@ -266,7 +266,7 @@ module.exports = [
   {
     name: "Marili Lemus",
     title: "PA-C",
-    locations: ["Columbia (Snowden River Pkwy)", "Nottingham"],
+    locations: ["Columbia (Snowden River Pkwy)"],
     languages: ["English", "Spanish"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/marili-lemus.webp",
     imageAlt: "Marili Lemus headshot",
@@ -321,7 +321,7 @@ module.exports = [
   {
     name: "Elesa Yihdego",
     title: "DO",
-    locations: ["Rockville", "Germantown", "Greenbelt"],
+    locations: ["Greenbelt"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/elesa-yihdego.webp",
     imageAlt: "Elesa Yihdego headshot",
@@ -420,7 +420,7 @@ module.exports = [
   {
     name: "Grace Nzouatcham",
     title: "PA-C",
-    locations: ["Columbia (Broken Land Dr)", "Lutherville"],
+    locations: ["Lutherville"],
     languages: ["English", "French"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/grace-nzouatcham.webp",
     imageAlt: "Grace Nzouatcham headshot",
