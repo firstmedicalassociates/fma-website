@@ -33,6 +33,7 @@ export default async function sitemap() {
     createStaticRoute("/about/mission", "monthly", 0.5),
     createStaticRoute("/about/partners", "monthly", 0.5),
     createStaticRoute("/contact", "monthly", 0.6),
+    createStaticRoute("/sell-your-practice", "monthly", 0.6),
     createStaticRoute("/patient-resources", "monthly", 0.7),
     createStaticRoute("/patient-resources/education", "monthly", 0.5),
     createStaticRoute("/patient-resources/faq", "monthly", 0.5),
