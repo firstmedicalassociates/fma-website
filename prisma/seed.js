@@ -303,7 +303,7 @@ function mergeService(existingService, seededService) {
 }
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL;
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const password = process.env.ADMIN_PASSWORD;
 
   if (!email || !password) {
@@ -316,7 +316,7 @@ async function main() {
 
   await prisma.adminUser.upsert({
     where: { email },
-    update: { password: passwordHash },
+    update: {},
     create: {
       email,
       password: passwordHash,

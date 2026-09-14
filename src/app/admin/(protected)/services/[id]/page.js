@@ -1,3 +1,4 @@
+import { requireAdminPage } from "../../../../lib/admin-page-auth";
 import { notFound } from "next/navigation";
 import { prisma } from "../../../../lib/prisma";
 import ServiceForm from "../service-form";
@@ -6,6 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function EditServicePage({ params }) {
+  await requireAdminPage("services.view");
   const { id } = await params;
   if (!id) {
     notFound();

@@ -1,4 +1,5 @@
 "use client";
+import { useAdminAccess } from "../admin-access";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -56,6 +57,8 @@ function getInitialValues(initialProvider) {
 }
 
 export default function ProviderForm({ mode = "create", initialProvider, locationOptions = [] }) {
+  const { can } = useAdminAccess();
+  const canEdit = can("providers.edit");
   const initialValues = getInitialValues(initialProvider);
   const isEditMode = mode === "edit";
 
@@ -168,6 +171,7 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
   }
 
   async function handleSubmit(event) {
+    if (!canEdit) { event.preventDefault(); return; }
     event.preventDefault();
     setStatus("saving");
     setMessage("");
@@ -225,9 +229,9 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
           <span className="admin-pill">{isActive ? "Visible" : "Hidden"}</span>
           <button
             className="builder-button admin-primary-cta"
-            type="submit"
+            type="submit" aria-disabled={!canEdit}
             form="provider-form"
-            disabled={status === "saving" || imageStatus === "uploading"}
+            disabled={!canEdit || status === "saving" || imageStatus === "uploading"}
           >
             {status === "saving"
               ? isEditMode
@@ -251,6 +255,8 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
           </div>
 
           <form className="builder-form" id="provider-form" onSubmit={handleSubmit}>
+            {!canEdit ? <p className="admin-notice">View only — editing is not enabled for your account.</p> : null}
+            <fieldset className="admin-form-fields" disabled={!canEdit}>
             <div className="builder-grid-two">
               <div className="builder-field">
                 <label>Name (required)</label>
@@ -460,8 +466,8 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
             <div className="builder-row">
               <button
                 className="builder-button admin-primary-cta"
-                type="submit"
-                disabled={status === "saving" || imageStatus === "uploading"}
+                type="submit" aria-disabled={!canEdit}
+                disabled={!canEdit || status === "saving" || imageStatus === "uploading"}
               >
                 {status === "saving"
                   ? isEditMode
@@ -485,6 +491,7 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
                 {message}
               </p>
             ) : null}
+          </fieldset>
           </form>
         </div>
 

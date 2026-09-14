@@ -1,4 +1,5 @@
 "use client";
+import { useAdminAccess } from "../admin-access";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -262,6 +263,8 @@ export default function LocationForm({
   assignedProviderCount = 0,
   serviceOptions = [],
 }) {
+  const { can } = useAdminAccess();
+  const canEdit = can("locations.edit");
   const initialValues = getInitialValues(initialLocation);
   const isEditMode = mode === "edit";
 
@@ -521,6 +524,7 @@ export default function LocationForm({
   }
 
   async function handleSubmit(event) {
+    if (!canEdit) { event.preventDefault(); return; }
     event.preventDefault();
     setStatus("saving");
     setMessage("");
@@ -607,9 +611,9 @@ export default function LocationForm({
           <span className="admin-pill">{assignedProviderCount} provider{assignedProviderCount === 1 ? "" : "s"}</span>
           <button
             className="builder-button admin-primary-cta"
-            type="submit"
+            type="submit" aria-disabled={!canEdit}
             form="location-form"
-            disabled={status === "saving" || imageStatus === "uploading"}
+            disabled={!canEdit || status === "saving" || imageStatus === "uploading"}
           >
             {status === "saving"
               ? isEditMode
@@ -677,6 +681,8 @@ export default function LocationForm({
             </div>
 
             <form className="location-editor-stage-body" id="location-form" onSubmit={handleSubmit}>
+            {!canEdit ? <p className="admin-notice">View only — editing is not enabled for your account.</p> : null}
+            <fieldset className="admin-form-fields" disabled={!canEdit}>
               {activeStage === "overview" ? (
                 <div className="location-editor-panel-grid builder-grid-two">
                   <div className="builder-element">
@@ -1395,8 +1401,8 @@ export default function LocationForm({
               <div className="builder-row">
                 <button
                   className="builder-button admin-primary-cta"
-                  type="submit"
-                  disabled={status === "saving" || imageStatus === "uploading"}
+                  type="submit" aria-disabled={!canEdit}
+                  disabled={!canEdit || status === "saving" || imageStatus === "uploading"}
                 >
                   {status === "saving"
                     ? isEditMode
@@ -1416,7 +1422,8 @@ export default function LocationForm({
                   {message}
                 </p>
               ) : null}
-            </form>
+            </fieldset>
+          </form>
           </article>
         </div>
       </section>

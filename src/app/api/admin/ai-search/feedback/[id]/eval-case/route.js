@@ -32,7 +32,7 @@ function normalizeAvailability(value) {
 }
 
 export async function PUT(request, { params }) {
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   const { id } = await params;

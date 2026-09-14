@@ -7,12 +7,16 @@ datasource db {
 }
 
 model AdminUser {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String // bcrypt hash later
-  role      String   @default("ADMIN")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  password           String // bcrypt hash
+  role               String   @default("ADMIN")
+  permissions        String[] @default([])
+  isActive           Boolean  @default(true)
+  mustChangePassword Boolean  @default(false)
+  sessionVersion     Int      @default(1)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model BlogPost {
@@ -123,24 +127,24 @@ model SearchEmbedding {
 }
 
 model AiSearchEvent {
-  id                     String            @id @default(cuid())
+  id                     String                @id @default(cuid())
   queryHash              String?
   answerHash             String?
-  queryLength            Int               @default(0)
-  surface                String            @default("api")
+  queryLength            Int                   @default(0)
+  surface                String                @default("api")
   intent                 String?
-  status                 String            @default("unknown")
+  status                 String                @default("unknown")
   code                   String?
-  resultCount            Int               @default(0)
-  sourceCount            Int               @default(0)
-  appointmentOptionCount Int               @default(0)
+  resultCount            Int                   @default(0)
+  sourceCount            Int                   @default(0)
+  appointmentOptionCount Int                   @default(0)
   aiConfidence           String?
-  grounded               Boolean           @default(false)
-  disclaimer             Boolean           @default(false)
+  grounded               Boolean               @default(false)
+  disclaimer             Boolean               @default(false)
   latencyMs              Int?
-  phiCategories          String[]          @default([])
+  phiCategories          String[]              @default([])
   feedbackRating         String?
-  feedbackTags           String[]          @default([])
+  feedbackTags           String[]              @default([])
   feedbackCreatedAt      DateTime?
   feedbackQuerySnapshot  String?
   feedbackAnswerSnapshot String?
@@ -153,11 +157,16 @@ model AiSearchEvent {
   promptVersion          String?
   modelVersion           String?
   knowledgeVersion       String?
-  sourceRefs             String[]          @default([])
+  sourceRefs             String[]              @default([])
   retrievalScore         Float?
-  createdAt              DateTime          @default(now())
-  updatedAt              DateTime          @updatedAt
+  availabilityStatus     String?
+  telemetryVersion       Int?
+  bookingTargetCount     Int                   @default(0)
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
   evalCase               AiSearchEvalCase?
+  interactions           AiSearchInteraction[]
+  apiUsage               AiApiUsage[]
 
   @@index([createdAt])
   @@index([status, createdAt])
@@ -167,6 +176,46 @@ model AiSearchEvent {
   @@index([feedbackReviewStatus, feedbackCreatedAt])
   @@index([searchRoute, createdAt])
   @@index([promptVersion, createdAt])
+  @@index([surface, createdAt])
+}
+
+model AiSearchInteraction {
+  id        String        @id
+  eventId   String
+  event     AiSearchEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  type      String
+  targetRef String
+  createdAt DateTime      @default(now())
+
+  @@index([eventId, type])
+  @@index([createdAt, type])
+}
+
+model AiApiUsage {
+  id                String         @id @default(cuid())
+  eventId           String?
+  event             AiSearchEvent? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  purpose           String
+  operation         String
+  model             String
+  requestId         String?
+  inputTokens       Int?
+  cachedInputTokens Int?
+  outputTokens      Int?
+  estimatedCostUsd  Decimal?       @db.Decimal(20, 10)
+  pricingVersion    String?
+  status            String
+  createdAt         DateTime       @default(now())
+
+  @@index([eventId])
+  @@index([createdAt, purpose])
+}
+
+model OpenAiCostSnapshot {
+  id          String   @id
+  projectId   String
+  data        Json
+  refreshedAt DateTime @default(now())
 }
 
 model AiSearchEvalCase {
@@ -187,4 +236,12 @@ model AiSearchEvalCase {
   updatedAt               DateTime      @updatedAt
 
   @@index([isActive, createdAt])
+}
+
+model AdminCredentialAttempt {
+  key       String   @id
+  count     Int
+  expiresAt DateTime
+
+  @@index([expiresAt])
 }

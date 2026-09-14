@@ -1,3 +1,5 @@
+import { Permission } from "../admin-access";
+import { requireAdminPage } from "../../../lib/admin-page-auth";
 import Link from "next/link";
 import { Clock3, Layers3, MapPin } from "../admin-icons";
 import { VISIBLE_LOCATION_WHERE } from "../../../lib/locations";
@@ -35,6 +37,7 @@ function groupServicesByCategory(services) {
 }
 
 export default async function AdminServicesPage() {
+  await requireAdminPage("services.view");
   const [services, locations] = await Promise.all([
     prisma.service.findMany({
       orderBy: [{ category: "asc" }, { title: "asc" }],
@@ -74,9 +77,9 @@ export default async function AdminServicesPage() {
             Manage reusable service cards and assign existing services to each location.
           </p>
         </div>
-        <Link className="builder-button admin-primary-cta" href="/admin/services/new">
+        <Permission name="services.edit"><Link className="builder-button admin-primary-cta" href="/admin/services/new">
           Add service
-        </Link>
+        </Link></Permission>
       </header>
 
       <section className="admin-content-grid">

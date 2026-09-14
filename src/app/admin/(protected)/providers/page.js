@@ -1,3 +1,5 @@
+import { Permission } from "../admin-access";
+import { requireAdminPage } from "../../../lib/admin-page-auth";
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
@@ -23,6 +25,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export default async function AdminProvidersPage() {
+  await requireAdminPage("providers.view");
   const [providers, locations] = await Promise.all([
     prisma.provider.findMany({
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
@@ -74,9 +77,9 @@ export default async function AdminProvidersPage() {
             Manage provider profiles, assign them to location pages, and control public visibility.
           </p>
         </div>
-        <Link className="builder-button admin-primary-cta" href="/admin/providers/new">
+        <Permission name="providers.edit"><Link className="builder-button admin-primary-cta" href="/admin/providers/new">
           Add provider
-        </Link>
+        </Link></Permission>
       </header>
 
       <section className="admin-content-grid">

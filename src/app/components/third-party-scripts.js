@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import { usePathname } from "next/navigation";
 
 const EMITRR_WEBCHAT_ID = "5c737ff6-8cdb-4c21-89b7-e38adce4f442";
 const GOOGLE_ANALYTICS_ID = "G-2FEBLJP9NJ";
@@ -20,8 +21,15 @@ function initializeEmitrrWidget() {
 }
 
 export default function ThirdPartyScripts() {
+  const pathname = usePathname();
+  if (pathname === "/admin" || pathname?.startsWith("/admin/")) return null;
   return (
     <>
+      <Script
+        id="reachlocal-loader"
+        src="https://cdn.rlets.com/capture_static/mms/mms.js"
+        strategy="afterInteractive"
+      />
       <Script
         id="google-analytics-loader"
         src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`}

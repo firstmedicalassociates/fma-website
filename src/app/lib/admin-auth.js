@@ -1,97 +1,79 @@
-import crypto from "crypto";
 import { NextResponse } from "next/server";
-
-export const SESSION_COOKIE = "admin_session";
-const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
-
-function base64UrlEncode(value) {
-  return Buffer.from(value)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
+import { prisma } from "./prisma.js";
+import {
+  hasPermission,
+  isSameOrigin,
+  permissionForRequest,
+} from "./admin-permissions.mjs";
+import {
+  SESSION_COOKIE,
+  SESSION_TTL_SECONDS,
+  signAdminSession,
+  verifyAdminSession,
+  sessionMatchesUser,
+} from "./admin-session.mjs";
+export { SESSION_COOKIE, signAdminSession, verifyAdminSession };
+export const ADMIN_PUBLIC_SELECT = {
+  id: true,
+  email: true,
+  role: true,
+  permissions: true,
+  isActive: true,
+  mustChangePassword: true,
+  sessionVersion: true,
+  createdAt: true,
+};
+export async function resolveAdminSession(token, db = prisma) {
+  const payload = verifyAdminSession(token);
+  if (!payload) return null;
+  const user = await db.adminUser.findUnique({
+    where: { id: payload.sub },
+    select: ADMIN_PUBLIC_SELECT,
+  });
+  return sessionMatchesUser(payload, user) ? { ...user, sub: user.id } : null;
 }
-
-function base64UrlDecode(value) {
-  const padded = value.replace(/-/g, "+").replace(/_/g, "/");
-  return Buffer.from(padded, "base64").toString("utf8");
-}
-
-function sign(payloadJson, secret) {
-  return crypto.createHmac("sha256", secret).update(payloadJson).digest("base64url");
-}
-
-export function signAdminSession({ id, email, role }) {
-  const secret = process.env.ADMIN_AUTH_SECRET;
-  if (!secret) {
-    throw new Error("ADMIN_AUTH_SECRET is not set.");
-  }
-
-  const now = Math.floor(Date.now() / 1000);
-  const payload = {
-    sub: id,
-    email,
-    role,
-    iat: now,
-    exp: now + SESSION_TTL_SECONDS,
-  };
-
-  const payloadJson = JSON.stringify(payload);
-  const signature = sign(payloadJson, secret);
-  return `${base64UrlEncode(payloadJson)}.${signature}`;
-}
-
-export function verifyAdminSession(token) {
-  const secret = process.env.ADMIN_AUTH_SECRET;
-  if (!secret || !token) return null;
-
-  const [encodedPayload, signature] = token.split(".");
-  if (!encodedPayload || !signature) return null;
-
-  let payloadJson;
-  try {
-    payloadJson = base64UrlDecode(encodedPayload);
-  } catch {
-    return null;
-  }
-
-  const expectedSignature = sign(payloadJson, secret);
-  const signatureBuffer = Buffer.from(signature);
-  const expectedBuffer = Buffer.from(expectedSignature);
-  if (
-    signatureBuffer.length !== expectedBuffer.length ||
-    !crypto.timingSafeEqual(signatureBuffer, expectedBuffer)
-  ) {
-    return null;
-  }
-
-  let payload;
-  try {
-    payload = JSON.parse(payloadJson);
-  } catch {
-    return null;
-  }
-
-  if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) {
-    return null;
-  }
-
-  return payload;
-}
-
 export function getAdminSessionFromRequest(request) {
-  return verifyAdminSession(request?.cookies?.get(SESSION_COOKIE)?.value);
+  return resolveAdminSession(request?.cookies?.get(SESSION_COOKIE)?.value);
 }
-
-export function requireAdminRequest(request) {
-  const session = getAdminSessionFromRequest(request);
-
-  if (!session) {
+export function adminError(error, status = 400) {
+  return NextResponse.json({ ok: false, error }, { status });
+}
+export async function requireAdminRequest(request, permission) {
+  if (
+    !["GET", "HEAD", "OPTIONS"].includes(request.method) &&
+    !isSameOrigin(request)
+  )
     return {
       ok: false,
-      response: NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 }),
+      response: adminError("Cross-origin request rejected.", 403),
     };
-  }
-
+  const session = await getAdminSessionFromRequest(request);
+  if (!session)
+    return { ok: false, response: adminError("Please sign in again.", 401) };
+  const required =
+    permission ||
+    permissionForRequest(new URL(request.url).pathname, request.method);
+  if (!hasPermission(session, required))
+    return {
+      ok: false,
+      response: adminError(
+        session.mustChangePassword
+          ? "Change your temporary password first."
+          : "You do not have permission to do this.",
+        403,
+      ),
+    };
   return { ok: true, session };
+}
+export function setAdminSessionCookie(response, user) {
+  response.cookies.set({
+    name: SESSION_COOKIE,
+    value: signAdminSession(user),
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: SESSION_TTL_SECONDS,
+  });
+  return response;
 }

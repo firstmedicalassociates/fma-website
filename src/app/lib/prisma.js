@@ -64,7 +64,7 @@ const prismaClient =
   globalForPrisma.prisma ||
   (isDatabaseConfigured
     ? new PrismaClient({
-        adapter: new PrismaNeon({ connectionString: databaseUrl }),
+        adapter: new PrismaNeon({ connectionString: databaseUrl }, { schema: new URL(databaseUrl).searchParams.get("schema") || "public" }),
       })
     : createMissingPrismaClient());
 

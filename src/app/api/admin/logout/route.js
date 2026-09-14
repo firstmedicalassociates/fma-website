@@ -4,7 +4,7 @@ import { SESSION_COOKIE, requireAdminRequest } from "../../../lib/admin-auth";
 export const runtime = "nodejs";
 
 export async function POST(request) {
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   const response = NextResponse.json({ ok: true });

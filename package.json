@@ -11,7 +11,7 @@
     "check:seo": "node --test tests/seo/*.test.mjs",
     "audit:seo:live": "node scripts/audit-seo-live.mjs",
     "check:ai-search-guards": "node scripts/check-ai-search-guards.mjs",
-    "check:deployment": "npm audit --audit-level=low && npm run check:seo && npm run check:ai-search-guards && npm run eval:ai-search && npx prisma validate && npm run build",
+    "check:deployment": "npm audit --audit-level=low && npm run check:admin && npm run check:seo && npm run check:ai-search-guards && npm run eval:ai-search && npx prisma validate && npm run build",
     "eval:ai-search": "node scripts/evaluate-ai-search.mjs",
     "eval:ai-search:live": "node scripts/evaluate-ai-search.mjs --live --all-providers",
     "athena:audit-provider-departments": "node scripts/audit-athena-provider-departments.mjs",
@@ -22,7 +22,9 @@
     "import:live-blogs": "node scripts/import-live-blogs.js",
     "sync:providers": "node scripts/sync-live-providers.js",
     "migrate:provider-images": "node scripts/migrate-provider-images-to-blob.js",
-    "athena:provider-schedules": "node scripts/print-athena-provider-schedules.js"
+    "athena:provider-schedules": "node scripts/print-athena-provider-schedules.js",
+    "check:admin": "node --test tests/admin/core.test.mjs",
+    "check:admin:integration": "node --env-file=.env.admin-test --test tests/admin/integration.test.mjs"
   },
   "dependencies": {
     "@fontsource/material-symbols-outlined": "^5.2.42",

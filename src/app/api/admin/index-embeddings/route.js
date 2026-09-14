@@ -1,3 +1,4 @@
+import { trackOpenAiCall } from "../../../lib/ai-usage.mjs";
 import { NextResponse } from 'next/server';
 import { OpenAI } from 'openai';
 import { requireAdminRequest } from '../../../lib/admin-auth';
@@ -83,10 +84,10 @@ async function generateEmbedding(text) {
 
   try {
     const client = getOpenAI();
-    const response = await client.embeddings.create({
+    const response = await trackOpenAiCall({ operation: "embedding", model: EMBEDDING_MODEL, purpose: "indexing" }, () => client.embeddings.create({
       model: EMBEDDING_MODEL,
       input: text,
-    });
+    }));
     return response.data[0].embedding;
   } catch (error) {
     console.error('Error generating embedding:', error.message);
@@ -479,7 +480,7 @@ async function deleteStaleManagedEmbeddings(db, expectedIds) {
 }
 
 export async function POST(request) {
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   const logs = [];

@@ -1,4 +1,5 @@
 "use client";
+import { useAdminAccess } from "../admin-access";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -108,6 +109,8 @@ function DragHandle() {
 }
 
 export default function PostForm({ mode, initialPost }) {
+  const { can } = useAdminAccess();
+  const canEdit = can("posts.edit");
   const initialCategory = BLOG_CATEGORY_OPTIONS.some(
     (option) => option.value === initialPost?.category
   )
@@ -264,6 +267,7 @@ export default function PostForm({ mode, initialPost }) {
   }
 
   async function handleSubmit(event) {
+    if (!canEdit) { event.preventDefault(); return; }
     event.preventDefault();
     setStatus("saving");
     setMessage("");
@@ -362,9 +366,9 @@ export default function PostForm({ mode, initialPost }) {
           <span className="admin-pill">Builder</span>
           <button
             className="builder-button admin-primary-cta"
-            type="submit"
+            type="submit" aria-disabled={!canEdit}
             form="post-builder-form"
-            disabled={status === "saving"}
+            disabled={!canEdit || status === "saving"}
           >
             {status === "saving" ? primaryBusyLabel : primaryLabel}
           </button>
@@ -382,6 +386,8 @@ export default function PostForm({ mode, initialPost }) {
           </div>
 
           <form className="builder-form" id="post-builder-form" onSubmit={handleSubmit}>
+            {!canEdit ? <p className="admin-notice">View only — editing is not enabled for your account.</p> : null}
+            <fieldset className="admin-form-fields" disabled={!canEdit}>
             <div className="builder-field">
               <label>Page title (required)</label>
               <input
@@ -654,8 +660,8 @@ export default function PostForm({ mode, initialPost }) {
             <div className="builder-row">
               <button
                 className="builder-button admin-primary-cta"
-                type="submit"
-                disabled={status === "saving"}
+                type="submit" aria-disabled={!canEdit}
+                disabled={!canEdit || status === "saving"}
               >
                 {status === "saving" ? primaryBusyLabel : primaryLabel}
               </button>
@@ -668,6 +674,7 @@ export default function PostForm({ mode, initialPost }) {
               <p className={messageClassName}>Uploading featured image...</p>
             ) : null}
             {message ? <p className={messageClassName}>{message}</p> : null}
+          </fieldset>
           </form>
         </div>
 

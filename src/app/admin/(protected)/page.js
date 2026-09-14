@@ -1,289 +1,140 @@
 import Link from "next/link";
-import {
-  Activity,
-  FileText,
-  Layers3,
-  MapPin,
-  UserPlus,
-  Users,
-} from "./admin-icons";
+import { requireAdminPage } from "../../lib/admin-page-auth";
+import { hasPermission } from "../../lib/admin-permissions.mjs";
 import {
   ADMIN_NAV_SECTIONS,
-  ADMIN_PRIMARY_LINK_BY_KEY,
+  canSeeAdminLink,
 } from "../../lib/config/admin-navigation.mjs";
-import { VISIBLE_LOCATION_WHERE } from "../../lib/locations";
 import { prisma } from "../../lib/prisma";
-
-export const runtime = "nodejs";
+import { VISIBLE_LOCATION_WHERE } from "../../lib/locations";
 export const dynamic = "force-dynamic";
-
-const numberFormatter = new Intl.NumberFormat("en-US");
-
-function formatRelativeTime(date) {
-  const now = Date.now();
-  const diffInMinutes = Math.max(1, Math.round((now - date.getTime()) / 60000));
-
-  if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
-
-  const diffInHours = Math.round(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours} hour${diffInHours === 1 ? "" : "s"} ago`;
-
-  const diffInDays = Math.round(diffInHours / 24);
-  return `${diffInDays} day${diffInDays === 1 ? "" : "s"} ago`;
-}
-
 export default async function AdminDashboardPage() {
-  const postsAdminLink = ADMIN_PRIMARY_LINK_BY_KEY.posts;
-  const locationsAdminLink = ADMIN_PRIMARY_LINK_BY_KEY.locations;
-  const providersAdminLink = ADMIN_PRIMARY_LINK_BY_KEY.providers;
-
-  const dashboardShortcutSections = ADMIN_NAV_SECTIONS.map((section) => ({
-    ...section,
-    links:
-      section.id === "overview"
-        ? section.links.filter((link) => link.key !== "dashboard")
-        : section.links,
-  })).filter((section) => section.links.length > 0);
-
-  const [
-    totalPosts,
-    publishedPosts,
-    totalLocations,
-    totalProviders,
-    activeProviders,
-    recentPosts,
-    recentLocations,
-    recentProviders,
-  ] = await Promise.all([
-    prisma.blogPost.count(),
-    prisma.blogPost.count({ where: { status: "PUBLISHED" } }),
-    prisma.location.count({ where: VISIBLE_LOCATION_WHERE }),
-    prisma.provider.count(),
-    prisma.provider.count({ where: { isActive: true } }),
-    prisma.blogPost.findMany({
-      orderBy: { updatedAt: "desc" },
-      take: 4,
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        updatedAt: true,
-      },
-    }),
-    prisma.location.findMany({
-      where: VISIBLE_LOCATION_WHERE,
-      orderBy: { updatedAt: "desc" },
-      take: 4,
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        updatedAt: true,
-      },
-    }),
-    prisma.provider.findMany({
-      orderBy: { updatedAt: "desc" },
-      take: 4,
-      select: {
-        id: true,
-        name: true,
-        title: true,
-        isActive: true,
-        updatedAt: true,
-      },
-    }),
-  ]);
-
-  const draftPosts = Math.max(totalPosts - publishedPosts, 0);
-  const hiddenProviders = Math.max(totalProviders - activeProviders, 0);
-
-  const recentActivity = [
-    ...recentPosts.map((post) => ({
-      id: `post-${post.id}`,
-      title: `Post updated: "${post.title}"`,
-      detail: post.status === "PUBLISHED" ? "Published article" : "Draft in progress",
-      href: postsAdminLink.href,
-      timestamp: post.updatedAt,
-      type: "post",
-    })),
-    ...recentLocations.map((location) => ({
-      id: `location-${location.id}`,
-      title: `Location updated: ${location.title}`,
-      detail: location.slug,
-      href: locationsAdminLink.href,
-      timestamp: location.updatedAt,
-      type: "location",
-    })),
-    ...recentProviders.map((provider) => ({
-      id: `provider-${provider.id}`,
-      title: `Provider updated: ${provider.name}`,
-      detail: provider.isActive ? provider.title : `${provider.title} • hidden`,
-      href: providersAdminLink.href,
-      timestamp: provider.updatedAt,
-      type: "provider",
-    })),
-  ]
-    .sort((left, right) => right.timestamp.getTime() - left.timestamp.getTime())
-    .slice(0, 5);
-
-  const statCards = [
+  const user = await requireAdminPage();
+  const sections = [
     {
-      label: "Total Posts",
-      value: numberFormatter.format(totalPosts),
-      detail:
-        totalPosts === 0
-          ? "Start drafting stories and landing pages."
-          : `${numberFormatter.format(draftPosts)} still in draft review.`,
-      trend: `${numberFormatter.format(publishedPosts)} live`,
-      Icon: FileText,
+      key: "posts",
+      label: "Posts",
+      model: prisma.blogPost,
+      title: "title",
+      where: {},
     },
     {
-      label: "Published Posts",
-      value: numberFormatter.format(publishedPosts),
-      detail:
-        publishedPosts === 0
-          ? "Nothing is live yet."
-          : "Your live editorial inventory is ready to review.",
-      trend: `${numberFormatter.format(draftPosts)} drafts`,
-      Icon: Activity,
-    },
-    {
+      key: "locations",
       label: "Locations",
-      value: numberFormatter.format(totalLocations),
-      detail:
-        totalLocations === 0
-          ? "Add locations to launch the new landing pages."
-          : "Location pages now power assigned provider tabs.",
-      trend: "Landing pages",
-      Icon: MapPin,
+      model: prisma.location,
+      title: "title",
+      where: VISIBLE_LOCATION_WHERE,
     },
     {
-      label: "Active Providers",
-      value: numberFormatter.format(activeProviders),
-      detail:
-        activeProviders === 0
-          ? "Add profiles to populate provider directories."
-          : `${numberFormatter.format(hiddenProviders)} profiles currently hidden.`,
-      trend: `${numberFormatter.format(totalProviders)} total`,
-      Icon: Users,
+      key: "services",
+      label: "Services",
+      model: prisma.service,
+      title: "title",
+      where: {},
     },
-  ];
-
+    {
+      key: "providers",
+      label: "Providers",
+      model: prisma.provider,
+      title: "name",
+      where: {},
+    },
+  ].filter(({ key }) => hasPermission(user, `${key}.view`));
+  const cards = await Promise.all(
+    sections.map(async ({ key, label, model, title, where }) => {
+      const [count, recent] = await Promise.all([
+        model.count({ where }),
+        model.findMany({
+          where,
+          take: 4,
+          orderBy: { updatedAt: "desc" },
+          select: { id: true, [title]: true, updatedAt: true },
+        }),
+      ]);
+      return {
+        key,
+        label,
+        count,
+        recent: recent.map((item) => ({ ...item, title: item[title] })),
+      };
+    }),
+  );
+  const links = ADMIN_NAV_SECTIONS.flatMap((section) => section.links).filter(
+    (link) => link.key !== "dashboard" && canSeeAdminLink(user, link),
+  );
   return (
     <>
       <header className="admin-top">
         <div>
-          <span className="admin-kicker">Control center</span>
+          <span className="admin-kicker">Content system</span>
           <h1 className="admin-title">Dashboard</h1>
-          <p className="admin-subtitle">Quick snapshot of your content system.</p>
+          <p className="admin-subtitle">
+            Manage your content and review recent updates.
+          </p>
         </div>
-        <span className="admin-pill admin-live-pill">Live</span>
       </header>
-
-      <section className="admin-dashboard-grid">
-        <div className="admin-stat-stack">
-          {statCards.map(({ label, value, detail, trend, Icon }) => (
-            <article key={label} className="admin-stat-card">
-              <div className="admin-stat-header">
-                <div className="admin-icon-chip">
-                  <Icon />
-                </div>
-                <span className="admin-trend">{trend}</span>
-              </div>
-              <div>
-                <h2 className="admin-stat-label">{label}</h2>
-                <p className="admin-stat-value">{value}</p>
-              </div>
-              <p className="admin-stat-copy">{detail}</p>
-            </article>
+      <div className="admin-stat-stack ai-search-stat-grid">
+        {cards.map((card) => (
+          <article className="admin-stat-card" key={card.key}>
+            <h2 className="admin-stat-label">{card.label}</h2>
+            <p className="admin-stat-value">{card.count}</p>
+            <Link href={`/admin/${card.key}`}>
+              View {card.label.toLowerCase()}
+            </Link>
+          </article>
+        ))}
+      </div>
+      <section className="admin-panel">
+        <div className="admin-panel-header">
+          <h2>Quick access</h2>
+        </div>
+        <div className="admin-shortcut-grid">
+          {links.map((link) => (
+            <Link
+              className="builder-button secondary"
+              key={link.key}
+              href={link.href}
+            >
+              {link.label}
+            </Link>
           ))}
         </div>
-
-        <div className="admin-dashboard-column">
-          <section className="admin-panel">
-            <div className="admin-panel-header">
-              <div>
-                <h2>Recent Activity</h2>
-                <p>Latest changes across publishing, locations, and provider management.</p>
-              </div>
-              <Link className="admin-filter-button" href={postsAdminLink.href}>
-                Open posts
-              </Link>
-            </div>
-
-            {recentActivity.length === 0 ? (
-              <div className="admin-empty">
-                No updates yet. New posts, locations, and providers will appear here.
-              </div>
-            ) : (
-              <div className="admin-activity-list">
-                {recentActivity.map((item) => (
-                  <article key={item.id} className="admin-activity-item">
-                    <div className="admin-activity-icon-wrap">
-                      {item.type === "post" ? (
-                        <FileText />
-                      ) : item.type === "location" ? (
-                        <MapPin />
-                      ) : (
-                        <UserPlus />
-                      )}
-                    </div>
-                    <div className="admin-activity-copy">
-                      <p className="admin-activity-title">{item.title}</p>
-                      <p className="admin-activity-meta">
-                        <span>{item.detail}</span>
-                        <span>{formatRelativeTime(item.timestamp)}</span>
-                      </p>
-                    </div>
-                    <Link className="admin-activity-link" href={item.href}>
-                      Open
-                    </Link>
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section className="admin-panel">
-            <div className="admin-panel-header">
-              <div>
-                <h2>Shortcuts</h2>
-                <p>Sidebar and dashboard links now share the same route config.</p>
-              </div>
-            </div>
-
-            <div className="admin-shortcut-stack">
-              {dashboardShortcutSections.map((section) => (
-                <div key={section.id} className="admin-shortcut-group">
-                  <p className="admin-shortcut-label">{section.label}</p>
-                  <div className="admin-shortcut-grid">
-                    {section.links.map((link) => (
-                      <Link key={link.href} className="admin-filter-button" href={link.href}>
-                        {link.label}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="admin-panel admin-side-metric">
-            <span className="admin-kicker">Coverage</span>
-            <div className="admin-side-list">
-              <p>
-                <Layers3 /> Location-driven landing pages are live in the CMS model.
-              </p>
-              <p>
-                <UserPlus /> Providers can be assigned to one or many location tabs.
-              </p>
-              <p>
-                <MapPin /> Every location page can now surface its own provider roster.
-              </p>
-            </div>
-          </section>
-        </div>
       </section>
+      {cards.length ? (
+        <section className="admin-panel">
+          <div className="admin-panel-header">
+            <h2>Recent updates</h2>
+          </div>
+          <div className="admin-record-list">
+            {cards
+              .flatMap((card) =>
+                card.recent.map((item) => ({ ...item, key: card.key })),
+              )
+              .sort((a, b) => b.updatedAt - a.updatedAt)
+              .slice(0, 8)
+              .map((item) => (
+                <article
+                  className="admin-record"
+                  key={`${item.key}-${item.id}`}
+                >
+                  <Link href={`/admin/${item.key}/${item.id}`}>
+                    {item.title}
+                  </Link>
+                  <span className="admin-record-secondary">
+                    {item.updatedAt.toLocaleDateString("en-US", {
+                      timeZone: "UTC",
+                    })}
+                  </span>
+                </article>
+              ))}
+          </div>
+        </section>
+      ) : (
+        <p className="admin-notice">
+          Your available sections are listed above. A full admin can assign
+          additional access.
+        </p>
+      )}
     </>
   );
 }

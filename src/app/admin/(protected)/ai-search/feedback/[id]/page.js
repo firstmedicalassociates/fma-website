@@ -1,3 +1,4 @@
+import { requireAdminPage } from "../../../../../lib/admin-page-auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "../../../../../lib/prisma";
@@ -7,6 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function AdminAiSearchFeedbackPage({ params }) {
+  await requireAdminPage("ai-search.view");
   const { id } = await params;
   const event = await prisma.aiSearchEvent.findUnique({
     where: { id },

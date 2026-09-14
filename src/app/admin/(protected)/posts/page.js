@@ -1,3 +1,5 @@
+import { Permission } from "../admin-access";
+import { requireAdminPage } from "../../../lib/admin-page-auth";
 import Link from "next/link";
 import { Activity, Clock3, FileText } from "../admin-icons";
 import { isBlogCategoryCompatibilityError } from "../../../lib/blog-categories";
@@ -54,6 +56,7 @@ async function loadPosts() {
 }
 
 export default async function AdminPostsPage() {
+  await requireAdminPage("posts.view");
   const [posts, totalPosts, publishedPosts] = await Promise.all([
     loadPosts(),
     prisma.blogPost.count(),
@@ -69,9 +72,9 @@ export default async function AdminPostsPage() {
           <h1 className="admin-title">Posts</h1>
           <p className="admin-subtitle">Create and manage your blog content.</p>
         </div>
-        <Link className="builder-button admin-primary-cta" href="/admin/posts/new">
+        <Permission name="posts.edit"><Link className="builder-button admin-primary-cta" href="/admin/posts/new">
           New post
-        </Link>
+        </Link></Permission>
       </header>
 
       <section className="admin-content-grid">

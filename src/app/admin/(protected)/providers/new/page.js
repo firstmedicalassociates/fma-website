@@ -1,3 +1,4 @@
+import { requireAdminPage } from "../../../../lib/admin-page-auth";
 import { prisma } from "../../../../lib/prisma";
 import { VISIBLE_LOCATION_WHERE } from "../../../../lib/locations";
 import ProviderForm from "../provider-form";
@@ -6,6 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function NewProviderPage() {
+  await requireAdminPage("providers.edit");
   const locations = await prisma.location.findMany({
     where: VISIBLE_LOCATION_WHERE,
     orderBy: { title: "asc" },

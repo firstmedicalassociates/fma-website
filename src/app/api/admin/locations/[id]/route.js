@@ -7,7 +7,7 @@ import { isHiddenLocationSlug } from "../../../../lib/locations";
 export const runtime = "nodejs";
 
 export async function PUT(request, { params }) {
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -96,7 +96,7 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   const { id } = await params;

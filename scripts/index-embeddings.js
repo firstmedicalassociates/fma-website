@@ -97,10 +97,11 @@ async function sleep(ms) {
 }
 
 async function generateEmbedding(text) {
-  const response = await openai.embeddings.create({
+  const { trackOpenAiCall } = await import("../src/app/lib/ai-usage.mjs");
+  const response = await trackOpenAiCall({ operation: "embedding", model: EMBEDDING_MODEL, purpose: "indexing" }, () => openai.embeddings.create({
     model: EMBEDDING_MODEL,
     input: text,
-  });
+  }));
   return response.data[0].embedding;
 }
 

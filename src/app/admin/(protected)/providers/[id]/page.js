@@ -1,3 +1,4 @@
+import { requireAdminPage } from "../../../../lib/admin-page-auth";
 import { notFound } from "next/navigation";
 import { prisma } from "../../../../lib/prisma";
 import { VISIBLE_LOCATION_WHERE } from "../../../../lib/locations";
@@ -7,6 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function EditProviderPage({ params }) {
+  await requireAdminPage("providers.view");
   const { id } = await params;
   if (!id) {
     notFound();

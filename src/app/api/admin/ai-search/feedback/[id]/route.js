@@ -17,7 +17,7 @@ function normalizeReviewNotes(value = "") {
 }
 
 export async function PATCH(request, { params }) {
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   const { id } = await params;

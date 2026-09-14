@@ -1,4 +1,5 @@
 "use client";
+import { useAdminAccess } from "../admin-access";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -91,6 +92,8 @@ function getInitialValues(initialService) {
 }
 
 export default function ServiceForm({ mode = "create", initialService }) {
+  const { can } = useAdminAccess();
+  const canEdit = can("services.edit");
   const initialValues = getInitialValues(initialService);
   const isEditMode = mode === "edit";
 
@@ -156,6 +159,7 @@ export default function ServiceForm({ mode = "create", initialService }) {
   }
 
   async function handleSubmit(event) {
+    if (!canEdit) { event.preventDefault(); return; }
     event.preventDefault();
     setStatus("saving");
     setMessage("");
@@ -223,9 +227,9 @@ export default function ServiceForm({ mode = "create", initialService }) {
           <span className="admin-pill">{isActive ? "Visible" : "Hidden"}</span>
           <button
             className="builder-button admin-primary-cta"
-            type="submit"
+            type="submit" aria-disabled={!canEdit}
             form="service-form"
-            disabled={status === "saving"}
+            disabled={!canEdit || status === "saving"}
           >
             {status === "saving"
               ? isEditMode
@@ -264,6 +268,8 @@ export default function ServiceForm({ mode = "create", initialService }) {
 
         <article className="builder-card location-editor-stage">
           <form className="location-editor-stage-body" id="service-form" onSubmit={handleSubmit}>
+            {!canEdit ? <p className="admin-notice">View only — editing is not enabled for your account.</p> : null}
+            <fieldset className="admin-form-fields" disabled={!canEdit}>
             {activeStage === "card" ? (
               <div className="location-editor-panel-grid builder-grid-two">
                 <div className="builder-element">
@@ -595,8 +601,8 @@ export default function ServiceForm({ mode = "create", initialService }) {
             <div className="builder-row">
               <button
                 className="builder-button admin-primary-cta"
-                type="submit"
-                disabled={status === "saving"}
+                type="submit" aria-disabled={!canEdit}
+                disabled={!canEdit || status === "saving"}
               >
                 {status === "saving"
                   ? isEditMode
@@ -616,6 +622,7 @@ export default function ServiceForm({ mode = "create", initialService }) {
                 {message}
               </p>
             ) : null}
+          </fieldset>
           </form>
         </article>
       </section>

@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useAdminAccess } from "./admin-access";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Database,
   FileText,
   LayoutDashboard,
   LogOut,
@@ -16,7 +16,7 @@ import {
   UserPlus,
   X,
 } from "./admin-icons";
-import { ADMIN_NAV_SECTIONS, isAdminLinkActive } from "../../lib/config/admin-navigation.mjs";
+import { ADMIN_NAV_SECTIONS, isAdminLinkActive, canSeeAdminLink } from "../../lib/config/admin-navigation.mjs";
 
 const ICONS_BY_KEY = {
   dashboard: LayoutDashboard,
@@ -29,7 +29,8 @@ const ICONS_BY_KEY = {
   "new-location": MapPin,
   "new-service": Layers3,
   "new-provider": UserPlus,
-  "athena-test": Database,
+  users: UserPlus,
+  account: UserPlus,
 };
 
 function getDisplayName(email) {
@@ -51,6 +52,8 @@ function getInitials(name) {
 }
 
 export default function AdminNav({ email, role }) {
+  const { user } = useAdminAccess();
+  const sections = ADMIN_NAV_SECTIONS.map((section) => ({ ...section, links: section.links.filter((link) => canSeeAdminLink(user, link)) })).filter((section) => section.links.length);
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -104,6 +107,7 @@ export default function AdminNav({ email, role }) {
         type="button"
         className={`admin-nav-overlay ${isOpen ? "is-visible" : ""}`}
         onClick={() => setIsOpen(false)}
+        aria-label="Close navigation menu"
         aria-hidden={!isOpen}
         tabIndex={isOpen ? 0 : -1}
       />
@@ -117,7 +121,7 @@ export default function AdminNav({ email, role }) {
           </div>
         </div>
 
-        {ADMIN_NAV_SECTIONS.map((section, sectionIndex) => (
+        {sections.map((section, sectionIndex) => (
           <div key={section.id}>
             {sectionIndex > 0 ? <div className="admin-nav-divider" /> : null}
             <div className="admin-nav-group">
@@ -148,7 +152,7 @@ export default function AdminNav({ email, role }) {
           <div className="admin-user-avatar">{initials || "SA"}</div>
           <div className="admin-user-meta">
             <p className="admin-user-name">{displayName || "System Admin"}</p>
-            <p className="admin-user-role">{role || "ADMIN"}</p>
+            <p className="admin-user-role">{role === "SUB_ADMIN" ? "Sub-admin" : "Full admin"}</p>
           </div>
         </div>
 

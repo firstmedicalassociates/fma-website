@@ -6,7 +6,7 @@ import { normalizeProviderPayload } from "../../../lib/providers";
 export const runtime = "nodejs";
 
 export async function POST(request) {
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   let body;
