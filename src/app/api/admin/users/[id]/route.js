@@ -4,9 +4,35 @@ import {
   requireAdminRequest,
   setAdminSessionCookie,
 } from "../../../../lib/admin-auth";
-import { updateAdminAccount } from "../../../../lib/admin-accounts";
-import { accountErrorResponse } from "../../../../lib/admin-credentials";
+import {
+  deleteAdminAccount,
+  updateAdminAccount,
+} from "../../../../lib/admin-accounts";
+import {
+  accountErrorResponse,
+  limitCredentials,
+} from "../../../../lib/admin-credentials";
 export const runtime = "nodejs";
+export async function DELETE(request, { params }) {
+  const auth = await requireAdminRequest(request, "admin");
+  if (!auth.ok) return auth.response;
+  const limited = await limitCredentials(
+    request,
+    "admin-delete",
+    auth.session.id,
+  );
+  if (limited) return limited;
+  try {
+    const user = await deleteAdminAccount(
+      prisma,
+      auth.session,
+      (await params).id,
+    );
+    return NextResponse.json({ ok: true, id: user.id });
+  } catch (error) {
+    return accountErrorResponse(error);
+  }
+}
 export async function PATCH(request, { params }) {
   const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;

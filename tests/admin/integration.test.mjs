@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "../../src/app/lib/prisma.js";
 import {
   createAdminAccount,
+  deleteAdminAccount,
   updateAdminAccount,
 } from "../../src/app/lib/admin-accounts.js";
 import { signAdminSession } from "../../src/app/lib/admin-session.mjs";
@@ -417,6 +418,141 @@ test("account updates revoke sessions; deactivated admins and cross-origin write
     data: { mustChangePassword: false, password: owner.password },
   });
 });
+test("permanent deletion removes active and inactive accounts, revokes sessions, and permits email reuse", async () => {
+  for (const role of ["ADMIN", "SUB_ADMIN"]) {
+    for (const isActive of [true, false]) {
+      const target = await prisma.adminUser.create({
+        data: {
+          email: `delete-${role}-${isActive}@example.test`,
+          password: owner.password,
+          role,
+          isActive,
+        },
+      });
+      const cookie = `admin_session=${signAdminSession(target)}`;
+      const deleted = await call(`/api/admin/users/${target.id}`, {
+        method: "DELETE",
+      });
+      assert.equal(deleted.response.status, 200, JSON.stringify(deleted.data));
+      assert.deepEqual(deleted.data, { ok: true, id: target.id });
+      assert.equal(
+        await prisma.adminUser.findUnique({ where: { id: target.id } }),
+        null,
+      );
+      assert.equal(
+        (await call("/api/admin/users", { cookie })).response.status,
+        401,
+      );
+      assert.equal(
+        (
+          await call("/api/admin/login", {
+            method: "POST",
+            user: null,
+            body: { email: target.email, password },
+          })
+        ).response.status,
+        401,
+      );
+      assert.equal(
+        (await call(`/api/admin/users/${target.id}`, { method: "DELETE" }))
+          .response.status,
+        404,
+      );
+      const recreated = await createAdminAccount(prisma, owner, {
+        email: target.email,
+        password,
+        role: "SUB_ADMIN",
+        permissions: [],
+      });
+      assert.notEqual(recreated.id, target.id);
+      assert.equal(
+        (await call("/api/admin/users", { cookie })).response.status,
+        401,
+      );
+      await deleteAdminAccount(prisma, owner, recreated.id);
+    }
+  }
+  assert.ok(
+    await prisma.blogPost.findUnique({ where: { id: "integration-post" } }),
+  );
+  assert.ok(
+    await prisma.provider.findUnique({ where: { id: "integration-provider" } }),
+  );
+});
+test("deletion rejects unauthenticated, sub-admin, temporary-password, cross-origin and self requests", async () => {
+  const path = `/api/admin/users/${owner.id}`;
+  for (const user of [null, viewer, editor]) {
+    assert.equal(
+      (await call(path, { method: "DELETE", user })).response.status,
+      user ? 403 : 401,
+    );
+  }
+  const temporary = await createAdminAccount(prisma, owner, {
+    email: "delete-temporary@example.test",
+    password,
+    role: "ADMIN",
+  });
+  assert.equal(
+    (await call(path, { method: "DELETE", user: temporary })).response.status,
+    403,
+  );
+  await deleteAdminAccount(prisma, owner, temporary.id);
+  assert.equal(
+    (await call(path, { method: "DELETE", origin: "https://attacker.test" }))
+      .response.status,
+    403,
+  );
+  const self = await call(path, { method: "DELETE" });
+  assert.equal(self.response.status, 400);
+  assert.match(self.data.error, /own account/);
+  assert.equal(
+    await prisma.adminUser.count({ where: { role: "ADMIN", isActive: true } }),
+    1,
+  );
+});
+test("concurrent deletion and demotion cannot remove the last active full admin", async () => {
+  for (const mode of ["mutual deletion", "delete and demote"]) {
+    const second = await prisma.adminUser.create({
+      data: {
+        email: "delete-race@example.test",
+        password: owner.password,
+        role: "ADMIN",
+      },
+    });
+    const savedOwner = owner;
+    try {
+      const results = await Promise.allSettled([
+        deleteAdminAccount(prisma, owner, second.id),
+        mode === "mutual deletion"
+          ? deleteAdminAccount(prisma, second, owner.id)
+          : updateAdminAccount(prisma, owner, owner.id, {
+              role: "SUB_ADMIN",
+              isActive: true,
+              permissions: [],
+            }),
+      ]);
+      assert.equal(
+        results.filter((result) => result.status === "fulfilled").length,
+        1,
+        mode,
+      );
+      assert.equal(
+        await prisma.adminUser.count({
+          where: { role: "ADMIN", isActive: true },
+        }),
+        1,
+        mode,
+      );
+    } finally {
+      owner = await prisma.adminUser.upsert({
+        where: { id: savedOwner.id },
+        create: savedOwner,
+        update: savedOwner,
+      });
+      await prisma.adminUser.deleteMany({ where: { id: second.id } });
+    }
+  }
+});
 test("concurrent full-admin demotions cannot remove the final administrator", async () => {
   const second = await createAdminAccount(prisma, owner, {
     email: "second@example.test",
@@ -634,6 +770,14 @@ test("credential attempts and public rate-limit failures are bounded and recorde
     });
   assert.equal(last.response.status, 429);
   assert.ok(last.response.headers.get("retry-after"));
+  for (let i = 0; i < 11; i++)
+    last = await call(`/api/admin/users/${owner.id}`, {
+      method: "DELETE",
+      headers: { "x-forwarded-for": "192.0.2.253" },
+    });
+  assert.equal(last.response.status, 429);
+  assert.ok(last.response.headers.get("retry-after"));
+  assert.ok(await prisma.adminUser.findUnique({ where: { id: owner.id } }));
   for (let i = 0; i < 13; i++)
     last = await call("/api/ai-search", {
       user: null,

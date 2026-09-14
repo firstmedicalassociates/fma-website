@@ -46,6 +46,15 @@ function requireFullAdmin(actor) {
   if (!hasPermission(actor, "admin"))
     throw new AccountError("Full administrator access is required.", 403);
 }
+async function keepActiveFullAdmin(tx, target) {
+  if (
+    target.role === "ADMIN" &&
+    target.isActive &&
+    (await tx.adminUser.count({ where: { role: "ADMIN", isActive: true } })) <=
+      1
+  )
+    throw new AccountError("Keep at least one active full administrator.");
+}
 function roleAndPermissions(body) {
   if (!["ADMIN", "SUB_ADMIN"].includes(body.role))
     throw new AccountError("Choose Full admin or Sub-admin.");
@@ -89,12 +98,7 @@ export async function updateAdminAccount(db, actor, id, body) {
       target.isActive &&
       (access.role !== "ADMIN" || !body.isActive)
     ) {
-      if (
-        (await tx.adminUser.count({
-          where: { role: "ADMIN", isActive: true },
-        })) <= 1
-      )
-        throw new AccountError("Keep at least one active full administrator.");
+      await keepActiveFullAdmin(tx, target);
     }
     return tx.adminUser.update({
       where: { id },
@@ -105,6 +109,20 @@ export async function updateAdminAccount(db, actor, id, body) {
       },
       select: ACCOUNT_SELECT,
     });
+  });
+}
+export async function deleteAdminAccount(db, actor, id) {
+  return withAccountLock(db, actor, async (tx, current) => {
+    requireFullAdmin(current);
+    if (current.id === id)
+      throw new AccountError("You cannot delete your own account.");
+    const target = await tx.adminUser.findUnique({
+      where: { id },
+      select: { id: true, role: true, isActive: true },
+    });
+    if (!target) throw new AccountError("Account not found.", 404);
+    await keepActiveFullAdmin(tx, target);
+    return tx.adminUser.delete({ where: { id }, select: { id: true } });
   });
 }
 export async function resetAdminPassword(db, actor, id, passwordValue) {

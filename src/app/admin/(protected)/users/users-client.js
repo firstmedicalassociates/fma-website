@@ -58,12 +58,24 @@ export default function UsersClient({ currentUserId, initialUsers }) {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [resetPassword, setResetPassword] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [pendingAction, setPendingAction] = useState("");
+  const busy = Boolean(pendingAction);
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
+  const selectedUser = users.find((user) => user.id === editing);
+  const deleteRestriction =
+    editing === currentUserId
+      ? "You cannot delete your own account."
+      : selectedUser?.role === "ADMIN" &&
+          selectedUser.isActive &&
+          users.filter((user) => user.role === "ADMIN" && user.isActive)
+            .length <= 1
+        ? "Keep at least one active full administrator."
+        : "";
   const set = (key, value) =>
     setForm((current) => ({ ...current, [key]: value }));
   function select(user) {
+    if (busy) return;
     setEditing(user?.id || null);
     setForm(user ? { ...user, password: "" } : { ...EMPTY, permissions: [] });
     setResetPassword("");
@@ -73,7 +85,7 @@ export default function UsersClient({ currentUserId, initialUsers }) {
   async function submit(event, reset = false) {
     event.preventDefault();
     if (busy) return;
-    setBusy(true);
+    setPendingAction(reset ? "reset" : "save");
     setMessage("");
     setError(false);
     try {
@@ -110,7 +122,43 @@ export default function UsersClient({ currentUserId, initialUsers }) {
       setError(true);
       setMessage(err.message);
     } finally {
-      setBusy(false);
+      setPendingAction("");
+    }
+  }
+  async function removeAccount() {
+    if (busy || !selectedUser || deleteRestriction) return;
+    if (
+      !window.confirm(
+        `Permanently delete the admin account for ${selectedUser.email}?\n\nTheir sign-in access will be removed immediately. This cannot be undone.`,
+      )
+    )
+      return;
+    setPendingAction("delete");
+    setMessage("");
+    setError(false);
+    try {
+      const response = await fetch(`/api/admin/users/${selectedUser.id}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.error || "Unable to delete this account.");
+      setUsers((current) =>
+        current.filter((user) => user.id !== selectedUser.id),
+      );
+      setEditing(null);
+      setForm({ ...EMPTY, permissions: [] });
+      setResetPassword("");
+      setMessage(
+        `The admin account for ${selectedUser.email} was permanently deleted.`,
+      );
+      requestAnimationFrame(() => editorHeading.current?.focus());
+      router.refresh();
+    } catch (err) {
+      setError(true);
+      setMessage(err.message);
+    } finally {
+      setPendingAction("");
     }
   }
   return (
@@ -123,7 +171,11 @@ export default function UsersClient({ currentUserId, initialUsers }) {
             Create accounts and choose exactly what each admin can access.
           </p>
         </div>
-        <button className="builder-button" onClick={() => select(null)}>
+        <button
+          className="builder-button"
+          disabled={busy}
+          onClick={() => select(null)}
+        >
           New admin
         </button>
       </header>
@@ -148,6 +200,7 @@ export default function UsersClient({ currentUserId, initialUsers }) {
                 </div>
                 <button
                   className="builder-button secondary"
+                  disabled={busy}
                   onClick={() => select(user)}
                 >
                   Manage<span className="sr-only"> {user.email}</span>
@@ -223,7 +276,11 @@ export default function UsersClient({ currentUserId, initialUsers }) {
                 </label>
               ) : null}
               <button className="builder-button" type="submit">
-                {busy ? "Saving…" : editing ? "Save account" : "Create admin"}
+                {pendingAction === "save"
+                  ? "Saving…"
+                  : editing
+                    ? "Save account"
+                    : "Create admin"}
               </button>
             </fieldset>
           </form>
@@ -241,13 +298,46 @@ export default function UsersClient({ currentUserId, initialUsers }) {
                   required
                   minLength={12}
                   value={resetPassword}
+                  disabled={busy}
                   onChange={(e) => setResetPassword(e.target.value)}
                 />
               </label>
               <button className="builder-button secondary" disabled={busy}>
-                Set temporary password
+                {pendingAction === "reset"
+                  ? "Resetting password…"
+                  : "Set temporary password"}
               </button>
             </form>
+          ) : null}
+          {selectedUser ? (
+            <section
+              className="admin-reset-form"
+              aria-labelledby="delete-admin-title"
+            >
+              <h3 id="delete-admin-title">Permanently delete admin</h3>
+              <p id="delete-admin-description">
+                Remove {selectedUser.email} and their sign-in access. This
+                cannot be undone.
+              </p>
+              {deleteRestriction ? (
+                <p id="delete-admin-restriction">{deleteRestriction}</p>
+              ) : null}
+              <button
+                type="button"
+                className="builder-button secondary danger"
+                disabled={busy || Boolean(deleteRestriction)}
+                aria-describedby={
+                  deleteRestriction
+                    ? "delete-admin-description delete-admin-restriction"
+                    : "delete-admin-description"
+                }
+                onClick={removeAccount}
+              >
+                {pendingAction === "delete"
+                  ? "Deleting admin…"
+                  : "Delete admin permanently"}
+              </button>
+            </section>
           ) : null}
           {message ? (
             <p

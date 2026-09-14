@@ -17,7 +17,11 @@ Roll forward on deployment failure; do not drop new tables or restore the previo
 
 Full admins manage accounts, live diagnostics, indexing, and all content. Sub-admin permissions default to none. Content sections support View, Create/Edit, and Delete. Edit and Delete imply View; publishing and active-status updates use Edit. AI Search has View and Manage feedback/evaluations; API spending has a separate View permission implying AI Search View. Every account can change its own password. Account deactivation, password resets, and permission changes revoke prior sessions.
 
-Passwords require 12 characters and at most 72 UTF-8 bytes. Temporary passwords must be replaced before any other backend access. Admins share temporary passwords directly; the application sends no invitation email. Full admins cannot deactivate themselves or demote/deactivate the last active full admin. Account changes use a shared database transaction lock to protect concurrent changes.
+Passwords require 12 characters and at most 72 UTF-8 bytes. Temporary passwords must be replaced before any other backend access. Admins share temporary passwords directly; the application sends no invitation email. Full admins cannot deactivate/delete themselves or demote/deactivate/delete the last active full admin. Account changes use a shared database transaction lock to protect concurrent changes.
+
+To permanently remove an active or inactive account, open **Admins → Manage → Delete admin permanently** and confirm the account email shown in the prompt. This deletes the account record and immediately invalidates its existing sessions; a newly created account with the same email receives a different identity. Site content remains in place. Deletion uses the full-admin-only `DELETE /api/admin/users/[id]` endpoint with same-origin checks and shared rate limiting. This addition requires no database migration.
+
+Permanent-deletion validation: 24 admin/helper tests and 15 database/API integration tests passed, including active/inactive account removal, session revocation, email reuse, unauthorized requests, rate limiting, and concurrent deletion/demotion. The production build passed; lint has zero errors and four existing warnings. Desktop/mobile browser checks verified cancellation, keyboard confirmation, removal from the account list, success feedback, focus restoration, and the disabled self-delete control. All account removals in these checks used the isolated test schema.
 
 ## Metrics and limitations
 
