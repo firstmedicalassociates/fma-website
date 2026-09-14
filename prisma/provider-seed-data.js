@@ -1,4 +1,7 @@
+const { provider: jacobScott } = require("./owings-mills-seed-data");
+
 module.exports = [
+  { ...jacobScott, locations: ["Owings Mills"], preserveExisting: true },
   {
     name: "Robin Codjoe",
     title: "M.D.",

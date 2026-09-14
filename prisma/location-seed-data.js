@@ -1,4 +1,16 @@
+const { location: owingsMills } = require("./owings-mills-seed-data");
+
 module.exports = [
+  {
+    name: owingsMills.title,
+    cityStatePhone: owingsMills.phone,
+    addressLines: owingsMills.displayAddress.split("\n"),
+    img: owingsMills.mapImageUrl,
+    href: owingsMills.slug,
+    bookingUrl: null,
+    seedRecord: owingsMills,
+    preserveExisting: true,
+  },
   {
     name: "Alexandria, VA",
     cityStatePhone: "571-200-7128",

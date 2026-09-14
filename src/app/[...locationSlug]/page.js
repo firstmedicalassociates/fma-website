@@ -19,6 +19,7 @@ import {
 } from "../lib/providers";
 import { getLocationSeoContent } from "../lib/seo";
 import LocationPageShell from "./location-page-shell";
+import ComingSoonLocation from "./coming-soon-location";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,6 +30,8 @@ const LOCATION_PAGE_SELECT = {
   eyebrow: true,
   accent: true,
   intro: true,
+  isComingSoon: true,
+  openingDateLabel: true,
   address: true,
   streetAddress: true,
   addressCity: true,
@@ -137,6 +140,8 @@ export default async function LocationLandingPage({ params }) {
   if (!location) {
     notFound();
   }
+
+  if (location.isComingSoon) return <ComingSoonLocation location={location} />;
 
   const selectedServiceIds = Array.isArray(location.serviceIds) ? location.serviceIds : [];
   const [providers, serviceRecords] = await Promise.all([

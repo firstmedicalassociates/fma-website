@@ -26,6 +26,7 @@ export default async function EditProviderPage({ params }) {
         imageUrl: true,
         imageAlt: true,
         linkUrl: true,
+        zocdocUrl: true,
         athenaProviderId: true,
         athenaDepartmentId: true,
         athenaSchedulingName: true,

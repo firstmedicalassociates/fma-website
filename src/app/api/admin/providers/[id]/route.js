@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import { requireAdminRequest } from "../../../../lib/admin-auth";
 import { normalizeProviderPayload } from "../../../../lib/providers";
+import { validateZocdocUrl } from "../../../../lib/zocdoc";
 
 export const runtime = "nodejs";
 
@@ -21,6 +22,13 @@ export async function PUT(request, { params }) {
     return NextResponse.json({ ok: false, error: "Invalid JSON." }, { status: 400 });
   }
 
+  const zocdocError = validateZocdocUrl(body?.zocdocUrl);
+  if (zocdocError) {
+    return NextResponse.json(
+      { ok: false, error: zocdocError, field: "zocdocUrl" },
+      { status: 400 }
+    );
+  }
   const payload = normalizeProviderPayload(body);
 
   if (!payload.name || !payload.title || !payload.bio || !payload.slug || !payload.imageUrl) {

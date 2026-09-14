@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
+    "seed:owings-mills": "node scripts/seed-owings-mills.mjs",
     "check:seo": "node --test tests/seo/*.test.mjs",
     "audit:seo:live": "node scripts/audit-seo-live.mjs",
     "check:ai-search-guards": "node scripts/check-ai-search-guards.mjs",

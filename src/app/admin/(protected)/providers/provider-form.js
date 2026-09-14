@@ -5,6 +5,7 @@ import { useAdminAccess } from "../admin-access";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { validateZocdocUrl } from "../../../lib/zocdoc";
 import {
   formatProviderList,
   normalizeProviderSlug,
@@ -46,6 +47,7 @@ function getInitialValues(initialProvider) {
     imageUrl: initialProvider?.imageUrl || "",
     imageAlt: initialProvider?.imageAlt || "",
     linkUrl: initialProvider?.linkUrl || "",
+    zocdocUrl: initialProvider?.zocdocUrl || "",
     athenaProviderId: initialProvider?.athenaProviderId || "",
     athenaDepartmentId: initialProvider?.athenaDepartmentId || "",
     athenaSchedulingName: initialProvider?.athenaSchedulingName || "",
@@ -70,6 +72,8 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
   const [imageUrl, setImageUrl] = useState(initialValues.imageUrl);
   const [imageAlt, setImageAlt] = useState(initialValues.imageAlt);
   const [linkUrl, setLinkUrl] = useState(initialValues.linkUrl);
+  const [zocdocUrl, setZocdocUrl] = useState(initialValues.zocdocUrl);
+  const [zocdocError, setZocdocError] = useState("");
   const [athenaProviderId, setAthenaProviderId] = useState(initialValues.athenaProviderId);
   const [athenaDepartmentId, setAthenaDepartmentId] = useState(initialValues.athenaDepartmentId);
   const [athenaSchedulingName, setAthenaSchedulingName] = useState(initialValues.athenaSchedulingName);
@@ -173,6 +177,12 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
   async function handleSubmit(event) {
     if (!canEdit) { event.preventDefault(); return; }
     event.preventDefault();
+    const validationError = validateZocdocUrl(zocdocUrl);
+    setZocdocError(validationError);
+    if (validationError) {
+      document.getElementById("provider-zocdoc-url")?.focus();
+      return;
+    }
     setStatus("saving");
     setMessage("");
 
@@ -191,6 +201,7 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
           imageUrl,
           imageAlt,
           linkUrl,
+          zocdocUrl,
           athenaProviderId,
           athenaDepartmentId,
           athenaSchedulingName,
@@ -205,6 +216,10 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
       if (!response.ok || !data.ok) {
         setStatus("error");
         setMessage(data.error || `Failed to ${isEditMode ? "update" : "create"} provider.`);
+        if (data.field === "zocdocUrl") {
+          setZocdocError(data.error);
+          document.getElementById("provider-zocdoc-url")?.focus();
+        }
         return;
       }
 
@@ -359,6 +374,30 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
               <p className="builder-helper-text">
                 If present, location cards can use this as the provider call-to-action.
               </p>
+            </div>
+
+            <div className="builder-field">
+              <label htmlFor="provider-zocdoc-url">Zocdoc link (optional)</label>
+              <input
+                id="provider-zocdoc-url"
+                name="zocdocUrl"
+                className="builder-input"
+                type="url"
+                inputMode="url"
+                maxLength={2048}
+                value={zocdocUrl}
+                onChange={(event) => {
+                  setZocdocUrl(event.target.value);
+                  setZocdocError("");
+                }}
+                aria-invalid={Boolean(zocdocError)}
+                aria-describedby={zocdocError ? "provider-zocdoc-help provider-zocdoc-error" : "provider-zocdoc-help"}
+                placeholder="https://www.zocdoc.com/doctor/..."
+              />
+              <p id="provider-zocdoc-help" className="builder-helper-text">
+                Shows a “Book on Zocdoc” button on the provider page. Leave blank to hide it.
+              </p>
+              {zocdocError ? <p id="provider-zocdoc-error" className="status-message is-error" role="alert">{zocdocError}</p> : null}
             </div>
 
             <div className="builder-grid-three">

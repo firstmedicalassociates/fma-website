@@ -113,6 +113,10 @@ export function normalizeProviderPayload(value) {
     imageUrl: String(value?.imageUrl || "").trim(),
     imageAlt: String(value?.imageAlt || "").trim() || null,
     linkUrl: String(value?.linkUrl || "").trim() || null,
+    // Omitted fields from older clients must not clear a saved link.
+    ...(Object.hasOwn(value || {}, "zocdocUrl")
+      ? { zocdocUrl: String(value.zocdocUrl || "").trim() || null }
+      : {}),
     athenaProviderId: String(value?.athenaProviderId || "").trim() || null,
     athenaDepartmentId: String(value?.athenaDepartmentId || "").trim() || null,
     athenaSchedulingName: String(value?.athenaSchedulingName || "").trim() || null,

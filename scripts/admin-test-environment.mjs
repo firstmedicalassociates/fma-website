@@ -59,6 +59,12 @@ try {
         .map((entry) => entry.name)
         .sort();
       for (const folder of folders) {
+        if (folder === "20260914223000_provider_zocdoc_url") {
+          await client.query(
+            'INSERT INTO "Provider" (id, slug, name, title, bio, "imageUrl", "isActive", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, false, NOW())',
+            ["integration-zocdoc-migrated", "alisha-singh", "Zocdoc migration fixture", "PA-C", "Migration fixture", "/images/provider-placeholder.svg"],
+          );
+        }
         if (folder === "20260914120000_admin_access_and_ai_analytics") {
           await client.query(
             'INSERT INTO "AdminUser" (id, email, password, role, "updatedAt") VALUES ($1, $2, $3, $4, NOW())',

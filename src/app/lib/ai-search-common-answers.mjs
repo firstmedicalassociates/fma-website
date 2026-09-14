@@ -59,7 +59,10 @@ function formatOfficeHours(officeHours = []) {
     weekdays.length === 5 &&
     weekdays.every((entry) => entry.startTime === "08:00" && entry.endTime === "17:00");
   if (allStandardWeekdays) {
-    return "Monday through Friday, 8:00 AM to 5:00 PM; Saturday and Sunday are closed";
+    const weekends = officeHours.filter((entry) => ["Saturday", "Sunday"].includes(entry?.day));
+    if (!weekends.length) return "Monday through Friday, 8:00 AM to 5:00 PM";
+    if (weekends.length === 2 && weekends.every((entry) => entry.closed))
+      return "Monday through Friday, 8:00 AM to 5:00 PM; Saturday and Sunday are closed";
   }
 
   return officeHours
@@ -74,7 +77,7 @@ function formatOfficeHours(officeHours = []) {
 
 async function buildLocationFactAnswer(normalized) {
   if (
-    !/\b(address|phone|telephone|call|number|hours|open|close|closed|located|directions|cigna|unitedhealthcare|united healthcare|uhc)\b/.test(
+    !/\b(address|phone|telephone|call|number|hours|open|opening|close|closed|located|directions|appointments?|availability|available|book|booking|schedule|cigna|unitedhealthcare|united healthcare|uhc)\b/.test(
       normalized
     )
   ) {
@@ -91,6 +94,8 @@ async function buildLocationFactAnswer(normalized) {
       addressCity: true,
       phone: true,
       officeHours: true,
+      isComingSoon: true,
+      openingDateLabel: true,
     },
   });
   const matches = locations.filter((location) => {
@@ -107,6 +112,13 @@ async function buildLocationFactAnswer(normalized) {
 
   const location = matches[0];
   const source = buildSource(location.title, locationUrl(location.slug), "location");
+  if (location.isComingSoon) {
+    const address = String(location.displayAddress || location.address || "").replace(/\s*\n+\s*/g, ", ");
+    return buildCommonResult(
+      `${location.title} is coming soon${location.openingDateLabel ? `, with an estimated opening date of ${location.openingDateLabel}` : ""}. The planned address is ${address}. Planned hours after opening: ${location.officeHours?.length ? formatOfficeHours(location.officeHours) : "not yet announced"}. Call ${location.phone || MAIN_PHONE} for updates. Booking information is not yet available.`,
+      [source], ["location.coming-soon"]
+    );
+  }
   const cigna = /\bcigna\b/.test(normalized);
   const united = /\b(unitedhealthcare|united healthcare|uhc)\b/.test(normalized);
   if (cigna || united) {

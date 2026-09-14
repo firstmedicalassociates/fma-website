@@ -48,6 +48,7 @@ model Provider {
   imageUrl             String
   imageAlt             String?
   linkUrl              String?
+  zocdocUrl            String?
   athenaProviderId     String?
   athenaDepartmentId   String?
   athenaSchedulingName String?
@@ -87,6 +88,8 @@ model Location {
   eyebrow            String?
   accent             String?
   intro              String?
+  isComingSoon       Boolean  @default(false)
+  openingDateLabel   String?
   address            String
   streetAddress      String?
   addressCity        String?

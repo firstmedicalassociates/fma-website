@@ -14,6 +14,8 @@ export const LOCATION_FORM_SELECT = {
   eyebrow: true,
   accent: true,
   intro: true,
+  isComingSoon: true,
+  openingDateLabel: true,
   address: true,
   streetAddress: true,
   addressCity: true,
@@ -133,6 +135,8 @@ function buildLocationRecord(input = {}) {
     eyebrow: normalizeText(input.eyebrow),
     accent: normalizeText(input.accent),
     intro: normalizeText(input.intro),
+    isComingSoon: input.isComingSoon === true,
+    openingDateLabel: normalizeText(input.openingDateLabel),
     address: generatedAddress || normalizeRequiredText(input.address),
     streetAddress: addressParts.streetAddress,
     addressCity: addressParts.addressCity,
@@ -159,6 +163,10 @@ function buildLocationRecord(input = {}) {
 }
 
 export function validateLocationPayload(payload) {
+  if (payload.isComingSoon !== undefined && typeof payload.isComingSoon !== "boolean")
+    return { ok: false, error: "Choose whether the location is coming soon." };
+  if (payload.openingDateLabel != null && (typeof payload.openingDateLabel !== "string" || payload.openingDateLabel.length > 100))
+    return { ok: false, error: "Keep the estimated opening date under 100 characters." };
   const normalized = buildLocationRecord(payload);
 
   if (!normalized.slug || !normalized.title || !normalized.address) {

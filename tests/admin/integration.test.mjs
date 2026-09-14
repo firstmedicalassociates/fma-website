@@ -10,6 +10,9 @@ import {
 } from "../../src/app/lib/admin-accounts.js";
 import { signAdminSession } from "../../src/app/lib/admin-session.mjs";
 import { signInteractionTarget } from "../../src/app/lib/ai-interactions.mjs";
+import seedOwingsMills from "../../prisma/seed-owings-mills.js";
+import { buildDeterministicCommonAnswer } from "../../src/app/lib/ai-search-common-answers.mjs";
+import { parse } from "node-html-parser";
 const schema = process.env.ADMIN_TEST_SCHEMA || "";
 if (!/^fma_admin_test_\d+$/.test(schema))
   throw new Error(
@@ -81,6 +84,9 @@ before(async () => {
   await prisma.aiApiUsage.deleteMany();
   await prisma.adminCredentialAttempt.deleteMany();
   await prisma.service.deleteMany({ where: { slug: "permission-test" } });
+  await prisma.location.deleteMany({ where: { slug: "/location/owings-mills" } });
+  await prisma.provider.deleteMany({ where: { slug: "jacob-scott" } });
+  await prisma.provider.deleteMany({ where: { slug: "integration-zocdoc-provider" } });
   const create = (id, permissions) =>
     prisma.adminUser.create({
       data: {
@@ -584,6 +590,113 @@ test("concurrent full-admin demotions cannot remove the final administrator", as
     where: { id: owner.id },
     data: { role: "ADMIN", permissions: [] },
   });
+});
+test("Zocdoc migration preserves links and provider editors can add, replace, and remove the public button", async () => {
+  const migrated = await prisma.provider.findUnique({ where: { id: "integration-zocdoc-migrated" } });
+  assert.equal(migrated.zocdocUrl, "https://www.zocdoc.com/booking-link/doctor/alisha-singh-pa-c-424231");
+  const zocdocUrl = "https://www.zocdoc.com/doctor/integration-provider-123?source=fma";
+  const body = {
+    name: "Zocdoc Example Provider", title: "MD", slug: "integration-zocdoc-provider",
+    bio: "Example provider biography", imageUrl: "/images/provider-placeholder.svg",
+    locations: ["/location/test"], languages: ["English"], isActive: true,
+    linkUrl: "https://example.com/primary-booking", zocdocUrl: `  ${zocdocUrl}  `,
+  };
+  const invalidCreate = await call("/api/admin/providers", { user: editor, method: "POST", body: { ...body, zocdocUrl: "javascript:alert(1)" } });
+  assert.equal(invalidCreate.response.status, 400);
+  const created = await call("/api/admin/providers", { user: editor, method: "POST", body });
+  assert.equal(created.response.status, 200, JSON.stringify(created.data));
+  const path = `/api/admin/providers/${created.data.id}`;
+  const read = () => prisma.provider.findUnique({ where: { id: created.data.id } });
+  assert.equal((await read()).zocdocUrl, zocdocUrl);
+  const publicButtons = async (slug = body.slug) => {
+    const page = await call(`/providers/${slug}`, { user: null });
+    assert.equal(page.response.status, 200);
+    const document = parse(page.data);
+    return document.querySelectorAll("a").filter((a) => a.text.includes("Book on Zocdoc"));
+  };
+  let buttons = await publicButtons();
+  assert.equal(buttons.length, 1);
+  assert.equal(buttons[0].getAttribute("href"), zocdocUrl);
+  const denied = await prisma.adminUser.create({
+    data: { email: "zocdoc-no-access@example.test", role: "SUB_ADMIN", permissions: [], password: owner.password },
+  });
+  for (const user of [denied, viewer, null]) {
+    assert.equal((await call(path, { user, method: "PUT", body: { ...body, zocdocUrl: "" } })).response.status, user ? 403 : 401);
+  }
+  const invalid = await call(path, { user: editor, method: "PUT", body: { ...body, zocdocUrl: "https://zocdoc.com.example.com/doctor/123" } });
+  assert.equal(invalid.response.status, 400);
+  assert.equal((await read()).zocdocUrl, zocdocUrl);
+  const replacement = "https://www.zocdoc.com/booking-link/doctor/replacement-456";
+  assert.equal((await call(path, { user: editor, method: "PUT", body: { ...body, zocdocUrl: replacement } })).response.status, 200);
+  assert.equal((await publicButtons())[0].getAttribute("href"), replacement);
+  const olderPayload = { ...body };
+  delete olderPayload.zocdocUrl;
+  assert.equal((await call(path, { user: editor, method: "PUT", body: olderPayload })).response.status, 200);
+  assert.equal((await read()).zocdocUrl, replacement);
+  assert.equal((await call(path, { user: editor, method: "PUT", body: { ...body, zocdocUrl: "  " } })).response.status, 200);
+  assert.equal((await read()).zocdocUrl, null);
+  assert.equal((await read()).linkUrl, body.linkUrl);
+  assert.equal((await publicButtons()).length, 0);
+  const blankPage = await call(`/providers/${body.slug}`, { user: null });
+  assert.doesNotMatch(blankPage.data, /Zocdoc Coming Soon/);
+  // A previously hardcoded slug must also stay blank after its link is cleared.
+  await prisma.provider.update({ where: { id: migrated.id }, data: { zocdocUrl: null, isActive: true } });
+  assert.equal((await publicButtons(migrated.slug)).length, 0);
+  await prisma.provider.update({ where: { id: migrated.id }, data: { zocdocUrl: migrated.zocdocUrl, isActive: false } });
+});
+test("coming-soon seed is isolated and idempotent; the public page and CMS preserve its launch state", async () => {
+  const originalLocationCount = await prisma.location.count();
+  const originalProviderCount = await prisma.provider.count();
+  const seeded = await seedOwingsMills(prisma);
+  assert.equal(await prisma.location.count(), originalLocationCount + 1);
+  assert.equal(await prisma.provider.count(), originalProviderCount + 1);
+  const page = await call("/location/owings-mills");
+  assert.equal(page.response.status, 200);
+  assert.match(page.data, /Estimated opening.*October 5/);
+  assert.match(page.data, /Jacob Scott/);
+  assert.match(page.data, /25 Crossroads/);
+  assert.match(page.data, /Planned hours after opening/);
+  assert.doesNotMatch(page.data, /openingHoursSpecification/);
+  assert.doesNotMatch(page.data, /Meet the providers currently available/);
+  const answer = await buildDeterministicCommonAnswer("What are the hours for Owings Mills?");
+  assert.match(answer.answer, /coming soon/);
+  assert.match(answer.answer, /Planned hours after opening/);
+  assert.doesNotMatch(answer.answer, /Saturday|Sunday/);
+  const availability = await buildDeterministicCommonAnswer("Are appointments available in Owings Mills?");
+  assert.match(availability.answer, /coming soon/);
+  assert.deepEqual(availability.factIds, ["location.coming-soon"]);
+  const location = await prisma.location.findUnique({
+    where: { id: seeded.location.id },
+  });
+  const path = `/api/admin/locations/${location.id}`;
+  const changed = { ...location, openingDateLabel: "October 12" };
+  assert.equal(
+    (await call(path, { method: "PUT", user: viewer, body: changed })).response
+      .status,
+    403,
+  );
+  assert.equal(
+    (await call(path, { method: "PUT", user: editor, body: changed })).response
+      .status,
+    200,
+  );
+  assert.equal(
+    (
+      await call(path, {
+        method: "PUT",
+        body: { ...changed, isComingSoon: "false" },
+      })
+    ).response.status,
+    400,
+  );
+  await seedOwingsMills(prisma);
+  const retained = await prisma.location.findUnique({
+    where: { id: location.id },
+  });
+  assert.equal(retained.isComingSoon, true);
+  assert.equal(retained.openingDateLabel, "October 12");
+  assert.equal(await prisma.location.count(), originalLocationCount + 1);
+  assert.equal(await prisma.provider.count(), originalProviderCount + 1);
 });
 test("analytics totals, pagination, feedback, permission-safe details and estimated costs", async () => {
   const now = new Date();

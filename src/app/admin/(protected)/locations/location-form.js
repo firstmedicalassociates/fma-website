@@ -90,10 +90,11 @@ function moveItem(values, fromIndex, toIndex) {
   return nextValues;
 }
 
-function getInitialOfficeHourRows(value) {
+function getInitialOfficeHourRows(value, isComingSoon = false) {
   const officeHours = normalizeOfficeHours(Array.isArray(value) ? value : []);
 
   if (officeHours.length === 0) {
+    if (isComingSoon) return [];
     return OFFICE_HOUR_DAYS.map((day) =>
       createOfficeHourRow({
         id: `hours-${day.value}`,
@@ -111,6 +112,7 @@ function getInitialOfficeHourRows(value) {
       id: `hours-${index}`,
     })
   );
+  if (isComingSoon) return rows;
   const existingDays = new Set(rows.map((row) => row.day).filter(Boolean));
   const missingDayRows = OFFICE_HOUR_DAYS.filter((day) => !existingDays.has(day.value)).map((day) =>
     createOfficeHourRow({
@@ -133,6 +135,8 @@ function getInitialValues(initialLocation) {
     eyebrow: initialLocation?.eyebrow || "",
     accent: initialLocation?.accent || "",
     intro: initialLocation?.intro || "",
+    isComingSoon: Boolean(initialLocation?.isComingSoon),
+    openingDateLabel: initialLocation?.openingDateLabel || "",
     address: initialLocation?.address || "",
     streetAddress: addressParts.streetAddress,
     addressCity: addressParts.addressCity,
@@ -275,6 +279,8 @@ export default function LocationForm({
   const [eyebrow, setEyebrow] = useState(initialValues.eyebrow);
   const [accent, setAccent] = useState(initialValues.accent);
   const [intro, setIntro] = useState(initialValues.intro);
+  const [isComingSoon, setIsComingSoon] = useState(initialValues.isComingSoon);
+  const [openingDateLabel, setOpeningDateLabel] = useState(initialValues.openingDateLabel);
   const [streetAddress, setStreetAddress] = useState(initialValues.streetAddress);
   const [addressCity, setAddressCity] = useState(initialValues.addressCity);
   const [addressState, setAddressState] = useState(initialValues.addressState);
@@ -290,7 +296,7 @@ export default function LocationForm({
   const [mapImageUrl, setMapImageUrl] = useState(initialValues.mapImageUrl);
   const [mapImageAlt, setMapImageAlt] = useState(initialValues.mapImageAlt);
   const [officeHourRows, setOfficeHourRows] = useState(() =>
-    getInitialOfficeHourRows(initialValues.officeHours)
+    getInitialOfficeHourRows(initialValues.officeHours, initialValues.isComingSoon)
   );
   const [infoSections, setInfoSections] = useState(() =>
     getInitialInfoSections(initialValues.infoSections)
@@ -560,6 +566,8 @@ export default function LocationForm({
           eyebrow,
           accent,
           intro,
+          isComingSoon,
+          openingDateLabel,
           address,
           streetAddress,
           addressCity,
@@ -710,6 +718,20 @@ export default function LocationForm({
                           required
                         />
                       </div>
+                    </div>
+
+                    <div className="builder-list-block">
+                      <label className="admin-checkbox">
+                        <input type="checkbox" checked={isComingSoon} onChange={(event) => setIsComingSoon(event.target.checked)} />
+                        Coming soon — show an opening announcement
+                      </label>
+                      <p>Keep this checked until the office is ready to open. The estimated date does not automatically enable appointments.</p>
+                      {isComingSoon ? (
+                        <label className="builder-field">
+                          Estimated opening date (optional)
+                          <input className="builder-input" type="text" maxLength={100} value={openingDateLabel} onChange={(event) => setOpeningDateLabel(event.target.value)} placeholder="October 5" />
+                        </label>
+                      ) : null}
                     </div>
 
                     <div className="builder-grid-two">
