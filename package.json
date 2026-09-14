@@ -23,7 +23,7 @@
     "sync:providers": "node scripts/sync-live-providers.js",
     "migrate:provider-images": "node scripts/migrate-provider-images-to-blob.js",
     "athena:provider-schedules": "node scripts/print-athena-provider-schedules.js",
-    "check:admin": "node --test tests/admin/core.test.mjs",
+    "check:admin": "node --test tests/admin/core.test.mjs tests/admin/diagnostics.test.mjs",
     "check:admin:integration": "node --env-file=.env.admin-test --test tests/admin/integration.test.mjs"
   },
   "dependencies": {

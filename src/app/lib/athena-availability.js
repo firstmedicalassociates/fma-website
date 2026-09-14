@@ -1,3 +1,4 @@
+import { AthenaRequestError, readAthenaCollection, onlineProviderExclusions, auditProviderDepartments, mappingRecommendation } from "./athena-diagnostics.mjs";
 import { prisma } from "./prisma.js";
 import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
 import {
@@ -273,6 +274,7 @@ async function fetchJson(url, options = {}) {
 
       if (response.status === 429 && attempt < 3) {
         const retryAfter = Number.parseInt(response.headers.get("retry-after") || "", 10);
+        if (Number.isFinite(retryAfter) && retryAfter > 8) return { ok: false, status: 429, body };
         const waitMs = Number.isFinite(retryAfter)
           ? retryAfter * 1000
           : Math.min(1000 * 2 ** attempt, 8000);
@@ -413,50 +415,24 @@ function getProviderSearchKeys(provider) {
 }
 
 function isSchedulableProvider(provider) {
-  return provider.entitytype === "Person" && provider.billable === true && provider.hideinportal !== true;
+  return onlineProviderExclusions(provider).length === 0;
 }
 
 async function loadReferenceData(config, accessToken) {
   const now = Date.now();
   if (referenceCache && referenceCache.expiresAt > now) return referenceCache.data;
 
-  const [departmentsResponse, providersResponse, siteProviders] = await Promise.all([
-    athenaGet(
-      config,
-      accessToken,
-      addQuery(`/v1/${encodeURIComponent(config.practiceId)}/departments`, { limit: 100 })
-    ),
-    athenaGet(
-      config,
-      accessToken,
-      addQuery(`/v1/${encodeURIComponent(config.practiceId)}/providers`, { limit: 100 })
-    ),
+  const readDirectory = (key) => readAthenaCollection(
+    (params) => athenaGet(config, accessToken, addQuery(`/v1/${encodeURIComponent(config.practiceId)}/${key}`, params)), key
+  );
+  const [departments, providers, siteProviders] = await Promise.all([
+    readDirectory("departments"), readDirectory("providers"),
     prisma.provider.findMany({
       where: { isActive: true },
-      select: {
-        slug: true,
-        name: true,
-        title: true,
-        linkUrl: true,
-        athenaProviderId: true,
-        athenaDepartmentId: true,
-        athenaSchedulingName: true,
-      },
+      select: { slug: true, name: true, title: true, linkUrl: true, athenaProviderId: true, athenaDepartmentId: true, athenaSchedulingName: true },
     }),
   ]);
-
-  if (!departmentsResponse.ok) throw new Error("Athena departments lookup failed.");
-  if (!providersResponse.ok) throw new Error("Athena providers lookup failed.");
-
-  const data = {
-    departments: Array.isArray(departmentsResponse.body?.departments)
-      ? departmentsResponse.body.departments
-      : [],
-    providers: Array.isArray(providersResponse.body?.providers)
-      ? providersResponse.body.providers
-      : [],
-    siteProviders,
-  };
+  const data = { departments, providers, siteProviders };
 
   referenceCache = {
     expiresAt: now + CACHE_TTL_MS,
@@ -1458,29 +1434,20 @@ function selectAppointmentOptions(options, context = {}) {
     });
 }
 
-async function getAppointmentReasons(config, accessToken, provider, department) {
-  const response = await athenaGet(
-    config,
-    accessToken,
+async function getAppointmentReasons(config, accessToken, provider, department, maxReasons = 4) {
+  const reasons = await readAthenaCollection((params) => athenaGet(
+    config, accessToken,
     addQuery(`/v1/${encodeURIComponent(config.practiceId)}/patientappointmentreasons`, {
-      providerid: provider.providerid,
-      departmentid: department.departmentid,
-      limit: 100,
+      providerid: provider.providerid, departmentid: department.departmentid, ...params,
     })
-  );
-
-  if (!response.ok) return [];
-
-  const reasons = Array.isArray(response.body?.patientappointmentreasons)
-    ? response.body.patientappointmentreasons
-    : [];
+  ), "patientappointmentreasons");
   const reasonByName = new Map(reasons.map((reason) => [normalizeText(reason.reason), reason]));
   const prioritized = APPOINTMENT_REASON_PRIORITY.map((name) => reasonByName.get(normalizeText(name))).filter(
     Boolean
   );
   const rest = reasons.filter((reason) => !prioritized.includes(reason));
 
-  return [...prioritized, ...rest].slice(0, 4);
+  return [...prioritized, ...rest].slice(0, maxReasons);
 }
 
 async function getProviderOpenSlots(
@@ -1492,13 +1459,16 @@ async function getProviderOpenSlots(
   startdate,
   enddate,
   requestedTime = null,
-  maxSlots = 1
+  maxSlots = 1,
+  diagnostic = null
 ) {
   const slotByKey = new Map();
+  let requestError = null;
 
   for (const reason of reasons) {
+    if (diagnostic && Date.now() >= diagnostic.deadline) throw new AthenaRequestError("time_limit");
     const reasonid = reason.reasonid || reason.appointmentreasonid || reason.patientappointmentreasonid;
-    if (!reasonid) continue;
+    if (!reasonid) { requestError = new AthenaRequestError("reason_id_missing"); continue; }
 
     const response = await athenaGet(
       config,
@@ -1513,11 +1483,10 @@ async function getProviderOpenSlots(
       })
     );
 
-    if (!response.ok) continue;
-
-    const appointments = Array.isArray(response.body?.appointments)
-      ? response.body.appointments
-      : [];
+    if (!response.ok) { requestError = new AthenaRequestError("open_slots", response.status); continue; }
+    if (!Array.isArray(response.body?.appointments)) { requestError = new AthenaRequestError("open_slots_invalid_response"); continue; }
+    if (diagnostic) diagnostic.reasonsChecked += 1;
+    const appointments = response.body.appointments;
     for (const appointment of appointments) {
       const key = [
         appointment.appointmentid,
@@ -1535,7 +1504,11 @@ async function getProviderOpenSlots(
         });
       }
     }
+    // Diagnostics need one confirmed opening, not an exhaustive slot inventory.
+    if (diagnostic && slotByKey.size) break;
   }
+
+  if (!slotByKey.size && requestError) throw requestError;
 
   const sortedSlots = Array.from(slotByKey.values()).sort((first, second) =>
     `${first.date || first.appointmentdate || ""} ${first.starttime || ""}`.localeCompare(
@@ -1947,10 +1920,11 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
     return cachedAvailability.value;
   }
 
+  const availabilityErrors = [];
   const loadAppointmentOptions = (entries, rangeStartdate = startdate, rangeEnddate = resultEnddate) =>
     runWithConcurrency(entries, PROVIDER_LOOKUP_CONCURRENCY, async ({ provider, department: providerDepartment }) => {
       if (!providerDepartment) return null;
-
+      try {
       const reasons = await getAppointmentReasons(config, accessToken, provider, providerDepartment);
       if (reasons.length === 0) return null;
 
@@ -1991,6 +1965,10 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
         slotMatchType: slot.slotMatchType || (requestedTime ? "fallback" : "earliest"),
         requestedTimeLabel: requestedTime?.label || "",
       }));
+      } catch (error) {
+        availabilityErrors.push(error.code || "athena_request_failed");
+        return null;
+      }
     });
 
   let checkedProviderLocationEntries = providerLocationEntries;
@@ -2046,6 +2024,8 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
     resultDateRangeLabel = "";
     if (extendedRawOptions.length > 0) rawOptions = extendedRawOptions;
   }
+
+  if (!rawOptions.length && availabilityErrors.length) return buildAthenaAvailabilityFallback("appointment_availability_unavailable");
 
   const hasExactTimeMatches = requestedTime
     ? rawOptions.some((option) => option.slotMatchType === "exact")
@@ -2210,52 +2190,32 @@ export async function getAppointmentAvailabilityForQuery(query, options = {}) {
   }
 }
 
-async function getProviderMappingSlotStatus(config, accessToken, provider, department) {
-  if (!provider || !department) {
-    return {
-      slotStatus: "not_checked",
-      slotCount: 0,
-    };
-  }
-
+async function getProviderMappingSlotStatus(config, accessToken, provider, departments, deadline) {
+  if (!provider) return { slotStatus: "not_checked", slotCount: 0, checks: [], departmentsAvailable: 0, complete: false };
   const start = new Date();
   const end = new Date(start);
   end.setDate(start.getDate() + DEFAULT_LOOKAHEAD_DAYS);
-
-  try {
-    const reasons = await getAppointmentReasons(config, accessToken, provider, department);
-    if (reasons.length === 0) {
-      return {
-        slotStatus: "no_reasons",
-        slotCount: 0,
-      };
-    }
-
-    const slots = await getProviderOpenSlots(
-      config,
-      accessToken,
-      provider,
-      department,
-      reasons.slice(0, 2),
-      formatAthenaDate(start),
-      formatAthenaDate(end),
-      null,
-      1
-    );
-
-    return {
-      slotStatus: slots.length > 0 ? "slots_found" : "no_slots_found",
-      slotCount: slots.length,
-    };
-  } catch {
-    return {
-      slotStatus: "lookup_unavailable",
-      slotCount: 0,
-    };
-  }
+  return auditProviderDepartments({
+    departments, deadline,
+    check: async (department) => {
+      const reasons = await getAppointmentReasons(config, accessToken, provider, department, Infinity);
+      if (!reasons.length) return { slotStatus: "no_reasons", slotCount: 0, reasonCount: 0, reasonsChecked: 0 };
+      const diagnostic = { deadline, reasonsChecked: 0 };
+      let slots;
+      try {
+        slots = await getProviderOpenSlots(config, accessToken, provider, department, reasons, formatAthenaDate(start), formatAthenaDate(end), null, 1, diagnostic);
+      } catch (error) {
+        error.reasonCount = reasons.length;
+        error.reasonsChecked = diagnostic.reasonsChecked;
+        throw error;
+      }
+      return { slotStatus: slots.length ? "slots_found" : "no_slots_found", slotCount: slots.length, reasonCount: reasons.length, reasonsChecked: diagnostic.reasonsChecked, firstSlot: slots[0] ? { date: slots[0].date || slots[0].appointmentdate, startTime: slots[0].starttime } : null };
+    },
+  });
 }
 
-export async function getAthenaProviderMappingCoverage() {
+export async function getAthenaProviderMappingCoverage({ providerSlug = "" } = {}) {
+  const deadline = Date.now() + 210000;
   const config = getAthenaConfig();
   if (!config.ok) {
     return {
@@ -2273,6 +2233,7 @@ export async function getAthenaProviderMappingCoverage() {
     const schedulableProviders = providers.filter(isSchedulableProvider);
 
     const baseRows = siteProviders
+      .filter((provider) => !providerSlug || provider.slug === providerSlug)
       .map((siteProvider) => {
         const explicitProviderId = String(siteProvider.athenaProviderId || "").trim();
         const explicitDepartmentId = String(siteProvider.athenaDepartmentId || "").trim();
@@ -2286,7 +2247,7 @@ export async function getAthenaProviderMappingCoverage() {
           : schedulableProviders.filter((provider) =>
               isSameSiteProvider(findSiteProvider(provider, siteProviderEntries), siteProvider)
             );
-        const matchedProvider = explicitMatch || (nameMatches.length === 1 ? nameMatches[0] : null);
+        const matchedProvider = explicitProviderId ? explicitMatch : (nameMatches.length === 1 ? nameMatches[0] : null);
         const matchedDepartment = matchedProvider
           ? findProviderDepartment(matchedProvider, departments, siteProviderEntries)
           : null;
@@ -2295,6 +2256,9 @@ export async function getAthenaProviderMappingCoverage() {
               (department) => String(department.departmentid || "").trim() === explicitDepartmentId
             )
           : null;
+        const excludedMatches = providers.filter((provider) => !isSchedulableProvider(provider) && (
+          explicitProviderId ? String(provider.providerid) === explicitProviderId : isSameSiteProvider(findSiteProvider(provider, siteProviderEntries), siteProvider)
+        ));
         const warnings = [];
 
         let status = "missing_mapping";
@@ -2309,6 +2273,11 @@ export async function getAthenaProviderMappingCoverage() {
           status = "unsafe_multiple_matches";
           warnings.push("Multiple Athena providers matched this public profile.");
         }
+
+        if (!matchedProvider && excludedMatches.length && (!explicitProviderId || excludedMatches.length === 1)) {
+          status = "excluded_from_online";
+          for (const candidate of excludedMatches) warnings.push(`${getProviderName(candidate)} (ID ${candidate.providerid}): ${onlineProviderExclusions(candidate).join(", ")}.`);
+        } else if (status === "missing_mapping") warnings.push("No safe match was found in the complete Athena provider directory.");
 
         if (explicitDepartmentId && !configuredDepartment) {
           warnings.push("Configured Athena department ID was not found.");
@@ -2343,26 +2312,23 @@ export async function getAthenaProviderMappingCoverage() {
           config,
           accessToken,
           row._matchedProvider,
-          row._matchedDepartment
+          [...new Map([row._matchedDepartment, ...departments].filter(Boolean).map((department) => [department.departmentid, department])).values()],
+          deadline
         );
         const warnings = [...row.warnings];
         if (slotCheck.slotStatus === "no_reasons") {
-          warnings.push("No online appointment reasons returned for this mapped provider.");
+          warnings.push("Athena returned no online appointment reasons in the checked departments.");
         } else if (slotCheck.slotStatus === "no_slots_found") {
-          warnings.push("No online appointment slots found in the next 30 days.");
+          warnings.push("No online slots were returned for the checked reasons and departments in the next 30 days. This is not a mapping error.");
         } else if (slotCheck.slotStatus === "lookup_unavailable") {
-          warnings.push("Slot check could not be completed.");
+          warnings.push("Availability check is incomplete; no conclusion about open slots can be made. Expand the request details or recheck this provider.");
         }
 
         const publicRow = { ...row };
         delete publicRow._matchedProvider;
         delete publicRow._matchedDepartment;
-        return {
-          ...publicRow,
-          warnings,
-          slotStatus: slotCheck.slotStatus,
-          slotCount: slotCheck.slotCount,
-        };
+        const result = { ...publicRow, ...slotCheck, warnings };
+        return { ...result, recommendation: mappingRecommendation(result) };
       }
     );
 
@@ -2391,6 +2357,7 @@ export async function getAthenaProviderMappingCoverage() {
         missing_mapping: 0,
         unsafe_multiple_matches: 0,
         configured_provider_missing: 0,
+        excluded_from_online: 0,
         slots_found: 0,
         no_slots_found: 0,
         no_reasons: 0,
@@ -2404,6 +2371,7 @@ export async function getAthenaProviderMappingCoverage() {
       available: true,
       summary,
       rows,
+      scope: { lookaheadDays: DEFAULT_LOOKAHEAD_DAYS, athenaProviders: providers.length, schedulableProviders: schedulableProviders.length, departments: departments.length, checksStopAfterFirstOpening: true },
     };
   } catch (error) {
     console.error("Athena provider mapping coverage failed:", error?.message || error);

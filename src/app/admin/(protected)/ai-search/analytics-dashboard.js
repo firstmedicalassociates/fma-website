@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import DailyChart from "./daily-chart";
+import { describeSpendingCoverage } from "../../../lib/ai-spending-summary.mjs";
 import { percent } from "../../../lib/ai-dashboard-query.mjs";
 const number = (value) =>
   value == null
@@ -124,93 +126,6 @@ function Breakdown({ title, rows = [] }) {
     </section>
   );
 }
-function DailyChart({ rows = [], title, metric = "total", currency = false }) {
-  if (!rows.length)
-    return (
-      <section className="admin-panel">
-        <div className="admin-panel-header">
-          <h2>{title}</h2>
-        </div>
-        <p className="admin-empty">No data for this period.</p>
-      </section>
-    );
-  const max = Math.max(...rows.map((row) => Number(row[metric] || 0)), 1);
-  const x = (index) => 48 + (index / Math.max(rows.length - 1, 1)) * 690;
-  const points = rows
-    .map(
-      (row, index) =>
-        `${x(index)},${170 - (Number(row[metric] || 0) / max) * 140}`,
-    )
-    .join(" ");
-  return (
-    <section className="admin-panel">
-      <div className="admin-panel-header">
-        <h2>{title}</h2>
-        <span className="admin-pill">UTC</span>
-      </div>
-      <div className="analytics-chart">
-        <svg
-          viewBox="0 0 780 210"
-          role="img"
-          aria-label={`${title}. ${rows.length} days; data table follows.`}
-        >
-          <path d="M48 28V170H740" fill="none" stroke="#cedce4" />
-          <text x="4" y="32">
-            {currency ? money(max) : number(max)}
-          </text>
-          <text x="24" y="173">
-            0
-          </text>
-          <polyline
-            points={points}
-            fill="none"
-            stroke="#176e82"
-            strokeWidth="3"
-            strokeLinejoin="round"
-          />
-          {rows.length === 1 ? (
-            <circle
-              cx={x(0)}
-              cy={170 - (Number(rows[0][metric] || 0) / max) * 140}
-              r="4"
-              fill="#176e82"
-            />
-          ) : null}
-          <text x="48" y="201">
-            {rows[0].date}
-          </text>
-          <text x="738" y="201" textAnchor="end">
-            {rows.at(-1).date}
-          </text>
-        </svg>
-        <details>
-          <summary>View daily data</summary>
-          <div className="analytics-table-scroll">
-            <table className="analytics-table">
-              <thead>
-                <tr>
-                  <th>Date (UTC)</th>
-                  <th>{currency ? "Estimated USD" : "Searches"}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.date}>
-                    <td>{row.date}</td>
-                    <td>
-                      {currency ? money(row[metric]) : number(row[metric])}
-                      {row.unknown ? " + unknown usage" : ""}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </details>
-      </div>
-    </section>
-  );
-}
 function Overview({ data }) {
   const s = data.summary;
   return (
@@ -260,7 +175,16 @@ function Overview({ data }) {
           detail="Automated evidence signal"
         />
       </div>
-      <DailyChart rows={data.daily} title="Daily searches" />
+      <DailyChart
+        rows={data.daily}
+        title="Daily searches"
+        metrics={[
+          { key: "total", label: "Searches" },
+          { key: "answered", label: "Answered" },
+          { key: "failed", label: "Failed" },
+          { key: "clicked", label: "Searches with clicks" },
+        ]}
+      />
       <div className="analytics-panel-grid">
         <Breakdown
           title="Search outcomes"
@@ -545,6 +469,12 @@ function ReportedSpending({ query, refresh }) {
           {data.available ? (
             <>
               <p className="analytics-cost-total">{money(data.total)}</p>
+              <DailyChart
+                rows={data.daily}
+                title="Daily reported project costs"
+                metric="amount"
+                currency
+              />
               <p className="analytics-footnote">
                 Project {data.projectId} · Updated {dateTime(data.refreshedAt)}
                 {data.stale
@@ -564,6 +494,9 @@ function ReportedSpending({ query, refresh }) {
 function Spending({ query, refresh }) {
   const state = useRemote(`/api/admin/ai-search/spending?${query}`, refresh);
   const data = state.data;
+  const coverage = data ? describeSpendingCoverage(data) : null;
+  const unrecorded =
+    coverage?.state === "historical" || coverage?.state === "empty";
   return (
     <>
       <RemoteState state={state} retry={() => window.location.reload()}>
@@ -572,13 +505,7 @@ function Spending({ query, refresh }) {
             <div className="admin-stat-stack ai-search-stat-grid">
               <Stat
                 label="Estimated API spending"
-                value={money(
-                  !data.trackedSearches &&
-                    !data.summary.calls &&
-                    data.historicalSearches
-                    ? null
-                    : data.summary.knownCost,
-                )}
+                value={coverage.label || money(data.summary.knownCost)}
                 detail={
                   data.summary.unknownCalls
                     ? `Known subtotal; ${data.summary.unknownCalls} calls have unknown cost`
@@ -586,7 +513,11 @@ function Spending({ query, refresh }) {
                 }
               />
               <Stat
-                label="Cost per search"
+                label={
+                  data.summary.unknownCalls
+                    ? "Known cost per search"
+                    : "Cost per search"
+                }
                 value={
                   data.trackedSearches
                     ? money(
@@ -598,13 +529,39 @@ function Spending({ query, refresh }) {
               />
               <Stat
                 label="Input / cached tokens"
-                value={`${number(data.summary.inputTokens)} / ${number(data.summary.cachedInputTokens)}`}
+                value={
+                  unrecorded
+                    ? "Not recorded"
+                    : `${number(data.summary.inputTokens ?? (data.summary.calls ? null : 0))} / ${number(data.summary.cachedInputTokens ?? (data.summary.calls ? null : 0))}`
+                }
               />
               <Stat
                 label="Output tokens"
-                value={number(data.summary.outputTokens)}
+                value={
+                  unrecorded
+                    ? "Not recorded"
+                    : number(
+                        data.summary.outputTokens ??
+                          (data.summary.calls ? null : 0),
+                      )
+                }
                 detail={`${number(data.summary.calls)} API calls`}
               />
+            </div>
+            <div className="admin-notice" role="status">
+              <strong>Recording coverage</strong>
+              <p>{coverage.message}</p>
+              {data.firstTrackedAt ? (
+                <p>
+                  First tracked search in this range:{" "}
+                  {dateTime(data.firstTrackedAt)}. Latest:{" "}
+                  {dateTime(data.latestTrackedAt)}.
+                </p>
+              ) : null}
+              <p>
+                Estimates refresh within 60 seconds of a new search. Reported
+                project costs load independently below.
+              </p>
             </div>
             <DailyChart
               rows={data.daily}
@@ -623,6 +580,7 @@ function Spending({ query, refresh }) {
                       <th>Purpose</th>
                       <th>Operation / model</th>
                       <th>Calls</th>
+                      <th>Recording status</th>
                       <th>Estimated USD</th>
                     </tr>
                   </thead>
@@ -635,6 +593,16 @@ function Spending({ query, refresh }) {
                           <small>{row.model}</small>
                         </td>
                         <td>{number(row.calls)}</td>
+                        <td>
+                          {pretty(row.status)}
+                          {row.unknown ? (
+                            <small>
+                              {row.status === "recorded"
+                                ? "Usage received; model pricing unavailable"
+                                : "OpenAI did not return complete usage"}
+                            </small>
+                          ) : null}
+                        </td>
                         <td>
                           {money(row.cost)}
                           {row.unknown ? (
@@ -668,20 +636,44 @@ function Spending({ query, refresh }) {
 }
 function Diagnostics() {
   const [state, setState] = useState({ running: false, error: "", data: null });
-  async function run() {
-    setState({ running: true, error: "", data: null });
+  async function run(providerSlug = "") {
+    setState((current) => ({ ...current, running: true, error: "" }));
     try {
       const response = await fetch("/api/admin/ai-search/diagnostics", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ providerSlug }),
       });
       const data = await response.json();
       if (!response.ok)
         throw new Error(
           data.error || "The diagnostic check could not complete.",
         );
-      setState({ running: false, error: "", data });
+      setState((current) => ({
+        running: false,
+        error: "",
+        data:
+          providerSlug && current.data && data.coverage.available
+            ? {
+                ...data,
+                coverage: {
+                  ...data.coverage,
+                  rows: current.data.coverage.rows.map(
+                    (row) =>
+                      data.coverage.rows.find(
+                        (updated) => updated.slug === row.slug,
+                      ) || row,
+                  ),
+                },
+              }
+            : data,
+      }));
     } catch (error) {
-      setState({ running: false, error: error.message, data: null });
+      setState((current) => ({
+        ...current,
+        running: false,
+        error: error.message,
+      }));
     }
   }
   return (
@@ -692,7 +684,11 @@ function Diagnostics() {
         profile data. This live check may take several minutes and runs only
         when requested.
       </p>
-      <button className="builder-button" disabled={state.running} onClick={run}>
+      <button
+        className="builder-button"
+        disabled={state.running}
+        onClick={() => run()}
+      >
         {state.running ? "Checking providers…" : "Run live diagnostic check"}
       </button>
       {state.running ? (
@@ -710,6 +706,29 @@ function Diagnostics() {
           <p className="analytics-footnote">
             Checked {dateTime(state.data.checkedAt)}
           </p>
+          <div className="admin-notice">
+            <strong>What this check means</strong>
+            <p>
+              Automatic name matches are valid mappings. Manual provider IDs,
+              department IDs, and booking links are optional overrides; the site
+              uses general booking when no custom link is entered.
+            </p>
+            <p>
+              Only online appointment availability is checked, over the next 30
+              days. A successful check with no slots is different from a failed
+              request. Checks try other departments when the first has no
+              openings and stop once an opening is confirmed.
+            </p>
+          </div>
+          {state.data.coverage.scope ? (
+            <p className="analytics-footnote">
+              Directory: {state.data.coverage.scope.athenaProviders} Athena
+              providers, {state.data.coverage.scope.schedulableProviders}{" "}
+              eligible for online scheduling,{" "}
+              {state.data.coverage.scope.departments} departments. No provider
+              records were changed.
+            </p>
+          ) : null}
           <h3>Athena mappings</h3>
           {!state.data.coverage.available ? (
             <p className="admin-notice">
@@ -723,23 +742,110 @@ function Diagnostics() {
                     <th>Provider</th>
                     <th>Mapping</th>
                     <th>Slots</th>
-                    <th>Notes</th>
+                    <th>Evidence and next step</th>
                   </tr>
                 </thead>
                 <tbody>
                   {state.data.coverage.rows.map((row) => (
                     <tr key={row.slug}>
-                      <td>{row.name}</td>
-                      <td>{pretty(row.status)}</td>
-                      <td>{pretty(row.slotStatus)}</td>
-                      <td>{row.warnings.join(" · ") || "No warnings"}</td>
+                      <td>
+                        <strong>{row.name}</strong>
+                        <Link
+                          className="analytics-provider-profile"
+                          href={
+                            row.providerId
+                              ? `/admin/providers/${row.providerId}`
+                              : "/admin/providers"
+                          }
+                          prefetch={false}
+                        >
+                          View profile
+                        </Link>
+                      </td>
+                      <td>
+                        {pretty(row.status)}
+                        {row.matchedAthenaProviderId ? (
+                          <small>
+                            Athena ID {row.matchedAthenaProviderId} ·{" "}
+                            {row.matchedAthenaName}
+                          </small>
+                        ) : null}
+                        {row.matchedDepartmentId ? (
+                          <small>
+                            Primary: {row.matchedDepartmentName} (ID{" "}
+                            {row.matchedDepartmentId})
+                          </small>
+                        ) : null}
+                      </td>
+                      <td>
+                        {row.slotStatus === "lookup_unavailable"
+                          ? "Check incomplete"
+                          : row.slotStatus === "no_slots_found"
+                            ? "No online openings returned"
+                            : pretty(row.slotStatus)}
+                        <small>
+                          {row.checks?.length || 0} of{" "}
+                          {row.departmentsAvailable || 0} departments checked
+                        </small>
+                      </td>
+                      <td>
+                        <p>{row.recommendation || row.warnings.join(" · ")}</p>
+                        {row.warnings.length ? (
+                          <p className="analytics-footnote">
+                            {row.warnings.join(" · ")}
+                          </p>
+                        ) : null}
+                        {row.checks?.length ? (
+                          <details>
+                            <summary>View checked departments</summary>
+                            <ul className="analytics-diagnostic-details">
+                              {row.checks.map((check) => (
+                                <li key={check.departmentId}>
+                                  <strong>
+                                    {check.departmentName} (ID{" "}
+                                    {check.departmentId})
+                                  </strong>
+                                  <span>
+                                    {pretty(check.slotStatus)} ·{" "}
+                                    {check.reasonCount == null
+                                      ? "Appointment reasons unavailable"
+                                      : `${check.reasonsChecked || 0} of ${check.reasonCount} reasons checked`}
+                                  </span>
+                                  {check.firstSlot ? (
+                                    <span>
+                                      Example opening: {check.firstSlot.date} at{" "}
+                                      {check.firstSlot.startTime} (clinic local
+                                      time)
+                                    </span>
+                                  ) : null}
+                                  {check.errorCode ? (
+                                    <span>
+                                      {pretty(check.errorCode)}
+                                      {check.httpStatus
+                                        ? ` · HTTP ${check.httpStatus}`
+                                        : ""}
+                                    </span>
+                                  ) : null}
+                                </li>
+                              ))}
+                            </ul>
+                          </details>
+                        ) : null}
+                        <button
+                          className="builder-button secondary"
+                          disabled={state.running}
+                          onClick={() => run(row.slug)}
+                        >
+                          Recheck {row.name}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
-          <h3>Provider data gaps</h3>
+          <h3>Public profile details to complete</h3>
           {state.data.gaps.length ? (
             <ul>
               {state.data.gaps.map((row) => (

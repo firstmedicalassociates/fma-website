@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { eventWhere, PAGE_SIZE } from "./ai-dashboard-query.mjs";
+import { fillDailyDates } from "./ai-spending-summary.mjs";
 const safeNumber = (value) =>
   JSON.parse(
     JSON.stringify(value, (_, item) =>
@@ -74,9 +75,13 @@ async function overview(query) {
       'sources', (SELECT coalesce(jsonb_agg(d), '[]'::jsonb) FROM (SELECT unnest("sourceRefs") label, count(*) count FROM events GROUP BY 1 ORDER BY count(*) DESC, 1 LIMIT 12) d),
       'clicks', (SELECT coalesce(jsonb_agg(d), '[]'::jsonb) FROM (SELECT i."targetRef" label, i.type, count(*) count FROM "AiSearchInteraction" i JOIN filtered f ON f.id = i."eventId" GROUP BY 1, 2 ORDER BY count(*) DESC, 1 LIMIT 12) d)
     ) AS data`);
-  return { ...data.data, generatedAt: new Date().toISOString() };
+  return {
+    ...data.data,
+    daily: fillDailyDates(data.data.daily, query.from, query.to),
+    generatedAt: new Date().toISOString(),
+  };
 }
-export const loadOverview = unstable_cache(overview, ["ai-overview-v1"], {
+export const loadOverview = unstable_cache(overview, ["ai-overview-v2"], {
   revalidate: 60,
 });
 export async function loadActivity(query, feedback = false) {
@@ -141,12 +146,14 @@ async function estimatedSpending(query) {
     SELECT jsonb_build_object(
       'summary', (SELECT jsonb_build_object('calls', count(*), 'knownCost', coalesce(sum("estimatedCostUsd"), 0), 'unknownCalls', count(*) FILTER (WHERE "estimatedCostUsd" IS NULL), 'inputTokens', sum("inputTokens"), 'cachedInputTokens', sum("cachedInputTokens"), 'outputTokens', sum("outputTokens"), 'searchCost', coalesce(sum("estimatedCostUsd") FILTER (WHERE purpose = 'search'), 0)) FROM usage),
       'daily', (SELECT coalesce(jsonb_agg(d ORDER BY d.date), '[]'::jsonb) FROM (SELECT to_char("createdAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD') date, sum("estimatedCostUsd") cost, count(*) FILTER (WHERE "estimatedCostUsd" IS NULL) unknown FROM usage GROUP BY 1) d),
-      'breakdown', (SELECT coalesce(jsonb_agg(d), '[]'::jsonb) FROM (SELECT purpose, operation, model, count(*) calls, sum("estimatedCostUsd") cost, count(*) FILTER (WHERE "estimatedCostUsd" IS NULL) unknown FROM usage GROUP BY 1, 2, 3 ORDER BY sum("estimatedCostUsd") DESC NULLS LAST) d)
+      'breakdown', (SELECT coalesce(jsonb_agg(d), '[]'::jsonb) FROM (SELECT purpose, operation, model, status, count(*) calls, sum("estimatedCostUsd") cost, count(*) FILTER (WHERE "estimatedCostUsd" IS NULL) unknown FROM usage GROUP BY 1, 2, 3, 4 ORDER BY sum("estimatedCostUsd") DESC NULLS LAST) d)
     ) AS data`);
   const coverage = await prisma.aiSearchEvent.groupBy({
     by: ["telemetryVersion"],
     where: { createdAt: { gte: new Date(query.from), lt: new Date(query.to) } },
     _count: { _all: true },
+    _min: { createdAt: true },
+    _max: { createdAt: true },
   });
   const trackedSearches = coverage
     .filter((row) => row.telemetryVersion != null)
@@ -154,11 +161,27 @@ async function estimatedSpending(query) {
   const historicalSearches = coverage
     .filter((row) => row.telemetryVersion == null)
     .reduce((total, row) => total + row._count._all, 0);
-  return { ...data.data, trackedSearches, historicalSearches };
+  const trackedGroups = coverage.filter((row) => row.telemetryVersion != null);
+  return {
+    ...data.data,
+    trackedSearches,
+    historicalSearches,
+    firstTrackedAt: trackedGroups.length
+      ? new Date(
+          Math.min(...trackedGroups.map((row) => +row._min.createdAt)),
+        ).toISOString()
+      : null,
+    latestTrackedAt: trackedGroups.length
+      ? new Date(
+          Math.max(...trackedGroups.map((row) => +row._max.createdAt)),
+        ).toISOString()
+      : null,
+    generatedAt: new Date().toISOString(),
+  };
 }
 
 export const loadEstimatedSpending = unstable_cache(
   estimatedSpending,
-  ["ai-estimated-spending-v1"],
+  ["ai-estimated-spending-v2"],
   { revalidate: 60 },
 );

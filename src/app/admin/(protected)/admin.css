@@ -3313,3 +3313,20 @@
 @media (max-width: 1050px) { .analytics-panel-grid { grid-template-columns: 1fr; } }
 @media (max-width: 700px) { .analytics-detail-grid, .analytics-more-filters > div { grid-template-columns: 1fr; } .analytics-filters { padding: 16px; } .analytics-pagination { flex-wrap: wrap; } }
 .analytics-filters { margin-bottom: 20px; }
+
+.analytics-chart-tools, .analytics-chart-tools > div, .analytics-chart-navigation { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.analytics-chart-tools label { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.analytics-chart-tools select { min-height: 44px; border: 1px solid #cdd7df; border-radius: 10px; padding: 8px 12px; color: #172a3a; background: white; }
+.analytics-chart-readout { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; align-items: baseline; min-height: 62px; margin: 18px 0 0; padding: 14px 18px; background: #eef6f7; border-radius: 12px; color: #244e5b; }
+.analytics-chart-readout strong { font-size: 20px; }
+.analytics-chart-readout span { flex-basis: 100%; font-size: 13px; }
+.analytics-chart svg.analytics-interactive-plot { display: block; width: 100%; min-width: 0; touch-action: pan-y; }
+.analytics-chart-navigation { flex-wrap: nowrap; }
+.analytics-chart-navigation input { min-width: 50px; flex: 1; min-height: 44px; accent-color: #176e82; cursor: pointer; }
+.analytics-chart button:focus-visible, .analytics-chart select:focus-visible, .analytics-chart input:focus-visible { outline: 3px solid #176e82; outline-offset: 3px; }
+.analytics-diagnostic-details { list-style: none; padding: 0; min-width: 260px; }
+.analytics-diagnostic-details li { display: grid; gap: 5px; border-bottom: 1px solid #dbe2e8; padding: 12px 0; }
+.analytics-table td > p { margin: 0 0 10px; }
+.analytics-table td details { margin: 12px 0; }
+@media (max-width: 640px) { .analytics-chart { padding: 14px; } .analytics-chart-tools { align-items: stretch; } .analytics-chart-tools > div { width: 100%; } .analytics-chart-readout { display: grid; gap: 6px; } .analytics-chart-navigation { gap: 8px; } .analytics-chart-navigation button { padding-inline: 12px; } }
+.analytics-provider-profile { display: block; margin-top: 0.4rem; text-decoration: underline; }
