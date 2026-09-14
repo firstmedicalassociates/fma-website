@@ -44,8 +44,8 @@ export default function PracticeInquiryForm() {
   }
 
   return <div className={styles.formCard} id="connect">
-    {status === "success" ? <div className={styles.success} role="status" tabIndex={-1} ref={resultRef}><CircleCheck size={44} strokeWidth={1.5} aria-hidden="true" /><h3>Thank you for reaching out.</h3><p>{message}</p><Link className={styles.textLink} href="/about/">Get to know FMA <ArrowRight size={18} aria-hidden="true" /></Link></div> : <>
-      <h3>Let&apos;s get to know your practice.</h3>
+    {status === "success" ? <div className={styles.success} role="status" tabIndex={-1} ref={resultRef}><CircleCheck size={44} strokeWidth={1.5} aria-hidden="true" /><h3>Thank You For Reaching Out.</h3><p>{message}</p><Link className={styles.textLink} href="/about/">Get To Know FMA <ArrowRight size={18} aria-hidden="true" /></Link></div> : <>
+      <h3>Let&apos;s Get To Know Your Practice.</h3>
       <p className={styles.formIntro}>Fields marked * are required.</p>
       <noscript><p>Please enable JavaScript to send an inquiry, or call {SITE_CALL_LABEL}.</p></noscript>
       <form className={styles.form} method="post" action="/api/practice-inquiry" onSubmit={handleSubmit} aria-busy={status === "sending"}>

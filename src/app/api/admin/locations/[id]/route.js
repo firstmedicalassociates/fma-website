@@ -32,10 +32,47 @@ export async function PUT(request, { params }) {
   }
 
   try {
-    const location = await prisma.location.update({
-      where: { id },
-      data: validation.data,
-      select: { id: true, slug: true },
+    const location = await prisma.$transaction(async (transaction) => {
+      const existingLocation = await transaction.location.findUnique({
+        where: { id },
+        select: { slug: true },
+      });
+
+      if (!existingLocation) {
+        throw new Error("Location record to update not found.");
+      }
+
+      const updatedLocation = await transaction.location.update({
+        where: { id },
+        data: validation.data,
+        select: { id: true, slug: true },
+      });
+
+      if (existingLocation.slug !== updatedLocation.slug) {
+        const assignedProviders = await transaction.provider.findMany({
+          where: { locations: { has: existingLocation.slug } },
+          select: { id: true, locations: true },
+        });
+
+        await Promise.all(
+          assignedProviders.map((provider) =>
+            transaction.provider.update({
+              where: { id: provider.id },
+              data: {
+                locations: [
+                  ...new Set(
+                    provider.locations.map((slug) =>
+                      slug === existingLocation.slug ? updatedLocation.slug : slug
+                    )
+                  ),
+                ],
+              },
+            })
+          )
+        );
+      }
+
+      return updatedLocation;
     });
 
     return NextResponse.json({ ok: true, id: location.id, slug: location.slug });

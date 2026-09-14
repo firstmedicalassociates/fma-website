@@ -62,11 +62,11 @@ const LOCATION_PHOTO_SETS = {
     primary: "alexandria-kenmore",
     gallery: ["alexandria-kenmore"],
   },
-  "/bowie-2": {
+  "/bowie-health-center-dr": {
     primary: "bowie-health-center-dr",
     gallery: ["bowie-health-center-dr", "bowie-ii-md"],
   },
-  "/columbia-2": {
+  "/columbia-broken-land-parkway": {
     primary: "columbia-broken-land",
     gallery: ["columbia-broken-land"],
   },

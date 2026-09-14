@@ -111,6 +111,15 @@ test("redirect manifest is final, unique, permanent, and expanded for both page 
   assert.ok(logicalSources.has("/gallant-staff/"));
   assert.ok(logicalSources.has("/wp-content/uploads/2026/02/Late-Arrival-Policy-1.pdf"));
 
+  const redirectsBySource = new Map(
+    LEGACY_REDIRECTS.map((entry) => [entry.source, entry.destination])
+  );
+  assert.equal(redirectsBySource.get("/bowie-2/"), "/bowie-health-center-dr/");
+  assert.equal(
+    redirectsBySource.get("/columbia-2/"),
+    "/columbia-broken-land-parkway/"
+  );
+
   for (const retiredPath of [
     "/providers/angelique-ramirez/",
     "/providers/ashley-myatt/",

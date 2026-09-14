@@ -61,7 +61,7 @@ module.exports = {
       },
     ],
   },
-  "/columbia-2": {
+  "/columbia-broken-land-parkway": {
     sourceUrl: "https://drsfirst.com/columbia-dev/",
     sections: [
       {
@@ -297,7 +297,7 @@ module.exports = {
       GERIATRIC_CARE_SECTION,
     ],
   },
-  "/bowie-2": {
+  "/bowie-health-center-dr": {
     sourceUrl: "https://drsfirst.com/bowie-dev/",
     sections: [
       {

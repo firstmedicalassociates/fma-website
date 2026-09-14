@@ -21,7 +21,7 @@ function normalizeText(value = "") {
 function locationUrl(value = "") {
   const text = String(value || "").trim();
   if (!text) return "/locations/";
-  if (text.startsWith("/location/")) return normalizeInternalPageHref(text);
+  if (text.startsWith("/")) return normalizeInternalPageHref(text);
   return normalizeInternalPageHref(
     `/location/${text.replace(/^\/+/, "").replace(/^locations?\//, "")}`
   );

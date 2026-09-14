@@ -63,7 +63,10 @@ function buildLocationUrl(slug = '') {
   if (pathValue.includes('/locations/')) {
     return cleanPath(pathValue.slice(pathValue.indexOf('/locations/')));
   }
-  return cleanPath(`/location/${pathValue.replace(/^\/+/, '')}`);
+  // Location slugs are complete public paths. Secondary offices intentionally
+  // live outside /location/, so preserve the CMS value instead of inventing a
+  // route that does not exist.
+  return pathValue;
 }
 
 function buildProviderUrl(slug = '') {

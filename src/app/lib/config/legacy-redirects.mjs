@@ -135,8 +135,10 @@ export const LEGACY_REDIRECTS = [
   pageRedirect("/billing-questions", "/patient-resources/insurance"),
   pageRedirect("/accessibility-notice", "/accessibility"),
   pageRedirect("/columbia", "/location/columbia"),
-  pageRedirect("/columbia-dev", "/columbia-2"),
-  pageRedirect("/bowie-dev", "/bowie-2"),
+  pageRedirect("/columbia-dev", "/columbia-broken-land-parkway"),
+  pageRedirect("/bowie-dev", "/bowie-health-center-dr"),
+  pageRedirect("/columbia-2", "/columbia-broken-land-parkway"),
+  pageRedirect("/bowie-2", "/bowie-health-center-dr"),
   pageRedirect("/location/columbia-oldie-oldie", "/location/columbia"),
 
   pageRedirect(

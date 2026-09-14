@@ -162,7 +162,7 @@ function normalizeLocationSlug(slugOrUrl = "") {
     const index = path.indexOf("/locations/");
     return normalizeInternalPageHref(cleanPath(path.slice(index)));
   }
-  return normalizeInternalPageHref(cleanPath(`/location/${path.replace(/^\/+/, "")}`));
+  return normalizeInternalPageHref(path);
 }
 
 function normalizeProviderSlug(slugOrUrl = "") {

@@ -209,16 +209,16 @@ const locationSlugByProviderLabel = new Map(
   ])
 );
 
-locationSlugByProviderLabel.set("Bowie (Health Center Dr)", "/bowie-2");
+locationSlugByProviderLabel.set("Bowie (Health Center Dr)", "/bowie-health-center-dr");
 locationSlugByProviderLabel.set("Bowie (Gallant Fox Ln)", "/location/bowie");
 locationSlugByProviderLabel.set("Columbia (Snowden River Pkwy)", "/location/columbia");
-locationSlugByProviderLabel.set("Columbia (Broken Land Pkwy)", "/columbia-2");
-locationSlugByProviderLabel.set("Columbia (Broken Land Parkway)", "/columbia-2");
+locationSlugByProviderLabel.set("Columbia (Broken Land Pkwy)", "/columbia-broken-land-parkway");
+locationSlugByProviderLabel.set("Columbia (Broken Land Parkway)", "/columbia-broken-land-parkway");
 // Preserve legacy provider-import labels after correcting the public address.
-locationSlugByProviderLabel.set("Columbia (Broken Land Dr)", "/columbia-2");
-locationSlugByProviderLabel.set("Columbia (Broken Land Drive)", "/columbia-2");
+locationSlugByProviderLabel.set("Columbia (Broken Land Dr)", "/columbia-broken-land-parkway");
+locationSlugByProviderLabel.set("Columbia (Broken Land Drive)", "/columbia-broken-land-parkway");
 locationSlugByProviderLabel.set("Columbia I", "/location/columbia");
-locationSlugByProviderLabel.set("Columbia II", "/columbia-2");
+locationSlugByProviderLabel.set("Columbia II", "/columbia-broken-land-parkway");
 
 function normalizeProviderLocationSlug(locationLabel = "") {
   const normalizedLabel = cleanText(locationLabel);
@@ -416,8 +416,8 @@ async function main() {
     };
     const shouldForceSeedAddressFields =
       seededLocation.slug === "/location/bowie" ||
-      seededLocation.slug === "/bowie-2" ||
-      seededLocation.slug === "/columbia-2" ||
+      seededLocation.slug === "/bowie-health-center-dr" ||
+      seededLocation.slug === "/columbia-broken-land-parkway" ||
       seededLocation.slug === "/location/laurel";
     const existingLocation = await prisma.location.findUnique({
       where: { slug: seededLocation.slug },

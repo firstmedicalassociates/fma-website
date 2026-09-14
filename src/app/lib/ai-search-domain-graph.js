@@ -53,7 +53,7 @@ function normalizeLocationPath(value = "") {
   if (normalized.startsWith("locations/")) {
     return normalizeInternalPageHref(`/${normalized.replace(/^locations\//, "location/")}`);
   }
-  return normalizeInternalPageHref(`/location/${normalized}`);
+  return normalizeInternalPageHref(path);
 }
 
 function normalizeServicePath(value = "") {

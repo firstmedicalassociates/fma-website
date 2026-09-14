@@ -34,7 +34,7 @@ const LOCATION_SEO_BY_SLUG = {
     title: "Same-Day Healthcare at First Medical Associates in Annapolis | Convenient Care",
     h1: "Primary care Doctor in Annapolis, MD",
   },
-  "/bowie-2": {
+  "/bowie-health-center-dr": {
     title: "Primary Care Doctor at Bowie II, MD | First Medical Associates",
     h1: "Best primary care physician and doctor in Bowie, MD",
   },
