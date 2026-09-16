@@ -1,50 +1,49 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "../../../lib/prisma";
-import { signAdminSession, SESSION_COOKIE } from "../../../lib/admin-auth";
-
+import { adminError, setAdminSessionCookie } from "../../../lib/admin-auth";
+import {
+  isSameOrigin,
+  normalizeAdminEmail,
+} from "../../../lib/admin-permissions.mjs";
+import { limitCredentials } from "../../../lib/admin-credentials";
 export const runtime = "nodejs";
-
 export async function POST(request) {
-  let body;
+  if (!isSameOrigin(request))
+    return adminError("Cross-origin request rejected.", 403);
+  const limited = await limitCredentials(request, "admin-login");
+  if (limited) return limited;
+  let email, password;
   try {
-    body = await request.json();
+    const body = await request.json();
+    email = normalizeAdminEmail(body.email);
+    password = body.password;
+    if (
+      typeof password !== "string" ||
+      !password ||
+      Buffer.byteLength(password) > 72
+    )
+      return adminError("Invalid credentials.", 401);
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
+    return adminError("Invalid credentials.", 401);
   }
-
-  const { email, password } = body || {};
-  if (!email || !password) {
-    return NextResponse.json(
-      { ok: false, error: "Email and password are required" },
-      { status: 400 }
-    );
-  }
-
-  const user = await prisma.adminUser.findUnique({ where: { email } });
-  if (!user) {
-    return NextResponse.json({ ok: false }, { status: 401 });
-  }
-
-  const isValid = await bcrypt.compare(password, user.password);
-  if (!isValid) {
-    return NextResponse.json({ ok: false }, { status: 401 });
-  }
-
-  const response = NextResponse.json({
-    ok: true,
-    user: { id: user.id, email: user.email, role: user.role },
+  const user = await prisma.adminUser.findFirst({
+    where: { email: { equals: email, mode: "insensitive" } },
   });
-
-  response.cookies.set({
-    name: SESSION_COOKIE,
-    value: signAdminSession(user),
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
-
-  return response;
+  // A fixed hash keeps missing-account checks on the same password-verification path.
+  const valid = await bcrypt.compare(
+    password,
+    user?.password ||
+      "$2a$12$KIX5xGFmZgJhPjBuOgRxhOe6NDPCKLXnHKKdWDdJBR87CVnrYuRTm",
+  );
+  if (!valid || !user?.isActive || !["ADMIN", "SUB_ADMIN"].includes(user.role))
+    return adminError("Invalid credentials.", 401);
+  return setAdminSessionCookie(
+    NextResponse.json({
+      ok: true,
+      user: { id: user.id, email: user.email, role: user.role },
+      redirect: user.mustChangePassword ? "/admin/account" : "/admin",
+    }),
+    user,
+  );
 }

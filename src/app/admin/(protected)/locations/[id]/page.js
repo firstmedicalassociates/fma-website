@@ -1,3 +1,4 @@
+import { requireAdminPage } from "../../../../lib/admin-page-auth";
 import { notFound } from "next/navigation";
 import { prisma } from "../../../../lib/prisma";
 import { LOCATION_FORM_SELECT } from "../../../../lib/location-cms";
@@ -8,6 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function EditLocationPage({ params }) {
+  await requireAdminPage("locations.view");
   const { id } = await params;
   if (!id) {
     notFound();

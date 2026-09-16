@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { logAiSearchEvent } from "../../lib/ai-search-analytics";
+import { withSearchTelemetry } from "../../lib/ai-search-telemetry";
 import { runAiSearch } from "../../lib/ai-search";
 import { checkRateLimit, getRateLimitHeaders, getRateLimitIdentity } from "../../lib/rate-limit";
 
@@ -35,9 +35,8 @@ export async function GET() {
   );
 }
 
-export async function POST(request) {
+async function handleSearch(request) {
   try {
-    const startedAt = Date.now();
     const rateLimit = await checkRateLimit(getRateLimitIdentity(request, "api-ai-search"), AI_SEARCH_RATE_LIMIT);
     if (!rateLimit.ok) {
       const limiterUnavailable = rateLimit.unavailable === true;
@@ -65,37 +64,7 @@ export async function POST(request) {
       ? body.sessionContext
       : null;
     const result = await runAiSearch(query, { limit: 8, pageContext, sessionContext });
-    const analyticsCode = result.appointmentMeta?.providerResolution?.monitoringCode || result.code || "";
-    const availabilityStatus = result.appointmentMeta?.availabilityStatus || "";
-    const analyticsStatus =
-      ["no_open_slots", "provider_match_needed", "appointment_scope_needed"].includes(availabilityStatus)
-        ? "no_results"
-        : result.ok
-          ? "answered"
-          : "blocked";
-    const eventId = await logAiSearchEvent({
-      query,
-      surface: "api_ai_search",
-      status: analyticsStatus,
-      code: analyticsCode,
-      resultCount: 0,
-      sourceCount: Array.isArray(result.sources) ? result.sources.length : 0,
-      appointmentOptionCount: Array.isArray(result.appointmentOptions) ? result.appointmentOptions.length : 0,
-      aiConfidence: result.aiConfidence || "",
-      grounded: result.grounded === true,
-      disclaimer: result.disclaimer === true,
-      intent: result.intent || "",
-      latencyMs: Date.now() - startedAt,
-      searchRoute: result.meta?.route || "",
-      promptVersion: result.meta?.promptVersion || "",
-      modelVersion: result.meta?.modelVersion || "",
-      knowledgeVersion: result.meta?.knowledgeVersion || "",
-      sourceRefs: Array.isArray(result.sources)
-        ? result.sources.map((source) => source.id || `${source.type || "source"}:${source.url || source.title || ""}`)
-        : [],
-      retrievalScore: result.confidence,
-      answer: result.answer || "",
-    });
+    const eventId = "";
     const status = getStatusForAiResult(result);
     return NextResponse.json(
       {
@@ -105,7 +74,7 @@ export async function POST(request) {
       { status }
     );
   } catch (error) {
-    console.error("AI Search error:", error);
+    console.error("AI Search error:", error.code || error.name);
 
     return NextResponse.json(
       {
@@ -116,3 +85,5 @@ export async function POST(request) {
     );
   }
 }
+
+export async function POST(request) { return withSearchTelemetry(request, "api_ai_search", handleSearch); }

@@ -201,7 +201,7 @@ function everyCheckReady(checks) {
 }
 
 export async function GET(request) {
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   const checks = {

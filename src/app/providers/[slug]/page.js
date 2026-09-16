@@ -271,6 +271,7 @@ export default async function ProviderDetailPage({ params }) {
       imageUrl: true,
       imageAlt: true,
       linkUrl: true,
+      zocdocUrl: true,
       locations: true,
       languages: true,
       updatedAt: true,
@@ -340,7 +341,7 @@ export default async function ProviderDetailPage({ params }) {
   const bookingSource = resolveProviderBookingHref(provider, primaryLocation);
   const bookingHref = bookingSource || primaryLocation?.href || "/locations/";
   const bookingExternal = isExternalUrl(bookingSource);
-  const zocdocHref = getProviderZocdocUrl(provider.slug);
+  const zocdocHref = getProviderZocdocUrl(provider);
   const locationsHref =
     locationLinks.length > 1
       ? "#provider-locations"
@@ -469,14 +470,16 @@ export default async function ProviderDetailPage({ params }) {
                     Book Appointment
                   </ActionLink>
 
-                  <ActionLink
-                    className={`${styles.actionButton} ${styles.actionZocdoc}`}
-                    external={Boolean(zocdocHref)}
-                    href={zocdocHref}
-                    icon={<span className={styles.zocdocMark}>Z</span>}
-                  >
-                    {zocdocHref ? "Book on Zocdoc" : "Zocdoc Coming Soon"}
-                  </ActionLink>
+                  {zocdocHref ? (
+                    <ActionLink
+                      className={`${styles.actionButton} ${styles.actionZocdoc}`}
+                      external
+                      href={zocdocHref}
+                      icon={<span className={styles.zocdocMark} aria-hidden="true">Z</span>}
+                    >
+                      Book on Zocdoc
+                    </ActionLink>
+                  ) : null}
 
                   <ActionLink
                     className={`${styles.actionButton} ${styles.actionSecondary}`}

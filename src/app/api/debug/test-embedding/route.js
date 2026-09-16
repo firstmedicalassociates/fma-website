@@ -1,3 +1,4 @@
+import { trackOpenAiCall } from "../../../lib/ai-usage.mjs";
 import { NextResponse } from 'next/server';
 import { OpenAI } from 'openai';
 import { requireAdminRequest } from '../../../lib/admin-auth';
@@ -15,7 +16,7 @@ export async function POST(request) {
     return NextResponse.json({ ok: false, error: 'Not found.' }, { status: 404 });
   }
 
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   try {
@@ -47,10 +48,10 @@ export async function POST(request) {
       apiKey: process.env.OPENAI_API_KEY,
     });
 
-    const response = await openai.embeddings.create({
+    const response = await trackOpenAiCall({ operation: "embedding", model: "text-embedding-3-small", purpose: "diagnostics" }, () => openai.embeddings.create({
       model: 'text-embedding-3-small',
       input,
-    });
+    }));
 
     return NextResponse.json({
       ok: true,

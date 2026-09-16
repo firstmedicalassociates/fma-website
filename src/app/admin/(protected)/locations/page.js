@@ -1,3 +1,5 @@
+import { Permission } from "../admin-access";
+import { requireAdminPage } from "../../../lib/admin-page-auth";
 import Link from "next/link";
 import { Clock3, Layers3, MapPin, Users } from "../admin-icons";
 import { VISIBLE_LOCATION_WHERE } from "../../../lib/locations";
@@ -15,6 +17,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export default async function AdminLocationsPage() {
+  await requireAdminPage("locations.view");
   const [locations, providers] = await Promise.all([
     prisma.location.findMany({
       where: VISIBLE_LOCATION_WHERE,
@@ -63,9 +66,9 @@ export default async function AdminLocationsPage() {
             Each location route powers the landing page layout and the doctors tab for assigned providers.
           </p>
         </div>
-        <Link className="builder-button admin-primary-cta" href="/admin/locations/new">
+        <Permission name="locations.edit"><Link className="builder-button admin-primary-cta" href="/admin/locations/new">
           Add location
-        </Link>
+        </Link></Permission>
       </header>
 
       <section className="admin-content-grid">

@@ -1,9 +1,11 @@
 "use client";
+import { Permission, useAdminAccess } from "../admin-access";
 
 import Link from "next/link";
 import { useState } from "react";
 
 export default function ProviderActions({ id, editHref, liveHref }) {
+  const { can } = useAdminAccess();
   const [status, setStatus] = useState("idle");
 
   async function handleDelete() {
@@ -34,14 +36,14 @@ export default function ProviderActions({ id, editHref, liveHref }) {
           View live
         </Link>
       ) : null}
-      <button
+      <Permission name="providers.delete"><button
         className="builder-button secondary danger"
         type="button"
         onClick={handleDelete}
         disabled={status === "deleting"}
       >
         {status === "deleting" ? "Deleting..." : "Delete"}
-      </button>
+      </button></Permission>
       {status === "error" ? <span className="admin-action-error">Failed to delete.</span> : null}
     </div>
   );

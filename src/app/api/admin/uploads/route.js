@@ -3,6 +3,7 @@ import path from "path";
 import { promises as fs } from "fs";
 import { imageSize } from "image-size";
 import { put } from "@vercel/blob";
+import { hasPermission } from "../../../lib/admin-permissions.mjs";
 import { requireAdminRequest } from "../../../lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -22,7 +23,7 @@ async function fileExists(filePath) {
 }
 
 export async function POST(request) {
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   let formData;
@@ -34,6 +35,8 @@ export async function POST(request) {
 
   const file = formData.get("file");
   const kind = String(formData.get("kind") || "").trim().toLowerCase();
+  const section = ({ provider: "providers", location: "locations", blog: "posts", "": "posts" })[kind];
+  if (!section || !hasPermission(auth.session, `${section}.edit`)) return NextResponse.json({ ok: false, error: "You cannot upload images for this section." }, { status: 403 });
   if (!file || typeof file.arrayBuffer !== "function") {
     return NextResponse.json({ ok: false, error: "File is required." }, { status: 400 });
   }

@@ -27,11 +27,12 @@ export default function AdminLoginPage() {
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.ok) {
         setStatus("error");
-        setMessage("Invalid credentials.");
+        setMessage(data.error || "Invalid credentials.");
         return;
       }
 
-      router.push("/admin");
+      router.push(data.redirect || "/admin");
+      router.refresh();
       setStatus("success");
       setMessage(`Welcome ${data.user?.email || ""}`);
     } catch {

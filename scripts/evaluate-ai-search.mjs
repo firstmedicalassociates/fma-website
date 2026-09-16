@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { withUsageCapture, persistUsage } from "../src/app/lib/ai-usage.mjs";
 
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -16,7 +17,7 @@ import {
   buildFmaDomainGraphAnswer,
   findFmaDomainGraphContext,
 } from "../src/app/lib/ai-search-domain-graph.js";
-import { runAiSearch } from "../src/app/lib/ai-search.js";
+import { runAiSearch as unmeteredRunAiSearch } from "../src/app/lib/ai-search.js";
 import { prisma } from "../src/app/lib/prisma.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -827,3 +828,5 @@ assert.equal(
   0,
   `${failedProviderLive.length} live provider eval case(s) failed`
 );
+
+async function runAiSearch(...args) { return withUsageCapture("evaluation", async ({ records }) => { try { return await unmeteredRunAiSearch(...args); } finally { await persistUsage(records); } }); }

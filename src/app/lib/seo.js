@@ -206,6 +206,13 @@ export function getLocationSeoContent(location = {}) {
     cleanText(location.displayAddress) ||
     cleanText(location.address);
 
+  if (location.isComingSoon) return {
+    title: `${placeName} — Coming Soon | First Medical Associates`,
+    h1: `Coming soon to ${placeName}`,
+    description: truncateText(`Coming soon to ${placeName}.${location.openingDateLabel ? ` Estimated opening date: ${location.openingDateLabel}.` : ""} ${baseDescription}`, 160),
+    placeLabel: placeName,
+  };
+
   const h1 = mapped?.h1 || `Primary care Doctor in ${placeName}`;
   const title = mapped?.title || `Primary Care Doctor in ${placeName} | First Medical Associates`;
   const description =

@@ -6,6 +6,7 @@ const geist = Geist({
 });
 
 export const metadata = {
+  title: "FMA Admin",
   robots: {
     index: false,
     follow: false,

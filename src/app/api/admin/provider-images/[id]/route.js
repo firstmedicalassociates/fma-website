@@ -16,7 +16,7 @@ function buildRedirectUrl(request, imageUrl = "") {
 }
 
 export async function GET(request, { params }) {
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   const { id } = await params;

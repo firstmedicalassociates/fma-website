@@ -1,20 +1,21 @@
 import "./admin.css";
-import { cookies } from "next/headers";
+
 import { redirect } from "next/navigation";
-import { verifyAdminSession, SESSION_COOKIE } from "../../lib/admin-auth";
+import { getAdminUser } from "../../lib/admin-page-auth";
+import { AdminAccessProvider } from "./admin-access";
 import AdminNav from "./admin-nav";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }) {
-  const cookieStore = await cookies();
-  const session = verifyAdminSession(cookieStore.get(SESSION_COOKIE)?.value);
+  const session = await getAdminUser();
   if (!session) {
     redirect("/admin/login");
   }
 
   return (
+    <AdminAccessProvider user={session}>
     <div className="admin-shell">
       <div className="admin-noise" aria-hidden="true" />
       <div className="admin-frame-wrap">
@@ -27,5 +28,6 @@ export default async function AdminLayout({ children }) {
         </div>
       </div>
     </div>
+    </AdminAccessProvider>
   );
 }

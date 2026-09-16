@@ -1,3 +1,4 @@
+import { trackOpenAiCall } from "./ai-usage.mjs";
 import { OpenAI } from "openai";
 import { prisma } from "./prisma.js";
 import { FMA_KNOWLEDGE_BASE } from "./fma-knowledge-base.js";
@@ -505,10 +506,10 @@ async function findStructuredSiteContext(query, intent = "") {
 
 async function generateEmbedding(text) {
   const client = getOpenAI();
-  const response = await client.embeddings.create({
+  const response = await trackOpenAiCall({ operation: "embedding", model: EMBEDDING_MODEL, purpose: "search" }, () => client.embeddings.create({
     model: EMBEDDING_MODEL,
     input: text,
-  });
+  }));
   return response.data[0].embedding;
 }
 
@@ -607,7 +608,7 @@ Respond only with valid JSON. Be concise and accurate. If the information is not
 
   const client = getOpenAI();
   if (ANSWER_API !== "chat_completions" && client.responses?.create) {
-    const response = await client.responses.create({
+    const response = await trackOpenAiCall({ operation: "response", model: ANSWER_MODEL, purpose: "search" }, () => client.responses.create({
       model: ANSWER_MODEL,
       instructions: SYSTEM_PROMPT,
       input: userPrompt,
@@ -622,12 +623,12 @@ Respond only with valid JSON. Be concise and accurate. If the information is not
         verbosity: "low",
       },
       max_output_tokens: 600,
-    });
+    }));
 
     return parseGeneratedAnswer(response.output_text || extractResponseOutputText(response));
   }
 
-  const response = await client.chat.completions.create({
+  const response = await trackOpenAiCall({ operation: "chat_completion", model: ANSWER_MODEL, purpose: "search" }, () => client.chat.completions.create({
     model: ANSWER_MODEL,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
@@ -636,7 +637,7 @@ Respond only with valid JSON. Be concise and accurate. If the information is not
     response_format: { type: "json_object" },
     temperature: 0.3,
     max_tokens: 600,
-  });
+  }));
 
   const raw = response.choices[0]?.message?.content || "{}";
   return parseGeneratedAnswer(raw);

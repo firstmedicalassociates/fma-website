@@ -7,6 +7,7 @@ const ws = require("ws");
 const locationSeedData = require("./location-seed-data");
 const locationInfoSeedData = require("./location-info-seed-data");
 const providerSeedData = require("./provider-seed-data");
+const providerZocdocSeedData = require("./provider-zocdoc-seed-data.json");
 const serviceSeedData = require("./service-seed-data");
 
 const databaseUrl = process.env.DATABASE_URL || process.env.DIRECT_URL;
@@ -78,6 +79,7 @@ function parseCityStatePostal(line = "") {
 }
 
 function buildSeedLocation(entry) {
+  if (entry.seedRecord) return entry.seedRecord;
   const slug = normalizeSlug(entry.href);
   const infoSeed = locationInfoSeedData[slug];
   const addressLines = Array.isArray(entry.addressLines)
@@ -251,16 +253,18 @@ function buildSeedProvider(entry, sortOrder) {
     imageUrl: cleanText(entry.imageUrl) || "",
     imageAlt: cleanText(entry.imageAlt) || `${cleanText(entry.name)} headshot`,
     linkUrl: cleanText(entry.linkUrl),
+    zocdocUrl: cleanText(entry.zocdocUrl ?? providerZocdocSeedData[entry.slug]),
     locations: cleanStringList(entry.locations)
       .map((locationLabel) => normalizeProviderLocationSlug(locationLabel))
       .filter(Boolean),
     languages: cleanStringList(entry.languages),
     sortOrder,
-    isActive: true,
+    isActive: entry.isActive !== false,
   };
 }
 
 function mergeProvider(existingProvider, seededProvider) {
+  // Zocdoc links, including intentional blanks, remain managed by the CMS.
   return {
     name: seededProvider.name,
     title: seededProvider.title,
@@ -303,7 +307,7 @@ function mergeService(existingService, seededService) {
 }
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL;
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const password = process.env.ADMIN_PASSWORD;
 
   if (!email || !password) {
@@ -316,7 +320,7 @@ async function main() {
 
   await prisma.adminUser.upsert({
     where: { email },
-    update: { password: passwordHash },
+    update: {},
     create: {
       email,
       password: passwordHash,
@@ -412,7 +416,7 @@ async function main() {
     const seededLocation = {
       ...buildSeedLocation(entry),
       // Seed behavior mirrors selecting every service in the location editor.
-      serviceIds: allActiveServiceIds,
+      serviceIds: entry.seedRecord?.isComingSoon ? [] : allActiveServiceIds,
     };
     const shouldForceSeedAddressFields =
       seededLocation.slug === "/location/bowie" ||
@@ -424,6 +428,7 @@ async function main() {
     });
 
     if (existingLocation) {
+      if (entry.preserveExisting) continue;
       const mergedLocation = mergeLocation(existingLocation, seededLocation);
       await prisma.location.update({
         where: { slug: seededLocation.slug },
@@ -464,6 +469,7 @@ async function main() {
     });
 
     if (existingProvider) {
+      if (entry.preserveExisting) continue;
       await prisma.provider.update({
         where: { slug: seededProvider.slug },
         data: mergeProvider(existingProvider, seededProvider),

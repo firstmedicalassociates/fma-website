@@ -1,4 +1,5 @@
 "use client";
+import { trackSearchClick } from "../lib/ai-click-tracking";
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -38,6 +39,8 @@ function normalizeAiPayload(value = {}) {
     : [];
 
   return {
+    eventId: value?.eventId || "",
+    interactionTargets: value?.interactionTargets || [],
     ok: value?.ok === true,
     answer: String(value?.answer || ""),
     error: String(value?.error || ""),
@@ -144,6 +147,7 @@ export default function SearchClient() {
         },
         body: JSON.stringify({
           query: nextQuery,
+          surface: "search_page",
           sessionContext: options.sessionContext || null,
           maxAppointmentResults: options.maxAppointmentResults || undefined,
           providerCheckLimit: options.providerCheckLimit || undefined,
@@ -155,7 +159,7 @@ export default function SearchClient() {
 
       setSubmittedQuery(data?.query || nextQuery);
       setResults(nextResults);
-      setAiResult(nextAiResult.ok || nextAiResult.answer ? nextAiResult : null);
+      setAiResult(nextAiResult);
       setStatus(response.ok && data?.ok ? "results" : "error");
       setError(response.ok && data?.ok ? "" : data?.error || "Search is temporarily unavailable.");
     } catch {
@@ -200,7 +204,7 @@ export default function SearchClient() {
   );
 
   return (
-    <main className={styles.shell}>
+    <main className={styles.shell} onClickCapture={(event) => trackSearchClick(event, aiResult?.interactionTargets)} onAuxClickCapture={(event) => trackSearchClick(event, aiResult?.interactionTargets)}>
       <section className={styles.hero}>
         <p className={styles.eyebrow}>Search Directory</p>
         <h1>Search the entire website.</h1>

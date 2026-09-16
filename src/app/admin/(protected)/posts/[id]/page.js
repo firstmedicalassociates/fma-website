@@ -1,3 +1,4 @@
+import { requireAdminPage } from "../../../../lib/admin-page-auth";
 import { notFound } from "next/navigation";
 import { isBlogCategoryCompatibilityError } from "../../../../lib/blog-categories";
 import { prisma } from "../../../../lib/prisma";
@@ -47,6 +48,7 @@ async function loadPost(id) {
 }
 
 export default async function EditPostPage({ params }) {
+  await requireAdminPage("posts.view");
   const { id } = await params;
   if (!id) notFound();
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { logAiSearchEvent } from "../../lib/ai-search-analytics";
+import { withSearchTelemetry } from "../../lib/ai-search-telemetry";
 import { runAiSearch } from "../../lib/ai-search";
 import {
   PUBLIC_SEARCH_MAX_CHARACTERS,
@@ -50,18 +50,7 @@ function buildAiError(error, code = "invalid_query", options = {}) {
 async function buildInvalidSearchResponse(error, status, code, query = "", extra = {}) {
   const responseQuery =
     typeof extra.responseQuery === "string" ? extra.responseQuery : query;
-  const eventId = await logAiSearchEvent({
-    query,
-    surface: "api_search",
-    status: "blocked",
-    code,
-    resultCount: 0,
-    sourceCount: 0,
-    appointmentOptionCount: 0,
-    disclaimer: true,
-    phiCategories: extra.phiCategories || null,
-    intent: extra.intent || "unknown",
-  });
+  const eventId = "";
 
   return NextResponse.json(
     {
@@ -95,9 +84,8 @@ export async function GET() {
   );
 }
 
-export async function POST(request) {
+async function handleSearch(request) {
   try {
-    const startedAt = Date.now();
     const rateLimit = await checkRateLimit(getRateLimitIdentity(request, "api-search"), SEARCH_RATE_LIMIT);
     if (!rateLimit.ok) {
       const limiterUnavailable = rateLimit.unavailable === true;
@@ -251,39 +239,7 @@ export async function POST(request) {
         };
 
     const requestOk = siteResult.status === "fulfilled" || ai.ok;
-    const analyticsCode = ai.appointmentMeta?.providerResolution?.monitoringCode || ai.code || "";
-    const availabilityStatus = ai.appointmentMeta?.availabilityStatus || "";
-    const analyticsStatus =
-      ["no_open_slots", "provider_match_needed", "appointment_scope_needed"].includes(availabilityStatus)
-        ? "no_results"
-        : ai.ok
-          ? "answered"
-          : requestOk
-            ? "degraded"
-            : "failed";
-    const eventId = await logAiSearchEvent({
-      query,
-      surface: "api_search",
-      status: analyticsStatus,
-      code: analyticsCode,
-      resultCount: results.length,
-      sourceCount: ai.sources.length,
-      appointmentOptionCount: ai.appointmentOptions.length,
-      aiConfidence: ai.aiConfidence,
-      grounded: ai.grounded,
-      disclaimer: ai.disclaimer,
-      intent: ai.intent,
-      latencyMs: Date.now() - startedAt,
-      searchRoute: ai.meta?.route || "",
-      promptVersion: ai.meta?.promptVersion || "",
-      modelVersion: ai.meta?.modelVersion || "",
-      knowledgeVersion: ai.meta?.knowledgeVersion || "",
-      sourceRefs: Array.isArray(ai.sources)
-        ? ai.sources.map((source) => source.id || `${source.type || "source"}:${source.url || source.title || ""}`)
-        : [],
-      retrievalScore: ai.confidence,
-      answer: ai.answer || "",
-    });
+    const eventId = "";
     const aiWithEvent = {
       ...ai,
       eventId: eventId || "",
@@ -300,7 +256,7 @@ export async function POST(request) {
       { status: requestOk ? 200 : 500 }
     );
   } catch (error) {
-    console.error("Search API POST error:", error);
+    console.error("Search API POST error:", error.code || error.name);
 
     return NextResponse.json(
       {
@@ -313,3 +269,5 @@ export async function POST(request) {
     );
   }
 }
+
+export async function POST(request) { return withSearchTelemetry(request, "api_search", handleSearch); }

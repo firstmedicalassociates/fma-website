@@ -1,4 +1,5 @@
 "use client";
+import { useAdminAccess } from "../../../admin-access";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -47,6 +48,8 @@ function getAvailabilityValue(value) {
 }
 
 export default function FeedbackReviewClient({ event }) {
+  const { can } = useAdminAccess();
+  const canEdit = can("ai-search.edit");
   const router = useRouter();
   const existingEval = event.evalCase;
   const isNegative = event.feedbackRating === "not_helpful";
@@ -209,7 +212,7 @@ export default function FeedbackReviewClient({ event }) {
                 <p>Track ownership and resolution without including patient information.</p>
               </div>
             </div>
-            <form className="feedback-review-form" onSubmit={saveReview}>
+            <form className="feedback-review-form" onSubmit={saveReview}><fieldset className="admin-form-fields" disabled={!canEdit}>
               <div className="builder-field">
                 <label htmlFor="feedback-review-status">Review status</label>
                 <select
@@ -243,7 +246,7 @@ export default function FeedbackReviewClient({ event }) {
               <div className="feedback-review-form-actions">
                 <button
                   className="builder-button"
-                  disabled={reviewSubmitState.status === "submitting"}
+                  disabled={!canEdit || reviewSubmitState.status === "submitting"}
                   type="submit"
                 >
                   {reviewSubmitState.status === "submitting" ? "Saving..." : "Save review"}
@@ -255,7 +258,7 @@ export default function FeedbackReviewClient({ event }) {
                   {reviewSubmitState.message}
                 </p>
               </div>
-            </form>
+            </fieldset></form>
           </section>
         ) : null}
 
@@ -281,7 +284,7 @@ export default function FeedbackReviewClient({ event }) {
                 retained.
               </div>
             ) : (
-              <form className="feedback-review-form" onSubmit={saveEvalCase}>
+              <form className="feedback-review-form" onSubmit={saveEvalCase}><fieldset className="admin-form-fields" disabled={!canEdit}>
                 <div className="builder-field">
                   <label htmlFor="eval-expected-behavior">Correct expected behavior</label>
                   <textarea
@@ -388,7 +391,7 @@ export default function FeedbackReviewClient({ event }) {
                 <div className="feedback-review-form-actions">
                   <button
                     className="builder-button"
-                    disabled={evalSubmitState.status === "submitting"}
+                    disabled={!canEdit || evalSubmitState.status === "submitting"}
                     type="submit"
                   >
                     {evalSubmitState.status === "submitting"
@@ -404,7 +407,7 @@ export default function FeedbackReviewClient({ event }) {
                     {evalSubmitState.message}
                   </p>
                 </div>
-              </form>
+              </fieldset></form>
             )}
           </section>
         ) : null}

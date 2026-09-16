@@ -161,11 +161,11 @@ function canUseAiSearchEventModel() {
 }
 
 function isMissingAnalyticsTableError(error) {
-  const message = String(error?.message || "").toLowerCase();
-  return error?.code === "P2021" || error?.code === "P2022" || message.includes("aisearchevent");
+  return error?.code === "P2021" || error?.code === "P2022";
 }
 
 export async function logAiSearchEvent({
+  id, availabilityStatus, telemetryVersion, bookingTargetCount = 0,
   query = "",
   surface = "api",
   status = "unknown",
@@ -199,6 +199,7 @@ export async function logAiSearchEvent({
   try {
     const event = await prisma.aiSearchEvent.create({
       data: {
+        ...(id ? { id } : {}), availabilityStatus: availabilityStatus || null, telemetryVersion: telemetryVersion || null, bookingTargetCount,
         queryHash: isPotentialPhiEvent ? null : hashQuery(normalizedQuery),
         answerHash: isPotentialPhiEvent ? null : hashAnswer(answer),
         queryLength: isPotentialPhiEvent ? 0 : normalizedQuery.length,
@@ -212,7 +213,7 @@ export async function logAiSearchEvent({
         aiConfidence: aiConfidence ? String(aiConfidence).slice(0, 20) : null,
         grounded: grounded === true,
         disclaimer: disclaimer === true,
-        latencyMs: Number.isFinite(Number(latencyMs)) ? Math.max(Number(latencyMs), 0) : null,
+        latencyMs: latencyMs != null && Number.isFinite(Number(latencyMs)) ? Math.max(Number(latencyMs), 0) : null,
         phiCategories: Array.isArray(phiRisk.categories) ? phiRisk.categories.slice(0, 8) : [],
         searchRoute: searchRoute ? String(searchRoute).slice(0, 80) : null,
         promptVersion: promptVersion ? String(promptVersion).slice(0, 80) : null,
@@ -221,7 +222,7 @@ export async function logAiSearchEvent({
         sourceRefs: Array.isArray(sourceRefs)
           ? [...new Set(sourceRefs.map((value) => String(value || "").trim()).filter(Boolean))].slice(0, 8)
           : [],
-        retrievalScore: Number.isFinite(Number(retrievalScore))
+        retrievalScore: retrievalScore != null && Number.isFinite(Number(retrievalScore))
           ? Math.min(Math.max(Number(retrievalScore), 0), 1)
           : null,
       },
@@ -235,7 +236,7 @@ export async function logAiSearchEvent({
     if (isMissingAnalyticsTableError(error)) {
       eventLoggingDisabled = true;
     } else {
-      console.error("AI search event logging skipped:", error?.message || error);
+      console.error("AI search event logging skipped:", error?.code || error?.name);
     }
     return null;
   }
@@ -312,7 +313,7 @@ export async function recordAiSearchFeedback({
     if (isMissingAnalyticsTableError(error)) {
       feedbackLoggingDisabled = true;
     } else {
-      console.error("AI search feedback logging skipped:", error?.message || error);
+      console.error("AI search feedback logging skipped:", error?.code || error?.name);
     }
     return { ok: false, reason: "unavailable" };
   }

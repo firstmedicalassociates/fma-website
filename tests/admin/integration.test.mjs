@@ -1,0 +1,908 @@
+import test, { before, after } from "node:test";
+import assert from "node:assert/strict";
+import crypto from "node:crypto";
+import bcrypt from "bcryptjs";
+import { prisma } from "../../src/app/lib/prisma.js";
+import {
+  createAdminAccount,
+  deleteAdminAccount,
+  updateAdminAccount,
+} from "../../src/app/lib/admin-accounts.js";
+import { signAdminSession } from "../../src/app/lib/admin-session.mjs";
+import { signInteractionTarget } from "../../src/app/lib/ai-interactions.mjs";
+import seedOwingsMills from "../../prisma/seed-owings-mills.js";
+import { buildDeterministicCommonAnswer } from "../../src/app/lib/ai-search-common-answers.mjs";
+import { parse } from "node-html-parser";
+const schema = process.env.ADMIN_TEST_SCHEMA || "";
+if (!/^fma_admin_test_\d+$/.test(schema))
+  throw new Error(
+    "Integration tests require an isolated .env.admin-test schema.",
+  );
+const base = process.env.ADMIN_TEST_URL || "http://localhost:3157";
+const password = process.env.ADMIN_TEST_PASSWORD;
+let owner, sub, viewer, editor;
+let sequence = 1;
+async function call(
+  path,
+  {
+    user = owner,
+    method = "GET",
+    body,
+    cookie,
+    origin = base,
+    headers = {},
+  } = {},
+) {
+  const token =
+    cookie ?? (user ? `admin_session=${signAdminSession(user)}` : "");
+  const response = await fetch(base + path, {
+    method,
+    headers: {
+      ...(body && !(body instanceof FormData)
+        ? { "Content-Type": "application/json" }
+        : {}),
+      origin,
+      cookie: token,
+      "x-forwarded-for": `192.0.2.${sequence++ % 250}`,
+      ...headers,
+    },
+    ...(body
+      ? { body: body instanceof FormData ? body : JSON.stringify(body) }
+      : {}),
+  });
+  const text = await response.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    data = text;
+  }
+  return { response, data };
+}
+before(async () => {
+  const [current] =
+    await prisma.$queryRaw`SELECT current_schema()::text AS schema`;
+  assert.equal(
+    current.schema,
+    schema,
+    "Refusing to write outside the isolated schema",
+  );
+  await prisma.adminUser.deleteMany({
+    where: { id: { not: "integration-owner" } },
+  });
+  owner = await prisma.adminUser.update({
+    where: { id: "integration-owner" },
+    data: {
+      role: "ADMIN",
+      isActive: true,
+      mustChangePassword: false,
+      sessionVersion: 1,
+      password: await bcrypt.hash(password, 12),
+    },
+  });
+  await prisma.aiSearchEvent.deleteMany();
+  await prisma.aiApiUsage.deleteMany();
+  await prisma.adminCredentialAttempt.deleteMany();
+  await prisma.service.deleteMany({ where: { slug: "permission-test" } });
+  await prisma.location.deleteMany({ where: { slug: "/location/owings-mills" } });
+  await prisma.provider.deleteMany({ where: { slug: "jacob-scott" } });
+  await prisma.provider.deleteMany({ where: { slug: "integration-zocdoc-provider" } });
+  const create = (id, permissions) =>
+    prisma.adminUser.create({
+      data: {
+        id,
+        email: `${id}@example.test`,
+        role: "SUB_ADMIN",
+        permissions,
+        password: owner.password,
+      },
+    });
+  sub = await create("integration-sub", []);
+  viewer = await create("integration-viewer", [
+    "posts.view",
+    "providers.view",
+    "services.view",
+    "locations.view",
+    "ai-search.view",
+  ]);
+  editor = await create("integration-editor", [
+    "posts.view",
+    "posts.edit",
+    "providers.view",
+    "providers.edit",
+    "services.view",
+    "services.edit",
+    "locations.view",
+    "locations.edit",
+    "ai-search.view",
+    "ai-search.edit",
+  ]);
+  await prisma.provider.upsert({
+    where: { id: "integration-provider" },
+    create: {
+      id: "integration-provider",
+      slug: "integration-provider",
+      name: "Example Provider",
+      title: "MD",
+      bio: "Primary care",
+      imageUrl: "/images/provider-placeholder.svg",
+      locations: ["/location/test"],
+      languages: ["English"],
+    },
+    update: {},
+  });
+  await prisma.blogPost.upsert({
+    where: { id: "integration-post" },
+    create: {
+      id: "integration-post",
+      slug: "integration-post",
+      title: "Example draft",
+      contentHtml: "<p>Test content</p>",
+    },
+    update: {},
+  });
+});
+after(async () => {
+  await prisma.$disconnect();
+});
+test("legacy admin is preserved and user responses exclude password hashes", async () => {
+  assert.equal(owner.email, "owner@example.test");
+  const { response, data } = await call("/api/admin/users");
+  assert.equal(response.status, 200);
+  assert.ok(data.users.length >= 4);
+  assert.ok(data.users.every((user) => !("password" in user)));
+  assert.equal(
+    (await call("/api/admin/users", { user: null })).response.status,
+    401,
+  );
+});
+test("temporary account creation, duplicate email and mandatory first-login password change", async () => {
+  const created = await call("/api/admin/users", {
+    method: "POST",
+    body: {
+      email: " New@Example.test ",
+      password,
+      role: "SUB_ADMIN",
+      permissions: ["providers.view"],
+    },
+  });
+  assert.equal(created.response.status, 201, JSON.stringify(created.data));
+  assert.equal(created.data.user.mustChangePassword, true);
+  assert.equal(created.data.user.email, "new@example.test");
+  const duplicate = await call("/api/admin/users", {
+    method: "POST",
+    body: { email: "NEW@example.test", password, role: "ADMIN" },
+  });
+  assert.equal(duplicate.response.status, 409);
+  const login = await call("/api/admin/login", {
+    method: "POST",
+    user: null,
+    body: { email: "NEW@example.test", password },
+  });
+  assert.equal(login.response.status, 200);
+  assert.equal(login.data.redirect, "/admin/account");
+  const cookie = login.response.headers.get("set-cookie").split(";")[0];
+  assert.equal(
+    (await call("/api/admin/providers", { method: "POST", cookie, body: {} }))
+      .response.status,
+    403,
+  );
+  const changed = await call("/api/admin/account/password", {
+    method: "POST",
+    cookie,
+    body: {
+      currentPassword: password,
+      newPassword: password + "new",
+      confirmPassword: password + "new",
+    },
+  });
+  assert.equal(changed.response.status, 200, JSON.stringify(changed.data));
+  assert.ok(changed.response.headers.get("set-cookie"));
+  assert.equal(
+    (await call("/api/admin/provider-images/integration-provider", { cookie }))
+      .response.status,
+    401,
+  );
+  const wrong = await call("/api/admin/account/password", {
+    method: "POST",
+    user: viewer,
+    body: {
+      currentPassword: "wrong",
+      newPassword: password + "new",
+      confirmPassword: password + "new",
+    },
+  });
+  assert.equal(wrong.response.status, 400);
+});
+test("direct API calls enforce all content permissions and separate deletion", async () => {
+  for (const section of ["posts", "locations", "services", "providers"]) {
+    for (const user of [sub, viewer]) {
+      assert.equal(
+        (
+          await call(`/api/admin/${section}`, {
+            user,
+            method: "POST",
+            body: {},
+          })
+        ).response.status,
+        403,
+        section,
+      );
+      assert.equal(
+        (
+          await call(`/api/admin/${section}/missing-record`, {
+            user,
+            method: "DELETE",
+          })
+        ).response.status,
+        403,
+        section,
+      );
+    }
+    assert.equal(
+      (
+        await call(`/api/admin/${section}`, {
+          user: editor,
+          method: "POST",
+          body: {},
+        })
+      ).response.status,
+      400,
+      section,
+    );
+    assert.equal(
+      (
+        await call(`/api/admin/${section}/missing-record`, {
+          user: editor,
+          method: "DELETE",
+        })
+      ).response.status,
+      403,
+      section,
+    );
+  }
+  const created = await call("/api/admin/services", {
+    user: editor,
+    method: "POST",
+    body: {
+      title: "Permission test",
+      slug: "permission-test",
+      description: "Test service",
+    },
+  });
+  assert.equal(created.response.status, 200);
+  const remover = await prisma.adminUser.create({
+    data: {
+      email: "remover@example.test",
+      role: "SUB_ADMIN",
+      password: owner.password,
+      permissions: ["services.view", "services.delete"],
+    },
+  });
+  assert.equal(
+    (
+      await call(`/api/admin/services/${created.data.id}`, {
+        user: remover,
+        method: "DELETE",
+      })
+    ).response.status,
+    200,
+  );
+});
+test("direct page routes, creation routes, upload kinds and diagnostic routes enforce access", async () => {
+  for (const section of [
+    "posts",
+    "locations",
+    "services",
+    "providers",
+    "ai-search",
+    "users",
+  ]) {
+    const denied = await call(`/admin/${section}`, { user: sub });
+    assert.ok(
+      denied.response.url.includes("access-denied") ||
+        String(denied.data).includes("/admin/access-denied"),
+      section,
+    );
+  }
+  for (const section of ["posts", "locations", "services", "providers"]) {
+    const denied = await call(`/admin/${section}/new`, { user: viewer });
+    assert.ok(
+      denied.response.url.includes("access-denied") ||
+        String(denied.data).includes("/admin/access-denied"),
+      section,
+    );
+  }
+  for (const path of [
+    "/api/admin/index-embeddings",
+    "/api/admin/ai-search/diagnostics",
+  ])
+    assert.equal(
+      (await call(path, { user: editor, method: "POST" })).response.status,
+      403,
+    );
+  assert.equal(
+    (await call("/api/debug/counts", { user: viewer })).response.status,
+    403,
+  );
+  assert.equal(
+    (await call("/api/admin/ai-search/spending", { user: viewer })).response
+      .status,
+    403,
+  );
+  assert.equal(
+    (
+      await call("/api/admin/uploads", {
+        user: viewer,
+        method: "POST",
+        body: new FormData(),
+      })
+    ).response.status,
+    403,
+  );
+  const postOnly = { ...viewer, permissions: ["posts.view", "posts.edit"] };
+  await prisma.adminUser.update({
+    where: { id: viewer.id },
+    data: { permissions: postOnly.permissions },
+  });
+  const form = new FormData();
+  form.set("kind", "provider");
+  form.set("file", new Blob(["fake"], { type: "image/png" }), "test.png");
+  assert.equal(
+    (
+      await call("/api/admin/uploads", {
+        user: postOnly,
+        method: "POST",
+        body: form,
+      })
+    ).response.status,
+    403,
+  );
+  await prisma.adminUser.update({
+    where: { id: viewer.id },
+    data: { permissions: viewer.permissions },
+  });
+});
+test("account updates revoke sessions; deactivated admins and cross-origin writes are denied", async () => {
+  assert.equal(
+    (
+      await call(`/api/admin/users/${owner.id}`, {
+        method: "PATCH",
+        user: sub,
+        body: { role: "ADMIN", isActive: true },
+      })
+    ).response.status,
+    403,
+  );
+  assert.equal(
+    (
+      await call("/api/admin/users", {
+        method: "POST",
+        origin: "https://attacker.test",
+        body: {},
+      })
+    ).response.status,
+    403,
+  );
+  const disabled = await call(`/api/admin/users/${sub.id}`, {
+    method: "PATCH",
+    body: { role: "SUB_ADMIN", permissions: [], isActive: false },
+  });
+  assert.equal(disabled.response.status, 200, JSON.stringify(disabled.data));
+  assert.equal(
+    (await call("/api/admin/users", { user: sub })).response.status,
+    401,
+  );
+  assert.equal(
+    (
+      await call("/api/admin/login", {
+        method: "POST",
+        user: null,
+        body: { email: sub.email, password },
+      })
+    ).response.status,
+    401,
+  );
+  const self = await call(`/api/admin/users/${owner.id}`, {
+    method: "PATCH",
+    body: { role: "ADMIN", isActive: false },
+  });
+  assert.equal(self.response.status, 400);
+  const reset = await call(`/api/admin/users/${viewer.id}/reset-password`, {
+    method: "POST",
+    body: { password: password + "reset" },
+  });
+  assert.equal(reset.response.status, 200);
+  assert.equal(reset.data.user.mustChangePassword, true);
+  assert.equal(
+    (await call("/api/admin/ai-search/analytics", { user: viewer })).response
+      .status,
+    401,
+  );
+  viewer = await prisma.adminUser.update({
+    where: { id: viewer.id },
+    data: { mustChangePassword: false, password: owner.password },
+  });
+});
+test("permanent deletion removes active and inactive accounts, revokes sessions, and permits email reuse", async () => {
+  for (const role of ["ADMIN", "SUB_ADMIN"]) {
+    for (const isActive of [true, false]) {
+      const target = await prisma.adminUser.create({
+        data: {
+          email: `delete-${role}-${isActive}@example.test`,
+          password: owner.password,
+          role,
+          isActive,
+        },
+      });
+      const cookie = `admin_session=${signAdminSession(target)}`;
+      const deleted = await call(`/api/admin/users/${target.id}`, {
+        method: "DELETE",
+      });
+      assert.equal(deleted.response.status, 200, JSON.stringify(deleted.data));
+      assert.deepEqual(deleted.data, { ok: true, id: target.id });
+      assert.equal(
+        await prisma.adminUser.findUnique({ where: { id: target.id } }),
+        null,
+      );
+      assert.equal(
+        (await call("/api/admin/users", { cookie })).response.status,
+        401,
+      );
+      assert.equal(
+        (
+          await call("/api/admin/login", {
+            method: "POST",
+            user: null,
+            body: { email: target.email, password },
+          })
+        ).response.status,
+        401,
+      );
+      assert.equal(
+        (await call(`/api/admin/users/${target.id}`, { method: "DELETE" }))
+          .response.status,
+        404,
+      );
+      const recreated = await createAdminAccount(prisma, owner, {
+        email: target.email,
+        password,
+        role: "SUB_ADMIN",
+        permissions: [],
+      });
+      assert.notEqual(recreated.id, target.id);
+      assert.equal(
+        (await call("/api/admin/users", { cookie })).response.status,
+        401,
+      );
+      await deleteAdminAccount(prisma, owner, recreated.id);
+    }
+  }
+  assert.ok(
+    await prisma.blogPost.findUnique({ where: { id: "integration-post" } }),
+  );
+  assert.ok(
+    await prisma.provider.findUnique({ where: { id: "integration-provider" } }),
+  );
+});
+test("deletion rejects unauthenticated, sub-admin, temporary-password, cross-origin and self requests", async () => {
+  const path = `/api/admin/users/${owner.id}`;
+  for (const user of [null, viewer, editor]) {
+    assert.equal(
+      (await call(path, { method: "DELETE", user })).response.status,
+      user ? 403 : 401,
+    );
+  }
+  const temporary = await createAdminAccount(prisma, owner, {
+    email: "delete-temporary@example.test",
+    password,
+    role: "ADMIN",
+  });
+  assert.equal(
+    (await call(path, { method: "DELETE", user: temporary })).response.status,
+    403,
+  );
+  await deleteAdminAccount(prisma, owner, temporary.id);
+  assert.equal(
+    (await call(path, { method: "DELETE", origin: "https://attacker.test" }))
+      .response.status,
+    403,
+  );
+  const self = await call(path, { method: "DELETE" });
+  assert.equal(self.response.status, 400);
+  assert.match(self.data.error, /own account/);
+  assert.equal(
+    await prisma.adminUser.count({ where: { role: "ADMIN", isActive: true } }),
+    1,
+  );
+});
+test("concurrent deletion and demotion cannot remove the last active full admin", async () => {
+  for (const mode of ["mutual deletion", "delete and demote"]) {
+    const second = await prisma.adminUser.create({
+      data: {
+        email: "delete-race@example.test",
+        password: owner.password,
+        role: "ADMIN",
+      },
+    });
+    const savedOwner = owner;
+    try {
+      const results = await Promise.allSettled([
+        deleteAdminAccount(prisma, owner, second.id),
+        mode === "mutual deletion"
+          ? deleteAdminAccount(prisma, second, owner.id)
+          : updateAdminAccount(prisma, owner, owner.id, {
+              role: "SUB_ADMIN",
+              isActive: true,
+              permissions: [],
+            }),
+      ]);
+      assert.equal(
+        results.filter((result) => result.status === "fulfilled").length,
+        1,
+        mode,
+      );
+      assert.equal(
+        await prisma.adminUser.count({
+          where: { role: "ADMIN", isActive: true },
+        }),
+        1,
+        mode,
+      );
+    } finally {
+      owner = await prisma.adminUser.upsert({
+        where: { id: savedOwner.id },
+        create: savedOwner,
+        update: savedOwner,
+      });
+      await prisma.adminUser.deleteMany({ where: { id: second.id } });
+    }
+  }
+});
+test("concurrent full-admin demotions cannot remove the final administrator", async () => {
+  const second = await createAdminAccount(prisma, owner, {
+    email: "second@example.test",
+    password,
+    role: "ADMIN",
+  });
+  const activeSecond = await prisma.adminUser.update({
+    where: { id: second.id },
+    data: { mustChangePassword: false },
+  });
+  const results = await Promise.allSettled([
+    updateAdminAccount(prisma, owner, owner.id, {
+      role: "SUB_ADMIN",
+      permissions: [],
+      isActive: true,
+    }),
+    updateAdminAccount(prisma, activeSecond, activeSecond.id, {
+      role: "SUB_ADMIN",
+      permissions: [],
+      isActive: true,
+    }),
+  ]);
+  assert.equal(results.filter((r) => r.status === "fulfilled").length, 1);
+  assert.equal(
+    await prisma.adminUser.count({ where: { role: "ADMIN", isActive: true } }),
+    1,
+  );
+  owner = await prisma.adminUser.update({
+    where: { id: owner.id },
+    data: { role: "ADMIN", permissions: [] },
+  });
+});
+test("Zocdoc migration preserves links and provider editors can add, replace, and remove the public button", async () => {
+  const migrated = await prisma.provider.findUnique({ where: { id: "integration-zocdoc-migrated" } });
+  assert.equal(migrated.zocdocUrl, "https://www.zocdoc.com/booking-link/doctor/alisha-singh-pa-c-424231");
+  const zocdocUrl = "https://www.zocdoc.com/doctor/integration-provider-123?source=fma";
+  const body = {
+    name: "Zocdoc Example Provider", title: "MD", slug: "integration-zocdoc-provider",
+    bio: "Example provider biography", imageUrl: "/images/provider-placeholder.svg",
+    locations: ["/location/test"], languages: ["English"], isActive: true,
+    linkUrl: "https://example.com/primary-booking", zocdocUrl: `  ${zocdocUrl}  `,
+  };
+  const invalidCreate = await call("/api/admin/providers", { user: editor, method: "POST", body: { ...body, zocdocUrl: "javascript:alert(1)" } });
+  assert.equal(invalidCreate.response.status, 400);
+  const created = await call("/api/admin/providers", { user: editor, method: "POST", body });
+  assert.equal(created.response.status, 200, JSON.stringify(created.data));
+  const path = `/api/admin/providers/${created.data.id}`;
+  const read = () => prisma.provider.findUnique({ where: { id: created.data.id } });
+  assert.equal((await read()).zocdocUrl, zocdocUrl);
+  const publicButtons = async (slug = body.slug) => {
+    const page = await call(`/providers/${slug}`, { user: null });
+    assert.equal(page.response.status, 200);
+    const document = parse(page.data);
+    return document.querySelectorAll("a").filter((a) => a.text.includes("Book on Zocdoc"));
+  };
+  let buttons = await publicButtons();
+  assert.equal(buttons.length, 1);
+  assert.equal(buttons[0].getAttribute("href"), zocdocUrl);
+  const denied = await prisma.adminUser.create({
+    data: { email: "zocdoc-no-access@example.test", role: "SUB_ADMIN", permissions: [], password: owner.password },
+  });
+  for (const user of [denied, viewer, null]) {
+    assert.equal((await call(path, { user, method: "PUT", body: { ...body, zocdocUrl: "" } })).response.status, user ? 403 : 401);
+  }
+  const invalid = await call(path, { user: editor, method: "PUT", body: { ...body, zocdocUrl: "https://zocdoc.com.example.com/doctor/123" } });
+  assert.equal(invalid.response.status, 400);
+  assert.equal((await read()).zocdocUrl, zocdocUrl);
+  const replacement = "https://www.zocdoc.com/booking-link/doctor/replacement-456";
+  assert.equal((await call(path, { user: editor, method: "PUT", body: { ...body, zocdocUrl: replacement } })).response.status, 200);
+  assert.equal((await publicButtons())[0].getAttribute("href"), replacement);
+  const olderPayload = { ...body };
+  delete olderPayload.zocdocUrl;
+  assert.equal((await call(path, { user: editor, method: "PUT", body: olderPayload })).response.status, 200);
+  assert.equal((await read()).zocdocUrl, replacement);
+  assert.equal((await call(path, { user: editor, method: "PUT", body: { ...body, zocdocUrl: "  " } })).response.status, 200);
+  assert.equal((await read()).zocdocUrl, null);
+  assert.equal((await read()).linkUrl, body.linkUrl);
+  assert.equal((await publicButtons()).length, 0);
+  const blankPage = await call(`/providers/${body.slug}`, { user: null });
+  assert.doesNotMatch(blankPage.data, /Zocdoc Coming Soon/);
+  // A previously hardcoded slug must also stay blank after its link is cleared.
+  await prisma.provider.update({ where: { id: migrated.id }, data: { zocdocUrl: null, isActive: true } });
+  assert.equal((await publicButtons(migrated.slug)).length, 0);
+  await prisma.provider.update({ where: { id: migrated.id }, data: { zocdocUrl: migrated.zocdocUrl, isActive: false } });
+});
+test("coming-soon seed is isolated and idempotent; the public page and CMS preserve its launch state", async () => {
+  const originalLocationCount = await prisma.location.count();
+  const originalProviderCount = await prisma.provider.count();
+  const seeded = await seedOwingsMills(prisma);
+  assert.equal(await prisma.location.count(), originalLocationCount + 1);
+  assert.equal(await prisma.provider.count(), originalProviderCount + 1);
+  const page = await call("/location/owings-mills");
+  assert.equal(page.response.status, 200);
+  assert.match(page.data, /Estimated opening.*October 5/);
+  assert.match(page.data, /Jacob Scott/);
+  assert.match(page.data, /25 Crossroads/);
+  assert.match(page.data, /Planned hours after opening/);
+  assert.doesNotMatch(page.data, /openingHoursSpecification/);
+  assert.doesNotMatch(page.data, /Meet the providers currently available/);
+  const answer = await buildDeterministicCommonAnswer("What are the hours for Owings Mills?");
+  assert.match(answer.answer, /coming soon/);
+  assert.match(answer.answer, /Planned hours after opening/);
+  assert.doesNotMatch(answer.answer, /Saturday|Sunday/);
+  const availability = await buildDeterministicCommonAnswer("Are appointments available in Owings Mills?");
+  assert.match(availability.answer, /coming soon/);
+  assert.deepEqual(availability.factIds, ["location.coming-soon"]);
+  const location = await prisma.location.findUnique({
+    where: { id: seeded.location.id },
+  });
+  const path = `/api/admin/locations/${location.id}`;
+  const changed = { ...location, openingDateLabel: "October 12" };
+  assert.equal(
+    (await call(path, { method: "PUT", user: viewer, body: changed })).response
+      .status,
+    403,
+  );
+  assert.equal(
+    (await call(path, { method: "PUT", user: editor, body: changed })).response
+      .status,
+    200,
+  );
+  assert.equal(
+    (
+      await call(path, {
+        method: "PUT",
+        body: { ...changed, isComingSoon: "false" },
+      })
+    ).response.status,
+    400,
+  );
+  await seedOwingsMills(prisma);
+  const retained = await prisma.location.findUnique({
+    where: { id: location.id },
+  });
+  assert.equal(retained.isComingSoon, true);
+  assert.equal(retained.openingDateLabel, "October 12");
+  assert.equal(await prisma.location.count(), originalLocationCount + 1);
+  assert.equal(await prisma.provider.count(), originalProviderCount + 1);
+});
+test("analytics totals, pagination, feedback, permission-safe details and estimated costs", async () => {
+  const now = new Date();
+  await prisma.aiSearchEvent.createMany({
+    data: Array.from({ length: 60 }, (_, index) => ({
+      id: `integration-event-${index}`,
+      status: index < 40 ? "answered" : "failed",
+      surface: "search_modal",
+      intent: "integration",
+      latencyMs: (index + 1) * 100,
+      grounded: index < 40,
+      telemetryVersion: index < 50 ? 1 : null,
+      bookingTargetCount: index < 20 ? 1 : 0,
+      feedbackRating: index < 5 ? "not_helpful" : null,
+      feedbackCreatedAt: index < 5 ? now : null,
+      sourceRefs: ["provider:example"],
+      createdAt: now,
+    })),
+  });
+  await prisma.aiApiUsage.create({
+    data: {
+      eventId: "integration-event-0",
+      purpose: "search",
+      operation: "response",
+      model: "gpt-5.5",
+      status: "recorded",
+      inputTokens: 100,
+      cachedInputTokens: 0,
+      outputTokens: 10,
+      estimatedCostUsd: 0.0008,
+    },
+  });
+  const overview = await call(
+    "/api/admin/ai-search/analytics?intent=integration",
+  );
+  assert.equal(overview.response.status, 200, JSON.stringify(overview.data));
+  assert.equal(overview.data.summary.total, 60);
+  assert.equal(overview.data.summary.answered, 40);
+  assert.equal(overview.data.summary.avgLatencyMs, 3050);
+  assert.equal(overview.data.summary.tracked, 50);
+  const page = await call(
+    "/api/admin/ai-search/analytics?intent=integration&section=activity&page=2",
+  );
+  assert.equal(page.data.rows.length, 25);
+  assert.equal(page.data.total, 60);
+  const feedback = await call(
+    "/api/admin/ai-search/analytics?intent=integration&section=feedback",
+  );
+  assert.equal(feedback.data.rows.length, 5);
+  const detail = await call(
+    "/api/admin/ai-search/analytics?eventId=integration-event-0",
+    { user: viewer },
+  );
+  assert.equal(detail.response.status, 200);
+  assert.equal("apiUsage" in detail.data.event, false);
+  const budget = await call("/api/admin/ai-search/spending");
+  assert.equal(budget.response.status, 200, JSON.stringify(budget.data));
+  assert.equal(Number(budget.data.summary.knownCost), 0.0008);
+  const reported = await call("/api/admin/ai-search/spending?reported=1");
+  assert.equal(reported.data.configured, false);
+  assert.equal(
+    (await call("/api/admin/ai-search/analytics?from=2020-01-01")).response
+      .status,
+    400,
+  );
+  assert.equal(
+    (
+      await call("/api/admin/ai-search/feedback/integration-event-0", {
+        user: viewer,
+        method: "PATCH",
+        body: { reviewStatus: "resolved" },
+      })
+    ).response.status,
+    403,
+  );
+  assert.equal(
+    (
+      await call("/api/admin/ai-search/feedback/integration-event-0", {
+        user: editor,
+        method: "PATCH",
+        body: { reviewStatus: "resolved" },
+      })
+    ).response.status,
+    200,
+  );
+});
+test("click endpoint deduplicates events and rejects forged targets", async () => {
+  const token = signInteractionTarget(
+    "integration-event-0",
+    "booking",
+    "https://booking.example/test",
+  );
+  const id = crypto.randomUUID();
+  for (let i = 0; i < 2; i++)
+    assert.equal(
+      (
+        await call("/api/ai-search/interactions", {
+          user: null,
+          method: "POST",
+          body: { id, token },
+        })
+      ).response.status,
+      202,
+    );
+  assert.equal(await prisma.aiSearchInteraction.count({ where: { id } }), 1);
+  assert.equal(
+    (
+      await call("/api/ai-search/interactions", {
+        user: null,
+        method: "POST",
+        body: { id: crypto.randomUUID(), token: token + "bad" },
+      })
+    ).response.status,
+    400,
+  );
+});
+test("public search retains deterministic answers, screens PHI and logs both API surfaces", async () => {
+  for (const path of ["/api/search", "/api/ai-search"]) {
+    const valid = await call(path, {
+      user: null,
+      method: "POST",
+      body: { query: "what is the phone number for FMA", surface: "home_hero" },
+    });
+    assert.equal(valid.response.status, 200, JSON.stringify(valid.data));
+    const ai = valid.data.ai || valid.data;
+    assert.ok(ai.answer);
+    assert.ok(ai.eventId);
+    const event = await prisma.aiSearchEvent.findUnique({
+      where: { id: ai.eventId },
+      include: { apiUsage: true },
+    });
+    assert.equal(event.surface, "home_hero");
+    assert.equal(event.apiUsage.length, 0);
+    const blocked = await call(path, {
+      user: null,
+      method: "POST",
+      body: { query: "My date of birth is 01/01/1980" },
+    });
+    assert.equal(blocked.response.status, 400);
+    const blockedId = (blocked.data.ai || blocked.data).eventId;
+    const blockedEvent = await prisma.aiSearchEvent.findUnique({
+      where: { id: blockedId },
+    });
+    assert.equal(blockedEvent.status, "blocked");
+    assert.equal(blockedEvent.queryHash, null);
+    assert.equal(blockedEvent.queryLength, 0);
+  }
+});
+test("warm overview handles 100,000 events without external-service latency", async () => {
+  await prisma.$executeRaw`INSERT INTO "AiSearchEvent" (id, status, intent, "createdAt", "updatedAt", "latencyMs", "telemetryVersion") SELECT 'scale-' || n, 'answered', 'scale_probe', NOW() - (n % 29) * INTERVAL '1 day', NOW(), 1000, 1 FROM generate_series(1, 100000) n`;
+  const cold = await call("/api/admin/ai-search/analytics?intent=scale_probe");
+  assert.equal(cold.response.status, 200, JSON.stringify(cold.data));
+  assert.equal(cold.data.summary.total, 100000);
+  const durations = [];
+  for (let i = 0; i < 5; i++) {
+    const start = performance.now();
+    const result = await call(
+      "/api/admin/ai-search/analytics?intent=scale_probe",
+    );
+    assert.equal(result.response.status, 200);
+    durations.push(performance.now() - start);
+  }
+  console.log(
+    `Warm overview with 100,000 events: maximum ${Math.round(Math.max(...durations))} ms across 5 requests.`,
+  );
+  assert.ok(Math.max(...durations) < 2000);
+});
+test("removed Athena Test routes return 404", async () => {
+  assert.equal((await call("/admin/athena-test")).response.status, 404);
+  assert.equal(
+    (await call("/api/admin/athena-test", { method: "POST", body: {} }))
+      .response.status,
+    404,
+  );
+});
+test("credential attempts and public rate-limit failures are bounded and recorded", async () => {
+  let last;
+  for (let i = 0; i < 11; i++)
+    last = await call("/api/admin/login", {
+      user: null,
+      method: "POST",
+      body: { email: "absent@example.test", password: "test-wrong-password" },
+      headers: { "x-forwarded-for": "192.0.2.251" },
+    });
+  assert.equal(last.response.status, 429);
+  assert.ok(last.response.headers.get("retry-after"));
+  for (let i = 0; i < 11; i++)
+    last = await call(`/api/admin/users/${owner.id}`, {
+      method: "DELETE",
+      headers: { "x-forwarded-for": "192.0.2.253" },
+    });
+  assert.equal(last.response.status, 429);
+  assert.ok(last.response.headers.get("retry-after"));
+  assert.ok(await prisma.adminUser.findUnique({ where: { id: owner.id } }));
+  for (let i = 0; i < 13; i++)
+    last = await call("/api/ai-search", {
+      user: null,
+      method: "POST",
+      body: { query: "a" },
+      headers: { "x-forwarded-for": "192.0.2.252" },
+    });
+  assert.equal(last.response.status, 429);
+  assert.ok(last.data.eventId);
+  const event = await prisma.aiSearchEvent.findUnique({
+    where: { id: last.data.eventId },
+  });
+  assert.equal(event.status, "blocked");
+  assert.equal(event.code, "rate_limited");
+});

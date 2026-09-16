@@ -349,6 +349,8 @@ async function buildDomainGraph() {
         addressState: true,
         phone: true,
         bookingUrl: true,
+        isComingSoon: true,
+        openingDateLabel: true,
         serviceIds: true,
       },
     }),
@@ -614,10 +616,10 @@ function formatLocationCard(location) {
   return {
     type: "location",
     title: location.title,
-    subtitle: formatAddress(location) || "FMA location",
+    subtitle: location.isComingSoon ? `Coming soon${location.openingDateLabel ? ` — estimated opening ${location.openingDateLabel}` : ""}` : formatAddress(location) || "FMA location",
     href: normalizeLocationPath(location.slug),
     actionLabel: "View location",
-    bookingUrl: location.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL,
+    bookingUrl: location.isComingSoon ? "" : location.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL,
     details: [location.phone ? `Phone: ${location.phone}` : ""].filter(Boolean),
     badges: [location.addressCity, location.addressState].filter(Boolean).slice(0, 3),
   };

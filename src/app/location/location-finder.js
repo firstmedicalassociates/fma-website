@@ -878,6 +878,7 @@ export default function LocationFinder({ locations = [] }) {
 
         <div className={styles.detailHeader}>
           <h2>{activeLocation?.title}</h2>
+          {activeLocation?.isComingSoon ? <p><strong>Coming soon{activeLocation.openingDateLabel ? ` · Estimated opening ${activeLocation.openingDateLabel}` : ""}</strong></p> : null}
           <p>{activeLocation?.intro || activeLocation?.accent || "Location details and provider availability."}</p>
         </div>
 
@@ -1169,6 +1170,7 @@ export default function LocationFinder({ locations = [] }) {
                                   }
                                 >
                                   <strong>{location.title}</strong>
+                                  {location.isComingSoon ? <span>Coming soon{location.openingDateLabel ? ` · Est. ${location.openingDateLabel}` : ""}</span> : null}
                                   <span>
                                     {location.addressLines[0] ||
                                       location.address ||
@@ -1219,6 +1221,7 @@ export default function LocationFinder({ locations = [] }) {
                                       }
                                     >
                                       <strong>{location.title}</strong>
+                                      {location.isComingSoon ? <span>Coming soon{location.openingDateLabel ? ` · Est. ${location.openingDateLabel}` : ""}</span> : null}
                                       <span>
                                         {location.addressLines[0] ||
                                           location.address ||
@@ -1335,6 +1338,7 @@ export default function LocationFinder({ locations = [] }) {
                                 onClick={() => selectOffice(location)}
                               >
                                 <h3 className={styles.locationRowTitle}>{location.title}</h3>
+                                {location.isComingSoon ? <p><strong>Coming soon{location.openingDateLabel ? ` · Est. ${location.openingDateLabel}` : ""}</strong></p> : null}
                                 <p>
                                   {location.addressLines[0] ||
                                     location.address ||
@@ -1396,6 +1400,7 @@ export default function LocationFinder({ locations = [] }) {
                                       onClick={() => selectOffice(location)}
                                     >
                                       <strong>{location.title}</strong>
+                                      {location.isComingSoon ? <p>Coming soon{location.openingDateLabel ? ` · Est. ${location.openingDateLabel}` : ""}</p> : null}
                                       <p>
                                         {location.addressLines[0] ||
                                           location.address ||

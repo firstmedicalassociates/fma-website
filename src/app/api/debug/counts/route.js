@@ -5,7 +5,7 @@ import { prisma } from '../../../lib/prisma';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
-  const auth = requireAdminRequest(request);
+  const auth = await requireAdminRequest(request);
   if (!auth.ok) return auth.response;
 
   try {

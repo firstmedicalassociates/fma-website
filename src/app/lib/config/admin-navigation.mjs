@@ -1,3 +1,4 @@
+import { hasPermission } from "../admin-permissions.mjs";
 export const ADMIN_PRIMARY_LINKS = [
   {
     key: "dashboard",
@@ -43,6 +44,11 @@ export const ADMIN_PRIMARY_LINKS = [
   },
 ];
 
+ADMIN_PRIMARY_LINKS.push(
+  { key: "users", href: "/admin/users", label: "Admins", icon: "users", smokeText: "Admins" },
+  { key: "account", href: "/admin/account", label: "My Account", icon: "account", smokeText: "My Account" },
+);
+
 export const ADMIN_QUICK_LINKS = [
   {
     key: "new-post",
@@ -72,13 +78,7 @@ export const ADMIN_QUICK_LINKS = [
     icon: "new-provider",
     smokeText: "Add Provider",
   },
-  {
-    key: "athena-test",
-    href: "/admin/athena-test",
-    label: "Athena Test",
-    icon: "athena-test",
-    smokeText: "Athena API Test",
-  },
+
 ];
 
 export const ADMIN_NAV_SECTIONS = [
@@ -104,4 +104,9 @@ export function isAdminLinkActive(pathname, href) {
   }
 
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function canSeeAdminLink(user, link) {
+  const required = link.key === "users" ? "admin" : link.key === "account" ? "account" : link.key === "dashboard" ? "dashboard" : link.key.startsWith("new-") ? `${({post:"posts", location:"locations", service:"services", provider:"providers"})[link.key.slice(4)]}.edit` : `${link.key}.view`;
+  return hasPermission(user, required);
 }

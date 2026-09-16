@@ -1,4 +1,5 @@
 "use client";
+import { trackSearchClick } from "../lib/ai-click-tracking";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -465,6 +466,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         body: JSON.stringify({
           query: searchQuery,
           pageContext,
+          surface: sessionContext?.source === "home_hero" ? "home_hero" : "search_modal",
           sessionContext,
           maxAppointmentResults: appointmentResultLimit,
           providerCheckLimit: providerCheckLimit || undefined,
@@ -510,6 +512,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
         resolution,
         recoveryActions,
         eventId,
+        interactionTargets: data.ai?.interactionTargets || [],
       };
 
       setConversationMessages((messages) =>
@@ -797,7 +800,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
 
                   if (message.status === "loading") {
                     return (
-                      <article className={`${styles.chatMessage} ${styles.assistantMessage}`} key={message.id}>
+                      <article className={`${styles.chatMessage} ${styles.assistantMessage}`} key={message.id} onClickCapture={(event) => trackSearchClick(event, payload.interactionTargets)} onAuxClickCapture={(event) => trackSearchClick(event, payload.interactionTargets)}>
                         <span className={styles.messageAvatar} aria-hidden="true">
                           <SparkleIcon className={styles.sparkleIcon} />
                         </span>
@@ -838,7 +841,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                     payload.eventId;
 
                   return (
-                    <article className={`${styles.chatMessage} ${styles.assistantMessage}`} key={message.id}>
+                    <article className={`${styles.chatMessage} ${styles.assistantMessage}`} key={message.id} onClickCapture={(event) => trackSearchClick(event, payload.interactionTargets)} onAuxClickCapture={(event) => trackSearchClick(event, payload.interactionTargets)}>
                       <span className={styles.messageAvatar} aria-hidden="true">
                         <SparkleIcon className={styles.sparkleIcon} />
                       </span>
