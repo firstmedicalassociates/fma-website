@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useAdminAccess } from "./admin-access";
 import { useEffect, useState } from "react";
@@ -97,10 +98,17 @@ export default function AdminNav({ email, role }) {
         >
           {isOpen ? <X /> : <Menu />}
         </button>
-        <div className="admin-mobile-brand">
-          <span className="admin-mobile-brand-mark">FMA</span>
-          <span className="admin-mobile-brand-copy">Admin</span>
-        </div>
+        <Link className="admin-mobile-brand" href="/admin" aria-label="FMA admin dashboard">
+          <Image
+            alt=""
+            aria-hidden="true"
+            className="admin-mobile-brand-image"
+            height={1080}
+            src="/uploads/FMAicon.svg"
+            width={1080}
+          />
+          <span className="admin-mobile-brand-copy">FMA Admin</span>
+        </Link>
       </div>
 
       <button
@@ -113,13 +121,16 @@ export default function AdminNav({ email, role }) {
       />
 
       <aside id="admin-navigation" className={`admin-nav ${isOpen ? "admin-nav-open" : ""}`}>
-        <div className="admin-logo-wrap">
-          <div className="admin-logo-mark">F</div>
-          <div>
-            <p className="admin-logo">First Medical</p>
-            <p className="admin-logo-copy">Content system</p>
-          </div>
-        </div>
+        <Link className="admin-logo-wrap" href="/admin" aria-label="First Medical Associates admin dashboard">
+          <Image
+            alt="First Medical Associates"
+            className="admin-logo-image"
+            height={1178}
+            priority
+            src="/logo-white.png"
+            width={3754}
+          />
+        </Link>
 
         {sections.map((section, sectionIndex) => (
           <div key={section.id}>

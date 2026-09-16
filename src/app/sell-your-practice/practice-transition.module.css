@@ -18,8 +18,7 @@
 .page a:focus-visible, .page button:focus-visible, .page summary:focus-visible { outline: 3px solid #0b4f96; outline-offset: 5px; }
 .heroPhoto { align-self: stretch; min-height: 520px; }
 .heroPhoto img { width: 100%; height: 100%; object-fit: cover; object-position: 50% center; display: block; }
-.introduction { padding-block: 86px; display: grid; grid-template-columns: .95fr 1.05fr; gap: 64px; align-items: start; }
-.introduction p + p, .about p + p { margin-top: 15px; }
+.about p + p { margin-top: 15px; }
 .priorities { padding: 54px; background: #f5f8fc; border-radius: 32px; }
 .sectionHeading p { margin-top: 14px; }
 .priorityGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 64px; row-gap: 38px; margin-top: 38px; }
@@ -32,7 +31,7 @@
 .aboutMark span { font-size: 1.6rem; line-height: 1.25; font-weight: 700; letter-spacing: -.025em; }
 .about h2 { margin-bottom: 20px; }
 .textLink { display: inline-flex; gap: 12px; align-items: center; color: var(--blue); font-weight: 700; margin-top: 22px; min-height: 44px; }
-.connect { scroll-margin-top: 110px; display: grid; grid-template-columns: .9fr 1.1fr; gap: 70px; align-items: start; padding-top: 24px; border-top: 1px solid #dbe5f1; }
+.connect { scroll-margin-top: 110px; display: grid; grid-template-columns: .9fr 1.1fr; gap: 70px; align-items: start; padding-top: 24px; padding-bottom: 86px; border-top: 1px solid #dbe5f1; }
 .connectCopy { padding-top: 18px; }
 .connectCopy > p { margin-top: 22px; }
 .steps { list-style: none; margin-top: 34px; display: grid; gap: 28px; }
@@ -40,7 +39,9 @@
 .steps li > span { flex: 0 0 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: #e8f0fe; color: var(--blue); font-size: .8rem; font-weight: 700; }
 .steps h3 { font-size: 1rem; padding-top: 2px; }
 .steps p { font-size: .93rem; margin-top: 6px; }
-.connectCopy .personalNote { padding-top: 24px; max-width: 40ch; font-size: .94rem; }
+.connectIntroduction { margin-top: 40px; }
+.connectIntroduction p { margin-top: 22px; }
+.connectIntroduction p + p { margin-top: 15px; }
 .formCard { scroll-margin-top: 28px; padding: 32px; border-radius: 28px; background: #f5f8fc; border: 1px solid #dbe5f1; }
 .formCard h3 { font-size: 1.6rem; letter-spacing: -.03em; }
 .formCard .formIntro { margin: 8px 0 22px; font-size: .87rem; }
@@ -67,7 +68,7 @@
 .faq summary svg { flex-shrink: 0; color: var(--blue); }
 .faq details[open] summary svg { transform: rotate(45deg); }
 .faq details p { padding: 0 36px 24px 0; }
-@media (max-width: 1050px) { .heroCopy { padding: 32px; } .hero h1 { font-size: 2.8rem; } .heroPhoto { min-height: 510px; } .connect { gap: 36px; } .about { gap: 44px; } .introduction { gap: 36px; } }
-@media (max-width: 800px) { .container { width: calc(100% - 32px); } .hero { grid-template-columns: 1fr; } .heroCopy { padding: 34px 28px; } .hero h1 { max-width: 17ch; font-size: clamp(2.55rem,7vw,3.5rem); } .heroPhoto { min-height: 0; height: auto; aspect-ratio: 3/2; } .introduction, .about, .connect { grid-template-columns: 1fr; gap: 28px; } .introduction, .about { padding-block: 52px; } .priorities { padding: 32px 26px; } .priorityGrid { gap: 28px; } .connect { padding-top: 16px; } .connectCopy { padding-top: 0; } .connect .formCard { order: -1; } .aboutMark { min-height: 170px; flex-direction: row; align-items: center; justify-content: flex-start; } .connectCopy .personalNote { max-width: none; } .faq { margin-top: 56px; } }
+@media (max-width: 1050px) { .heroCopy { padding: 32px; } .hero h1 { font-size: 2.8rem; } .heroPhoto { min-height: 510px; } .connect { gap: 36px; } .about { gap: 44px; } }
+@media (max-width: 800px) { .container { width: calc(100% - 32px); } .hero { grid-template-columns: 1fr; } .heroCopy { padding: 34px 28px; } .hero h1 { max-width: 17ch; font-size: clamp(2.55rem,7vw,3.5rem); } .heroPhoto { min-height: 0; height: auto; aspect-ratio: 3/2; } .about, .connect { grid-template-columns: 1fr; gap: 28px; } .about { padding-block: 52px; } .priorities { padding: 32px 26px; } .priorityGrid { gap: 28px; } .connect { padding-top: 16px; padding-bottom: 52px; } .connectCopy { padding-top: 0; } .connect .formCard { order: -1; } .aboutMark { min-height: 170px; flex-direction: row; align-items: center; justify-content: flex-start; } .faq { margin-top: 56px; } }
 @media (max-width: 520px) { .page { padding-top: 16px; padding-bottom: 56px; } .hero { border-radius: 24px; } .heroCopy { padding: 30px 23px; } .heroCopy > p { font-size: 1rem; } .page .eyebrow { padding-inline: 10px; font-size: .59rem; } .priorityGrid { grid-template-columns: 1fr; } .priorities { border-radius: 24px; } .formCard { padding: 26px 20px; } .form { grid-template-columns: 1fr; } .primaryButton { width: 100%; } .aboutMark span { font-size: 1.35rem; } .aboutMark { padding: 28px; gap: 20px; } }
 @media (prefers-reduced-motion: reduce) { .primaryButton { transition: none; } .primaryButton:hover { transform: none; } }

@@ -121,8 +121,14 @@
 .admin-logo-wrap {
   display: flex;
   align-items: center;
-  gap: 14px;
   padding: 4px 4px 12px;
+  text-decoration: none;
+}
+
+.admin-logo-image {
+  display: block;
+  width: min(100%, 196px);
+  height: auto;
 }
 
 .admin-logo-mark {
@@ -1959,6 +1965,15 @@
 .location-preview-body {
   display: grid;
   gap: 16px;
+  min-width: 0;
+}
+
+.location-preview-body p,
+.location-preview-body strong,
+.location-preview-body h2,
+.location-preview-body h4 {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .location-preview-slug {
@@ -3228,6 +3243,182 @@
 
 .location-editor-tab-label {
   color: #ffffff;
+}
+
+/* Focus the provider editor on the form while keeping a compact live reference. */
+.provider-editor-shell {
+  grid-template-columns: minmax(0, 78fr) minmax(240px, 22fr);
+}
+
+.provider-editor-shell > .builder-preview {
+  position: sticky;
+  top: 18px;
+  padding: 18px;
+}
+
+.provider-editor-shell .builder-preview-image,
+.provider-editor-shell .builder-preview-placeholder {
+  aspect-ratio: 1;
+  min-height: 0;
+}
+
+.provider-editor-shell .location-preview-meta-grid {
+  grid-template-columns: 1fr;
+}
+
+.provider-editor-shell .location-preview-body {
+  gap: 12px;
+}
+
+.provider-media-fields {
+  grid-template-columns: minmax(280px, 1.35fr) minmax(180px, 0.65fr);
+}
+
+.provider-list-filters {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) auto;
+  gap: 14px;
+  align-items: end;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(0, 22, 98, 0.08);
+  background: rgba(118, 199, 253, 0.06);
+}
+
+.provider-search-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 16px 24px 0;
+}
+
+.provider-live-search {
+  display: grid;
+  gap: 7px;
+  width: 100%;
+  color: #36506e;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.provider-live-search .builder-input {
+  min-height: 42px;
+  padding: 9px 14px;
+  border-radius: 14px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.provider-search-clear {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(0, 22, 98, 0.1);
+  border-radius: 14px;
+  background: rgba(118, 199, 253, 0.12);
+  color: #001662;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.provider-search-clear:hover {
+  background: rgba(118, 199, 253, 0.28);
+}
+
+[data-provider-record][hidden],
+[data-provider-group][hidden],
+[data-provider-static-empty][hidden] {
+  display: none;
+}
+
+.provider-filter-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  color: #36506e;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.provider-filter-field .builder-select {
+  min-height: 46px;
+  padding-block: 10px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.provider-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.provider-filter-actions .builder-button {
+  min-height: 46px;
+}
+
+.admin-mobile-brand {
+  text-decoration: none;
+}
+
+.admin-mobile-brand-image {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+
+/* Replace the legacy green hover layer with FMA's light blue interaction state. */
+.admin-shell .builder-button:hover:not(:disabled),
+.admin-shell .builder-shell .builder-button:hover:not(:disabled),
+.admin-shell .builder-shell .builder-button.secondary:hover:not(:disabled),
+.admin-shell .builder-shell .builder-button.admin-primary-cta:hover:not(:disabled),
+.admin-shell .builder-button.admin-primary-cta:hover:not(:disabled),
+.admin-filter-button:hover:not(:disabled) {
+  border-color: rgba(0, 101, 145, 0.22);
+  background-color: #76c7fd;
+  background-image: linear-gradient(180deg, #b7e4ff 0%, #76c7fd 100%);
+  color: #001662;
+  text-shadow: none;
+  box-shadow:
+    0 18px 34px rgba(0, 101, 145, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.66);
+}
+
+.admin-shell .builder-button.secondary.danger:hover:not(:disabled) {
+  border-color: rgba(180, 35, 24, 0.2);
+  background: rgba(255, 218, 214, 0.92);
+  color: #b42318;
+  box-shadow: 0 14px 28px rgba(180, 35, 24, 0.12);
+}
+
+@media (max-width: 1180px) {
+  .provider-editor-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .provider-editor-shell > .builder-preview {
+    position: static;
+  }
+}
+
+@media (max-width: 900px) {
+  .provider-media-fields,
+  .provider-list-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .location-editor-tab {
+    min-width: 140px;
+  }
+
+  .provider-search-shell {
+    align-items: end;
+  }
 }
 
 @media (max-width: 900px) {

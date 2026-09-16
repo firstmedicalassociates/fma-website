@@ -13,6 +13,7 @@ import {
   resolveLocationTitles,
 } from "../../../lib/providers";
 import ProviderActions from "./provider-actions";
+import ProviderSearch from "./provider-search";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,8 +25,29 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   minute: "2-digit",
 });
 
-export default async function AdminProvidersPage() {
+const PROVIDER_SORTS = new Set(["manual", "a-z", "z-a", "newest", "oldest"]);
+
+function readSearchParam(value) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function sortProviders(providers, sort) {
+  if (sort === "manual") return [...providers];
+
+  return [...providers].sort((first, second) => {
+    if (sort === "z-a") return second.name.localeCompare(first.name);
+    if (sort === "newest") return second.createdAt - first.createdAt;
+    if (sort === "oldest") return first.createdAt - second.createdAt;
+    return first.name.localeCompare(second.name);
+  });
+}
+
+export default async function AdminProvidersPage({ searchParams }) {
   await requireAdminPage("providers.view");
+  const params = await searchParams;
+  const requestedLocation = readSearchParam(params?.location) || "all";
+  const requestedSort = readSearchParam(params?.sort) || "manual";
+  const sort = PROVIDER_SORTS.has(requestedSort) ? requestedSort : "manual";
   const [providers, locations] = await Promise.all([
     prisma.provider.findMany({
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
@@ -39,6 +61,7 @@ export default async function AdminProvidersPage() {
         languages: true,
         sortOrder: true,
         isActive: true,
+        createdAt: true,
         updatedAt: true,
       },
     }),
@@ -53,13 +76,20 @@ export default async function AdminProvidersPage() {
   ]);
 
   const locationTitleBySlug = buildLocationTitleMap(locations);
+  const location =
+    requestedLocation === "unassigned" || locations.some((item) => item.slug === requestedLocation)
+      ? requestedLocation
+      : "all";
+  const sortedProviders = sortProviders(providers, sort);
 
-  const locationGroups = locations.map((location) => ({
-    ...location,
-    providers: providers.filter((provider) => provider.locations.includes(location.slug)),
-  }));
+  const locationGroups = locations
+    .filter((item) => location === "all" || item.slug === location)
+    .map((item) => ({
+      ...item,
+      providers: sortedProviders.filter((provider) => provider.locations.includes(item.slug)),
+    }));
 
-  const unassignedProviders = providers.filter(
+  const unassignedProviders = sortedProviders.filter(
     (provider) =>
       provider.locations.length === 0 ||
       provider.locations.every((slug) => !locationTitleBySlug[slug])
@@ -92,12 +122,47 @@ export default async function AdminProvidersPage() {
             <span className="admin-pill">{providers.length} total</span>
           </div>
 
+          <ProviderSearch />
+
+          <form className="provider-list-filters" method="get">
+            <label className="provider-filter-field">
+              <span>Location</span>
+              <select className="builder-select" name="location" defaultValue={location}>
+                <option value="all">All locations</option>
+                {locations.map((item) => (
+                  <option key={item.slug} value={item.slug}>
+                    {item.title}
+                  </option>
+                ))}
+                <option value="unassigned">Needs reassignment</option>
+              </select>
+            </label>
+
+            <label className="provider-filter-field">
+              <span>Sort by</span>
+              <select className="builder-select" name="sort" defaultValue={sort}>
+                <option value="manual">Manual order</option>
+                <option value="a-z">A to Z</option>
+                <option value="z-a">Z to A</option>
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+              </select>
+            </label>
+
+            <div className="provider-filter-actions">
+              <button className="builder-button" type="submit">Apply filters</button>
+              {(location !== "all" || sort !== "manual") ? (
+                <Link className="builder-button secondary" href="/admin/providers">Reset</Link>
+              ) : null}
+            </div>
+          </form>
+
           {providers.length === 0 ? (
             <div className="admin-empty">No providers yet. Add a provider after creating at least one location.</div>
           ) : (
             <div className="admin-record-list">
               {locationGroups.map((group) => (
-                <section key={group.slug} className="admin-location-group">
+                <section key={group.slug} className="admin-location-group" data-provider-group>
                   <div className="admin-location-group-trigger" aria-expanded="true">
                     <div className="admin-location-group-identity">
                       <div className="admin-location-group-icon">
@@ -125,7 +190,19 @@ export default async function AdminProvidersPage() {
                         );
 
                         return (
-                          <article key={`${group.slug}-${provider.id}`} className="admin-record">
+                          <article
+                            key={`${group.slug}-${provider.id}`}
+                            className="admin-record"
+                            data-provider-record
+                            data-provider-id={provider.id}
+                            data-provider-search={[
+                              provider.name,
+                              provider.title,
+                              provider.slug,
+                              ...locationTitles,
+                              ...provider.languages,
+                            ].join(" ")}
+                          >
                             <div className="admin-record-header">
                               <div className="admin-record-identity">
                                 <div className="admin-record-avatar">
@@ -184,8 +261,8 @@ export default async function AdminProvidersPage() {
                 </section>
               ))}
 
-              {unassignedProviders.length > 0 ? (
-                <section className="admin-location-group">
+              {unassignedProviders.length > 0 && (location === "all" || location === "unassigned") ? (
+                <section className="admin-location-group" data-provider-group>
                   <div className="admin-location-group-trigger" aria-expanded="true">
                     <div className="admin-location-group-identity">
                       <div className="admin-location-group-icon">
@@ -201,7 +278,19 @@ export default async function AdminProvidersPage() {
                   </div>
                   <div className="admin-location-group-body">
                     {unassignedProviders.map((provider) => (
-                      <article key={`unassigned-${provider.id}`} className="admin-record">
+                      <article
+                        key={`unassigned-${provider.id}`}
+                        className="admin-record"
+                        data-provider-record
+                        data-provider-id={provider.id}
+                        data-provider-search={[
+                          provider.name,
+                          provider.title,
+                          provider.slug,
+                          ...provider.locations,
+                          ...provider.languages,
+                        ].join(" ")}
+                      >
                         <div className="admin-record-header">
                           <div className="admin-record-identity">
                             <div className="admin-record-avatar">
@@ -232,6 +321,10 @@ export default async function AdminProvidersPage() {
                     ))}
                   </div>
                 </section>
+              ) : null}
+
+              {location === "unassigned" && unassignedProviders.length === 0 ? (
+                <div className="admin-empty" data-provider-static-empty>No providers need reassignment.</div>
               ) : null}
             </div>
           )}

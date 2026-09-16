@@ -259,7 +259,7 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
         </div>
       </header>
 
-      <section className="builder-shell">
+      <section className="builder-shell provider-editor-shell">
         <div className="builder-card">
           <div className="builder-card-header">
             <h2>Profile setup</h2>
@@ -335,7 +335,7 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
               />
             </div>
 
-            <div className="builder-grid-two">
+            <div className="builder-grid-two provider-media-fields">
               <div className="builder-field">
                 <label>Provider image (required, 600x600)</label>
                 <input

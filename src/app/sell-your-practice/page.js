@@ -53,14 +53,13 @@ export default function SellYourPracticePage() {
             <li><span>02</span><div><h3>Talk Through Your Goals</h3><p>Our team will follow up to learn more about your priorities and timing.</p></div></li>
             <li><span>03</span><div><h3>Explore A Path Forward</h3><p>If there is a fit, discuss the next steps together, at a pace that makes sense.</p></div></li>
           </ol>
-          <p className={styles.personalNote}>An introduction is simply a place to start. You do not need to have every answer today.</p>
+          <div className={styles.connectIntroduction}>
+            <h2>You Built More Than A Practice.<br /><span>You Built Trust.</span></h2>
+            <p>Selling your practice is a personal decision as much as a business one. Whether you are planning for retirement, ready to step back from day-to-day operations, or exploring what comes next, start with a partner who understands what matters to you.</p>
+            <p>At First Medical Associates, our mission is to improve the health of our communities through high-quality, accessible care. That patient-first purpose guides how we approach relationships with practices like yours.</p>
+          </div>
         </div>
         <PracticeInquiryForm />
-      </section>
-
-      <section className={`${styles.container} ${styles.introduction}`} aria-labelledby="intro-title">
-        <div><h2 id="intro-title">You Built More Than A Practice.<br /><span>You Built Trust.</span></h2></div>
-        <div><p>Selling your practice is a personal decision as much as a business one. Whether you are planning for retirement, ready to step back from day-to-day operations, or exploring what comes next, start with a partner who understands what matters to you.</p><p>At First Medical Associates, our mission is to improve the health of our communities through high-quality, accessible care. That patient-first purpose guides how we approach relationships with practices like yours.</p></div>
       </section>
 
       <section className={`${styles.container} ${styles.priorities}`} aria-labelledby="priorities-title">

@@ -1,8 +1,6 @@
 "use client";
 import { useAdminAccess } from "../admin-access";
 
-/* eslint-disable @next/next/no-img-element */
-
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
@@ -19,7 +17,6 @@ import {
   OFFICE_HOUR_TIME_OPTIONS,
   buildDisplayAddress,
   buildStructuredAddress,
-  formatOfficeHourRange,
   normalizeLocationSlug,
   normalizeOfficeHours,
   resolveLocationAddressParts,
@@ -312,10 +309,6 @@ export default function LocationForm({
     () => serializeInfoSections(infoSections),
     [infoSections]
   );
-  const officeHourPreviewRows = useMemo(
-    () => officeHours.map((hours) => formatOfficeHourRange(hours)).filter(Boolean),
-    [officeHours]
-  );
   const addressParts = useMemo(
     () => ({
       streetAddress,
@@ -343,11 +336,6 @@ export default function LocationForm({
     if (selectedServiceIds.length === 0) return "Select one or more services";
     return resolveServiceTitles(selectedServiceIds, serviceTitleById).join(", ");
   }, [selectedServiceIds, serviceTitleById]);
-  const selectedServices = useMemo(
-    () =>
-      selectedServiceIds.map((serviceId) => serviceOptionById[serviceId]).filter(Boolean),
-    [selectedServiceIds, serviceOptionById]
-  );
   const activeStageConfig = STAGES.find((stage) => stage.id === activeStage) || STAGES[0];
 
   function handleTitleChange(event) {
@@ -659,7 +647,6 @@ export default function LocationForm({
                   </span>
                   <span className="location-editor-tab-copy">
                     <span className="location-editor-tab-label">{stage.label}</span>
-                    <span className="admin-subtitle">{stage.description}</span>
                   </span>
                 </button>
               );
@@ -692,7 +679,7 @@ export default function LocationForm({
             {!canEdit ? <p className="admin-notice">View only — editing is not enabled for your account.</p> : null}
             <fieldset className="admin-form-fields" disabled={!canEdit}>
               {activeStage === "overview" ? (
-                <div className="location-editor-panel-grid builder-grid-two">
+                <div className="location-editor-panel-grid">
                   <div className="builder-element">
                     <div className="builder-grid-two">
                       <div className="builder-field">
@@ -803,41 +790,11 @@ export default function LocationForm({
                     </div>
                   </div>
 
-                  <div className="builder-element location-preview-card">
-                    <div className="location-preview-body">
-                      <div>
-                        <p className="location-preview-slug">{slug || "/location-path"}</p>
-                        <h2>{title || "Location title"}</h2>
-                        <p className="location-preview-intro">
-                          {accent || intro || "Location summary and positioning copy appear here."}
-                        </p>
-                      </div>
-                      <div className="location-preview-meta-grid">
-                        <div className="location-preview-meta-item">
-                          <span>Eyebrow</span>
-                          <strong>{eyebrow || "Stage 01: Visit Our Hub"}</strong>
-                        </div>
-                        <div className="location-preview-meta-item">
-                          <span>Assigned providers</span>
-                          <strong>{assignedProviderCount}</strong>
-                        </div>
-                      </div>
-
-                      <div className="builder-list-block">
-                        <div className="builder-list-header">
-                          <h4>Resources</h4>
-                        </div>
-                        <p>{bookingUrl || "Add the Book Appointment URL"}</p>
-                        <p>Patient Portal uses the shared site link.</p>
-                        <p>{reviewUrl || "Add the Leave a Review URL"}</p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               ) : null}
 
               {activeStage === "contact" ? (
-                <div className="location-editor-panel-grid builder-grid-two">
+                <div className="location-editor-panel-grid">
                   <div className="builder-element">
                     <div className="builder-section-heading contact-section-heading">
                       <div>
@@ -1064,47 +1021,11 @@ export default function LocationForm({
                     </div>
                   </div>
 
-                  <div className="builder-element location-preview-card">
-                    <div className="location-preview-body">
-                      <h2>Contact preview</h2>
-                      <div className="location-preview-meta-grid">
-                        <div className="location-preview-meta-item">
-                          <span>Generated display address</span>
-                          <strong className="contact-generated-address">
-                            {displayAddress || address || "Add the office address"}
-                          </strong>
-                        </div>
-                        <div className="location-preview-meta-item">
-                          <span>Main phone</span>
-                          <strong>{phone || "Add the main phone line"}</strong>
-                        </div>
-                        <div className="location-preview-meta-item">
-                          <span>Direct phone</span>
-                          <strong>{directPhone || "Add the direct line"}</strong>
-                        </div>
-                        <div className="location-preview-meta-item">
-                          <span>Call / text phone</span>
-                          <strong>{callTextPhone || "Add the call/text line"}</strong>
-                        </div>
-                      </div>
-                      <div className="builder-list-block">
-                        <div className="builder-list-header">
-                          <h4>Office hours</h4>
-                          <p>{officeHourPreviewRows.length} row(s)</p>
-                        </div>
-                        {officeHourPreviewRows.length === 0 ? (
-                          <p className="builder-helper-text">Hours will appear here line by line.</p>
-                        ) : (
-                          officeHourPreviewRows.map((hours) => <p key={hours}>{hours}</p>)
-                        )}
-                      </div>
-                    </div>
-                  </div>
                 </div>
               ) : null}
 
               {activeStage === "media" ? (
-                <div className="location-editor-panel-grid builder-grid-two">
+                <div className="location-editor-panel-grid">
                   <div className="builder-element">
                     <div className="builder-grid-two">
                       <div className="builder-field">
@@ -1116,7 +1037,7 @@ export default function LocationForm({
                           onChange={handleLocationImageUpload}
                         />
                         <p className="builder-helper-text">
-                          Upload the image used for this location&apos;s media preview and public page.
+                          Upload the image used on this location&apos;s public page.
                         </p>
                         {mapImageUrl ? (
                           <p className="builder-helper-text">Current image: {mapImageUrl}</p>
@@ -1142,30 +1063,6 @@ export default function LocationForm({
 
                   </div>
 
-                  <div className="builder-element location-preview-card">
-                    <div className="location-preview-body">
-                      {mapImageUrl ? (
-                        <img
-                          className="builder-preview-image"
-                          src={mapImageUrl}
-                          alt={mapImageAlt || title || "Location image"}
-                        />
-                      ) : (
-                        <div className="builder-preview-placeholder">Location hero / map image</div>
-                      )}
-
-                      <div className="location-preview-meta-grid">
-                        <div className="location-preview-meta-item">
-                          <span>Alt text</span>
-                          <strong>{mapImageAlt || "Add descriptive alt text for this image."}</strong>
-                        </div>
-                        <div className="location-preview-meta-item">
-                          <span>Upload status</span>
-                          <strong>{mapImageUrl ? "Image ready for the public page" : "Upload a location image"}</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               ) : null}
 
@@ -1264,28 +1161,6 @@ export default function LocationForm({
                     )}
                   </div>
 
-                  <div className="builder-element location-preview-card">
-                    <div className="location-preview-body">
-                      <h2>Services preview</h2>
-                      {selectedServices.length === 0 ? (
-                        <p className="builder-helper-text">
-                          Selected service cards will appear here and on the public services tab.
-                        </p>
-                      ) : (
-                        <div className="builder-inline-group">
-                          {selectedServices.map((service) => (
-                            <div className="location-preview-meta-item" key={`preview-${service.id}`}>
-                              <span>{service.category || "General Care"}</span>
-                              <strong>{service.title || "Service title"}</strong>
-                              <p className="location-preview-intro">
-                                {service.description || "Short service description"}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
                 </div>
               ) : null}
 
@@ -1395,28 +1270,6 @@ export default function LocationForm({
                     </div>
                   </div>
 
-                  <div className="builder-element location-preview-card">
-                    <div className="location-preview-body">
-                      <h2>Info preview</h2>
-                      {serializedInfoSections.length === 0 ? (
-                        <p className="builder-helper-text">
-                          Add at least one section title and paragraph to publish info content.
-                        </p>
-                      ) : (
-                        <div className="builder-inline-group">
-                          {serializedInfoSections.map((section) => (
-                            <div className="location-preview-meta-item" key={`preview-${section.key}`}>
-                              <span>{section.key}</span>
-                              <strong>{section.title}</strong>
-                              <p className="location-preview-intro">
-                                {(section.paragraphs || []).slice(0, 1).join(" ")}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
                 </div>
               ) : null}
 
