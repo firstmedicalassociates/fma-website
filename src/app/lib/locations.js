@@ -48,6 +48,16 @@ const DAY_ALIASES = new Map([
   ["sun", "Sunday"],
 ]);
 
+const OFFICE_HOUR_DISPLAY_DAYS = [
+  { value: "Monday", shortLabel: "Mon", group: "weekday" },
+  { value: "Tuesday", shortLabel: "Tue", group: "weekday" },
+  { value: "Wednesday", shortLabel: "Wed", group: "weekday" },
+  { value: "Thursday", shortLabel: "Thu", group: "weekday" },
+  { value: "Friday", shortLabel: "Fri", group: "weekday" },
+  { value: "Saturday", shortLabel: "Sat", group: "weekend" },
+  { value: "Sunday", shortLabel: "Sun", group: "weekend" },
+];
+
 export const OFFICE_HOUR_TIME_OPTIONS = Array.from({ length: 48 }, (_, index) => {
   const hour = Math.floor(index / 2);
   const minute = index % 2 === 0 ? 0 : 30;
@@ -388,6 +398,85 @@ export function formatOfficeHoursForDisplay(values) {
   return normalizeOfficeHours(values)
     .map((value) => formatOfficeHourRange(value))
     .filter(Boolean);
+}
+
+function formatOfficeHourValue(value) {
+  if (!value) return "Hours unavailable";
+  if (value.closed) return "Closed";
+
+  const startTime = formatOfficeHourTime(value.startTime);
+  const endTime = formatOfficeHourTime(value.endTime);
+  return startTime && endTime ? `${startTime} - ${endTime}` : "Hours unavailable";
+}
+
+function formatOfficeHourDayRange(startDay, endDay) {
+  if (startDay.value === endDay.value) return startDay.value;
+  return `${startDay.shortLabel} - ${endDay.shortLabel}`;
+}
+
+function formatCustomOfficeHourLabel(value) {
+  const label = String(value || "").trim();
+  const separatorIndex = label.indexOf(":");
+
+  if (separatorIndex <= 0) {
+    return { label: "Hours", value: label };
+  }
+
+  return {
+    label: label.slice(0, separatorIndex).trim(),
+    value: label.slice(separatorIndex + 1).trim(),
+  };
+}
+
+export function formatCondensedOfficeHoursForDisplay(values) {
+  const normalized = normalizeOfficeHours(values);
+  const hoursByDay = new Map(
+    normalized.filter((value) => value.day).map((value) => [value.day, value])
+  );
+  const customRows = normalized
+    .filter((value) => value.label)
+    .map((value) => formatCustomOfficeHourLabel(value.label));
+
+  if (hoursByDay.size === 0) {
+    return customRows.length > 0
+      ? customRows
+      : [
+          { label: "Mon - Fri", value: "Hours unavailable" },
+          { label: "Saturday", value: "Hours unavailable" },
+          { label: "Sunday", value: "Hours unavailable" },
+        ];
+  }
+
+  const groupedRows = [];
+
+  for (const day of OFFICE_HOUR_DISPLAY_DAYS) {
+    const value = formatOfficeHourValue(hoursByDay.get(day.value));
+    const previousRow = groupedRows.at(-1);
+    const canJoinPrevious =
+      day.group === "weekday" &&
+      previousRow?.group === "weekday" &&
+      previousRow.value === value;
+
+    if (canJoinPrevious) {
+      previousRow.endDay = day;
+      continue;
+    }
+
+    groupedRows.push({
+      startDay: day,
+      endDay: day,
+      group: day.group,
+      value,
+    });
+  }
+
+  return [
+    ...groupedRows.map((row) => ({
+      label: formatOfficeHourDayRange(row.startDay, row.endDay),
+      value: row.value,
+    })),
+    ...customRows,
+  ];
 }
 
 export function buildOpeningHoursSpecification(values) {

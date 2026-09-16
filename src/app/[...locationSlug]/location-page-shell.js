@@ -10,6 +10,7 @@ import SiteHeader from "../components/site-header";
 import { GENERAL_BOOK_APPOINTMENT_URL, PATIENT_PORTAL_URL } from "../lib/config/site";
 import {
   buildDisplayAddress,
+  formatCondensedOfficeHoursForDisplay,
   formatOfficeHoursForDisplay,
   resolveLocationAddressParts,
 } from "../lib/locations";
@@ -127,31 +128,6 @@ function getCategoryPillClass(stylesModule, category = "") {
   return map[variant] || stylesModule.serviceFinderCategoryDefault;
 }
 
-function buildLocationHeroHours(officeHours = []) {
-  const rows = Array.isArray(officeHours) ? officeHours : [];
-  const findRow = (label) =>
-    rows.find((row) => String(row || "").trim().toLowerCase().startsWith(label.toLowerCase()));
-
-  const weekdayRow = findRow("Mon") || findRow("Monday");
-  const saturdayRow = findRow("Saturday");
-  const sundayRow = findRow("Sunday");
-
-  return [
-    {
-      label: "Mon - Fri",
-      value: weekdayRow ? String(weekdayRow).replace(/^.*?:\s*/, "") : "Hours unavailable",
-    },
-    {
-      label: "Saturday",
-      value: saturdayRow ? String(saturdayRow).replace(/^.*?:\s*/, "") : "Closed",
-    },
-    {
-      label: "Sunday",
-      value: sundayRow ? String(sundayRow).replace(/^.*?:\s*/, "") : "Closed",
-    },
-  ];
-}
-
 export default function LocationPageShell({ location, providers, serviceGroups }) {
   const [activeTab, setActiveTab] = useState("location");
   const [serviceQuery, setServiceQuery] = useState("");
@@ -175,7 +151,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
     [location.officeHours]
   );
   const locationHeroHours = useMemo(
-    () => buildLocationHeroHours(formatOfficeHoursForDisplay(location.officeHours)),
+    () => formatCondensedOfficeHoursForDisplay(location.officeHours),
     [location.officeHours]
   );
   const serviceEntries = useMemo(() => {
