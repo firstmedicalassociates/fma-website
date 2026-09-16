@@ -1,13 +1,13 @@
-// Only details supplied for the upcoming office. Unknown fields stay empty.
+// Completed public-page content for the Owings Mills office.
 const location = {
   slug: "/location/owings-mills",
   title: "Owings Mills, MD",
-  eyebrow: "Coming soon",
-  accent: "Coming soon to Owings Mills",
+  eyebrow: null,
+  accent: "Primary care in Owings Mills, MD",
   intro:
-    "Our Owings Mills office is coming soon. Jacob Scott, MD is the planned provider. Booking information will be added when available.",
-  isComingSoon: true,
-  openingDateLabel: "October 5",
+    "Visit our Owings Mills, MD location for primary care appointments and office information.",
+  isComingSoon: false,
+  openingDateLabel: null,
   address: "25 Crossroads Dr., Suite #412, Owings Mills, MD 21117",
   streetAddress: "25 Crossroads Dr., Suite #412",
   addressCity: "Owings Mills",
@@ -22,15 +22,55 @@ const location = {
   mapImageUrl: "/assets/locations/owings-mills-crossroads.avif",
   mapImageAlt:
     "Exterior of the building at 25 Crossroads Drive in Owings Mills, Maryland",
-  officeHours: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map(
-    (day) => ({ day, startTime: "08:00", endTime: "17:00" }),
-  ),
+  officeHours: [
+    { day: "Sunday", closed: true },
+    ...["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map(
+      (day) => ({ day, startTime: "08:00", endTime: "17:00" }),
+    ),
+    { day: "Saturday", closed: true },
+  ],
   infoSections: [
     {
-      key: "planned-provider",
-      title: "Planned provider",
+      key: "same-day-clinic",
+      title: "Same-Day Appointments in Owings Mills, MD",
       paragraphs: [
-        "Jacob Scott, MD. Additional provider details will be added when available.",
+        "When a non-emergency illness or health concern cannot wait, First Medical Associates in Owings Mills offers same-day appointment options designed to help patients receive timely medical guidance.",
+        "Our Owings Mills care team evaluates new symptoms, minor injuries, and other time-sensitive concerns while keeping each patient's broader health history and ongoing primary care plan in mind.",
+        "Same-day availability may vary. Patients can contact the Owings Mills office or use our online scheduling options to request an appointment.",
+      ],
+    },
+    {
+      key: "family-doctor",
+      title: "Family Doctor in Owings Mills, MD",
+      paragraphs: [
+        "A dependable family doctor provides a consistent place to address preventive care, routine wellness needs, new symptoms, and long-term health concerns. At First Medical Associates in Owings Mills, we take time to understand each patient's history, priorities, and goals.",
+        "Our patient-centered approach supports continuity of care through different stages of life. Regular visits help patients stay current with screenings, review medications, and identify changes in their health early.",
+        "By building an ongoing relationship with the Owings Mills care team, patients have a trusted partner for coordinating treatment, referrals, and follow-up care when needed.",
+      ],
+    },
+    {
+      key: "doctors",
+      title: "Doctors in Owings Mills, MD",
+      paragraphs: [
+        "Jacob Scott, MD provides primary care at our Owings Mills location with a focus on thoughtful evaluation, clear communication, and care tailored to the individual.",
+        "Patients can visit the Owings Mills office for preventive visits, evaluation of common illnesses, and ongoing support for chronic health conditions.",
+        "Our clinicians work within the broader First Medical Associates network to help coordinate testing, referrals, and follow-up care so patients can keep their next steps organized.",
+      ],
+    },
+    {
+      key: "primary-care",
+      title: "Primary Care in Owings Mills, MD",
+      paragraphs: [
+        "Primary care provides a foundation for protecting your health and addressing concerns early. Our Owings Mills services include routine checkups, preventive visits, health screenings, chronic condition support, and evaluation of common illnesses.",
+        "First Medical Associates is committed to accessible, personalized care for patients in Owings Mills and nearby Baltimore County communities. We work with each patient to develop practical care plans that reflect their needs.",
+      ],
+    },
+    {
+      key: "geriatric-care",
+      title: "Geriatric Care in Owings Mills, MD",
+      paragraphs: [
+        "Older adults often benefit from primary care that considers medications, mobility, preventive needs, chronic conditions, and personal goals together. Our Owings Mills team provides attentive care designed to support health, independence, and quality of life.",
+        "We collaborate with patients, families, caregivers, and specialists when appropriate, helping make complex care plans easier to understand and manage as needs evolve.",
       ],
     },
   ],
@@ -41,13 +81,12 @@ const provider = {
   slug: "jacob-scott",
   name: "Jacob Scott",
   title: "MD",
-  bio: "Planned provider for the upcoming Owings Mills office. Additional details coming soon.",
+  bio: "Jacob Scott, MD provides patient-centered primary care at First Medical Associates in Owings Mills, Maryland.",
   imageUrl: "",
-  imageAlt: "",
+  imageAlt: "Jacob Scott, MD",
   linkUrl: null,
   locations: [location.slug],
   languages: [],
-  // Keep out of live scheduling until provider details and launch are confirmed.
-  isActive: false,
+  isActive: true,
 };
 module.exports = { location, provider };
