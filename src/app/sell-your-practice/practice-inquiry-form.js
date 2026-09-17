@@ -67,7 +67,7 @@ export default function PracticeInquiryForm() {
         <label className={`${styles.consent} ${styles.full}`}><input type="checkbox" name="consent" required /><span>I agree that First Medical Associates may contact me by email or phone about this practice inquiry. View our <Link href="/privacy-policy/">Privacy Policy</Link>. *</span></label>
         <div className={styles.honeypot} aria-hidden="true"><label htmlFor="practice-website">Leave this field empty</label><input id="practice-website" name="website" tabIndex={-1} autoComplete="off" /></div>
         {status === "error" && <div className={`${styles.status} ${styles.error}`} role="alert" tabIndex={-1} ref={resultRef}>{message} <a href={SITE_CALL_HREF}>Call {SITE_CALL_LABEL}</a>.</div>}
-        <button className={`${styles.primaryButton} ${styles.full}`} type="submit" disabled={status === "sending"}>{status === "sending" ? "Sending your inquiry…" : "Connect with FMA"}<ArrowRight size={18} aria-hidden="true" /></button>
+        <button className={`${styles.primaryButton} ${styles.full}`} type="submit" disabled={status === "sending"}>{status === "sending" ? "Sending your inquiry…" : "Connect with Us"}<ArrowRight size={18} aria-hidden="true" /></button>
       </form>
     </>}
   </div>;

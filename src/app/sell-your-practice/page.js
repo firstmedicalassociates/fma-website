@@ -36,8 +36,8 @@ export default function SellYourPracticePage() {
         <div className={styles.heroCopy}>
           <HeroEyebrow className={styles.eyebrow} dotClassName={styles.noDot}>Sell Your Practice. Shape Your Future.</HeroEyebrow>
           <h1 id="transition-title">The Right Transition Starts With The <span>Right Partner.</span></h1>
-          <p>First Medical Associates offers a tailored transition plan that prioritizes continuity of care for your patients, stability for your team, and alignment with your long-term goals.</p>
-          <a className={styles.primaryButton} href="#connect">Connect with FMA <ArrowRight size={19} aria-hidden="true" /></a>
+          <p>We offer a tailored transition plan that prioritizes continuity of care for your patients, stability for your team, and alignment with your long-term goals.</p>
+          <a className={styles.primaryButton} href="#connect">Connect with Us <ArrowRight size={19} aria-hidden="true" /></a>
         </div>
         <div className={styles.heroPhoto}>
           <Image src="/images/practice-transition/physician-partnership.webp" alt="Two physicians sharing a welcoming handshake in a medical office" width={1536} height={1024} sizes="(max-width: 800px) 100vw, 55vw" priority />
