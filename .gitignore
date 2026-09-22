@@ -48,6 +48,7 @@ next-env.d.ts
 /athena-provider-schedules.json
 /artifacts/athena/
 /artifacts/ai-search/
+/artifacts/booking-links/
 
 # Local browser test artifacts
 /output/playwright/

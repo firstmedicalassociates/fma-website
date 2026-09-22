@@ -18,7 +18,7 @@ const location = {
   phone: "443-652-1165",
   directionsUrl:
     "https://www.google.com/maps/search/?api=1&query=25%20Crossroads%20Dr.%2C%20Suite%20%23412%2C%20Owings%20Mills%2C%20MD%2021117",
-  bookingUrl: null,
+  bookingUrl: "https://pmc-firstmedicalassociates.provider-match.com/search?location_name=Owings%20Mills",
   mapImageUrl: "/assets/locations/owings-mills-crossroads.avif",
   mapImageAlt:
     "Exterior of the building at 25 Crossroads Drive in Owings Mills, Maryland",
@@ -84,7 +84,7 @@ const provider = {
   bio: "Jacob Scott, MD provides patient-centered primary care at First Medical Associates in Owings Mills, Maryland.",
   imageUrl: "",
   imageAlt: "Jacob Scott, MD",
-  linkUrl: null,
+  linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/7367823",
   locations: [location.slug],
   languages: [],
   isActive: true,

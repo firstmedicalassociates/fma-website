@@ -296,7 +296,7 @@ module.exports = [
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/karen-lizarraga.webp",
     imageAlt: "Karen Lizarraga headshot",
     slug: "karen-lizarraga",
-    linkUrl: null,
+    linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/6803195",
     bio: "Karen Lizarraga, PA-C, is a skilled physician assistant providing care at the Gaithersburg and Rockville, Maryland, offices of First Medical Associates.\n\nKaren is a Bolivian-American who was born in D.C. but grew up in Montgomery County, Maryland. She received her Bachelor of Science in Community Health at the University of Maryland, College Park, where she focused on providing excellent patient and community health education.\n\nAfterward, she accumulated patient care hours as a medical assistant in ophthalmology, neurology, allergy, and asthma. She then applied to Shenandoah University’s PA program, where she rotated in Family Medicine, Dermatology, Emergency Medicine, Women’s Health, and Surgery.\n\nOut of all her rotations, Karen felt most passionate about Family Medicine. She enjoyed general and preventative medicine while providing patient-centered and quality care. As a Spanish speaker, Karen is also passionate about providing culturally competent care.\n\nOutside of work, Karen enjoys spending time with her family, friends, and Yorkie. She also enjoys watching movies, swimming, and playing games.",
   },
   {
@@ -538,7 +538,7 @@ module.exports = [
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/christopher-costa.webp",
     imageAlt: "Christopher Costa headshot",
     slug: "christopher-costa",
-    linkUrl: null,
+    linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/7094373",
     bio: "Christopher Costa is a MD, FACP, SFHM at First Medical Associates. Sees patients at Columbia (Snowden River Pkwy). Languages: English, Spanish.",
   },
   {
@@ -648,7 +648,7 @@ module.exports = [
     imageUrl: "",
     imageAlt: "Khai-El Johnson, MD",
     slug: "khai-el-johnson",
-    linkUrl: null,
+    linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/7261386",
     bio: "Coming soon.",
   },
 ];

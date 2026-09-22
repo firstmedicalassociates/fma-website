@@ -30,7 +30,7 @@ test("Alexandria seed data contains the approved launch details", () => {
     "Alexandria, VA 22304",
   ]);
   assert.equal(location.img, "/assets/locations/alexandria-kenmore.webp");
-  assert.equal(location.bookingUrl, GENERAL_BOOK_APPOINTMENT_URL);
+  assert.equal(location.bookingUrl, `${GENERAL_BOOK_APPOINTMENT_URL}search?location_name=Alexandria`);
 
   const info = locationInfoSeedData["/location/alexandria"];
   assert.deepEqual(
@@ -49,7 +49,7 @@ test("Khai-El Johnson is assigned only to Alexandria with launch-safe placeholde
   assert.deepEqual(provider.locations, ["Alexandria"]);
   assert.deepEqual(provider.languages, []);
   assert.equal(provider.imageUrl, "");
-  assert.equal(provider.linkUrl, null);
+  assert.equal(provider.linkUrl, `${GENERAL_BOOK_APPOINTMENT_URL}book/7261386`);
   assert.equal(provider.bio, "Coming soon.");
 });
 

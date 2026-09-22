@@ -1,6 +1,6 @@
 import { prisma } from "./prisma.js";
 import { VISIBLE_LOCATION_WHERE } from "./locations.js";
-import { normalizeInternalPageHref } from "./config/site.js";
+import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
 
 export const AI_SEARCH_COMMON_KNOWLEDGE_VERSION = "2026-07-23.2";
 
@@ -8,7 +8,7 @@ const MAIN_PHONE = "301-515-2901";
 const MAIN_FAX = "866-701-4905";
 const MAIN_EMAIL = "info@DrsFirst.com";
 const PATIENT_PORTAL_URL = "https://4332.portal.athenahealth.com/";
-const BOOKING_URL = "https://first-medical-associates.inquicker.com/";
+const BOOKING_URL = GENERAL_BOOK_APPOINTMENT_URL;
 
 function normalizeText(value = "") {
   return String(value || "")

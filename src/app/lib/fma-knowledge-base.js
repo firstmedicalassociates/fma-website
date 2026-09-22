@@ -1,3 +1,4 @@
+import { GENERAL_BOOK_APPOINTMENT_URL } from "./config/site.js";
 // Static knowledge base built from official FMA/DrsFirst website content and operations scripts.
 // Sources: drsfirst.com homepage, about page, insurance page, contact page,
 // current live policy documents, and the Contact Center Operations Script Document.
@@ -19,7 +20,7 @@ Alternate Phone: 301-284-3181
 Fax: 866-701-4905
 Email: info@DrsFirst.com
 Patient Portal: https://4332.portal.athenahealth.com/
-Online Booking: https://first-medical-associates.inquicker.com/ (also available via ZocDoc)
+Online Booking: ${GENERAL_BOOK_APPOINTMENT_URL} (also available via ZocDoc)
 Online Bill Pay: https://payment.patient.athenahealth.com/statement/?src=statement
 
 HOURS OF OPERATION
@@ -47,7 +48,7 @@ LOCATIONS (18 locations across Maryland and Northern Virginia)
 - Silver Spring: 700 Roeder Rd, Suite 100 B, Silver Spring, MD 20910
 
 SCHEDULING APPOINTMENTS
-- Online: https://first-medical-associates.inquicker.com/
+- Online: ${GENERAL_BOOK_APPOINTMENT_URL}
 - ZocDoc: Available for appointment scheduling
 - Phone: 301-515-2901
 - Same-day services available for non-emergency issues
@@ -274,7 +275,7 @@ for weight loss. Referrals to specialists are available if appropriate.
 
 TELEMEDICINE / VIRTUAL VISITS
 FMA offers secure virtual healthcare consultations across Maryland and Northern Virginia via video call and messaging.
-- Book via phone (301-515-2901) or online booking: https://first-medical-associates.inquicker.com/
+- Book via phone (301-515-2901) or online booking: ${GENERAL_BOOK_APPOINTMENT_URL}
 - Available 24/7 with flexible scheduling and reduced wait times
 - Same personalized care as in-person visits in a secure, confidential environment
 
@@ -487,7 +488,7 @@ HIPAA Privacy Notice and all forms available at: www.DrsFirst.com/Forms
 ONLINE RESOURCES
 - Patient Portal (view records and message providers): https://4332.portal.athenahealth.com/
 - Online Bill Pay: https://payment.patient.athenahealth.com/statement/?src=statement
-- Online Booking: https://first-medical-associates.inquicker.com/
+- Online Booking: ${GENERAL_BOOK_APPOINTMENT_URL}
 - ZocDoc Booking: Search "First Medical Associates"
 - Medical Records & HIPAA Forms: www.DrsFirst.com/Forms
 - Careers/Jobs: www.DrsFirst.com/jobs/

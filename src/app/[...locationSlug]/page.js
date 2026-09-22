@@ -1,3 +1,4 @@
+import { bookingActionLabel } from "../lib/booking";
 import { notFound } from "next/navigation";
 import { SITE_NAME, absoluteUrl, normalizePagePath, pageUrl } from "../lib/config/site";
 import {
@@ -243,7 +244,7 @@ export default async function LocationLandingPage({ params }) {
           imageAlt: provider.imageAlt || provider.name,
           profileHref: normalizePagePath(`/providers/${provider.slug}`),
           ctaHref: resolveProviderBookingHref(provider, location),
-          ctaLabel: "Book Appointment",
+          ctaLabel: bookingActionLabel(resolveProviderBookingHref(provider, location)),
         }))}
         serviceGroups={groupLocationServices(locationServices)}
       />

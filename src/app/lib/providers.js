@@ -2,6 +2,12 @@ import {
   GENERAL_BOOK_APPOINTMENT_URL,
   normalizeInternalPageHref,
 } from "./config/site.js";
+import {
+  BOOKING_PHONE_HREF,
+  VERIFIED_PROVIDER_BOOKING_PATHS,
+  isLegacyBookingUrl,
+  resolveLocationBookingHref,
+} from "./booking.js";
 
 export function normalizeProviderSlug(value) {
   return String(value || "")
@@ -32,9 +38,14 @@ export function getProviderInitials(name = "") {
 }
 
 export function resolveProviderBookingHref(provider = {}, location = {}) {
-  return String(
-    provider.linkUrl || location?.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL || ""
-  ).trim();
+  const saved = String(provider?.linkUrl || "").trim();
+  if (saved && saved !== "#" && !isLegacyBookingUrl(saved)) return saved;
+  const verifiedPath = VERIFIED_PROVIDER_BOOKING_PATHS[provider?.slug];
+  if (verifiedPath) return `${GENERAL_BOOK_APPOINTMENT_URL}${verifiedPath}`;
+  // A named clinician without a verified scheduling destination needs staff
+  // assistance; a generic directory would silently lose the selected provider.
+  if (provider?.name || provider?.slug) return BOOKING_PHONE_HREF;
+  return resolveLocationBookingHref(location) || GENERAL_BOOK_APPOINTMENT_URL;
 }
 
 export function formatProviderList(items) {

@@ -1,6 +1,6 @@
 const { location: owingsMills } = require("./owings-mills-seed-data");
 
-module.exports = [
+const locations = [
   {
     name: owingsMills.title,
     cityStatePhone: owingsMills.phone,
@@ -16,8 +16,6 @@ module.exports = [
     cityStatePhone: "571-200-7128",
     addressLines: ["4660 Kenmore Ave Suite #1210", "Alexandria, VA 22304"],
     img: "/assets/locations/alexandria-kenmore.webp",
-    bookingUrl:
-      "https://first-medical-associates.inquicker.com/search?appointmentTypes=2791&insurancePlans=&isVirtual=false&service=find-a-doctor&serviceName=Find%20A%20Doctor&service_id=5175%2C5176&specialtyId=&specialtyName=&specialtyType=&subservice_ids=5175&subservice_ids=5176&timestamp=2023-09-14T17%3A25%3A32-04%3A00&ux_mode=default&viewName=list&zip=",
     href: "/location/alexandria/",
   },
   {
@@ -131,8 +129,6 @@ module.exports = [
     addressLines: ["14201 Laurel Park Drive, Suite #111", "Laurel, MD 20707"],
     img: null,
     clearExistingImage: true,
-    bookingUrl:
-      "https://pmc-firstmedicalassociates.provider-match.com/search?tracking_consent=true&tracking_consent_type=none&shuffle_seed=8fbd5b17-17b4-41ed-94b4-41a01d57d304&categories=primary_care%2Cclinical_keywords%2Cspecialties%2Cprovider_name%2Clocation_name&sort=relevance%2Cnetworks%2Cavailability_density_best&search_alerts=false&include_value_add_programs=false&use_knowledge_graph_results=false&provider_fields=-clinical_keywords&location_name=Laurel",
     href: "/location/laurel/",
   },
   {
@@ -143,3 +139,9 @@ module.exports = [
     href: "/location/greenbelt",
   },
 ];
+
+// Provider Match expects the office name, including II for secondary offices.
+module.exports = locations.map((location) => location.seedRecord?.isComingSoon ? location : ({
+  ...location,
+  bookingUrl: `https://pmc-firstmedicalassociates.provider-match.com/search?location_name=${encodeURIComponent(location.name.split(",")[0])}`,
+}));

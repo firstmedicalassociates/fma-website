@@ -796,7 +796,7 @@ check("matches provider scheduling aliases from display names", () => {
 check("allows safe generated FMA answers", () => {
   const result = sanitizeGeneratedAnswerResult({
     answer:
-      "You can book online at https://first-medical-associates.inquicker.com/ or call us at 301-515-2901.",
+      "You can book online at https://pmc-firstmedicalassociates.provider-match.com/ or call us at 301-515-2901.",
     confidence: "high",
     grounded: true,
     citations: ["Scheduling"],

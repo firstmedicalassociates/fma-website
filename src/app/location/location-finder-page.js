@@ -1,3 +1,4 @@
+import { resolveLocationBookingHref } from "../lib/booking";
 import {
   VISIBLE_LOCATION_WHERE,
   buildStructuredAddress,
@@ -138,7 +139,7 @@ export default async function LocationFinderPage() {
       addressState: addressParts.addressState || "",
       postalCode: addressParts.postalCode || "",
       directionsUrl: location.directionsUrl || "",
-      bookingUrl: location.bookingUrl || "",
+      bookingUrl: resolveLocationBookingHref(location),
       mapImageUrl: primaryImage?.src || location.mapImageUrl || "",
       mapImageAlt: primaryImage?.alt || location.mapImageAlt || location.title,
       officeHours: Array.isArray(location.officeHours) ? location.officeHours : [],

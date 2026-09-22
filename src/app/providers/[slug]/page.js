@@ -1,3 +1,4 @@
+import { bookingActionLabel, resolveLocationBookingHref } from "../../lib/booking";
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
@@ -333,7 +334,7 @@ export default async function ProviderDetailPage({ params }) {
       href: location?.slug ? normalizePagePath(location.slug) : null,
       label,
       address,
-      bookingUrl: location?.bookingUrl || "",
+      bookingUrl: location ? resolveLocationBookingHref(location) : "",
     };
   });
 
@@ -467,7 +468,7 @@ export default async function ProviderDetailPage({ params }) {
                     href={bookingHref}
                     icon={renderInlineIcon("calendar")}
                   >
-                    Book Appointment
+                    {bookingActionLabel(bookingHref)}
                   </ActionLink>
 
                   {zocdocHref ? (

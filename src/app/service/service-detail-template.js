@@ -1,3 +1,4 @@
+import { GENERAL_BOOK_APPOINTMENT_URL } from "../lib/config/site";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -766,7 +767,7 @@ export default function ServiceDetailTemplate({ service }) {
             <p className="hero-desc">{content.heroDescription}</p>
 
             <div className="hero-actions">
-              <Link href="/locations/" className="button-primary">
+              <Link href={GENERAL_BOOK_APPOINTMENT_URL} className="button-primary">
                 <Calendar size={18} /> Schedule an Appointment
               </Link>
               <Link href="/providers/" className="button-outline">
@@ -859,7 +860,7 @@ export default function ServiceDetailTemplate({ service }) {
           </div>
 
           <div className="cta-actions">
-            <Link href="/locations/" className="cta-btn-primary">
+            <Link href={GENERAL_BOOK_APPOINTMENT_URL} className="cta-btn-primary">
               <Calendar size={18} /> Schedule an Appointment
             </Link>
             <Link href="/providers/" className="cta-btn-outline">

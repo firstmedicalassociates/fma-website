@@ -10,8 +10,7 @@ export const SITE_CALL_HREF =
 export const SITE_CALL_LABEL =
   process.env.NEXT_PUBLIC_SITE_CALL_LABEL?.trim() || "301-284-3181";
 export const GENERAL_BOOK_APPOINTMENT_URL =
-  process.env.NEXT_PUBLIC_GENERAL_BOOK_APPOINTMENT_URL?.trim() ||
-  "https://first-medical-associates.inquicker.com/search?appointmentTypes=2791&insurancePlans=&isVirtual=false&service=find-a-doctor&serviceName=Find%20A%20Doctor&service_id=5175%2C5176&specialtyId=&specialtyName=&specialtyType=&subservice_ids=5175&subservice_ids=5176&timestamp=2023-09-14T17%3A25%3A32-04%3A00&ux_mode=default&viewName=list&zip=";
+  "https://pmc-firstmedicalassociates.provider-match.com/";
 export const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim() || "";
 export const GOOGLE_MAPS_MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID?.trim() || "";
 

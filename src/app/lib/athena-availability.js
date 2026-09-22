@@ -1,3 +1,5 @@
+import { resolveProviderBookingHref } from "./providers.js";
+import { bookingActionLabel } from "./booking.js";
 import { AthenaRequestError, readAthenaCollection, onlineProviderExclusions, auditProviderDepartments, mappingRecommendation } from "./athena-diagnostics.mjs";
 import { prisma } from "./prisma.js";
 import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
@@ -1736,7 +1738,7 @@ function buildProviderSchedulingNotConfirmedResult(
   const providerLabel = joinReadableList(providerNames) || "that provider";
   const locationName = department ? getDepartmentName(department) : "First Medical Associates";
   const primaryBookingUrl =
-    providers.find((provider) => provider.linkUrl)?.linkUrl || GENERAL_BOOK_APPOINTMENT_URL;
+    resolveProviderBookingHref(providers[0] || {});
   const sources = providers
     .filter((provider) => provider.slug)
     .map((provider) => ({
@@ -1763,12 +1765,12 @@ function buildProviderSchedulingNotConfirmedResult(
           ],
     citations: ["Appointment availability"],
     disclaimer: true,
-    recoveryActions: buildAppointmentRecoveryActions({
-      requestedProviderNames: providerNames,
-      department,
-      locationName,
-      lookaheadDays,
-    }),
+    recoveryActions: [
+      { type: "link", label: bookingActionLabel(primaryBookingUrl), value: "book_online", href: primaryBookingUrl },
+      ...buildAppointmentRecoveryActions({
+        requestedProviderNames: providerNames, department, locationName, lookaheadDays,
+      }),
+    ].slice(0, 4),
     meta: {
       availabilityStatus: "provider_schedule_not_confirmed",
       locationName,
@@ -1943,7 +1945,7 @@ async function getLiveAppointmentAvailabilityForQuery(query, options = {}) {
 
       const siteProvider = findSiteProvider(provider, siteProviderEntries);
       const providerName = siteProvider?.name || getProviderName(provider);
-      const bookingUrl = siteProvider?.linkUrl || GENERAL_BOOK_APPOINTMENT_URL;
+      const bookingUrl = resolveProviderBookingHref(siteProvider || { name: providerName });
 
       return slots.map((slot) => ({
         providerId: provider.providerid,

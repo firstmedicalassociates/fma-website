@@ -1,4 +1,6 @@
 "use client";
+
+import { bookingActionLabel, getSearchBookingActions } from "../lib/booking";
 import { trackSearchClick } from "../lib/ai-click-tracking";
 
 import Link from "next/link";
@@ -839,6 +841,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                   const showFeedback =
                     message.id === activeAssistantMessageId &&
                     payload.eventId;
+                  const bookingActions = getSearchBookingActions(payload);
 
                   return (
                     <article className={`${styles.chatMessage} ${styles.assistantMessage}`} key={message.id} onClickCapture={(event) => trackSearchClick(event, payload.interactionTargets)} onAuxClickCapture={(event) => trackSearchClick(event, payload.interactionTargets)}>
@@ -891,7 +894,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                                     rel="noopener noreferrer"
                                     target="_blank"
                                   >
-                                    Book appointment
+                                    {bookingActionLabel(option.bookingUrl)}
                                   </a>
                                 </div>
                               </article>
@@ -1002,9 +1005,18 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
                         ) : null}
 
                         <div className={styles.quickActions}>
-                          <Link className={`${styles.quickAction} ${styles.quickActionPrimary}`} href={GENERAL_BOOK_APPOINTMENT_URL}>
-                            Schedule Appointment
-                          </Link>
+                          {(bookingActions.length > 0 ? bookingActions : [{
+                            href: GENERAL_BOOK_APPOINTMENT_URL,
+                            label: "Schedule Appointment",
+                          }]).map((action) => (
+                            <a
+                              className={`${styles.quickAction} ${styles.quickActionPrimary}`}
+                              href={action.href}
+                              key={`${action.href}-${action.label}`}
+                            >
+                              {action.label}
+                            </a>
+                          ))}
                           <Link className={styles.quickAction} href="/providers/">
                             Find a Provider
                           </Link>

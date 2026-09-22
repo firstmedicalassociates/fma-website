@@ -4,7 +4,7 @@ export const SAFE_FALLBACK_ANSWER =
 const ALLOWED_ANSWER_HOSTS = new Set([
   "4332.portal.athenahealth.com",
   "drsfirst.com",
-  "first-medical-associates.inquicker.com",
+  "pmc-firstmedicalassociates.provider-match.com",
   "payment.patient.athenahealth.com",
   "www.drsfirst.com",
 ]);
@@ -60,8 +60,22 @@ export function hasUnsafeMedicalAdvice(answer = "") {
   return UNSAFE_MEDICAL_ADVICE_PATTERNS.some((pattern) => pattern.test(answer));
 }
 
-export function hasDisallowedAnswerUrl(answer = "") {
-  const urlPattern = /\bhttps?:\/\/[^\s<>"')]+|\bwww\.[^\s<>"')]+/gi;
+function comparableBookingUrl(value) {
+  try {
+    const url = new URL(String(value).replace(/[.,;!\]]+$/, ""));
+    url.pathname = url.pathname.replace(/\/+$/, "") || "/";
+    url.searchParams.sort();
+    return url.href;
+  } catch {
+    return "";
+  }
+}
+
+export function hasDisallowedAnswerUrl(answer = "", options = {}) {
+  const bookingUrls = Array.isArray(options.bookingUrls)
+    ? new Set(options.bookingUrls.map(comparableBookingUrl).filter(Boolean))
+    : null;
+  const urlPattern = /\bhttps?:\/\/[^\s<>"')\]]+|\bwww\.[^\s<>"')\]]+/gi;
   let match;
 
   while ((match = urlPattern.exec(answer)) !== null) {
@@ -69,6 +83,8 @@ export function hasDisallowedAnswerUrl(answer = "") {
     try {
       const host = new URL(rawUrl).hostname.toLowerCase();
       if (!ALLOWED_ANSWER_HOSTS.has(host)) return true;
+      if (host === "pmc-firstmedicalassociates.provider-match.com" && bookingUrls &&
+          !bookingUrls.has(comparableBookingUrl(rawUrl))) return true;
     } catch {
       return true;
     }
@@ -77,11 +93,11 @@ export function hasDisallowedAnswerUrl(answer = "") {
   return false;
 }
 
-export function getGeneratedAnswerSafetyIssue(answer = "") {
+export function getGeneratedAnswerSafetyIssue(answer = "", options = {}) {
   const normalized = normalizeGuardText(answer);
   if (!normalized) return "empty_answer";
   if (detectPromptInjection(normalized)) return "instruction_leak";
-  if (hasDisallowedAnswerUrl(normalized)) return "unsupported_url";
+  if (hasDisallowedAnswerUrl(normalized, options)) return "unsupported_url";
   if (hasUnsafeMedicalAdvice(normalized)) return "medical_advice";
   return "";
 }
@@ -96,9 +112,9 @@ export function buildSafeAnswerFallback(safetyIssue = "unsafe_answer") {
   };
 }
 
-export function sanitizeGeneratedAnswerResult(result = {}) {
+export function sanitizeGeneratedAnswerResult(result = {}, options = {}) {
   const answer = normalizeGuardText(result.answer || "");
-  const safetyIssue = getGeneratedAnswerSafetyIssue(answer);
+  const safetyIssue = getGeneratedAnswerSafetyIssue(answer, options);
 
   if (safetyIssue) return buildSafeAnswerFallback(safetyIssue);
 

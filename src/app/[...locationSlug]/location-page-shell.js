@@ -7,7 +7,8 @@ import { useEffect, useMemo, useState } from "react";
 import HeroEyebrow from "../components/hero-eyebrow";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
-import { GENERAL_BOOK_APPOINTMENT_URL, PATIENT_PORTAL_URL } from "../lib/config/site";
+import { PATIENT_PORTAL_URL } from "../lib/config/site";
+import { resolveLocationBookingHref } from "../lib/booking";
 import {
   buildDisplayAddress,
   formatCondensedOfficeHoursForDisplay,
@@ -295,7 +296,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
   const publicPhone = location.publicPhone || "";
   const patientPortalUrl = PATIENT_PORTAL_URL;
   const hasPatientPortalLink = Boolean(patientPortalUrl && patientPortalUrl !== "#");
-  const bookingUrl = location.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL || "";
+  const bookingUrl = resolveLocationBookingHref(location);
   const hasBookingLink = Boolean(bookingUrl && bookingUrl !== "#");
 
   function openPhotoModal(index = 0) {
@@ -723,8 +724,8 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                   <h2>Connect with the care team at {location.title}.</h2>
                 </div>
                 <div className={styles.bannerActions}>
-                  {location.bookingUrl ? (
-                    <a href={location.bookingUrl} target="_blank" rel="noreferrer">
+                  {hasBookingLink ? (
+                    <a href={bookingUrl} target="_blank" rel="noreferrer">
                       Book Your Visit
                     </a>
                   ) : null}

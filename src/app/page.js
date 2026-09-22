@@ -1,3 +1,4 @@
+import { resolveLocationBookingHref } from "./lib/booking";
 import Image from "next/image";
 import Link from "next/link";
 import { Inter, Manrope } from "next/font/google";
@@ -496,7 +497,7 @@ export default async function Home() {
   const { featuredLocation, providerCount, locationCount, heroSearchLocations, heroSearchProviders } =
     await getHomeData();
 
-  const contactBookingHref = featuredLocation?.bookingUrl || "/locations";
+  const contactBookingHref = resolveLocationBookingHref(featuredLocation);
 
   return (
     <div className={`${displayFont.variable} ${bodyFont.variable} ${styles.page}`}>

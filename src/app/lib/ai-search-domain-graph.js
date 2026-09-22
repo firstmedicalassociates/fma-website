@@ -1,5 +1,7 @@
+import { resolveProviderBookingHref } from "./providers.js";
+import { resolveLocationBookingHref } from "./booking.js";
 import { prisma } from "./prisma.js";
-import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
+import { normalizeInternalPageHref } from "./config/site.js";
 import { VISIBLE_LOCATION_WHERE } from "./locations.js";
 import {
   AI_SEARCH_CORE_STOPWORDS,
@@ -507,7 +509,7 @@ function formatProviderLine(match) {
   const languages = Array.isArray(provider.languages) && provider.languages.length > 0
     ? provider.languages.join(", ")
     : "not listed";
-  const booking = provider.linkUrl || GENERAL_BOOK_APPOINTMENT_URL;
+  const booking = resolveProviderBookingHref(provider);
 
   return [
     `Provider: ${provider.name}`,
@@ -549,7 +551,7 @@ export function formatFmaDomainGraphContext(result = {}) {
     .map(formatProviderLine)
     .join("\n\n---\n\n");
   const locationText = (result.locationMatches || [])
-    .map((location) => `Location: ${location.title}\nAddress: ${formatAddress(location)}\nURL: ${normalizeLocationPath(location.slug)}`)
+    .map((location) => `Location: ${location.title}\nAddress: ${formatAddress(location)}\nURL: ${normalizeLocationPath(location.slug)}\nBooking URL: ${resolveLocationBookingHref(location) || "Not yet available"}`)
     .join("\n\n---\n\n");
   const serviceText = (result.serviceMatches || [])
     .map(
@@ -600,7 +602,7 @@ function formatProviderCard(match) {
     subtitle: provider.title || "FMA provider",
     href: normalizeInternalPageHref(`/providers/${provider.slug}`),
     actionLabel: "View profile",
-    bookingUrl: provider.linkUrl || GENERAL_BOOK_APPOINTMENT_URL,
+    bookingUrl: resolveProviderBookingHref(provider),
     details: [
       locations.length ? `Locations: ${locations.join(", ")}` : "",
       languages.length ? `Languages: ${languages.join(", ")}` : "",
@@ -619,7 +621,7 @@ function formatLocationCard(location) {
     subtitle: location.isComingSoon ? `Coming soon${location.openingDateLabel ? ` — estimated opening ${location.openingDateLabel}` : ""}` : formatAddress(location) || "FMA location",
     href: normalizeLocationPath(location.slug),
     actionLabel: "View location",
-    bookingUrl: location.isComingSoon ? "" : location.bookingUrl || GENERAL_BOOK_APPOINTMENT_URL,
+    bookingUrl: resolveLocationBookingHref(location),
     details: [location.phone ? `Phone: ${location.phone}` : ""].filter(Boolean),
     badges: [location.addressCity, location.addressState].filter(Boolean).slice(0, 3),
   };

@@ -1,4 +1,6 @@
 "use client";
+
+import { bookingActionLabel, getSearchBookingActions } from "../lib/booking";
 import { trackSearchClick } from "../lib/ai-click-tracking";
 
 import Link from "next/link";
@@ -45,6 +47,7 @@ function normalizeAiPayload(value = {}) {
     answer: String(value?.answer || ""),
     error: String(value?.error || ""),
     sources: Array.isArray(value?.sources) ? value.sources.slice(0, 3) : [],
+    cards: Array.isArray(value?.cards) ? value.cards : [],
     confidence: Number(value?.confidence || 0),
     appointmentOptions,
     appointmentMeta:
@@ -197,6 +200,7 @@ export default function SearchClient() {
   }
 
   const appointmentOptions = aiResult?.appointmentOptions || [];
+  const bookingActions = getSearchBookingActions(aiResult || {});
   const hasAppointmentOptions = appointmentOptions.length > 0;
   const appointmentStatusText = getAppointmentStatusText(
     aiResult?.appointmentMeta,
@@ -263,6 +267,15 @@ export default function SearchClient() {
               ))}
             </div>
           ) : null}
+          {!hasAppointmentOptions && !appointmentStatusText && bookingActions.length > 0 ? (
+            <div className={styles.recoveryActions}>
+              {bookingActions.map((action) => (
+                <a className={styles.recoveryAction} href={action.href} key={`${action.href}-${action.label}`}>
+                  {action.label}
+                </a>
+              ))}
+            </div>
+          ) : null}
         </section>
       ) : null}
 
@@ -310,7 +323,7 @@ export default function SearchClient() {
                           rel={isExternalHref(bookingUrl) ? "noreferrer" : undefined}
                           target={isExternalHref(bookingUrl) ? "_blank" : undefined}
                         >
-                          Book appointment
+                          {bookingActionLabel(bookingUrl)}
                         </a>
                       ) : null}
                     </div>
