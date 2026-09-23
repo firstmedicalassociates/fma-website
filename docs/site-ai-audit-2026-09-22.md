@@ -4,7 +4,7 @@
 
 The baseline crawl covered all 202 sitemap pages, 218 discovered page URLs, 383 unique link destinations, 158 external destinations, and 178 images. No internal page returned a broken-page status, and no public booking link used InQuicker. Canonical URLs, headings, fragment targets, image responses, link names, and telephone link syntax were checked.
 
-The live AI audit exercised all 60 active providers, all 19 offices, eight provider availability requests, typo recovery, portal and payment links, insurance, forms, services, language filtering, new-patient requests, unknown providers, unrelated questions, instruction overrides, and input limits. All 60 baseline provider searches retained the correct booking URL. Additional regression cases cover second-office matching and a named provider requested at an incompatible office.
+The live AI audit exercised all 60 active providers, all 19 offices, eight provider availability requests, two office availability requests, typo recovery, portal and payment links, insurance, forms, services, language filtering, new-patient requests, unknown providers, unrelated questions, instruction overrides, and input limits. All 60 baseline provider searches retained the correct booking URL. Additional regression cases cover second-office matching and a named provider requested at an incompatible office.
 
 ## Findings fixed
 
@@ -30,7 +30,7 @@ The live AI audit exercised all 60 active providers, all 19 offices, eight provi
 
 ## Limits and outstanding checks
 
-Zocdoc blocked the automated HTTP checker, so its profiles were opened in the user's signed-in browser. Forty-two unique profiles displayed the correct provider before Zocdoc required a human verification challenge. The other 12 destinations remain unverified at the destination; their website buttons contain the supplied provider-specific URLs. The challenge was left for the user to complete.
+Zocdoc blocked the automated HTTP checker, so its profiles were opened in the user's signed-in browser. Forty-two unique profiles displayed the correct provider before Zocdoc required a human verification challenge. The other 12 destinations remain unverified at the destination; their website buttons contain the supplied provider-specific URLs. The user instructed us to continue without completing the challenge.
 
 The existing dependency audit reports 20 advisories (seven moderate, 12 high, one critical). Dependencies and the lockfile were unchanged by this work. The aggregate deployment check therefore cannot pass its audit step; its other checks passed independently.
 
@@ -42,4 +42,15 @@ No real patient information was used, appointments were not submitted, and forms
 
 Run `npm run audit:links:live` and `npm run audit:ai-links:live`. The AI script uses safe synthetic queries and spaces requests to remain below the public limit. It stops if rate-limited. Reports are saved under the ignored `artifacts/site-audit/` directory. Set `AUDIT_ORIGIN`, `AUDIT_OUTPUT`, or `AUDIT_AI_OUTPUT` to compare a preview or local deployment. `AUDIT_AI_KINDS` accepts a comma-separated list of scenario kinds for a targeted rerun.
 
-Post-deployment verification is recorded after the release completes.
+## Production verification after deployment
+
+Commit `5c01392` deployed successfully. The following checks ran against `https://drsfirst.com` after deployment:
+
+- **107 of 107 live AI scenarios passed**, including all 60 provider booking destinations and saved office labels, all 19 office booking destinations, office-specific provider filtering, conflicting provider/office criteria, eight named-provider availability requests, and live appointment requests for Bowie II and Columbia II. No retired booking URLs appeared.
+- **218 pages, 381 unique link destinations, 158 external destinations, and 178 images checked.** No broken internal pages or images, missing fragments, placeholder links, unnamed links, heading/canonical defects, or InQuicker links remained in the crawl. The two fewer link destinations reflect replacement of the welcome video's fragment controls with buttons.
+- **All 78 Provider Match destinations returned HTTP 200:** the general scheduler, 19 office searches, and 58 provider booking pages. Their provider/office identities were established in the preceding booking audit. The automated external exceptions were Zocdoc (54), Athena bill payment (one), and the press reference (one); browser checks resolved 44 of these, leaving the 12 Zocdoc profiles described above.
+- AI responses returned 169 unique URLs, including 87 internal URLs. Every internal destination was covered by the successful site crawl.
+- Production browser checks at 390px confirmed Karen's correct booking link and “1 result found,” FAQ filtering and contact links, AI dialog focus containment/Escape/focus restoration, and welcome-video close/pause/focus restoration.
+- A live AI dialog conversation searched for Karen Lizarraga and then asked “Does she have appointments tomorrow?” The follow-up retained Karen's identity and returned four Gaithersburg appointment options, all linking to `/book/6803195`.
+
+Local evidence is stored in `artifacts/site-audit/links-after.json`, `ai-live-after.json`, `ai-destination-crosscheck.json`, and `browser-after.json`. These machine reports are intentionally ignored by Git; this summary and the reusable audit scripts are committed.

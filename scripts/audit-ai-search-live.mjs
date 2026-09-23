@@ -17,6 +17,7 @@ const cases = [
   ...locations.map((location) => ({ kind: "location", query: `Where is your ${location.title.replace(/,\s*(MD|VA)$/i, "")} office?`, location, expectedBooking: resolveLocationBookingHref(location) })),
   ...["/bowie-health-center-dr", "/columbia-broken-land-parkway"].map((slug) => ({ kind: "specific_office", query: `Find providers at ${locations.find((location) => location.slug === slug)?.title.replace(/,\s*MD$/i, "")}`, expectedOffice: slug })),
   { kind: "conflicting_office", query: "Find Karen Lizarraga at Nottingham", expectedCode: "provider_criteria_mismatch", expectedName: "Karen Lizarraga", expectedHref: resolveProviderBookingHref(providers.find((provider) => provider.slug === "karen-lizarraga")) },
+  ...["Bowie II", "Columbia II"].map((office) => ({ kind: "office_availability", query: `show available appointments at ${office} tomorrow`, office, expectedOfficeBooking: resolveLocationBookingHref(locations.find((location) => location.title.startsWith(`${office},`))) })),
   ...["karen-lizarraga", "khai-el-johnson", "christopher-costa", "jacob-scott", "ronald-thomas", "rakesh-malik", "robin-codjoe", "kyneisha-watson"].map((slug) => providers.find((provider) => provider.slug === slug)).filter(Boolean).map((provider) => ({ kind: "availability", query: `show available appointments for ${provider.name} tomorrow`, provider, expectedBooking: resolveProviderBookingHref(provider) })),
   { kind: "typo", query: "find provider Robn Codjo", expectedName: "Robin Codjoe" },
   { kind: "portal", query: "How do I open the patient portal?", expectedHref: "https://4332.portal.athenahealth.com/" },
@@ -82,6 +83,12 @@ for (const test of selected) {
     const slots = ai.appointmentOptions || [];
     if (slots.some((slot) => slot.providerName !== test.provider.name || slot.bookingUrl !== test.expectedBooking)) failures.push("appointment provider or booking mismatch");
     if (!urls.includes(test.expectedBooking)) failures.push("missing provider-specific booking destination");
+  }
+  if (test.kind === "office_availability") {
+    const slots = ai.appointmentOptions || [];
+    if (slots.some((slot) => !slot.locationName?.includes(test.office))) failures.push("appointment at another office");
+    if (slots.some((slot) => slot.bookingUrl !== resolveProviderBookingHref(providers.find((provider) => provider.name === slot.providerName) || {}))) failures.push("appointment booking mismatch");
+    if (slots.length === 0 && !urls.includes(test.expectedOfficeBooking)) failures.push("missing selected-office recovery destination");
   }
   if (test.kind === "location" && !urls.includes(test.expectedBooking)) failures.push("missing office-specific booking destination");
   if (test.expectedName && !(ai.cards || []).some((card) => card.title === test.expectedName)) failures.push("typo matched wrong provider");
