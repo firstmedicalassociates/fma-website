@@ -1,5 +1,6 @@
 import { resolveProviderBookingHref } from "./providers.js";
 import { resolveLocationBookingHref } from "./booking.js";
+import { matchSpecificAliases } from "./search-aliases.js";
 import { prisma } from "./prisma.js";
 import { normalizeInternalPageHref } from "./config/site.js";
 import { VISIBLE_LOCATION_WHERE } from "./locations.js";
@@ -101,7 +102,7 @@ function addAlias(index, alias, value) {
 }
 
 function addLocationAliases(index, location) {
-  const titleWithoutState = String(location.title || "").replace(/,\s*MD$/i, "");
+  const titleWithoutState = String(location.title || "").replace(/,\s*(MD|VA)$/i, "");
   const slugPart = locationKey(location.slug);
   const aliases = [
     location.slug,
@@ -167,9 +168,11 @@ function formatLocationLabel(location = {}) {
   return address ? `${location.title} (${address})` : location.title;
 }
 
-function resolveProviderLocations(provider, locationByAlias) {
+function resolveProviderLocations(provider, locationByAlias, locationByPath) {
   const values = Array.isArray(provider.locations) ? provider.locations : [];
   const resolved = values.map((value) => {
+    const exactLocation = locationByPath.get(normalizeLocationPath(value));
+    if (exactLocation) return exactLocation;
     const key = compactText(locationKey(value) || value);
     const directMatch = locationByAlias.get(key);
     if (directMatch) return directMatch;
@@ -201,20 +204,8 @@ function providerMatchesLanguage(provider, languages) {
 function providerMatchesLocation(provider, locations) {
   if (locations.length === 0) return [];
   const providerLocations = Array.isArray(provider.locationRecords) ? provider.locationRecords : [];
-  const locationKeys = new Set(
-    locations.flatMap((location) => [
-      compactText(location.slug),
-      compactText(locationKey(location.slug)),
-      compactText(location.title),
-      compactText(location.addressCity),
-    ])
-  );
-
-  return providerLocations.filter((location) =>
-    [location.slug, locationKey(location.slug), location.title, location.addressCity].some((value) =>
-      locationKeys.has(compactText(value))
-    )
-  );
+  const locationPaths = new Set(locations.map((location) => normalizeLocationPath(location.slug)));
+  return providerLocations.filter((location) => locationPaths.has(normalizeLocationPath(location.slug)));
 }
 
 function isPrimaryCareService(service = {}) {
@@ -289,7 +280,7 @@ function extractCriteria(query, graph) {
   const languages = graph.languages.filter((language) =>
     compactText(normalized).includes(compactText(language))
   );
-  const locations = matchAliases(query, graph.locationAliases);
+  const locations = matchSpecificAliases(query, graph.locationAliases);
   const services = matchAliases(query, graph.serviceAliases);
   const unsupportedCriteria = [];
   const asksServiceCatalog =
@@ -376,6 +367,7 @@ async function buildDomainGraph() {
   for (const [alias, values] of locationAliases.entries()) {
     if (values[0]) locationByAlias.set(alias, values[0]);
   }
+  const locationByPath = new Map(locations.map((location) => [normalizeLocationPath(location.slug), location]));
 
   const serviceAliases = new Map();
   for (const service of services) addServiceAliases(serviceAliases, service);
@@ -384,7 +376,7 @@ async function buildDomainGraph() {
     ...provider,
     type: "provider",
     url: normalizeInternalPageHref(`/providers/${provider.slug}`),
-    locationRecords: resolveProviderLocations(provider, locationByAlias),
+    locationRecords: resolveProviderLocations(provider, locationByAlias, locationByPath),
     schedulingMapped: Boolean(provider.athenaProviderId || provider.athenaSchedulingName),
   }));
 
@@ -408,6 +400,7 @@ async function buildDomainGraph() {
 }
 
 function rankProviderMatches(graph, criteria, providerResolution = null) {
+  const selectedProviders = new Set((providerResolution?.resolvedProviders || []).map((provider) => provider.slug || provider.name));
   const resolverScores = new Map(
     (providerResolution?.scoredEntries || []).map((entry) => [
       entry.provider.slug || entry.provider.name,
@@ -415,13 +408,18 @@ function rankProviderMatches(graph, criteria, providerResolution = null) {
     ])
   );
   const scored = graph.providers
+    .filter((provider) => selectedProviders.size === 0 || selectedProviders.has(provider.slug || provider.name))
     .map((provider) => {
       const scoredProvider = getProviderScore(provider, criteria);
       const resolverScore = resolverScores.get(provider.slug || provider.name) || 0;
+      const failsCriterion =
+        (criteria.locations.length > 0 && scoredProvider.locationMatches.length === 0) ||
+        (criteria.languages.length > 0 && scoredProvider.languageMatches.length === 0) ||
+        (criteria.services.length > 0 && scoredProvider.serviceMatches.length === 0);
       return {
         provider,
         ...scoredProvider,
-        score: Math.max(scoredProvider.score, resolverScore),
+        score: failsCriterion ? 0 : Math.max(scoredProvider.score, resolverScore),
       };
     })
     .filter((match) => match.score > 0)
@@ -482,7 +480,7 @@ export async function findFmaDomainGraphContext(query, options = {}) {
   const hasSignal = hasDomainGraphSignal(criteria, providerMatches, locationMatches, serviceMatches);
   const shouldAnswer = Boolean(
     hasSignal &&
-      ((criteria.providerSearch &&
+      (((criteria.providerSearch || providerResolution.resolvedProviders.length > 0) &&
         (providerMatches.length > 0 ||
           criteria.languages.length > 0 ||
           criteria.locations.length > 0 ||
@@ -736,7 +734,20 @@ export function buildFmaDomainGraphAnswer(result = {}) {
   }
 
   if (criteria.languages?.length || criteria.locations?.length || criteria.services?.length) {
-    const answer = `I did not find a provider matching ${describeCriteria(
+    const requestedProviders = result.providerResolution?.resolvedProviders || [];
+    const requestedNames = requestedProviders.map((provider) => provider.name).join(" or ");
+    if (requestedProviders.length > 0) {
+      return {
+        ok: true,
+        code: "provider_criteria_mismatch",
+        answer: `I could not confirm ${requestedNames} for ${describeCriteria(criteria)}. The current provider directory lists: ${requestedProviders.map((provider) => formatProviderAnswerItem({ provider })).join("; ")}. Use the provider's own profile or booking link, or call 301-515-2901 to confirm.`,
+        sources: requestedProviders.map((provider) => ({ title: provider.name, url: provider.url, type: "provider" })),
+        confidence: 0.9, aiConfidence: "high", grounded: true,
+        citations: ["FMA provider directory"], disclaimer: true,
+        structuredCards: requestedProviders.map((provider) => formatProviderCard({ provider })),
+      };
+    }
+    const answer = `I did not find ${requestedNames || "a provider"} matching ${describeCriteria(
       criteria
     )} in the FMA provider directory. Please use the Providers page or call 301-515-2901 so the team can confirm the best match.`;
 

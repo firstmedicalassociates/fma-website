@@ -6,6 +6,7 @@ import SiteHeader from "./components/site-header";
 import SiteFooter from "./components/site-footer";
 import HeroEyebrow from "./components/hero-eyebrow";
 import WelcomeVideoCard from "./components/welcome-video-card";
+import WelcomeVideoDialog from "./components/welcome-video-dialog";
 import HomeHeroAiSearch from "./components/home-hero-ai-search";
 import ServiceTypedWord from "./components/service-typed-word";
 import WhyChooseAccordion from "./components/why-choose-accordion";
@@ -653,46 +654,7 @@ export default async function Home() {
             </div>
           </div>
 
-          <div
-            id="welcome-video-lightbox"
-            className={styles.videoLightbox}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="welcome-video-lightbox-title"
-          >
-            <a
-              href="#close"
-              className={styles.videoLightboxBackdrop}
-              aria-label="Close welcome video"
-            />
-            <div className={styles.videoLightboxPanel}>
-              <div className={styles.videoLightboxHeader}>
-                <h3 id="welcome-video-lightbox-title" className={styles.videoLightboxTitle}>
-                  Welcome Video
-                </h3>
-                <a
-                  href="#close"
-                  className={styles.videoLightboxClose}
-                  aria-label="Close welcome video"
-                >
-                  <Icon name="close" className={styles.videoLightboxCloseIcon} />
-                </a>
-              </div>
-
-              <div className={styles.videoLightboxFrame}>
-                <video
-                  className={styles.videoPlayer}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  poster={welcomeVideoPoster}
-                >
-                  <source src={welcomeVideoSource} type="video/mp4" />
-                  Your browser does not support HTML5 video.
-                </video>
-              </div>
-            </div>
-          </div>
+          <WelcomeVideoDialog poster={welcomeVideoPoster} source={welcomeVideoSource} />
         </section>
 
         <section className={`${styles.section} ${styles.commitSection}`}>

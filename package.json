@@ -11,6 +11,8 @@
     "seed:owings-mills": "node scripts/seed-owings-mills.mjs",
     "check:seo": "node --test tests/seo/*.test.mjs",
     "audit:seo:live": "node scripts/audit-seo-live.mjs",
+    "audit:links:live": "node scripts/audit-site-links.mjs",
+    "audit:ai-links:live": "node scripts/audit-ai-search-live.mjs",
     "check:ai-search-guards": "node scripts/check-ai-search-guards.mjs",
     "check:deployment": "npm audit --audit-level=low && npm run check:admin && npm run check:seo && npm run check:booking && npm run check:ai-search-guards && npm run eval:ai-search && npx prisma validate && npm run build",
     "eval:ai-search": "node scripts/evaluate-ai-search.mjs",

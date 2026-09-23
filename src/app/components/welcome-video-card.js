@@ -38,9 +38,10 @@ export default function WelcomeVideoCard({ poster, source, lightboxId = "welcome
   }, [isHovered, isInView]);
 
   return (
-    <a
+    <button
       ref={containerRef}
-      href={`#${lightboxId}`}
+      type="button"
+      onClick={() => { previewRef.current?.pause(); document.getElementById(lightboxId)?.showModal(); }}
       className={styles.mediaCardTrigger}
       aria-label="Play welcome video"
       onMouseEnter={() => setIsHovered(true)}
@@ -75,7 +76,6 @@ export default function WelcomeVideoCard({ poster, source, lightboxId = "welcome
         </span>
         Watch
       </span>
-    </a>
+    </button>
   );
 }
-

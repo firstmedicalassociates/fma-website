@@ -286,6 +286,7 @@ function normalizePositiveInteger(value, fallback, max) {
 export default function AiSearchModal({ className = "", onOpen, listenForExternalRequests = true }) {
   const pathname = usePathname();
   const inputRef = useRef(null);
+  const modalRef = useRef(null);
   const chatStreamRef = useRef(null);
   const previousFocusRef = useRef(null);
   const loadingIntervalRef = useRef(null);
@@ -652,6 +653,10 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
     document.body.style.left = "0";
     document.body.style.right = "0";
     document.body.style.width = "100%";
+    const backgroundElements = [...document.body.children]
+      .filter((element) => element !== modalRef.current)
+      .map((element) => ({ element, inert: element.inert }));
+    for (const { element } of backgroundElements) element.inert = true;
 
     const focusTimer = window.setTimeout(() => {
       inputRef.current?.focus();
@@ -661,6 +666,19 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
       if (event.key === "Escape") {
         event.preventDefault();
         closeModal();
+        return;
+      }
+      if (event.key === "Tab") {
+        const focusable = [...(modalRef.current?.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        ) || [])].filter((element) => element.getClientRects().length > 0);
+        const first = focusable[0];
+        const last = focusable.at(-1);
+        const outside = !modalRef.current?.contains(document.activeElement);
+        if (first && (outside || (event.shiftKey ? document.activeElement === first : document.activeElement === last))) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus();
+        }
       }
     }
 
@@ -678,6 +696,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
       document.body.style.left = previousBodyLeft;
       document.body.style.right = previousBodyRight;
       document.body.style.width = previousBodyWidth;
+      for (const { element, inert } of backgroundElements) element.inert = inert;
       window.scrollTo(0, lockScrollYRef.current);
       if (previousFocusRef.current instanceof HTMLElement) {
         previousFocusRef.current.focus();
@@ -737,6 +756,10 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
       {isOpen && typeof document !== "undefined"
         ? createPortal(
             <div
+              ref={modalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="aiSearchTitle"
               aria-hidden={!isOpen}
               className={overlayClassName}
               onMouseDown={(event) => {
@@ -755,10 +778,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
               </button>
 
               <div
-                aria-labelledby="aiSearchTitle"
-                aria-modal="true"
                 className={styles.content}
-                role="dialog"
               >
                 <div className={styles.heroBlock}>
                   <div className={styles.eyebrow}>
@@ -802,7 +822,7 @@ export default function AiSearchModal({ className = "", onOpen, listenForExterna
 
                   if (message.status === "loading") {
                     return (
-                      <article className={`${styles.chatMessage} ${styles.assistantMessage}`} key={message.id} onClickCapture={(event) => trackSearchClick(event, payload.interactionTargets)} onAuxClickCapture={(event) => trackSearchClick(event, payload.interactionTargets)}>
+                      <article className={`${styles.chatMessage} ${styles.assistantMessage}`} key={message.id}>
                         <span className={styles.messageAvatar} aria-hidden="true">
                           <SparkleIcon className={styles.sparkleIcon} />
                         </span>

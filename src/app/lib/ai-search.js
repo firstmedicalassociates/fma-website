@@ -800,6 +800,7 @@ function formatSourceCards(sources = []) {
       title: source.title,
       subtitle: source.category || source.type || "FMA page",
       href: source.url,
+      bookingUrl: source.bookingUrl || "",
       actionLabel:
         source.type === "provider"
           ? "View profile"
@@ -1333,6 +1334,10 @@ export async function runAiSearch(rawQuery, options = {}) {
 
   // Show a disclaimer when evidence is weak, the answer is ungrounded, or safety checks intervened.
   const disclaimer = Boolean(safetyIssue) || aiConfidence === "low" || !grounded;
+  // Retrieval candidates are not recommendations when the answer cannot ground
+  // the request (for example, unrelated questions or an unknown clinician).
+  const supportedSources = grounded ? sources : [];
+  const supportedCards = grounded ? structuredCards : [];
 
   return buildAiSearchResponse({
     ok: true,
@@ -1341,15 +1346,15 @@ export async function runAiSearch(rawQuery, options = {}) {
     intent: intentResult.intent,
     query,
     answer,
-    sources,
+    sources: supportedSources,
     confidence: similarContent[0]?.similarity || 0,
     aiConfidence,
     grounded,
     citations,
     disclaimer,
-    cards: structuredCards,
-    providerMatches: getProviderMatchesFromSources(sources),
-    locationMatches: getLocationMatchesFromSources(sources),
+    cards: supportedCards,
+    providerMatches: getProviderMatchesFromSources(supportedSources),
+    locationMatches: getLocationMatchesFromSources(supportedSources),
     recoveryActions: [],
     meta: buildRouteMeta(routeContext, {
       promptVersion: AI_SEARCH_PROMPT_VERSION,

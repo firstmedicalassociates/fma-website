@@ -2069,10 +2069,22 @@
   align-items: center;
   justify-content: center;
   padding: clamp(12px, 3vw, 24px);
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  background: transparent;
 }
 
-.videoLightbox:target {
+.videoLightbox[open] {
   display: flex;
+}
+
+.videoLightbox::backdrop {
+  background: rgba(6, 16, 36, 0.78);
+  backdrop-filter: blur(3px);
 }
 
 .videoLightboxBackdrop {

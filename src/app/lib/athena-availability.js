@@ -1,5 +1,6 @@
 import { resolveProviderBookingHref } from "./providers.js";
 import { bookingActionLabel } from "./booking.js";
+import { matchSpecificAliases } from "./search-aliases.js";
 import { AthenaRequestError, readAthenaCollection, onlineProviderExclusions, auditProviderDepartments, mappingRecommendation } from "./athena-diagnostics.mjs";
 import { prisma } from "./prisma.js";
 import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
@@ -445,6 +446,16 @@ async function loadReferenceData(config, accessToken) {
 }
 
 function findRequestedDepartments(query, departments) {
+  const aliases = new Map();
+  for (const department of departments) {
+    for (const value of getDepartmentSearchValues(department)) {
+      const alias = compactText(value);
+      if (alias.length < 4) continue;
+      aliases.set(alias, [...(aliases.get(alias) || []), department]);
+    }
+  }
+  const specificMatches = matchSpecificAliases(query, aliases);
+  if (specificMatches.length) return specificMatches;
   const normalizedQuery = normalizeText(query);
   const compactQuery = compactText(query);
 
@@ -485,6 +496,10 @@ function findRequestedDepartments(query, departments) {
 
 function findRequestedDepartment(query, departments) {
   return findRequestedDepartments(query, departments)[0] || null;
+}
+
+export function findRequestedDepartmentsForTest(query, departments) {
+  return findRequestedDepartments(query, departments);
 }
 
 function findConfiguredDepartmentForProvider(provider, departments, siteProviderEntries = []) {

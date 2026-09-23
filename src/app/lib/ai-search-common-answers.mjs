@@ -1,6 +1,9 @@
 import { prisma } from "./prisma.js";
 import { VISIBLE_LOCATION_WHERE } from "./locations.js";
 import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
+import { resolveLocationBookingHref } from "./booking.js";
+import { matchSpecificAliases } from "./search-aliases.js";
+import { compactSearchText } from "./ai-search-vocabulary.js";
 
 export const AI_SEARCH_COMMON_KNOWLEDGE_VERSION = "2026-07-23.2";
 
@@ -77,7 +80,7 @@ function formatOfficeHours(officeHours = []) {
 
 async function buildLocationFactAnswer(normalized) {
   if (
-    !/\b(address|phone|telephone|call|number|hours|open|opening|close|closed|located|directions|appointments?|availability|available|book|booking|schedule|cigna|unitedhealthcare|united healthcare|uhc)\b/.test(
+    !/\b(where|address|phone|telephone|call|number|hours|open|opening|close|closed|located|directions|appointments?|availability|available|book|booking|schedule|cigna|unitedhealthcare|united healthcare|uhc)\b/.test(
       normalized
     )
   ) {
@@ -93,25 +96,39 @@ async function buildLocationFactAnswer(normalized) {
       displayAddress: true,
       addressCity: true,
       phone: true,
+      bookingUrl: true,
       officeHours: true,
       isComingSoon: true,
       openingDateLabel: true,
     },
   });
-  const matches = locations.filter((location) => {
+  const aliases = new Map();
+  for (const location of locations) {
     const candidates = [
       location.title,
+      location.title.replace(/,\s*(MD|VA)$/i, ""),
       location.addressCity,
       String(location.slug || "").replace(/^\/?locations?\//, "").replace(/-/g, " "),
     ]
-      .map(normalizeText)
+      .map(compactSearchText)
       .filter((value) => value.length >= 3);
-    return candidates.some((candidate) => normalized.includes(candidate));
+    for (const candidate of candidates) aliases.set(candidate, [...(aliases.get(candidate) || []), location]);
+  }
+  const matches = matchSpecificAliases(normalized, aliases);
+  const locationSource = (location) => ({
+    ...buildSource(location.title, locationUrl(location.slug), "location"),
+    bookingUrl: resolveLocationBookingHref(location),
   });
+  if (matches.length > 1 && /\b(address|located|directions|where)\b/.test(normalized)) {
+    return buildCommonResult(
+      `There are ${matches.length} matching FMA offices: ${matches.map((location) => `${location.title}: ${String(location.displayAddress || location.address || "").replace(/\s*\n+\s*/g, ", ")}`).join("; ")}. Choose the location or booking link for the office you want.`,
+      matches.map(locationSource), ["location.address"]
+    );
+  }
   if (matches.length !== 1) return null;
 
   const location = matches[0];
-  const source = buildSource(location.title, locationUrl(location.slug), "location");
+  const source = locationSource(location);
   if (location.isComingSoon) {
     const address = String(location.displayAddress || location.address || "").replace(/\s*\n+\s*/g, ", ");
     return buildCommonResult(

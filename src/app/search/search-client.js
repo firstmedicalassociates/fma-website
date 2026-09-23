@@ -1,6 +1,7 @@
 "use client";
 
 import { bookingActionLabel, getSearchBookingActions } from "../lib/booking";
+import { getSearchResultState } from "../lib/search-result-state";
 import { trackSearchClick } from "../lib/ai-click-tracking";
 
 import Link from "next/link";
@@ -201,6 +202,7 @@ export default function SearchClient() {
 
   const appointmentOptions = aiResult?.appointmentOptions || [];
   const bookingActions = getSearchBookingActions(aiResult || {});
+  const resultState = getSearchResultState(results, aiResult);
   const hasAppointmentOptions = appointmentOptions.length > 0;
   const appointmentStatusText = getAppointmentStatusText(
     aiResult?.appointmentMeta,
@@ -218,6 +220,7 @@ export default function SearchClient() {
 
         <form className={styles.searchForm} onSubmit={runSearch}>
           <input
+            aria-label="Search providers, locations, services, or articles"
             className={styles.searchInput}
             maxLength={PUBLIC_SEARCH_MAX_CHARACTERS}
             onChange={(event) => setQuery(event.target.value)}
@@ -235,12 +238,10 @@ export default function SearchClient() {
         </p>
 
         {hasQuery ? (
-          <div className={styles.summaryRow}>
+          <div className={styles.summaryRow} role="status">
             <span className={styles.summaryPill}>Search complete</span>
             <span className={styles.summaryText}>
-              {hasAppointmentOptions
-                ? `${appointmentOptions.length} appointment time${appointmentOptions.length === 1 ? "" : "s"} found`
-                : `${results.length} result${results.length === 1 ? "" : "s"} found`}
+              {resultState.summary}
             </span>
           </div>
         ) : (
@@ -365,12 +366,12 @@ export default function SearchClient() {
           <strong>{status === "blocked" ? "Search blocked for privacy." : "Search notice."}</strong>
           <p>{error}</p>
         </section>
-      ) : !hasQuery ? (
+      ) : !hasQuery && status !== "loading" ? (
         <section className={styles.emptyCard}>
           <strong>Start with at least 2 characters.</strong>
           <p>Examples: Melinda, Annapolis, Silver Spring, or preventive care.</p>
         </section>
-      ) : results.length === 0 && status !== "loading" ? (
+      ) : !resultState.hasContent && status !== "loading" ? (
         <section className={styles.emptyCard}>
           <strong>No pages matched your search.</strong>
           <p>Try a broader search term, a city name, or a provider last name.</p>

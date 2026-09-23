@@ -21,6 +21,10 @@ export default function PatientResourceLayout({ children }) {
   const comparablePathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
 
   const heroContent = {
+    "/patient-resources/faq": {
+      title: "Support & FAQ",
+      subtitle: "Find answers to common questions or contact our team for help with your visit.",
+    },
     "/patient-resources": {
       title: "Patient Resources",
       subtitle:

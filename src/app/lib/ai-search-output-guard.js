@@ -10,7 +10,7 @@ const ALLOWED_ANSWER_HOSTS = new Set([
 ]);
 
 const INJECTION_PATTERNS = [
-  /ignore\s+(previous|prior|above|all)\s+(instructions?|rules?|prompts?)/i,
+  /ignore\s+(?:(?:all|the)\s+)?(?:previous|prior|above|all)\s+(instructions?|rules?|prompts?)/i,
   /forget\s+(everything|all|your|the)\s+(above|previous|instructions?|context)/i,
   /you\s+are\s+now\s+(a|an)\s+/i,
   /act\s+as\s+(a|an)\s+/i,
@@ -19,7 +19,8 @@ const INJECTION_PATTERNS = [
   /\bjailbreak\b/i,
   /\bDAN\s*mode\b/i,
   /prompt\s*inject/i,
-  /reveal\s+(your\s+)?(system\s+)?prompt/i,
+  /(?:reveal|print|show|repeat)\s+(?:your\s+|the\s+)?system\s+prompt/i,
+  /reveal\s+(your\s+)?prompt/i,
   /what\s+are\s+your\s+(instructions|rules|directives)/i,
   /override\s+(your\s+)?(instructions?|rules?|safety)/i,
   /new\s+instructions?\s*:/i,
