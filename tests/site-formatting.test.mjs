@@ -5,7 +5,7 @@ import {
   formatLocationAddress,
   normalizeStreetAddress,
 } from "../src/app/lib/locations.js";
-import { normalizeProviderPayload } from "../src/app/lib/providers.js";
+import { normalizeProviderPayload, normalizeProviderCredentialText } from "../src/app/lib/providers.js";
 import nextConfig from "../next.config.mjs";
 
 test("legacy address variants keep the suite and produce exactly two lines", () => {
@@ -36,7 +36,7 @@ test("current structured values override legacy text while schema keeps the coun
   assert.equal(schema.streetAddress, "7500 Greenway Center Dr Ste 620");
 });
 
-test("provider saves normalize MD without changing other credentials or booking links", () => {
+test("provider saves remove periods from all credentials and preserve booking links", () => {
   const input = {
     name: "Example Provider", title: "M.D. , FACP, SFHM", bio: "Example Provider, M.D., practices primary care.",
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/12345",
@@ -45,7 +45,16 @@ test("provider saves normalize MD without changing other credentials or booking 
   assert.equal(output.title, "MD, FACP, SFHM");
   assert.equal(output.bio, "Example Provider, MD, practices primary care.");
   assert.equal(output.linkUrl, input.linkUrl);
-  assert.equal(normalizeProviderPayload({ title: "D.O., Ph.D., PA-C" }).title, "D.O., Ph.D., PA-C");
+  assert.equal(normalizeProviderPayload({ title: "D.O., Ph.D., PA-C, F.N.P.-B.C., M.B.B.S." }).title, "DO, PhD, PA-C, FNP-BC, MBBS");
+});
+
+test("degree formatting in biographies preserves other punctuation", () => {
+  assert.equal(
+    normalizeProviderCredentialText("Dr. Amit S. Babra, M.D., and Matthew Bruntel, D.O., studied in the U.S. near Washington, D.C."),
+    "Dr. Amit S. Babra, MD, and Matthew Bruntel, DO, studied in the U.S. near Washington, D.C."
+  );
+  assert.equal(normalizeProviderCredentialText("M.B.B.S. from China and a Ph.D.\nin Internal Medicine; B.S. in Biology."), "MBBS from China and a PhD\nin Internal Medicine; BS in Biology.");
+  assert.equal(normalizeProviderCredentialText("M.D, D.O, Ph.D"), "MD, DO, PhD");
 });
 
 test("careers and its old jobs URL are temporarily redirected before legacy redirects", async () => {

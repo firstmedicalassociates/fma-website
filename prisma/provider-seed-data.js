@@ -55,7 +55,7 @@ module.exports = [
     imageAlt: "Sharon McCormack headshot",
     slug: "sharon-j-mccormack",
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/6803171",
-    bio: "Dr. Sharon J. McCormack, MD, is a board-certified medical professional with expertise in Internal Medicine, Oncology, Hematology, Geriatrics, and Hospice and Palliative Medicine. She holds a B.S. degree from Loyola University and an MD from the University of Maryland Medical School. Dr. McCormack’s career includes extensive experience as an Internist, Hematologist-Oncologist, and Geriatrician, with a focus on patient care and education. She has served as an attending physician at St. Agnes Hospital and as a Medical Consultant for the Social Security Administration. Dr. McCormack also excels in medical review, serving as a Medical Consultant for the Medical Review Institute of America. Currently, she is the Medical Director of Seasons Hospice, offering comprehensive care in Howard and Anne Arundel Counties.",
+    bio: "Dr. Sharon J. McCormack, MD, is a board-certified medical professional with expertise in Internal Medicine, Oncology, Hematology, Geriatrics, and Hospice and Palliative Medicine. She holds a BS degree from Loyola University and an MD from the University of Maryland Medical School. Dr. McCormack’s career includes extensive experience as an Internist, Hematologist-Oncologist, and Geriatrician, with a focus on patient care and education. She has served as an attending physician at St. Agnes Hospital and as a Medical Consultant for the Social Security Administration. Dr. McCormack also excels in medical review, serving as a Medical Consultant for the Medical Review Institute of America. Currently, she is the Medical Director of Seasons Hospice, offering comprehensive care in Howard and Anne Arundel Counties.",
   },
   {
     name: "Meera Ramakrishnan",
@@ -180,14 +180,14 @@ module.exports = [
   },
   {
     name: "Matthew Bruntel",
-    title: "D.O.",
+    title: "DO",
     locations: ["Gaithersburg"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/matthew-bruntel.webp",
     imageAlt: "Matthew Bruntel headshot",
     slug: "matthew-bruntel",
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/6803168",
-    bio: "Matthew Bruntel, D.O., is an internal medicine physician originally from Pennsylvania. He moved to Maryland in 2008 and has practiced in the hospital and in the clinic. He is motivated by a desire to help his patients live longer, healthier, and happier lives.\n\nDr. Bruntel completed his bachelor’s at Cornell University. He attended medical school at the Philadelphia College of Osteopathic Medicine and a residency at UPMC Lititz. His clinical interests include the treatment of diabetes, insomnia, and men’s health.\n\nOutside the clinic, Dr. Bruntel finds joy in playing with his children, spending time with his wife, and growing vegetables in his garden.",
+    bio: "Matthew Bruntel, DO, is an internal medicine physician originally from Pennsylvania. He moved to Maryland in 2008 and has practiced in the hospital and in the clinic. He is motivated by a desire to help his patients live longer, healthier, and happier lives.\n\nDr. Bruntel completed his bachelor’s at Cornell University. He attended medical school at the Philadelphia College of Osteopathic Medicine and a residency at UPMC Lititz. His clinical interests include the treatment of diabetes, insomnia, and men’s health.\n\nOutside the clinic, Dr. Bruntel finds joy in playing with his children, spending time with his wife, and growing vegetables in his garden.",
   },
   {
     name: "Katherine Lee",
@@ -367,7 +367,7 @@ module.exports = [
   },
   {
     name: "Ilan Kokotek",
-    title: "D.O.",
+    title: "DO",
     locations: ["Lutherville"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/ilan-kokotek-2.webp",
@@ -462,7 +462,7 @@ module.exports = [
     imageAlt: "Manchang Liu headshot",
     slug: "liu-manchang-2",
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/7026925",
-    bio: "Dr. Manchang Liu, PA-C, is a board-certified Physician Associate with extensive clinical\nExperience in internal medicine, nephrology, and family medicine in both international and U.S.\nhealthcare settings. He earned his M.B.B.S. from China Medical University and completed a Ph.D.\nin Internal Medicine at Nagoya University School of Medicine in Japan, and later received his\nMaster of Physician Assistant Studies from the Massachusetts College of Pharmacy and Health\nSciences.\n\nDr. Liu has served as a clinical instructor, attending physician, and nephrology fellow abroad.\nand has worked in the United States as a patient care provider and medical interpreter, including clinical experience at Johns Hopkins Hospital. His clinical focus includes acute and chronic disease management, preventive care, health screenings, and patient education. Fluent in English, Chinese, and Japanese, Dr. Liu is committed to delivering patient-centered, culturally sensitive care.",
+    bio: "Dr. Manchang Liu, PA-C, is a board-certified Physician Associate with extensive clinical\nExperience in internal medicine, nephrology, and family medicine in both international and U.S.\nhealthcare settings. He earned his MBBS from China Medical University and completed a PhD\nin Internal Medicine at Nagoya University School of Medicine in Japan, and later received his\nMaster of Physician Assistant Studies from the Massachusetts College of Pharmacy and Health\nSciences.\n\nDr. Liu has served as a clinical instructor, attending physician, and nephrology fellow abroad.\nand has worked in the United States as a patient care provider and medical interpreter, including clinical experience at Johns Hopkins Hospital. His clinical focus includes acute and chronic disease management, preventive care, health screenings, and patient education. Fluent in English, Chinese, and Japanese, Dr. Liu is committed to delivering patient-centered, culturally sensitive care.",
   },
   {
     name: "Monica Braland",
@@ -594,7 +594,7 @@ module.exports = [
     imageAlt: "Anmol Singh headshot",
     slug: "anmol-singh",
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/7195043",
-    bio: "Dr. Anmol Singh is a board-certified family medicine physician in Columbia, Maryland. He earned a B.S. in Biology from the University of Maryland, College Park, and his medical degree from Campbell University School of Osteopathic Medicine, then completed family medicine residency at the University of Maryland Medical Center.\n\nHis clinical interests include primary care, sports medicine, non-operative orthopedics, and ultrasound-guided procedures. He has worked in urgent care and provided sideline coverage for high school and collegiate athletics. In clinic, he performs office-based procedures such as joint injections, nerve hydrodissections, and diagnostic musculoskeletal ultrasound.\n\nDr. Singh is an active member of the American Medical Society for Sports Medicine and practices evidence-based, patient-centered care. His professional interests include concussion and chronic disease management, preventive care, and facilitating safe returns to work, sport, and daily activity. He prioritizes long-term therapeutic relationships and empowering patients to meet their health and wellness goals.\n\nHe has contributed to medical research and education through publications and presentations on sports medicine, traumatic brain injury, and diabetes. A Columbia native, he stays active in his community and has provided medical coverage for Howard County athletics. Outside of medicine, he enjoys swimming, running, and cycling on trails around Baltimore and Washington, D.C., and is an avid Ravens fan.",
+    bio: "Dr. Anmol Singh is a board-certified family medicine physician in Columbia, Maryland. He earned a BS in Biology from the University of Maryland, College Park, and his medical degree from Campbell University School of Osteopathic Medicine, then completed family medicine residency at the University of Maryland Medical Center.\n\nHis clinical interests include primary care, sports medicine, non-operative orthopedics, and ultrasound-guided procedures. He has worked in urgent care and provided sideline coverage for high school and collegiate athletics. In clinic, he performs office-based procedures such as joint injections, nerve hydrodissections, and diagnostic musculoskeletal ultrasound.\n\nDr. Singh is an active member of the American Medical Society for Sports Medicine and practices evidence-based, patient-centered care. His professional interests include concussion and chronic disease management, preventive care, and facilitating safe returns to work, sport, and daily activity. He prioritizes long-term therapeutic relationships and empowering patients to meet their health and wellness goals.\n\nHe has contributed to medical research and education through publications and presentations on sports medicine, traumatic brain injury, and diabetes. A Columbia native, he stays active in his community and has provided medical coverage for Howard County athletics. Outside of medicine, he enjoys swimming, running, and cycling on trails around Baltimore and Washington, D.C., and is an avid Ravens fan.",
   },
   {
     name: "Audrey Boadu",

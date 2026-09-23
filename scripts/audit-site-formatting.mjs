@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { normalizeProviderCredentialText } from '../src/app/lib/providers.js';
 import { parse } from 'node-html-parser';
 import { prisma } from '../src/app/lib/prisma.js';
 import { formatLocationAddress, VISIBLE_LOCATION_WHERE } from '../src/app/lib/locations.js';
@@ -30,7 +31,7 @@ try {
       root.querySelectorAll('script,style,noscript').forEach((node) => node.remove());
       const text = root.structuredText;
       if (response.status !== 200) issues.push({ kind: 'page_status', path, status: response.status });
-      if (/\bM\.\s*D\./.test(text)) issues.push({ kind: 'dotted_md', path });
+      if (normalizeProviderCredentialText(text) !== text) issues.push({ kind: 'dotted_credential', path });
       for (const link of root.querySelectorAll('a[href]')) {
         const url = new URL(link.getAttribute('href'), origin);
         if (['drsfirst.com', new URL(origin).hostname].includes(url.hostname) && hiddenPath.test(url.pathname)) issues.push({ kind: 'careers_link', path, href: url.href });
@@ -43,6 +44,7 @@ try {
       }
       const provider = providers.find((entry) => `/providers/${entry.slug}/` === path);
       if (provider) {
+        if (provider.title.includes('.')) issues.push({ kind: 'cms_credential_period', path });
         if (!text.includes(provider.title)) issues.push({ kind: 'provider_title', path });
         const addresses = root.querySelectorAll('[class*="locationCardAddress"]').map((node) => node.text.trim());
         if (provider.locations.length && (!addresses.length || addresses.some((address) => !addressSet.has(address)))) issues.push({ kind: 'provider_address_lines', path, addresses });

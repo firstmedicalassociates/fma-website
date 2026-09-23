@@ -115,18 +115,32 @@ export function resolveLocationTitles(locationSlugs = [], locationTitleBySlug = 
   );
 }
 
-export function normalizeMdCredentialText(value = "") {
-  return String(value || "").replace(/\bM\.\s*D\.(?![A-Za-z])/g, "MD");
+export function normalizeProviderTitle(value = "") {
+  return String(value || "").replace(/\./g, "").replace(/\s+,/g, ",").trim();
+}
+
+// In prose, normalize degrees without touching names, Dr., U.S., or D.C.
+const PROSE_CREDENTIALS = ["MD", "DO", "PhD", "MBBS", "BS", "MS", "BA", "MA", "MSN", "DNP", "RN", "NP", "FNP", "MPH", "PsyD", "EdD"];
+const DOTTED_CREDENTIALS = [...PROSE_CREDENTIALS].sort((a, b) => b.length - a.length).map((credential) => ({
+  credential,
+  pattern: new RegExp(`\\b${credential.match(/[A-Z][a-z]*/g).join("\\.[ \\t]*")}\\.?(?![A-Za-z])`, "g"),
+}));
+
+export function normalizeProviderCredentialText(value = "") {
+  return DOTTED_CREDENTIALS.reduce(
+    (text, { credential, pattern }) => text.replace(pattern, credential),
+    String(value || "")
+  );
 }
 
 export function normalizeProviderPayload(value) {
   return {
-    name: normalizeMdCredentialText(value?.name).trim(),
-    title: normalizeMdCredentialText(value?.title).trim().replace(/\s+,/g, ","),
-    bio: normalizeMdCredentialText(value?.bio).trim(),
+    name: normalizeProviderCredentialText(value?.name).trim(),
+    title: normalizeProviderTitle(value?.title),
+    bio: normalizeProviderCredentialText(value?.bio).trim(),
     slug: normalizeProviderSlug(value?.slug || value?.name),
     imageUrl: String(value?.imageUrl || "").trim(),
-    imageAlt: String(value?.imageAlt || "").trim() || null,
+    imageAlt: normalizeProviderCredentialText(value?.imageAlt).trim() || null,
     linkUrl: String(value?.linkUrl || "").trim() || null,
     // Omitted fields from older clients must not clear a saved link.
     ...(Object.hasOwn(value || {}, "zocdocUrl")

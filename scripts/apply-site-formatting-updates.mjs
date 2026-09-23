@@ -3,7 +3,10 @@ import { isDeepStrictEqual } from "node:util";
 import { prisma } from "../src/app/lib/prisma.js";
 
 // Only the reviewed public copy fields are changed; booking and provider IDs stay intact.
-const manifest = JSON.parse(await fs.readFile(new URL("../data/site-formatting-updates-2026-09-23.json", import.meta.url), "utf8"));
+const credentialsOnly = process.argv.includes("--credentials");
+const manifestPath = credentialsOnly ? "../data/provider-credential-updates-2026-09-23.json" : "../data/site-formatting-updates-2026-09-23.json";
+const backupDirectory = `artifacts/site-audit/${credentialsOnly ? "credentials" : "formatting"}-2026-09-23`;
+const manifest = JSON.parse(await fs.readFile(new URL(manifestPath, import.meta.url), "utf8"));
 const apply = process.argv.includes("--apply");
 try {
   const pending = [];
@@ -18,8 +21,8 @@ try {
   }
   console.log(JSON.stringify({ apply, fields: pending.map(({ model, slug, field }) => ({ model, slug, field })) }, null, 2));
   if (apply && pending.length) {
-    await fs.mkdir("artifacts/site-audit/formatting-2026-09-23", { recursive: true });
-    const backup = `artifacts/site-audit/formatting-2026-09-23/content-backup-${Date.now()}.json`;
+    await fs.mkdir(backupDirectory, { recursive: true });
+    const backup = `${backupDirectory}/content-backup-${Date.now()}.json`;
     await fs.writeFile(backup, JSON.stringify(pending, null, 2));
     await prisma.$transaction(async (tx) => {
       for (const change of pending) {

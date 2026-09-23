@@ -102,7 +102,7 @@ function parseProviderDirectory(html) {
 
   return providers.map((provider) => ({
     name: cleanText(provider.name),
-    title: cleanText(provider.role),
+    title: cleanText(provider.role).replace(/\./g, ""),
     locations: Array.isArray(provider.locations)
       ? provider.locations.map(cleanText).filter(Boolean)
       : [cleanText(provider.location)].filter(Boolean),
