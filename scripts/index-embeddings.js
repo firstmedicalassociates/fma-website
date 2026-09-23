@@ -15,7 +15,10 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const { PrismaClient } = require('@prisma/client');
 const { PrismaNeon } = require('@prisma/adapter-neon');
+const { neonConfig } = require('@neondatabase/serverless');
 const { OpenAI } = require('openai');
+
+if (typeof globalThis.WebSocket === 'undefined') neonConfig.webSocketConstructor = require('ws');
 
 const EMBEDDING_MODEL = 'text-embedding-3-small';
 const WRITE_DELAY_MS = 200;

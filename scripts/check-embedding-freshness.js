@@ -7,6 +7,9 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const { PrismaClient } = require('@prisma/client');
 const { PrismaNeon } = require('@prisma/adapter-neon');
+const { neonConfig } = require('@neondatabase/serverless');
+
+if (typeof globalThis.WebSocket === 'undefined') neonConfig.webSocketConstructor = require('ws');
 
 const MAX_AGE_DAYS = Math.max(Number(process.env.AI_SEARCH_EMBEDDING_MAX_AGE_DAYS) || 14, 1);
 const MANAGED_EMBEDDING_TYPES = new Set(['location', 'provider', 'service', 'post', 'policy']);
