@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
+import { PATIENT_AGE_POLICY } from "../../lib/patient-age-policy";
 import { buildStaticMetadata } from "../../lib/seo";
 import { 
   ShieldAlert, 
@@ -213,7 +214,7 @@ export default function PatientsPage() {
       <div className="main-content">
         <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Patient Forms & Policies</h2>
         <p style={{ color: '#666', fontSize: '0.875rem', marginBottom: '2rem' }}>
-           Review our policies online and download the forms you need to prepare for your next appointment or request information.
+           {PATIENT_AGE_POLICY} Review our policies online and download the forms you need to prepare for your next appointment or request information.
         </p>
 
         {forms.map((form) => (

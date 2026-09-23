@@ -1,5 +1,6 @@
 import { getPhiRisk, normalizePublicSearchQuery } from "./no-phi-guard.js";
 import { AI_SEARCH_PATTERNS } from "./ai-search-vocabulary.js";
+import { isPatientAgeQuestion } from "./patient-age-policy.js";
 
 export const AI_SEARCH_INTENTS = Object.freeze({
   APPOINTMENT_AVAILABILITY: "appointment_availability",
@@ -35,6 +36,10 @@ export function classifyAiSearchIntent(query = "", options = {}) {
 
   if (!normalized) {
     return { intent: AI_SEARCH_INTENTS.UNKNOWN, confidence: "low", phiCategories: [] };
+  }
+
+  if (isPatientAgeQuestion(normalized)) {
+    return { intent: AI_SEARCH_INTENTS.SERVICE_QUESTION, confidence: "high", phiCategories: [] };
   }
 
   const providerAppointmentPattern = AI_SEARCH_PATTERNS.providerAppointment;

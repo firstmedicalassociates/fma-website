@@ -1,11 +1,13 @@
 "use client";
 
+import { PATIENT_AGE_POLICY } from "../../lib/patient-age-policy";
 import { useState } from "react";
 import Link from "next/link";
 import { GENERAL_BOOK_APPOINTMENT_URL, PATIENT_PORTAL_URL, SITE_CALL_HREF } from "../../lib/config/site";
 import styles from "./faq.module.css";
 
 const faqs = [
+  { question: "What ages do you treat?", answer: PATIENT_AGE_POLICY, links: [{ label: "Patient policies", href: "/patient-resources/patients/" }] },
   { question: "How do I schedule an appointment?", answer: "Book online, use the patient portal, or call our office for help scheduling.", links: [{ label: "Book an appointment", href: GENERAL_BOOK_APPOINTMENT_URL }, { label: "Patient portal", href: PATIENT_PORTAL_URL }] },
   { question: "What should I bring to my first visit?", answer: "Please bring a photo ID, your insurance card, and any current medications.", links: [{ label: "Patient forms and visit information", href: "/patient-resources/patients/" }] },
   { question: "Do you offer telemedicine?", answer: "Yes, we provide virtual consultations for select services and follow-up appointments.", links: [{ label: "Telemedicine information", href: "/service/telemedicine/" }] },

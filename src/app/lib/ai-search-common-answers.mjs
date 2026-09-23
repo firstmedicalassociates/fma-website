@@ -4,8 +4,9 @@ import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./confi
 import { resolveLocationBookingHref } from "./booking.js";
 import { matchSpecificAliases } from "./search-aliases.js";
 import { compactSearchText } from "./ai-search-vocabulary.js";
+import { isPatientAgeQuestion, PATIENT_AGE_POLICY } from "./patient-age-policy.js";
 
-export const AI_SEARCH_COMMON_KNOWLEDGE_VERSION = "2026-07-23.2";
+export const AI_SEARCH_COMMON_KNOWLEDGE_VERSION = "2026-09-23.1";
 
 const MAIN_PHONE = "301-515-2901";
 const MAIN_FAX = "866-701-4905";
@@ -391,21 +392,11 @@ function buildUrgentCareAnswer(normalized) {
 }
 
 function buildOperationalScopeAnswer(normalized) {
-  if (
-    /\b(treat|see|accept|schedule|book|care for|offer)\b.{0,35}\b(children|child|pediatric|pediatrics|under 18|minors?|\d{1,2} year old)\b/.test(
-      normalized
-    ) ||
-    /\b(minimum patient age|minimum age|patient age|age requirement|pediatric care|pediatrics)\b/.test(
-      normalized
-    ) ||
-    /\b(?:under 18|1[0-7] year old)\b.{0,35}\b(appointment|book|schedule|patient|care)\b/.test(
-      normalized
-    )
-  ) {
+  if (isPatientAgeQuestion(normalized)) {
     return buildCommonResult(
-      `FMA’s operational scheduling rules in this site require patients to be age 18 or older. The live public site also contains general family-medicine language about caring for all ages, so do not rely on AI search to book someone under 18; call ${MAIN_PHONE} to confirm whether an appropriate provider and appointment type are available.`,
+      `${PATIENT_AGE_POLICY} For a patient under 18, please contact a pediatric practice. For questions about FMA's adult care, call ${MAIN_PHONE}.`,
       [buildSource("Patient Scheduling Resources", "/patient-resources/patients")],
-      ["scheduling.minimum-age", "scheduling.public-age-conflict"]
+      ["scheduling.minimum-age"]
     );
   }
   if (
@@ -484,6 +475,10 @@ function buildOrganizationAnswer(normalized) {
 }
 
 export async function buildDeterministicCommonAnswer(query = "") {
+  // Age eligibility must win over office, hours, insurance, and booking wording.
+  if (isPatientAgeQuestion(query)) {
+    return buildUrgentCareAnswer(normalizeText(query)) || buildOperationalScopeAnswer(query);
+  }
   const normalized = normalizeText(query);
   if (!normalized) return null;
 

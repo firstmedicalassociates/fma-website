@@ -19,7 +19,6 @@ const { OpenAI } = require('openai');
 
 const EMBEDDING_MODEL = 'text-embedding-3-small';
 const WRITE_DELAY_MS = 200;
-const HIDDEN_LOCATION_SLUGS = ['/location/laurel'];
 const MANAGED_EMBEDDING_TYPES = new Set(['location', 'provider', 'service', 'post', 'policy']);
 const QUARANTINE_OUTPUT_PATH = path.resolve(
   __dirname,
@@ -219,12 +218,9 @@ function createResult(total) {
 }
 
 async function indexLocations() {
+  const { VISIBLE_LOCATION_WHERE } = await import('../src/app/lib/locations.js');
   const locations = await prisma.location.findMany({
-    where: {
-      slug: {
-        notIn: HIDDEN_LOCATION_SLUGS,
-      },
-    },
+    where: VISIBLE_LOCATION_WHERE,
     orderBy: { title: 'asc' },
   });
   const result = createResult(locations.length);

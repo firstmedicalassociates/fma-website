@@ -9,7 +9,6 @@ const { PrismaClient } = require('@prisma/client');
 const { PrismaNeon } = require('@prisma/adapter-neon');
 
 const MAX_AGE_DAYS = Math.max(Number(process.env.AI_SEARCH_EMBEDDING_MAX_AGE_DAYS) || 14, 1);
-const HIDDEN_LOCATION_SLUGS = ['/location/laurel'];
 const MANAGED_EMBEDDING_TYPES = new Set(['location', 'provider', 'service', 'post', 'policy']);
 const EXPECTED_EMBEDDING_MODEL = 'text-embedding-3-small';
 
@@ -26,6 +25,7 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
+  const { VISIBLE_LOCATION_WHERE } = await import('../src/app/lib/locations.js');
   const policyModuleUrl = pathToFileURL(
     path.resolve(__dirname, '../src/app/lib/ai-search-policy-documents.mjs')
   ).href;
@@ -35,7 +35,7 @@ async function main() {
       select: { id: true, metadata: true, updatedAt: true },
     }),
     prisma.location.findMany({
-      where: { slug: { notIn: HIDDEN_LOCATION_SLUGS } },
+      where: VISIBLE_LOCATION_WHERE,
       select: { id: true },
     }),
     prisma.provider.findMany({

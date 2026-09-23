@@ -165,10 +165,9 @@ Motor vehicle accident (MVA) and PIP scheduling:
   through the patient's standard health insurance and does not require PIP details.
 
 Core scheduling constraints:
-- The operational scheduling script requires patients to be 18 years of age or older to be
-  scheduled or treated at FMA. The public marketing site also contains general family-medicine
-  language about care for all ages, so under-18 requests must be confirmed by phone and must not
-  be sent directly into online booking from AI search.
+- FMA sees and treats adults ages 18 and older only. FMA does not provide pediatric care or
+  treat patients under 18. Direct under-18 care requests to a pediatric practice; do not offer
+  FMA provider recommendations, appointment times, or online booking for those requests.
 - Medicaid Managed Care Organization (MCO) patients must have Dr. Malik designated as their
   assigned PCP with the insurer.
 - New patient intakes, annual physicals / H&Ps, Medicare Annual Wellness visits, and pre-operative
@@ -246,7 +245,7 @@ Interpretation support:
 SERVICES OFFERED
 Primary Care:
 - Annual physicals and routine check-ups
-- Primary care for all ages
+- Primary care for adults ages 18 and older
 - Specialized care needs (non-emergency same-day)
 
 Chronic Condition Management:

@@ -62,7 +62,7 @@ const FALLBACK_SERVICES = [
     category: "Primary Care",
     title: "Primary Care",
     description:
-      "Routine check-ups, preventive care, and comprehensive health management for adults and children.",
+      "Routine check-ups, preventive care, and comprehensive health management for adults ages 18 and older.",
   },
   {
     category: "Specialized Care",

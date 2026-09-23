@@ -542,8 +542,14 @@
     "expectedSourceUrl": "/patient-resources/patients",
     "expectedNoProviderCards": true,
     "requiredAnswerPhrases": [
-      "require patients to be age 18 or older",
-      "live public site also contains"
+      "adults ages 18 and older",
+      "do not provide pediatric care",
+      "patients under 18",
+      "pediatric practice"
+    ],
+    "forbiddenAnswerPhrases": [
+      "public site also contains",
+      "whether an appropriate provider"
     ]
   },
   {
@@ -811,8 +817,14 @@
     "expectedSourceUrl": "/patient-resources/patients",
     "expectedNoProviderCards": true,
     "requiredAnswerPhrases": [
-      "require patients to be age 18 or older",
-      "call 301-515-2901"
+      "adults ages 18 and older",
+      "do not provide pediatric care",
+      "patients under 18",
+      "pediatric practice"
+    ],
+    "forbiddenAnswerPhrases": [
+      "public site also contains",
+      "whether an appropriate provider"
     ]
   },
   {
@@ -1045,12 +1057,213 @@
     "id": "privacy_block",
     "query": "my name is Example Person and I have strep throat",
     "expectedBlocked": true,
-    "expectedPhiCategories": ["personal_name", "patient_specific_medical_detail"]
+    "expectedPhiCategories": [
+      "personal_name",
+      "patient_specific_medical_detail"
+    ]
   },
   {
     "id": "dob_block",
     "query": "I was born 01/02/1980 and need records",
     "expectedBlocked": true,
-    "expectedPhiCategories": ["date_of_birth"]
+    "expectedPhiCategories": [
+      "date_of_birth"
+    ]
+  },
+  {
+    "id": "common_age_child_single_digit",
+    "query": "Can I book a 5-year-old with Karen Lizarraga tomorrow?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "adults ages 18 and older",
+      "do not provide pediatric care",
+      "patients under 18",
+      "pediatric practice"
+    ],
+    "forbiddenAnswerPhrases": [
+      "public site also contains",
+      "whether an appropriate provider"
+    ]
+  },
+  {
+    "id": "common_age_child_office",
+    "query": "Where can children be treated at Laurel?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "adults ages 18 and older",
+      "do not provide pediatric care",
+      "patients under 18",
+      "pediatric practice"
+    ],
+    "forbiddenAnswerPhrases": [
+      "public site also contains",
+      "whether an appropriate provider"
+    ]
+  },
+  {
+    "id": "common_age_child_insurance",
+    "query": "Do you accept Cigna for a child appointment?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "adults ages 18 and older",
+      "do not provide pediatric care",
+      "patients under 18",
+      "pediatric practice"
+    ],
+    "forbiddenAnswerPhrases": [
+      "public site also contains",
+      "whether an appropriate provider"
+    ]
+  },
+  {
+    "id": "common_age_child_words",
+    "query": "Can a ten-year-old see a doctor?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "adults ages 18 and older",
+      "do not provide pediatric care",
+      "patients under 18",
+      "pediatric practice"
+    ],
+    "forbiddenAnswerPhrases": [
+      "public site also contains",
+      "whether an appropriate provider"
+    ]
+  },
+  {
+    "id": "common_age_whole_family",
+    "query": "Can you treat my whole family?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "adults ages 18 and older",
+      "do not provide pediatric care",
+      "patients under 18",
+      "pediatric practice"
+    ],
+    "forbiddenAnswerPhrases": [
+      "public site also contains",
+      "whether an appropriate provider"
+    ]
+  },
+  {
+    "id": "common_age_all_ages",
+    "query": "Do your family doctors treat all ages?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "adults ages 18 and older",
+      "do not provide pediatric care",
+      "patients under 18",
+      "pediatric practice"
+    ],
+    "forbiddenAnswerPhrases": [
+      "public site also contains",
+      "whether an appropriate provider"
+    ]
+  },
+  {
+    "id": "common_age_age_question",
+    "query": "What ages do you treat?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "adults ages 18 and older",
+      "do not provide pediatric care",
+      "patients under 18",
+      "pediatric practice"
+    ],
+    "forbiddenAnswerPhrases": [
+      "public site also contains",
+      "whether an appropriate provider"
+    ]
+  },
+  {
+    "id": "common_age_age_eighteen_plus",
+    "query": "Do you see patients 18+?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/patient-resources/patients",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "adults ages 18 and older",
+      "do not provide pediatric care",
+      "patients under 18",
+      "pediatric practice"
+    ],
+    "forbiddenAnswerPhrases": [
+      "public site also contains",
+      "whether an appropriate provider"
+    ]
+  },
+  {
+    "id": "common_child_emergency_boundary",
+    "query": "Can a child book an emergency appointment at FMA?",
+    "expectedIntent": "service_question",
+    "appointmentAvailability": false,
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/same-day-care",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": [
+      "not an emergency department",
+      "call 911",
+      "nearest emergency department"
+    ],
+    "forbiddenAnswerPhrases": [
+      "seek specialized care"
+    ]
   }
 ]

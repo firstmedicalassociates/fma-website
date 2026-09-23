@@ -1,6 +1,7 @@
 import { resolveProviderBookingHref } from "./providers.js";
 import { bookingActionLabel } from "./booking.js";
 import { matchSpecificAliases } from "./search-aliases.js";
+import { isPatientAgeQuestion } from "./patient-age-policy.js";
 import { AthenaRequestError, readAthenaCollection, onlineProviderExclusions, auditProviderDepartments, mappingRecommendation } from "./athena-diagnostics.mjs";
 import { prisma } from "./prisma.js";
 import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
@@ -215,6 +216,7 @@ async function isKnownProviderAvailabilityQuery(query) {
 }
 
 export async function shouldCheckAppointmentAvailability(query) {
+  if (isPatientAgeQuestion(query)) return false;
   if (isAppointmentAvailabilityQuery(query)) return true;
   return isKnownProviderAvailabilityQuery(query);
 }

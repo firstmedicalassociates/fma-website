@@ -111,7 +111,7 @@ module.exports = {
         key: "family-doctor",
         title: "Family doctor in Crofton, MD",
         paragraphs: [
-          "At First Medical Associates, we offer a wide range of services designed to keep you and your family in optimal health. From routine check-ups and preventive care to specialized treatments, our medical team in Crofton, MD, is equipped with the latest medical knowledge and technology to ensure you receive the best possible care.",
+          "At First Medical Associates, we offer a wide range of services designed to keep you in optimal health. From routine check-ups and preventive care to specialized treatments, our medical team in Crofton, MD, is equipped with the latest medical knowledge and technology to ensure you receive the best possible care.",
           "We strive to make every visit comfortable and informative, addressing questions and concerns you may have about your health. Our goal is to be a reliable partner in your health journey with personalized, effective healthcare.",
         ],
       },
@@ -119,7 +119,7 @@ module.exports = {
         key: "doctors",
         title: "Doctors in Crofton, MD",
         paragraphs: [
-          "At First Medical Associates, we pride ourselves on offering a wide range of services designed to keep you and your family in optimal health. From routine check-ups and preventive care to specialized treatments, our doctors in Crofton, MD, are equipped with the latest medical knowledge and technology to ensure you receive the best possible care.",
+          "At First Medical Associates, we pride ourselves on offering a wide range of services designed to keep you in optimal health. From routine check-ups and preventive care to specialized treatments, our doctors in Crofton, MD, are equipped with the latest medical knowledge and technology to ensure you receive the best possible care.",
           "Our goal is to be a reliable partner in your health journey. By choosing First Medical Associates, you are selecting a team of experienced professionals who genuinely care about your well-being. If you are looking for trusted doctors in Crofton, MD, we invite you to schedule an appointment with us today.",
         ],
       },
@@ -143,7 +143,7 @@ module.exports = {
         key: "family-doctor",
         title: "Family doctor in Greenbelt, MD",
         paragraphs: [
-          "Your family deserves a medical team that listens, understands, and cares. At First Medical Associates, our family doctor in Greenbelt, MD, provides compassionate and comprehensive healthcare for patients of all ages.",
+          "You deserve a medical team that listens, understands, and cares. At First Medical Associates, our family doctor in Greenbelt, MD, provides compassionate and comprehensive healthcare for adults ages 18 and older.",
           "We believe in building long-term relationships with every patient. As your family doctor in Greenbelt, we take the time to learn about your medical history, lifestyle, and goals, tailoring our care to fit your needs.",
           "When you choose First Medical Associates, you are choosing a Greenbelt family doctor who prioritizes your family's well-being. Schedule your visit today and let us support your family's health journey.",
         ],
@@ -211,7 +211,7 @@ module.exports = {
         key: "family-doctor",
         title: "Family doctor in Germantown, MD",
         paragraphs: [
-          "At First Medical Associates, your search for a trusted family doctor in Germantown, MD, ends here. We are committed to providing comprehensive care for every member of your family, from young children to older adults.",
+          "At First Medical Associates, your search for a trusted family doctor in Germantown, MD, ends here. We are committed to providing comprehensive care for adults ages 18 and older.",
           "Whether you need routine check-ups, preventive care, or management of chronic conditions, we offer services designed to keep your family healthy and thriving. Our family doctor in Germantown, MD, understands that each family member's needs are unique.",
           "At First Medical Associates, having a family doctor in Germantown, MD, means having a reliable partner in maintaining your health. We are dedicated to offering compassionate, high-quality care in a welcoming environment.",
         ],
@@ -288,7 +288,7 @@ module.exports = {
         key: "doctors",
         title: "Doctors in Bowie, MD",
         paragraphs: [
-          "At First Medical Associates, we pride ourselves on offering a wide range of services designed to keep you and your family in optimal health. From routine check-ups and preventive care to specialized treatments, our doctors in Bowie, MD, are equipped with the latest medical knowledge and technology to ensure you receive the best possible care.",
+          "At First Medical Associates, we pride ourselves on offering a wide range of services designed to keep you in optimal health. From routine check-ups and preventive care to specialized treatments, our doctors in Bowie, MD, are equipped with the latest medical knowledge and technology to ensure you receive the best possible care.",
           "We strive to make every visit comfortable and informative, addressing any questions or concerns you may have about your health. Our goal is to be a reliable partner in your health journey.",
           "By choosing First Medical Associates, you are selecting a team of experienced professionals who genuinely care about your well-being. If you are looking for trusted doctors in Bowie, MD, we invite you to schedule an appointment with us today.",
         ],
@@ -322,7 +322,7 @@ module.exports = {
         key: "doctors",
         title: "Doctors in Bowie, MD",
         paragraphs: [
-          "At First Medical Associates, we pride ourselves on offering a wide range of services designed to keep you and your family in optimal health. From routine check-ups and preventive care to specialized treatments, our doctors in Bowie, MD, are equipped with the latest medical knowledge and technology to ensure you receive the best possible care.",
+          "At First Medical Associates, we pride ourselves on offering a wide range of services designed to keep you in optimal health. From routine check-ups and preventive care to specialized treatments, our doctors in Bowie, MD, are equipped with the latest medical knowledge and technology to ensure you receive the best possible care.",
           "We strive to make every visit comfortable and informative, addressing any questions or concerns you may have about your health. Our goal is to be a reliable partner in your health journey.",
           "By choosing First Medical Associates, you are selecting a team of experienced professionals who genuinely care about your well-being. If you are looking for trusted doctors in Bowie, MD, we invite you to schedule an appointment with us today.",
         ],
@@ -382,7 +382,7 @@ module.exports = {
         title: "Family doctor in Gaithersburg, MD",
         paragraphs: [
           "At First Medical Associates, having a family doctor in Gaithersburg, MD, means you have a partner who understands and prioritizes your family's health. We offer a broad spectrum of services designed to keep your loved ones healthy, from preventive care and routine check-ups to more specialized medical attention.",
-          "Our approach as your family doctor in Gaithersburg, MD, is centered on building a strong rapport with you and your family. We are dedicated to providing compassionate care and clear communication, ensuring that you fully understand your health options and feel supported in making informed decisions.",
+          "Our approach as your family doctor in Gaithersburg, MD, is centered on building a strong rapport with you. We are dedicated to providing compassionate care and clear communication, ensuring that you fully understand your health options and feel supported in making informed decisions.",
           "We aim to provide continuity of care that adapts to each member's changing health needs, so your family receives dependable support at every stage of life.",
         ],
       },
@@ -391,7 +391,7 @@ module.exports = {
         title: "Doctors in Gaithersburg, MD",
         paragraphs: [
           "At First Medical Associates, we are proud to have a team of highly skilled doctors in Gaithersburg, MD, dedicated to providing exceptional healthcare services. Our practice focuses on delivering personalized medical care tailored to each patient's unique needs.",
-          "Our doctors in Gaithersburg, MD, are committed to maintaining the highest standards of medical excellence. With a patient-centered approach, we work to build strong relationships with you and your family, ensuring that all aspects of your health are thoroughly addressed.",
+          "Our doctors in Gaithersburg, MD, are committed to maintaining the highest standards of medical excellence. With a patient-centered approach, we work to build strong relationships with you, ensuring that all aspects of your health are thoroughly addressed.",
           "Choosing First Medical Associates means selecting a team of dedicated doctors in Gaithersburg, MD, who genuinely care about your well-being. Schedule an appointment today and experience the personalized attention that sets our practice apart.",
         ],
       },
@@ -483,7 +483,7 @@ module.exports = {
         key: "family-doctor",
         title: "Family doctor in Nottingham, MD",
         paragraphs: [
-          "At First Medical Associates, your search for a trusted family doctor in Nottingham, MD, ends here. Our team is committed to providing comprehensive, personalized care for every member of your family. Whether you need routine check-ups, preventive care, or management of ongoing health conditions, we offer services designed to meet your needs.",
+          "At First Medical Associates, your search for a trusted family doctor in Nottingham, MD, ends here. Our team is committed to providing comprehensive, personalized care for adults ages 18 and older. Whether you need routine check-ups, preventive care, or management of ongoing health conditions, we offer services designed to meet your needs.",
           "As your family doctor in Nottingham, MD, we focus on the overall well-being of each patient. We understand that every family member has distinct health requirements, and we tailor our services accordingly.",
           "Choosing First Medical Associates means partnering with a family doctor in Nottingham, MD, who genuinely cares about your health journey. We are here to offer medical treatment, guidance, and support to help you make informed health decisions.",
         ],
@@ -517,7 +517,7 @@ module.exports = {
         key: "family-doctor",
         title: "Family doctor in Rockville, MD",
         paragraphs: [
-          "At First Medical Associates, our family doctor in Rockville, MD, is dedicated to providing comprehensive healthcare for every member of your family. We offer a wide range of services, from routine check-ups and vaccinations to managing chronic conditions and preventive care.",
+          "At First Medical Associates, our family doctor in Rockville, MD, is dedicated to providing comprehensive healthcare for adults ages 18 and older. We offer a wide range of services, from routine check-ups and vaccinations to managing chronic conditions and preventive care.",
           "Our family doctor in Rockville, MD, focuses on building long-term relationships with patients to deliver personalized and effective care. By understanding each individual's unique health history and needs, we develop tailored care plans that promote better outcomes.",
           "At First Medical Associates, having a family doctor in Rockville, MD, means accessing a healthcare provider who is professional and approachable. We are dedicated to creating a welcoming environment where you can receive high-quality care and make confident health decisions.",
         ],

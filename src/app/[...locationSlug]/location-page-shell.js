@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
+import { PATIENT_AGE_POLICY } from "../lib/patient-age-policy";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import HeroEyebrow from "../components/hero-eyebrow";
@@ -36,8 +37,8 @@ const INFO_FAQS = [
     a: "Yes. Same-day appointment options are available for many non-emergency concerns.",
   },
   {
-    q: "Do you offer family medicine for children and adults?",
-    a: "Yes, our family medicine practitioners see patients of all ages.",
+    q: "What ages do you treat?",
+    a: PATIENT_AGE_POLICY,
   },
   {
     q: "How do referrals to specialists work?",
@@ -234,7 +235,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
         title: family?.title || `Family Doctor in ${locationSeoPlaceLabel}`,
         description:
           family?.paragraphs?.join(" ") ||
-          "We provide dependable, family-centered care for all ages, from children to older adults.",
+          "We provide dependable primary care for adults ages 18 and older, including older adults.",
       },
       doctors: {
         title: doctors?.title || `Doctors in ${locationSeoPlaceLabel}`,
@@ -427,7 +428,7 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                   </p>
                   <p className={styles.locationHeroLead}>
                     {location.intro ||
-                      "Compassionate, patient-centered primary care for you and your family. Our team is here to keep you healthy today and for years to come."}
+                      "Compassionate, patient-centered primary care for adults ages 18 and older. Our team is here to keep you healthy today and for years to come."}
                   </p>
 
                   <div className={styles.locationHeroActions}>
@@ -776,8 +777,8 @@ export default function LocationPageShell({ location, providers, serviceGroups }
                         <span className="material-symbols-outlined">groups</span>
                       </div>
                       <div>
-                        <h3>Family Doctors</h3>
-                        <p>Treated primary care for the whole family</p>
+                        <h3>Adult Primary Care</h3>
+                        <p>Personalized primary care for adults 18+</p>
                       </div>
                     </div>
 

@@ -120,7 +120,7 @@ module.exports = [
       ],
       detailHeading: "What Does a Primary Care Provider Do?",
       detailParagraphs: [
-        "A PCP manages routine wellness, preventive screenings, and common medical conditions for all ages.",
+        "A PCP manages routine wellness, preventive screenings, and common medical conditions for adults ages 18 and older.",
         "If specialty care is needed, your PCP coordinates referrals and stays connected to your complete treatment plan.",
       ],
       detailLinkLabel: "Find a Primary Care Provider",
