@@ -3,7 +3,7 @@ import { resolveLocationBookingHref } from "./booking.js";
 import { matchSpecificAliases } from "./search-aliases.js";
 import { prisma } from "./prisma.js";
 import { normalizeInternalPageHref } from "./config/site.js";
-import { VISIBLE_LOCATION_WHERE } from "./locations.js";
+import { VISIBLE_LOCATION_WHERE, formatLocationAddress } from "./locations.js";
 import {
   AI_SEARCH_CORE_STOPWORDS,
   AI_SEARCH_PATTERNS,
@@ -156,11 +156,7 @@ function matchAliases(query, aliasIndex) {
 }
 
 function formatAddress(location = {}) {
-  const address = location.displayAddress || location.address;
-  const fallback = [location.addressCity, location.addressState].filter(Boolean).join(", ");
-  return String(address || fallback || "")
-    .replace(/\s*\n+\s*/g, ", ")
-    .trim();
+  return formatLocationAddress(location);
 }
 
 function formatLocationLabel(location = {}) {

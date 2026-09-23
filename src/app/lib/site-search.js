@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { withVisibleLocationWhere } from "./locations";
+import { withVisibleLocationWhere, formatLocationAddress } from "./locations";
 import { buildLocationTitleMap, formatProviderList, resolveLocationTitles } from "./providers";
 import { normalizeInternalPageHref } from "./config/site";
 
@@ -176,7 +176,7 @@ export async function searchSite(rawQuery, options = {}) {
 
   const locationResults = locations.map((location) => {
     const locationMeta = [
-      cleanText(location.displayAddress).replace(/\n+/g, ", "),
+      formatLocationAddress(location),
       cleanText(location.address),
       [cleanText(location.addressCity), cleanText(location.addressState)].filter(Boolean).join(", "),
       cleanText(location.accent),

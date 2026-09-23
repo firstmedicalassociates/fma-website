@@ -1,3 +1,4 @@
+import { CAREERS_ENABLED } from "../lib/config/site";
 import Link from "next/link";
 import { buildStaticMetadata } from "../lib/seo";
 import { 
@@ -111,7 +112,7 @@ export default function AboutPage() {
           gap: 1rem; width: fit-content; margin-top: auto;
         }
 
-        .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 4rem; }
+        .cta-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 2rem; margin-bottom: 4rem; }
         .cta-card { 
           background: #f1f5f9; padding: 3rem; border-radius: 24px; 
           display: flex; align-items: center; gap: 2rem;
@@ -378,7 +379,7 @@ export default function AboutPage() {
 
       {/* job & partner ctas */}
       <div className="cta-row">
-        <div className="cta-card">
+        {CAREERS_ENABLED && <div className="cta-card">
           <div className="num-box"><Users size={28} /></div>
           <div>
             <h4 style={{ fontWeight: 800, color: '#001c55', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Advance Your Career</h4>
@@ -387,7 +388,7 @@ export default function AboutPage() {
               View Career Opportunities <ExternalLink size={14} />
             </Link>
           </div>
-        </div>
+        </div>}
         <div className="cta-card dark-cta">
            <div className="cta-icon"><Handshake size={32} /></div>
            <div>

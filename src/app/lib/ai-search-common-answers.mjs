@@ -1,12 +1,12 @@
 import { prisma } from "./prisma.js";
-import { VISIBLE_LOCATION_WHERE } from "./locations.js";
+import { VISIBLE_LOCATION_WHERE, formatLocationAddress } from "./locations.js";
 import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
 import { resolveLocationBookingHref } from "./booking.js";
 import { matchSpecificAliases } from "./search-aliases.js";
 import { compactSearchText } from "./ai-search-vocabulary.js";
 import { isPatientAgeQuestion, PATIENT_AGE_POLICY } from "./patient-age-policy.js";
 
-export const AI_SEARCH_COMMON_KNOWLEDGE_VERSION = "2026-09-23.1";
+export const AI_SEARCH_COMMON_KNOWLEDGE_VERSION = "2026-09-23.2";
 
 const MAIN_PHONE = "301-515-2901";
 const MAIN_FAX = "866-701-4905";
@@ -122,7 +122,7 @@ async function buildLocationFactAnswer(normalized) {
   });
   if (matches.length > 1 && /\b(address|located|directions|where)\b/.test(normalized)) {
     return buildCommonResult(
-      `There are ${matches.length} matching FMA offices: ${matches.map((location) => `${location.title}: ${String(location.displayAddress || location.address || "").replace(/\s*\n+\s*/g, ", ")}`).join("; ")}. Choose the location or booking link for the office you want.`,
+      `There are ${matches.length} matching FMA offices: \n\n${matches.map((location) => `${location.title}:\n${formatLocationAddress(location)}`).join("\n\n")}\n\nChoose the location or booking link for the office you want.`,
       matches.map(locationSource), ["location.address"]
     );
   }
@@ -131,9 +131,9 @@ async function buildLocationFactAnswer(normalized) {
   const location = matches[0];
   const source = locationSource(location);
   if (location.isComingSoon) {
-    const address = String(location.displayAddress || location.address || "").replace(/\s*\n+\s*/g, ", ");
+    const address = formatLocationAddress(location);
     return buildCommonResult(
-      `${location.title} is coming soon${location.openingDateLabel ? `, with an estimated opening date of ${location.openingDateLabel}` : ""}. The planned address is ${address}. Planned hours after opening: ${location.officeHours?.length ? formatOfficeHours(location.officeHours) : "not yet announced"}. Call ${location.phone || MAIN_PHONE} for updates. Booking information is not yet available.`,
+      `${location.title} is coming soon${location.openingDateLabel ? `, with an estimated opening date of ${location.openingDateLabel}` : ""}. The planned address is:\n${address}\n\nPlanned hours after opening: ${location.officeHours?.length ? formatOfficeHours(location.officeHours) : "not yet announced"}. Call ${location.phone || MAIN_PHONE} for updates. Booking information is not yet available.`,
       [source], ["location.coming-soon"]
     );
   }
@@ -156,11 +156,9 @@ async function buildLocationFactAnswer(normalized) {
     );
   }
   if (/\b(address|located|directions|where)\b/.test(normalized)) {
-    const address = String(location.displayAddress || location.address || "")
-      .replace(/\s*\n+\s*/g, ", ")
-      .trim();
+    const address = formatLocationAddress(location);
     return buildCommonResult(
-      `The ${location.title} office is located at ${address}.`,
+      `The ${location.title} office is located at:\n${address}`,
       [source],
       ["location.address"]
     );
@@ -466,8 +464,8 @@ function buildOrganizationAnswer(normalized) {
   }
   if (/\b(who founded|founder of|founded)\b.{0,30}\b(doctors first|first medical associates|fma)\b|\b(doctors first|first medical associates|fma)\b.{0,30}\b(founder|founded)\b/.test(normalized)) {
     return buildCommonResult(
-      "Rakesh Malik, M.D., founded Doctors First in 2008; the practice later became First Medical Associates.",
-      [buildSource("Rakesh Malik, M.D.", "/providers/rakesh-malik", "provider")],
+      "Rakesh Malik, MD, founded Doctors First in 2008; the practice later became First Medical Associates.",
+      [buildSource("Rakesh Malik, MD", "/providers/rakesh-malik", "provider")],
       ["organization.founder"]
     );
   }

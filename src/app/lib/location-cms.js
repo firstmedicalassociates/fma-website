@@ -4,6 +4,7 @@ import {
   buildDisplayAddress,
   buildStructuredAddress,
   normalizeOfficeHours,
+  resolveLocationAddressParts,
 } from "./locations";
 import { normalizeServiceIcon, normalizeServiceIds } from "./services";
 
@@ -119,13 +120,7 @@ function normalizeInfoSections(values) {
 }
 
 function buildLocationRecord(input = {}) {
-  const addressParts = {
-    streetAddress: normalizeText(input.streetAddress),
-    addressCity: normalizeText(input.addressCity),
-    addressState: normalizeText(input.addressState),
-    postalCode: normalizeText(input.postalCode),
-    addressCountry: normalizeText(input.addressCountry),
-  };
+  const addressParts = resolveLocationAddressParts(input);
   const generatedAddress = buildStructuredAddress(addressParts);
   const generatedDisplayAddress = buildDisplayAddress(addressParts);
 

@@ -73,100 +73,57 @@ function cleanText(value) {
   return String(value ?? "").trim();
 }
 
-export function buildStructuredAddress(parts = {}) {
-  const streetAddress = cleanText(parts.streetAddress);
-  const city = cleanText(parts.addressCity);
-  const state = cleanText(parts.addressState);
-  const postalCode = cleanText(parts.postalCode);
-  const country = cleanText(parts.addressCountry);
-  const cityStatePostal = [city, [state, postalCode].filter(Boolean).join(" ")]
-    .filter(Boolean)
-    .join(", ");
+export function normalizeStreetAddress(value = "") {
+  return cleanText(value)
+    .replace(/[,\s]*\b(?:suite|ste)\b\.?\s*#?\s*/gi, " Ste ")
+    .replace(/[,\s]*#\s*(?=\d)/g, " Ste ")
+    .replace(/\b(Dr|Rd|Ave|Ln|Blvd|Pkwy|Cir)\.(?=\s|$)/gi, "$1")
+    .replace(/\s+/g, " ")
+    .replace(/[,\s]+$/, "");
+}
 
-  return [streetAddress, cityStatePostal, country].filter(Boolean).join(", ");
+export function normalizeAddressState(value = "") {
+  const state = cleanText(value);
+  return { maryland: "MD", virginia: "VA", "district of columbia": "DC" }[state.toLowerCase()]
+    || (state.length === 2 ? state.toUpperCase() : state);
+}
+
+export function buildStructuredAddress(parts = {}) {
+  return buildDisplayAddress(parts).replace(/\n/g, ", ");
 }
 
 export function buildDisplayAddress(parts = {}) {
-  const streetAddress = cleanText(parts.streetAddress);
+  const streetAddress = normalizeStreetAddress(parts.streetAddress);
   const city = cleanText(parts.addressCity);
-  const state = cleanText(parts.addressState);
+  const state = normalizeAddressState(parts.addressState);
   const postalCode = cleanText(parts.postalCode);
-  const country = cleanText(parts.addressCountry);
   const cityStatePostal = [city, [state, postalCode].filter(Boolean).join(" ")]
     .filter(Boolean)
     .join(", ");
 
-  return [streetAddress, cityStatePostal, country].filter(Boolean).join("\n");
-}
-
-function parseCityStatePostal(value = "") {
-  const normalized = cleanText(value);
-  if (!normalized) {
-    return {
-      addressCity: "",
-      addressState: "",
-      postalCode: "",
-    };
-  }
-
-  const [cityPart, regionPart = ""] = normalized.split(",").map((part) => cleanText(part));
-  const regionMatch = regionPart.match(/^([A-Za-z]{2,})\s+(.+)$/);
-
-  if (regionMatch) {
-    return {
-      addressCity: cityPart,
-      addressState: regionMatch[1],
-      postalCode: regionMatch[2],
-    };
-  }
-
-  return {
-    addressCity: cityPart,
-    addressState: regionPart,
-    postalCode: "",
-  };
+  return [streetAddress, cityStatePostal].filter(Boolean).join("\n");
 }
 
 export function resolveLocationAddressParts(location = {}) {
-  const explicitParts = {
-    streetAddress: cleanText(location.streetAddress),
-    addressCity: cleanText(location.addressCity),
-    addressState: cleanText(location.addressState),
-    postalCode: cleanText(location.postalCode),
-    addressCountry: cleanText(location.addressCountry),
-  };
-
-  if (Object.values(explicitParts).some(Boolean)) {
-    return explicitParts;
-  }
-
-  const displayAddress = cleanText(location.displayAddress);
-  if (displayAddress) {
-    const lines = displayAddress.split(/\n+/).map((line) => cleanText(line)).filter(Boolean);
-    const cityStatePostal = parseCityStatePostal(lines[1]);
-
-    return {
-      streetAddress: lines[0] || "",
-      ...cityStatePostal,
-      addressCountry: lines[2] || "",
-    };
-  }
-
-  const addressParts = cleanText(location.address)
-    .split(/,\s*/)
-    .map((part) => cleanText(part))
-    .filter(Boolean);
-  const cityStatePostal = parseCityStatePostal(
-    addressParts.length > 3
-      ? `${addressParts[1]}, ${addressParts[2]}`
-      : addressParts.slice(1, 3).join(", ")
-  );
-
+  const source = cleanText(location.displayAddress || location.address);
+  // Work from the ZIP backwards so a comma or separate line before the suite
+  // never gets mistaken for the city. Structured CMS values take precedence.
+  const match = source.match(/^([\s\S]+)[,\n]\s*([^,\n]+),\s*([A-Za-z ]+)\s+(\d{5}(?:-\d{4})?)(?:[,\n]\s*(.+))?$/);
+  const fallback = match ? {
+    streetAddress: match[1], addressCity: match[2], addressState: match[3],
+    postalCode: match[4], addressCountry: match[5],
+  } : { streetAddress: source };
   return {
-    streetAddress: addressParts[0] || "",
-    ...cityStatePostal,
-    addressCountry: addressParts[3] || "",
+    streetAddress: normalizeStreetAddress(location.streetAddress || fallback.streetAddress),
+    addressCity: cleanText(location.addressCity || fallback.addressCity),
+    addressState: normalizeAddressState(location.addressState || fallback.addressState),
+    postalCode: cleanText(location.postalCode || fallback.postalCode),
+    addressCountry: cleanText(location.addressCountry || fallback.addressCountry),
   };
+}
+
+export function formatLocationAddress(location = {}) {
+  return buildDisplayAddress(resolveLocationAddressParts(location));
 }
 
 export function buildPostalAddressSchema(location = {}) {

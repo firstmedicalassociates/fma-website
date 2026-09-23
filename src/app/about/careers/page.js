@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+import { redirect } from "next/navigation";
+import { CAREERS_ENABLED } from "../../lib/config/site";
 import { buildStaticMetadata } from "../../lib/seo";
 import { getSiteImageSrc } from "../../lib/site-images";
 import {
@@ -28,6 +30,7 @@ export const metadata = buildStaticMetadata({
 });
 
 export default function CareersPage() {
+  if (!CAREERS_ENABLED) redirect("/about/");
   const careersImageSrc = getSiteImageSrc("first-medical-associates-doctors-4");
 
   const opportunities = [

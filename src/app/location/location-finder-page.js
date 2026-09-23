@@ -2,6 +2,7 @@ import { resolveLocationBookingHref } from "../lib/booking";
 import {
   VISIBLE_LOCATION_WHERE,
   buildStructuredAddress,
+  formatLocationAddress,
   formatOfficeHoursForDisplay,
   resolveLocationAddressParts,
 } from "../lib/locations";
@@ -39,18 +40,7 @@ const LOCATION_FINDER_SELECT = {
 };
 
 function normalizeAddressLines(location) {
-  const displayAddress = String(location.displayAddress || "").trim();
-  if (displayAddress) {
-    return displayAddress
-      .split(/\n+/)
-      .map((line) => line.trim())
-      .filter(Boolean);
-  }
-
-  return String(location.address || "")
-    .split(/,\s*/)
-    .map((line) => line.trim())
-    .filter(Boolean);
+  return formatLocationAddress(location).split("\n").filter(Boolean);
 }
 
 function buildPublicPhone(location) {

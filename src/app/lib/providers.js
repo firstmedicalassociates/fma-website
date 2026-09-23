@@ -115,11 +115,15 @@ export function resolveLocationTitles(locationSlugs = [], locationTitleBySlug = 
   );
 }
 
+export function normalizeMdCredentialText(value = "") {
+  return String(value || "").replace(/\bM\.\s*D\.(?![A-Za-z])/g, "MD");
+}
+
 export function normalizeProviderPayload(value) {
   return {
-    name: String(value?.name || "").trim(),
-    title: String(value?.title || "").trim(),
-    bio: String(value?.bio || "").trim(),
+    name: normalizeMdCredentialText(value?.name).trim(),
+    title: normalizeMdCredentialText(value?.title).trim().replace(/\s+,/g, ","),
+    bio: normalizeMdCredentialText(value?.bio).trim(),
     slug: normalizeProviderSlug(value?.slug || value?.name),
     imageUrl: String(value?.imageUrl || "").trim(),
     imageAlt: String(value?.imageAlt || "").trim() || null,

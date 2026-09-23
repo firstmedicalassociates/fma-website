@@ -4,7 +4,7 @@ module.exports = [
   { ...jacobScott, locations: ["Owings Mills"], preserveExisting: true },
   {
     name: "Robin Codjoe",
-    title: "M.D.",
+    title: "MD",
     locations: ["Bowie (Health Center Dr)"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/robin-codjoe.webp",
@@ -26,18 +26,18 @@ module.exports = [
   },
   {
     name: "Maria Borodatcheva",
-    title: "M.D.",
+    title: "MD",
     locations: ["Columbia (Snowden River Pkwy)"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/maria-borodatcheva.webp",
     imageAlt: "Maria Borodatcheva headshot",
     slug: "maria-borodatcheva",
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/6803175",
-    bio: "Maria Borodatcheva, M.D., is a board-certified internal medicine physician. She has been in primary care practice for over 15 years. She obtained her medical degree from Russian Peoples Friendship University, graduating summa cum laude. Later, she moved to the United States and started her family. She completed her internal medicine residency at the University of Maryland in 2007.\nPrimary care has been her passion since completing her residency. She believes that the doctor-patient relationship should be based on trust and partnership to reach the best outcome possible. She provides her patients with accurate information about their health condition or diagnosis, discusses possible treatment options, explains the risks and benefits of each, and lets her patients decide which treatment option is best for them. Her main interests include hypertension, diabetes, hyperlipidemia, hypothyroidism, and gastrointestinal tract disorders.\nDr. Borodatcheva strongly believes in preventive medicine and encourages a healthy lifestyle. She sets a good example by maintaining a healthy diet and an active lifestyle. In her free time, she enjoys traveling and spending time with her family.",
+    bio: "Maria Borodatcheva, MD, is a board-certified internal medicine physician. She has been in primary care practice for over 15 years. She obtained her medical degree from Russian Peoples Friendship University, graduating summa cum laude. Later, she moved to the United States and started her family. She completed her internal medicine residency at the University of Maryland in 2007.\nPrimary care has been her passion since completing her residency. She believes that the doctor-patient relationship should be based on trust and partnership to reach the best outcome possible. She provides her patients with accurate information about their health condition or diagnosis, discusses possible treatment options, explains the risks and benefits of each, and lets her patients decide which treatment option is best for them. Her main interests include hypertension, diabetes, hyperlipidemia, hypothyroidism, and gastrointestinal tract disorders.\nDr. Borodatcheva strongly believes in preventive medicine and encourages a healthy lifestyle. She sets a good example by maintaining a healthy diet and an active lifestyle. In her free time, she enjoys traveling and spending time with her family.",
   },
   {
     name: "Anita Kunwar",
-    title: "M.D.",
+    title: "MD",
     locations: ["Nottingham"],
     languages: ["English", "Nepalese"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/anita-kunwar.webp",
@@ -48,18 +48,18 @@ module.exports = [
   },
   {
     name: "Sharon McCormack",
-    title: "M.D.",
+    title: "MD",
     locations: ["Columbia (Snowden River Pkwy)"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/sharon-j-mccormack.webp",
     imageAlt: "Sharon McCormack headshot",
     slug: "sharon-j-mccormack",
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/6803171",
-    bio: "Dr. Sharon J. McCormack, MD, is a board-certified medical professional with expertise in Internal Medicine, Oncology, Hematology, Geriatrics, and Hospice and Palliative Medicine. She holds a B.S. degree from Loyola University and an M.D. from the University of Maryland Medical School. Dr. McCormack’s career includes extensive experience as an Internist, Hematologist-Oncologist, and Geriatrician, with a focus on patient care and education. She has served as an attending physician at St. Agnes Hospital and as a Medical Consultant for the Social Security Administration. Dr. McCormack also excels in medical review, serving as a Medical Consultant for the Medical Review Institute of America. Currently, she is the Medical Director of Seasons Hospice, offering comprehensive care in Howard and Anne Arundel Counties.",
+    bio: "Dr. Sharon J. McCormack, MD, is a board-certified medical professional with expertise in Internal Medicine, Oncology, Hematology, Geriatrics, and Hospice and Palliative Medicine. She holds a B.S. degree from Loyola University and an MD from the University of Maryland Medical School. Dr. McCormack’s career includes extensive experience as an Internist, Hematologist-Oncologist, and Geriatrician, with a focus on patient care and education. She has served as an attending physician at St. Agnes Hospital and as a Medical Consultant for the Social Security Administration. Dr. McCormack also excels in medical review, serving as a Medical Consultant for the Medical Review Institute of America. Currently, she is the Medical Director of Seasons Hospice, offering comprehensive care in Howard and Anne Arundel Counties.",
   },
   {
     name: "Meera Ramakrishnan",
-    title: "M.D.",
+    title: "MD",
     locations: ["Gaithersburg", "Rockville"],
     languages: ["English", "Spanish"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/meera-ramakrishnan.webp",
@@ -70,7 +70,7 @@ module.exports = [
   },
   {
     name: "Maria Munoz-Ritterbusch",
-    title: "M.D.",
+    title: "MD",
     locations: ["Columbia (Snowden River Pkwy)"],
     languages: ["English", "Spanish"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/maria-munoz-md.webp",
@@ -81,7 +81,7 @@ module.exports = [
   },
   {
     name: "Sheli Agarwal",
-    title: "M.D.",
+    title: "MD",
     locations: ["Frederick"],
     languages: ["English", "Hindi"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/sheli-agarwal.webp",
@@ -92,7 +92,7 @@ module.exports = [
   },
   {
     name: "Mahpara Qureshi",
-    title: "M.D.",
+    title: "MD",
     locations: ["Gaithersburg"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/mahpara-qureshi.webp",
@@ -103,7 +103,7 @@ module.exports = [
   },
   {
     name: "Nitika Bandara",
-    title: "M.D.",
+    title: "MD",
     locations: ["Columbia (Snowden River Pkwy)"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/nitika-bandara.webp",
@@ -114,7 +114,7 @@ module.exports = [
   },
   {
     name: "Rakesh Malik",
-    title: "M.D.",
+    title: "MD",
     locations: ["Germantown"],
     languages: ["English", "Hindi"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/rakesh-malik.webp",
@@ -125,7 +125,7 @@ module.exports = [
   },
   {
     name: "Ronald Thomas",
-    title: "M.D.",
+    title: "MD",
     locations: ["Nottingham"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/ronald-thomas.webp",
@@ -136,7 +136,7 @@ module.exports = [
   },
   {
     name: "Jason Lowery",
-    title: "M.D.",
+    title: "MD",
     locations: ["Germantown"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/jason-lowry.webp",
@@ -147,7 +147,7 @@ module.exports = [
   },
   {
     name: "Mamatha Chella",
-    title: "M.D.",
+    title: "MD",
     locations: ["Bowie (Gallant Fox Ln)"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/mamatha-chella.webp",
@@ -158,7 +158,7 @@ module.exports = [
   },
   {
     name: "Quoc Anh \"Quinton\" Nguyen",
-    title: "M.D.",
+    title: "MD",
     locations: ["Germantown"],
     languages: ["English", "Vietnamese"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/quoc-anh-nguyen.webp",
@@ -499,7 +499,7 @@ module.exports = [
   },
   {
     name: "David Clark",
-    title: "M.D.",
+    title: "MD",
     locations: ["Greenbelt"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/david-clark.webp",
@@ -510,7 +510,7 @@ module.exports = [
   },
   {
     name: "Amit S. Babra",
-    title: "M.D.",
+    title: "MD",
     locations: ["Columbia (Broken Land Dr)"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/amit-s-babra.webp",
@@ -587,7 +587,7 @@ module.exports = [
   },
   {
     name: "Anmol Singh",
-    title: "M.D.",
+    title: "MD",
     locations: ["Columbia II"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/anmol-singh.webp",
@@ -598,7 +598,7 @@ module.exports = [
   },
   {
     name: "Audrey Boadu",
-    title: "M.D.",
+    title: "MD",
     locations: ["Silver Spring"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/audrey-boadu.webp",
@@ -609,7 +609,7 @@ module.exports = [
   },
   {
     name: "Susan George",
-    title: "M.D.",
+    title: "MD",
     locations: ["Laurel"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/susan-george.webp",
@@ -620,7 +620,7 @@ module.exports = [
   },
   {
     name: "Josie Joy Go",
-    title: "M.D.",
+    title: "MD",
     locations: ["Germantown"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/josie-joy-go.webp",
@@ -631,7 +631,7 @@ module.exports = [
   },
   {
     name: "Rebecca Felsen",
-    title: "M.D.",
+    title: "MD",
     locations: ["Rockville"],
     languages: ["English", "Spanish"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/rebecca-felsen.webp",

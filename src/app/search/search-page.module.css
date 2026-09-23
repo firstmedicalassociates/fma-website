@@ -409,6 +409,7 @@
 }
 
 .resultCard p {
+  white-space: pre-line;
   margin: 0;
   color: #5b6983;
   line-height: 1.7;

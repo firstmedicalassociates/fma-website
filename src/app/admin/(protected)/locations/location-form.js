@@ -810,7 +810,7 @@ export default function LocationForm({
                         type="text"
                         value={streetAddress}
                         onChange={(event) => setStreetAddress(event.target.value)}
-                        placeholder="2775 Tapo St, Suite 102"
+                        placeholder="2775 Tapo St Ste 102"
                         required
                       />
                     </div>

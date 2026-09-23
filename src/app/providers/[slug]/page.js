@@ -13,7 +13,7 @@ import {
   pageUrl,
 } from "../../lib/config/site";
 import {
-  buildDisplayAddress,
+  formatLocationAddress,
   isHiddenLocationSlug,
   splitLocationSlug,
   withVisibleLocationWhere,
@@ -322,13 +322,7 @@ export default async function ProviderDetailPage({ params }) {
       splitLocationSlug(locationSlug)
         .join(" / ")
         .replace(/\b\w/g, (letter) => letter.toUpperCase());
-    const address = location
-      ? (location.displayAddress || buildDisplayAddress(location) || location.address || "")
-          .split(/\n+/)
-          .map((line) => line.trim())
-          .filter(Boolean)
-          .join(", ")
-      : "";
+    const address = location ? formatLocationAddress(location) : "";
 
     return {
       href: location?.slug ? normalizePagePath(location.slug) : null,

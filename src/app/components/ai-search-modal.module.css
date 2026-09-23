@@ -314,6 +314,7 @@
 
 .answerText,
 .welcomeBubble .answerText {
+  white-space: pre-line;
   margin: 0;
   color: #d7e0f4;
   font-size: 15px;
@@ -972,6 +973,7 @@
 }
 
 .structuredCardHeader p {
+  white-space: pre-line;
   margin: 0;
   color: rgba(210, 221, 244, 0.76);
   font-size: 12px;
@@ -1440,6 +1442,7 @@
 
   .answerText,
   .welcomeBubble .answerText {
+  white-space: pre-line;
     font-size: 0.94rem;
     line-height: 1.58;
   }

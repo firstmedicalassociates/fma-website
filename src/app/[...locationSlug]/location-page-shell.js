@@ -59,20 +59,7 @@ const WHY_PATIENTS_CHOOSE_ITEMS = [
 ];
 
 function formatAddressLines(location) {
-  const displayAddress = String(location.displayAddress || "").trim();
-  if (displayAddress) {
-    return displayAddress.split(/\n+/).filter(Boolean);
-  }
-
-  const generatedDisplayAddress = buildDisplayAddress(resolveLocationAddressParts(location));
-  if (generatedDisplayAddress) {
-    return generatedDisplayAddress.split(/\n+/).filter(Boolean);
-  }
-
-  return String(location.address || "")
-    .split(/,\s*/)
-    .map((line) => line.trim())
-    .filter(Boolean);
+  return buildDisplayAddress(resolveLocationAddressParts(location)).split("\n").filter(Boolean);
 }
 
 function isTelehealthService(service = {}) {

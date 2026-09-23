@@ -40,6 +40,7 @@ import {
 } from "./ai-search-domain-graph.js";
 import {
   BILL_PAY_URL,
+  CAREERS_ENABLED,
   GENERAL_BOOK_APPOINTMENT_URL,
   normalizeInternalPageHref,
 } from "./config/site.js";
@@ -62,7 +63,7 @@ const EMBEDDING_MODEL = "text-embedding-3-small";
 const ANSWER_MODEL = process.env.AI_SEARCH_ANSWER_MODEL?.trim() || "gpt-5.5";
 const ANSWER_API = process.env.AI_SEARCH_ANSWER_API?.trim() || "responses";
 const ANSWER_REASONING_EFFORT = process.env.AI_SEARCH_REASONING_EFFORT?.trim() || "low";
-const AI_SEARCH_PROMPT_VERSION = "2026-09-22.1";
+const AI_SEARCH_PROMPT_VERSION = "2026-09-23.2";
 const SEARCH_MIN_CHARACTERS = PUBLIC_SEARCH_MIN_CHARACTERS;
 const MAX_QUERY_LENGTH = PUBLIC_SEARCH_MAX_CHARACTERS;
 const STRICT_SIMILARITY_THRESHOLD = 0.3;
@@ -104,6 +105,8 @@ RULES YOU MUST FOLLOW AT ALL TIMES:
 10. For policy questions, the VERSIONED POLICY DOCUMENTS section is the controlling source. Prefer
 its fact IDs and exact source version over conflicting, undated, or generic context. Never add a
 policy requirement, definition, fee, or deadline that is not explicitly present in that section.
+11. Write provider MD credentials without periods. Display each office address on two lines: street and Ste unit, then City, ST ZIP. Use the current structured location address when available. Do not add a country line.
+${CAREERS_ENABLED ? "" : "12. The Careers page is temporarily hidden. Do not recommend or link to /about/careers/ or /jobs/. For employment questions, direct users to the Contact page (/contact/)."}
 
 If a question is not about First Medical Associates, respond with exactly in the answer field: "I can only help with questions about First Medical Associates. For other inquiries, please call us at 301-515-2901 or email info@DrsFirst.com."
 

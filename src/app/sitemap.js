@@ -1,4 +1,4 @@
-import { pageUrl } from "./lib/config/site";
+import { CAREERS_ENABLED, pageUrl } from "./lib/config/site";
 import { VISIBLE_LOCATION_WHERE } from "./lib/locations";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
 
@@ -29,7 +29,7 @@ export default async function sitemap() {
     createStaticRoute("/services", "weekly", 0.8),
     createStaticRoute("/blog", "weekly", 0.7),
     createStaticRoute("/about", "monthly", 0.6),
-    createStaticRoute("/about/careers", "monthly", 0.6),
+    ...(CAREERS_ENABLED ? [createStaticRoute("/about/careers", "monthly", 0.6)] : []),
     createStaticRoute("/about/mission", "monthly", 0.5),
     createStaticRoute("/about/partners", "monthly", 0.5),
     createStaticRoute("/contact", "monthly", 0.6),

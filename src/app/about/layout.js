@@ -1,5 +1,6 @@
 "use client";
 
+import { CAREERS_ENABLED } from "../lib/config/site";
 import { Inter } from "next/font/google";
 import { usePathname } from "next/navigation";
 import { Briefcase, Handshake, Info, Target } from "lucide-react";
@@ -46,7 +47,7 @@ export default function AboutLayout({ children }) {
   const tabs = [
     { name: "About", href: "/about/", icon: Info },
     { name: "Mission & Values", href: "/about/mission/", icon: Target },
-    { name: "Careers", href: "/about/careers/", icon: Briefcase },
+    ...(CAREERS_ENABLED ? [{ name: "Careers", href: "/about/careers/", icon: Briefcase }] : []),
     { name: "Partner With Us", href: "/about/partners/", icon: Handshake },
   ];
 

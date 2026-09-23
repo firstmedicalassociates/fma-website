@@ -27,25 +27,64 @@ HOURS OF OPERATION
 Office Hours: Monday-Friday, 8:00 AM - 5:00 PM. Saturday and Sunday: Closed.
 After-Hours Support: Available 24/7 — call 301-515-2901 for time-sensitive needs
 
-LOCATIONS (18 locations across Maryland and Northern Virginia)
-- Alexandria: 4660 Kenmore Ave Suite #1210, Alexandria, VA 22304; 571-200-7128
-- Annapolis: 2448 Holly Avenue, Suite 102, Annapolis, MD 21401
-- Bowie: 14300 Gallant Fox Ln, Suite 110, Bowie, MD 20715
-- Bowie II: 14999 Health Center Dr, Suite 201, Bowie, MD 20716
-- Columbia: 8600 Snowden River Pkwy, Suite 207, Columbia, MD 21045
-- Columbia II: 9841 Broken Land Parkway, Suite 115, Columbia, MD 21046
-- Crofton: 2200 Defense Highway, Suite 309, Crofton, MD 21114
-- Frederick: 196 Thomas Johnson Dr, Suite 235, Frederick, MD 21702
-- Gaithersburg: 806 West Diamond Ave, Suite 110, Gaithersburg, MD 20878
-- Germantown: 12800 Middlebrook Rd, Suite 400, Germantown, MD 20874
-- Glen Burnie: 1600 Crain Highway, Suite 202, Glen Burnie, MD 21061
-- Greenbelt: 7500 Greenway Center Dr, Suite 620, Greenbelt, MD 21093
-- Laurel: 14201 Laurel Park Drive, Suite 111, Laurel, MD 20707
-- Lutherville: 1205 York Road, Suite 38, Lutherville, MD 21093
-- Nottingham: 8100 Sandpiper Cir, Suite 308, Baltimore, MD 21236
-- Rockville: 9601 Blackwell Road, Suite 210, Rockville, MD 20850
-- Severna Park: 877 Baltimore Annapolis Boulevard, Suite 112, Severna Park, MD 21146
-- Silver Spring: 700 Roeder Rd, Suite 100 B, Silver Spring, MD 20910
+LOCATIONS (19 locations across Maryland and Northern Virginia)
+- Alexandria:
+  4660 Kenmore Ave Ste 1210
+  Alexandria, VA 22304
+- Annapolis:
+  2448 Holly Avenue Ste 102
+  Annapolis, MD 21401
+- Bowie II:
+  14999 Health Center Dr Ste 201
+  Bowie, MD 20716
+- Bowie:
+  14300 Gallant Fox Ln Ste 110
+  Bowie, MD 20715
+- Columbia II:
+  9841 Broken Land Parkway Ste 115
+  Columbia, MD 21046
+- Columbia:
+  8600 Snowden River Pkwy Ste 207
+  Columbia, MD 21045
+- Crofton:
+  2200 Defense Highway Ste 309
+  Crofton, MD 21114
+- Frederick:
+  196 Thomas Johnson Dr Ste 235
+  Frederick, MD 21702
+- Gaithersburg:
+  806 W Diamond Ave Ste 110
+  Gaithersburg, MD 20878
+- Germantown:
+  12800 Middlebrook Road Ste 400
+  Germantown, MD 20874
+- Glen Burnie:
+  1600 Crain Highway Ste 202
+  Glen Burnie, MD 21061
+- Greenbelt:
+  7500 Greenway Center Dr Ste 620
+  Greenbelt, MD 20770
+- Laurel:
+  14201 Laurel Park Drive Ste 111
+  Laurel, MD 20707
+- Lutherville:
+  1205 York Road Ste 38
+  Lutherville, MD 21093
+- Nottingham:
+  8100 Sandpiper Cir Ste 308
+  Nottingham, MD 21236
+- Owings Mills:
+  25 Crossroads Dr Ste 412
+  Owings Mills, MD 21117
+- Rockville:
+  9601 Blackwell Road Ste 210
+  Rockville, MD 20850
+- Severna Park:
+  877 Baltimore Annapolis Boulevard Ste 112
+  Severna Park, MD 21146
+- Silver Spring:
+  700 Roeder Rd Ste 100 B
+  Silver Spring, MD 20910
 
 SCHEDULING APPOINTMENTS
 - Online: ${GENERAL_BOOK_APPOINTMENT_URL}
@@ -472,12 +511,14 @@ To opt out of HIE: email info@DrsFirst.com or complete the HIE Opt-Out form at a
 
 Privacy Officer Contact:
 First Medical Associates, Privacy Officer
-12800 Middlebrook Road, Suite 400, Germantown, MD 20874
+12800 Middlebrook Road Ste 400
+Germantown, MD 20874
 Phone: 301-515-2901 | Email: info@DrsFirst.com
 
 To file an HHS complaint:
 U.S. Department of Health and Human Services, Office for Civil Rights
-200 Independence Avenue S.W., Washington, D.C. 20201
+200 Independence Avenue S.W.
+Washington, DC 20201
 Phone: 1-877-696-6775 | Online: www.hhs.gov/ocr/privacy/hipaa/complaints/
 
 HIPAA Privacy Notice and all forms available at: www.DrsFirst.com/Forms

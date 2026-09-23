@@ -292,7 +292,7 @@ export default function ProviderForm({ mode = "create", initialProvider, locatio
                   type="text"
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
-                  placeholder="M.D., FNP-BC, PA-C"
+                  placeholder="MD, FNP-BC, PA-C"
                   required
                 />
               </div>

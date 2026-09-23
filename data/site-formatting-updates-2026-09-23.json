@@ -1,0 +1,607 @@
+{
+  "description": "Two-line office addresses and MD credentials; reviewed from current CMS. No booking or identity fields changed.",
+  "changes": [
+    {
+      "model": "location",
+      "slug": "/location/owings-mills",
+      "field": "streetAddress",
+      "before": "25 Crossroads Dr., Suite #412",
+      "after": "25 Crossroads Dr Ste 412"
+    },
+    {
+      "model": "location",
+      "slug": "/location/owings-mills",
+      "field": "address",
+      "before": "25 Crossroads Dr., Suite #412, Owings Mills, MD 21117",
+      "after": "25 Crossroads Dr Ste 412, Owings Mills, MD 21117"
+    },
+    {
+      "model": "location",
+      "slug": "/location/owings-mills",
+      "field": "displayAddress",
+      "before": "25 Crossroads Dr., Suite #412\nOwings Mills, MD 21117",
+      "after": "25 Crossroads Dr Ste 412\nOwings Mills, MD 21117"
+    },
+    {
+      "model": "location",
+      "slug": "/location/crofton",
+      "field": "streetAddress",
+      "before": "2200 Defense Highway, Suite 309",
+      "after": "2200 Defense Highway Ste 309"
+    },
+    {
+      "model": "location",
+      "slug": "/location/crofton",
+      "field": "address",
+      "before": "2200 Defense Highway, Suite 309, Crofton, MD 21114, US",
+      "after": "2200 Defense Highway Ste 309, Crofton, MD 21114"
+    },
+    {
+      "model": "location",
+      "slug": "/location/crofton",
+      "field": "displayAddress",
+      "before": "2200 Defense Highway, Suite 309\nCrofton, MD 21114\nUS",
+      "after": "2200 Defense Highway Ste 309\nCrofton, MD 21114"
+    },
+    {
+      "model": "location",
+      "slug": "/location/alexandria",
+      "field": "streetAddress",
+      "before": "4660 Kenmore Ave Suite #1210",
+      "after": "4660 Kenmore Ave Ste 1210"
+    },
+    {
+      "model": "location",
+      "slug": "/location/alexandria",
+      "field": "address",
+      "before": "4660 Kenmore Ave Suite #1210, Alexandria, VA 22304",
+      "after": "4660 Kenmore Ave Ste 1210, Alexandria, VA 22304"
+    },
+    {
+      "model": "location",
+      "slug": "/location/alexandria",
+      "field": "displayAddress",
+      "before": "4660 Kenmore Ave Suite #1210\nAlexandria, VA 22304",
+      "after": "4660 Kenmore Ave Ste 1210\nAlexandria, VA 22304"
+    },
+    {
+      "model": "location",
+      "slug": "/location/lutherville",
+      "field": "streetAddress",
+      "before": "1205 York Road, Ste 38",
+      "after": "1205 York Road Ste 38"
+    },
+    {
+      "model": "location",
+      "slug": "/location/lutherville",
+      "field": "address",
+      "before": "1205 York Road, Ste 38, Lutherville, MD 21093",
+      "after": "1205 York Road Ste 38, Lutherville, MD 21093"
+    },
+    {
+      "model": "location",
+      "slug": "/location/lutherville",
+      "field": "displayAddress",
+      "before": "1205 York Road, Ste 38\nLutherville, MD 21093",
+      "after": "1205 York Road Ste 38\nLutherville, MD 21093"
+    },
+    {
+      "model": "location",
+      "slug": "/location/frederick",
+      "field": "streetAddress",
+      "before": "196 Thomas Johnson Dr STE 235",
+      "after": "196 Thomas Johnson Dr Ste 235"
+    },
+    {
+      "model": "location",
+      "slug": "/location/frederick",
+      "field": "address",
+      "before": "196 Thomas Johnson Dr STE 235, Frederick, MD 21702",
+      "after": "196 Thomas Johnson Dr Ste 235, Frederick, MD 21702"
+    },
+    {
+      "model": "location",
+      "slug": "/location/frederick",
+      "field": "displayAddress",
+      "before": "196 Thomas Johnson Dr STE 235\nFrederick, MD 21702",
+      "after": "196 Thomas Johnson Dr Ste 235\nFrederick, MD 21702"
+    },
+    {
+      "model": "location",
+      "slug": "/location/rockville",
+      "field": "streetAddress",
+      "before": "9601 Blackwell Road Suite 210",
+      "after": "9601 Blackwell Road Ste 210"
+    },
+    {
+      "model": "location",
+      "slug": "/location/rockville",
+      "field": "address",
+      "before": "9601 Blackwell Road Suite 210, Rockville, MD 20850",
+      "after": "9601 Blackwell Road Ste 210, Rockville, MD 20850"
+    },
+    {
+      "model": "location",
+      "slug": "/location/rockville",
+      "field": "displayAddress",
+      "before": "9601 Blackwell Road Suite 210\nRockville, MD 20850",
+      "after": "9601 Blackwell Road Ste 210\nRockville, MD 20850"
+    },
+    {
+      "model": "location",
+      "slug": "/location/silver-spring",
+      "field": "streetAddress",
+      "before": "700 Roeder Rd Suite 100 B",
+      "after": "700 Roeder Rd Ste 100 B"
+    },
+    {
+      "model": "location",
+      "slug": "/location/silver-spring",
+      "field": "address",
+      "before": "700 Roeder Rd Suite 100 B, Silver Spring, MD 20910, US",
+      "after": "700 Roeder Rd Ste 100 B, Silver Spring, MD 20910"
+    },
+    {
+      "model": "location",
+      "slug": "/location/silver-spring",
+      "field": "displayAddress",
+      "before": "700 Roeder Rd Suite 100 B\nSilver Spring, MD 20910\nUS",
+      "after": "700 Roeder Rd Ste 100 B\nSilver Spring, MD 20910"
+    },
+    {
+      "model": "location",
+      "slug": "/location/annapolis",
+      "field": "addressState",
+      "before": "Maryland",
+      "after": "MD"
+    },
+    {
+      "model": "location",
+      "slug": "/location/annapolis",
+      "field": "address",
+      "before": "2448 Holly Avenue Ste 102, Annapolis, Maryland 21401, US",
+      "after": "2448 Holly Avenue Ste 102, Annapolis, MD 21401"
+    },
+    {
+      "model": "location",
+      "slug": "/location/annapolis",
+      "field": "displayAddress",
+      "before": "2448 Holly Avenue Ste 102\nAnnapolis, Maryland 21401\nUS",
+      "after": "2448 Holly Avenue Ste 102\nAnnapolis, MD 21401"
+    },
+    {
+      "model": "location",
+      "slug": "/location/columbia",
+      "field": "streetAddress",
+      "before": "8600 Snowden River Pkwy STE 207",
+      "after": "8600 Snowden River Pkwy Ste 207"
+    },
+    {
+      "model": "location",
+      "slug": "/location/columbia",
+      "field": "address",
+      "before": "8600 Snowden River Pkwy STE 207, Columbia, MD 21045",
+      "after": "8600 Snowden River Pkwy Ste 207, Columbia, MD 21045"
+    },
+    {
+      "model": "location",
+      "slug": "/location/columbia",
+      "field": "displayAddress",
+      "before": "8600 Snowden River Pkwy STE 207\nColumbia, MD 21045",
+      "after": "8600 Snowden River Pkwy Ste 207\nColumbia, MD 21045"
+    },
+    {
+      "model": "location",
+      "slug": "/location/glen-burnie",
+      "field": "addressState",
+      "before": "Maryland",
+      "after": "MD"
+    },
+    {
+      "model": "location",
+      "slug": "/location/glen-burnie",
+      "field": "address",
+      "before": "1600 Crain Highway Ste 202, Glen Burnie, Maryland 21061",
+      "after": "1600 Crain Highway Ste 202, Glen Burnie, MD 21061"
+    },
+    {
+      "model": "location",
+      "slug": "/location/glen-burnie",
+      "field": "displayAddress",
+      "before": "1600 Crain Highway Ste 202\nGlen Burnie, Maryland 21061",
+      "after": "1600 Crain Highway Ste 202\nGlen Burnie, MD 21061"
+    },
+    {
+      "model": "location",
+      "slug": "/columbia-broken-land-parkway",
+      "field": "streetAddress",
+      "before": "9841 Broken Land Parkway, STE 115",
+      "after": "9841 Broken Land Parkway Ste 115"
+    },
+    {
+      "model": "location",
+      "slug": "/columbia-broken-land-parkway",
+      "field": "address",
+      "before": "9841 Broken Land Parkway, STE 115, Columbia, MD 21046, US",
+      "after": "9841 Broken Land Parkway Ste 115, Columbia, MD 21046"
+    },
+    {
+      "model": "location",
+      "slug": "/columbia-broken-land-parkway",
+      "field": "displayAddress",
+      "before": "9841 Broken Land Parkway, STE 115\nColumbia, MD 21046\nUS",
+      "after": "9841 Broken Land Parkway Ste 115\nColumbia, MD 21046"
+    },
+    {
+      "model": "location",
+      "slug": "/location/severna-park",
+      "field": "streetAddress",
+      "before": "877 Baltimore Annapolis Boulevard, #112",
+      "after": "877 Baltimore Annapolis Boulevard Ste 112"
+    },
+    {
+      "model": "location",
+      "slug": "/location/severna-park",
+      "field": "address",
+      "before": "877 Baltimore Annapolis Boulevard, #112, Severna Park, MD 21146",
+      "after": "877 Baltimore Annapolis Boulevard Ste 112, Severna Park, MD 21146"
+    },
+    {
+      "model": "location",
+      "slug": "/location/severna-park",
+      "field": "displayAddress",
+      "before": "877 Baltimore Annapolis Boulevard, #112\nSeverna Park, MD 21146",
+      "after": "877 Baltimore Annapolis Boulevard Ste 112\nSeverna Park, MD 21146"
+    },
+    {
+      "model": "location",
+      "slug": "/location/greenbelt",
+      "field": "streetAddress",
+      "before": "7500 Greenway Center Dr, Ste 620",
+      "after": "7500 Greenway Center Dr Ste 620"
+    },
+    {
+      "model": "location",
+      "slug": "/location/greenbelt",
+      "field": "address",
+      "before": "7500 Greenway Center Dr, Ste 620, Greenbelt, MD 20770, US",
+      "after": "7500 Greenway Center Dr Ste 620, Greenbelt, MD 20770"
+    },
+    {
+      "model": "location",
+      "slug": "/location/greenbelt",
+      "field": "displayAddress",
+      "before": "7500 Greenway Center Dr, Ste 620\nGreenbelt, MD 20770\nUS",
+      "after": "7500 Greenway Center Dr Ste 620\nGreenbelt, MD 20770"
+    },
+    {
+      "model": "location",
+      "slug": "/location/gaithersburg",
+      "field": "streetAddress",
+      "before": "806 W Diamond Ave #110",
+      "after": "806 W Diamond Ave Ste 110"
+    },
+    {
+      "model": "location",
+      "slug": "/location/gaithersburg",
+      "field": "address",
+      "before": "806 W Diamond Ave #110, Gaithersburg, MD 20878",
+      "after": "806 W Diamond Ave Ste 110, Gaithersburg, MD 20878"
+    },
+    {
+      "model": "location",
+      "slug": "/location/gaithersburg",
+      "field": "displayAddress",
+      "before": "806 W Diamond Ave #110\nGaithersburg, MD 20878",
+      "after": "806 W Diamond Ave Ste 110\nGaithersburg, MD 20878"
+    },
+    {
+      "model": "location",
+      "slug": "/location/germantown",
+      "field": "streetAddress",
+      "before": "12800 Middlebrook Road Suite 400",
+      "after": "12800 Middlebrook Road Ste 400"
+    },
+    {
+      "model": "location",
+      "slug": "/location/germantown",
+      "field": "address",
+      "before": "12800 Middlebrook Road Suite 400, Germantown, MD 20874",
+      "after": "12800 Middlebrook Road Ste 400, Germantown, MD 20874"
+    },
+    {
+      "model": "location",
+      "slug": "/location/germantown",
+      "field": "displayAddress",
+      "before": "12800 Middlebrook Road Suite 400\nGermantown, MD 20874",
+      "after": "12800 Middlebrook Road Ste 400\nGermantown, MD 20874"
+    },
+    {
+      "model": "location",
+      "slug": "/location/laurel",
+      "field": "streetAddress",
+      "before": "14201 Laurel Park Drive, Suite #111",
+      "after": "14201 Laurel Park Drive Ste 111"
+    },
+    {
+      "model": "location",
+      "slug": "/location/laurel",
+      "field": "address",
+      "before": "14201 Laurel Park Drive, Suite #111, Laurel, MD 20707",
+      "after": "14201 Laurel Park Drive Ste 111, Laurel, MD 20707"
+    },
+    {
+      "model": "location",
+      "slug": "/location/laurel",
+      "field": "displayAddress",
+      "before": "14201 Laurel Park Drive, Suite #111\nLaurel, MD 20707",
+      "after": "14201 Laurel Park Drive Ste 111\nLaurel, MD 20707"
+    },
+    {
+      "model": "location",
+      "slug": "/bowie-health-center-dr",
+      "field": "address",
+      "before": "14999 Health Center Dr Ste 201, Bowie, MD 20716, US",
+      "after": "14999 Health Center Dr Ste 201, Bowie, MD 20716"
+    },
+    {
+      "model": "location",
+      "slug": "/bowie-health-center-dr",
+      "field": "displayAddress",
+      "before": "14999 Health Center Dr Ste 201\nBowie, MD 20716\nUS",
+      "after": "14999 Health Center Dr Ste 201\nBowie, MD 20716"
+    },
+    {
+      "model": "location",
+      "slug": "/location/nottingham",
+      "field": "streetAddress",
+      "before": "8100 Sandpiper Cir STE 308",
+      "after": "8100 Sandpiper Cir Ste 308"
+    },
+    {
+      "model": "location",
+      "slug": "/location/nottingham",
+      "field": "address",
+      "before": "8100 Sandpiper Cir STE 308, Nottingham, MD 21236, US",
+      "after": "8100 Sandpiper Cir Ste 308, Nottingham, MD 21236"
+    },
+    {
+      "model": "location",
+      "slug": "/location/nottingham",
+      "field": "displayAddress",
+      "before": "8100 Sandpiper Cir STE 308\nNottingham, MD 21236\nUS",
+      "after": "8100 Sandpiper Cir Ste 308\nNottingham, MD 21236"
+    },
+    {
+      "model": "provider",
+      "slug": "anita-kunwar",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "audrey-boadu",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "jacob-scott",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "ronald-thomas",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "susan-george",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "jason-lowry",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "josie-joy-go",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "maria-borodatcheva",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "maria-borodatcheva",
+      "field": "bio",
+      "before": "Maria Borodatcheva, M.D., is a board-certified internal medicine physician. She has been in primary care practice for over 15 years. She obtained her medical degree from Russian Peoples Friendship University, graduating summa cum laude. Later, she moved to the United States and started her family. She completed her internal medicine residency at the University of Maryland in 2007.\nPrimary care has been her passion since completing her residency. She believes that the doctor-patient relationship should be based on trust and partnership to reach the best outcome possible. She provides her patients with accurate information about their health condition or diagnosis, discusses possible treatment options, explains the risks and benefits of each, and lets her patients decide which treatment option is best for them. Her main interests include hypertension, diabetes, hyperlipidemia, hypothyroidism, and gastrointestinal tract disorders.\nDr. Borodatcheva strongly believes in preventive medicine and encourages a healthy lifestyle. She sets a good example by maintaining a healthy diet and an active lifestyle. In her free time, she enjoys traveling and spending time with her family.",
+      "after": "Maria Borodatcheva, MD, is a board-certified internal medicine physician. She has been in primary care practice for over 15 years. She obtained her medical degree from Russian Peoples Friendship University, graduating summa cum laude. Later, she moved to the United States and started her family. She completed her internal medicine residency at the University of Maryland in 2007.\nPrimary care has been her passion since completing her residency. She believes that the doctor-patient relationship should be based on trust and partnership to reach the best outcome possible. She provides her patients with accurate information about their health condition or diagnosis, discusses possible treatment options, explains the risks and benefits of each, and lets her patients decide which treatment option is best for them. Her main interests include hypertension, diabetes, hyperlipidemia, hypothyroidism, and gastrointestinal tract disorders.\nDr. Borodatcheva strongly believes in preventive medicine and encourages a healthy lifestyle. She sets a good example by maintaining a healthy diet and an active lifestyle. In her free time, she enjoys traveling and spending time with her family."
+    },
+    {
+      "model": "provider",
+      "slug": "rakesh-malik",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "mahpara-qureshi",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "rebecca-felsen",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "david-clark",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "jason-stein",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "nitika-bandara",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "robin-codjoe",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "sheli-agarwal",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "sharon-j-mccormack",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "sharon-j-mccormack",
+      "field": "bio",
+      "before": "Dr. Sharon J. McCormack, MD, is a board-certified medical professional with expertise in Internal Medicine, Oncology, Hematology, Geriatrics, and Hospice and Palliative Medicine. She holds a B.S. degree from Loyola University and an M.D. from the University of Maryland Medical School. Dr. McCormack’s career includes extensive experience as an Internist, Hematologist-Oncologist, and Geriatrician, with a focus on patient care and education. She has served as an attending physician at St. Agnes Hospital and as a Medical Consultant for the Social Security Administration. Dr. McCormack also excels in medical review, serving as a Medical Consultant for the Medical Review Institute of America. Currently, she is the Medical Director of Seasons Hospice, offering comprehensive care in Howard and Anne Arundel Counties.",
+      "after": "Dr. Sharon J. McCormack, MD, is a board-certified medical professional with expertise in Internal Medicine, Oncology, Hematology, Geriatrics, and Hospice and Palliative Medicine. She holds a B.S. degree from Loyola University and an MD from the University of Maryland Medical School. Dr. McCormack’s career includes extensive experience as an Internist, Hematologist-Oncologist, and Geriatrician, with a focus on patient care and education. She has served as an attending physician at St. Agnes Hospital and as a Medical Consultant for the Social Security Administration. Dr. McCormack also excels in medical review, serving as a Medical Consultant for the Medical Review Institute of America. Currently, she is the Medical Director of Seasons Hospice, offering comprehensive care in Howard and Anne Arundel Counties."
+    },
+    {
+      "model": "provider",
+      "slug": "james-wang",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "christopher-costa",
+      "field": "title",
+      "before": "M.D. , FACP, SFHM",
+      "after": "MD, FACP, SFHM"
+    },
+    {
+      "model": "provider",
+      "slug": "janelle-dennis",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "mamatha-chella",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "owen-glister-2",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "katayoun-khosravani",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "maria-munoz-md",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "meera-ramakrishnan",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "quoc-anh-nguyen",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "khai-el-johnson",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "lizy-thomas",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "provider",
+      "slug": "amit-s-babra",
+      "field": "title",
+      "before": "M.D.",
+      "after": "MD"
+    },
+    {
+      "model": "blogPost",
+      "slug": "first-medical-associates-laurel-md-now-open",
+      "field": "contentHtml",
+      "before": "<article><img src=\"/api/uploaded-images/blog-images/fma-blog-cover-templates-drs-first-2023-1--BzB4LcFXp6FGI2HZ9tc2glPepAjaGD.png\" alt=\"First Medical Associates medical office in Laurel, Maryland\" /><header><h1>Patient-centered care is now closer to home.</h1></header><section><p>First Medical Associates is pleased to announce the opening of our newest medical office in Laurel, Maryland. Our Laurel location brings convenient, personalized healthcare services to adults ages 18 and older throughout the surrounding community. Located at 14201 Laurel Park Drive, Suite #111, Laurel, MD 20707, our new office is designed to make high-quality medical care easier to access, with same-day appointments, and a healthcare team focused on your individual needs.</p><h2>Personalized Healthcare Close to Home</h2><p>Finding a medical provider you trust should not require traveling far from home. At First Medical Associates, we believe healthcare should be convenient, personal, and focused on the whole patient. Our Laurel office gives patients another local option for receiving comprehensive medical care from a team committed to improving health outcomes and quality of life. Whether you need help managing an ongoing health condition, routine medical care, or an appointment for a new concern, our team is here to support you.</p><h2>Same-Day Appointments for Convenient Care</h2><p>Health concerns do not always happen according to schedule. Our Laurel location offers same-day appointments, helping patients receive timely medical attention when they need it. Same-day availability can be especially helpful for new symptoms, minor illnesses, follow-up care, or other concerns that should not be put off. Having access to care quickly can also help patients address health concerns before they become more serious.</p><h2>Healthcare Built Around You</h2><p>No two patients have exactly the same health needs. That is why First Medical Associates takes a personalized approach to healthcare. Our providers work with patients to understand their concerns, medical history, lifestyle, and long-term health goals. Our goal is to create a care experience where patients feel heard, informed, and supported. From preventive care and routine health visits to ongoing medical management, we are committed to providing comprehensive healthcare tailored to the people we serve.</p></section><footer><p>Our Laurel office is now open and accepting patients. First Medical Associates, Laurel Address:  14201 Laurel Park Dr. Suite #111  Laurel, MD 20707 Phone:  443-917-3101 Office Hours:  Monday through Friday  8:00 AM to 5:00 PM If you are looking for convenient, patient-centered healthcare in Laurel, our team is ready to welcome you. Patient-Centered Care, Now Closer to Home First Medical Associates is proud to expand access to personalized healthcare for the Laurel community. Schedule an appointment today and experience healthcare designed around you.</p></footer></article>",
+      "after": "<article><img src=\"/api/uploaded-images/blog-images/fma-blog-cover-templates-drs-first-2023-1--BzB4LcFXp6FGI2HZ9tc2glPepAjaGD.png\" alt=\"First Medical Associates medical office in Laurel, Maryland\" /><header><h1>Patient-centered care is now closer to home.</h1></header><section><p>First Medical Associates is pleased to announce the opening of our newest medical office in Laurel, Maryland. Our Laurel location brings convenient, personalized healthcare services to adults ages 18 and older throughout the surrounding community. Our new office is designed to make high-quality medical care easier to access, with same-day appointments, and a healthcare team focused on your individual needs.</p><p>14201 Laurel Park Drive Ste 111<br>Laurel, MD 20707</p><h2>Personalized Healthcare Close to Home</h2><p>Finding a medical provider you trust should not require traveling far from home. At First Medical Associates, we believe healthcare should be convenient, personal, and focused on the whole patient. Our Laurel office gives patients another local option for receiving comprehensive medical care from a team committed to improving health outcomes and quality of life. Whether you need help managing an ongoing health condition, routine medical care, or an appointment for a new concern, our team is here to support you.</p><h2>Same-Day Appointments for Convenient Care</h2><p>Health concerns do not always happen according to schedule. Our Laurel location offers same-day appointments, helping patients receive timely medical attention when they need it. Same-day availability can be especially helpful for new symptoms, minor illnesses, follow-up care, or other concerns that should not be put off. Having access to care quickly can also help patients address health concerns before they become more serious.</p><h2>Healthcare Built Around You</h2><p>No two patients have exactly the same health needs. That is why First Medical Associates takes a personalized approach to healthcare. Our providers work with patients to understand their concerns, medical history, lifestyle, and long-term health goals. Our goal is to create a care experience where patients feel heard, informed, and supported. From preventive care and routine health visits to ongoing medical management, we are committed to providing comprehensive healthcare tailored to the people we serve.</p></section><footer><p>Our Laurel office is now open and accepting patients. First Medical Associates, Laurel</p><p>Address:<br>14201 Laurel Park Drive Ste 111<br>Laurel, MD 20707</p><p>Phone:  443-917-3101 Office Hours:  Monday through Friday  8:00 AM to 5:00 PM If you are looking for convenient, patient-centered healthcare in Laurel, our team is ready to welcome you. Patient-Centered Care, Now Closer to Home First Medical Associates is proud to expand access to personalized healthcare for the Laurel community. Schedule an appointment today and experience healthcare designed around you.</p></footer></article>"
+    },
+    {
+      "model": "blogPost",
+      "slug": "alexandria-va-primary-care",
+      "field": "contentHtml",
+      "before": "<article><img src=\"/api/uploaded-images/blog-images/fma-blog-cover-templates-drs-first-2023-2--32mKYIDh7c5f1IZVhhBbm1eEeuq0Pu.png\" alt=\"First Medical Associates Alexandria VA primary care office\" /><header><h1>Quality Primary Care for Adults 18+ in Alexandria, VA</h1></header><section><p>Quality, compassionate healthcare is right in your neighborhood. First Medical Associates is thrilled to serve the Northern Virginia community from our medical practice in Alexandria. Designed with your busy schedule in mind, our Alexandria center offers high-quality, continuous medical services for adults ages 18 and older close to home. Conveniently located at 4660 Kenmore Ave, Suite #1210, Alexandria, VA 22304, our facility delivers accessible medical care with prompt scheduling options and a care team dedicated entirely to your well-being.</p><h2>Tailored Healthcare for Adults 18+</h2><p>You shouldn&#39;t have to travel miles across Northern Virginia to see a medical provider you rely on. First Medical Associates grounds every aspect of our practice in holistic, responsive, and easily accessible care. Our Alexandria facility provides a local home for primary medical care where experienced clinicians work tirelessly to enhance your health, comfort, and vitality. Whether you require assistance steering a chronic condition, want to schedule your annual checkup, or need to evaluate a new symptom, we are here for you every step of the way.</p><h2>Prompt Medical Attention When You Need It</h2><p>Illnesses and health questions rarely align with a convenient calendar. To help you get back on your feet faster, our Alexandria center offers same-day appointment options for immediate needs. Fast access to care ensures sudden symptoms, minor injuries, or urgent follow-up treatments get addressed promptly, preventing small health issues from becoming major setbacks.</p><h2>A Patient-First Approach</h2><p>Every health journey is unique, and your medical care should reflect that. Our primary care teams take the time to build meaningful relationships with each patient. We look beyond basic symptoms to understand your medical background, routine, and personal wellness targets, ensuring you leave every appointment feeling informed, valued, and confident in your care plan. From preventive screenings to comprehensive disease management, we deliver customized medicine focused entirely on you.</p><h2>Same-Day Appointments for Convenient Care</h2><p>Health concerns do not always happen according to schedule. Our Alexandria location offers same-day appointments, helping patients receive timely medical attention when they need it. Same-day availability can be especially helpful for new symptoms, minor illnesses, follow-up care, or other concerns that should not be put off. Having access to care quickly can also help patients address health concerns before they become more serious.</p><h2>Visit Our Alexandria Medical Center</h2><p>We are actively accepting new patients and welcoming existing members of the community to our Alexandria practice.</p></section><footer><p>Address: 4660 Kenmore Ave, Suite #1210, Alexandria, VA 22304 Phone: 571-200-7128 Hours: Monday – Friday, 8:00 AM – 5:00 PM</p></footer></article>",
+      "after": "<article><img src=\"/api/uploaded-images/blog-images/fma-blog-cover-templates-drs-first-2023-2--32mKYIDh7c5f1IZVhhBbm1eEeuq0Pu.png\" alt=\"First Medical Associates Alexandria VA primary care office\" /><header><h1>Quality Primary Care for Adults 18+ in Alexandria, VA</h1></header><section><p>Quality, compassionate healthcare is right in your neighborhood. First Medical Associates is thrilled to serve the Northern Virginia community from our medical practice in Alexandria. Designed with your busy schedule in mind, our Alexandria center offers high-quality, continuous medical services for adults ages 18 and older close to home. Our conveniently located facility delivers accessible medical care with prompt scheduling options and a care team dedicated entirely to your well-being.</p><p>4660 Kenmore Ave Ste 1210<br>Alexandria, VA 22304</p><h2>Tailored Healthcare for Adults 18+</h2><p>You shouldn&#39;t have to travel miles across Northern Virginia to see a medical provider you rely on. First Medical Associates grounds every aspect of our practice in holistic, responsive, and easily accessible care. Our Alexandria facility provides a local home for primary medical care where experienced clinicians work tirelessly to enhance your health, comfort, and vitality. Whether you require assistance steering a chronic condition, want to schedule your annual checkup, or need to evaluate a new symptom, we are here for you every step of the way.</p><h2>Prompt Medical Attention When You Need It</h2><p>Illnesses and health questions rarely align with a convenient calendar. To help you get back on your feet faster, our Alexandria center offers same-day appointment options for immediate needs. Fast access to care ensures sudden symptoms, minor injuries, or urgent follow-up treatments get addressed promptly, preventing small health issues from becoming major setbacks.</p><h2>A Patient-First Approach</h2><p>Every health journey is unique, and your medical care should reflect that. Our primary care teams take the time to build meaningful relationships with each patient. We look beyond basic symptoms to understand your medical background, routine, and personal wellness targets, ensuring you leave every appointment feeling informed, valued, and confident in your care plan. From preventive screenings to comprehensive disease management, we deliver customized medicine focused entirely on you.</p><h2>Same-Day Appointments for Convenient Care</h2><p>Health concerns do not always happen according to schedule. Our Alexandria location offers same-day appointments, helping patients receive timely medical attention when they need it. Same-day availability can be especially helpful for new symptoms, minor illnesses, follow-up care, or other concerns that should not be put off. Having access to care quickly can also help patients address health concerns before they become more serious.</p><h2>Visit Our Alexandria Medical Center</h2><p>We are actively accepting new patients and welcoming existing members of the community to our Alexandria practice.</p></section><footer><p>Address:<br>4660 Kenmore Ave Ste 1210<br>Alexandria, VA 22304</p><p>Phone: 571-200-7128 Hours: Monday – Friday, 8:00 AM – 5:00 PM</p></footer></article>"
+    }
+  ]
+}

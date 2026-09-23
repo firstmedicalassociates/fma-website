@@ -373,6 +373,7 @@
 }
 
 .locationCardAddress {
+  white-space: pre-line;
   display: block;
   margin-top: 6px;
   color: var(--provider-muted);

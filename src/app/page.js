@@ -48,8 +48,8 @@ const FALLBACK_LOCATION = {
   accent: "Schedule visits, explore locations, and meet your care team in one place.",
   intro:
     "Our care model combines neighborhood access with a modern, coordinated clinical experience.",
-  address: "100 Medical Plaza, Suite 200, City, ST 12345",
-  displayAddress: "100 Medical Plaza\nSuite 200\nCity, ST 12345",
+  address: "100 Medical Plaza Ste 200, City, ST 12345",
+  displayAddress: "100 Medical Plaza Ste 200\nCity, ST 12345",
   phone: "(555) 123-4567",
   directPhone: "(555) 123-4567",
   callTextPhone: "(555) 123-4567",

@@ -1,3 +1,4 @@
+import { formatLocationAddress } from "../lib/locations";
 import Image from "next/image";
 import SiteHeader from "../components/site-header";
 import SiteFooter from "../components/site-footer";
@@ -58,7 +59,7 @@ export default function ComingSoonLocation({ location }) {
               <article className={styles.locationInfoCard}>
                 <h2>Office address</h2>
                 <div className={styles.locationAddressBlock}>
-                  {(location.displayAddress || location.address)
+                  {formatLocationAddress(location)
                     .split("\n")
                     .map((line) => (
                       <p key={line}>{line}</p>

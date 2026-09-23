@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   BILL_PAY_URL,
+  CAREERS_ENABLED,
   GENERAL_BOOK_APPOINTMENT_URL,
   PATIENT_PORTAL_URL,
   normalizeInternalPageHref,
@@ -25,7 +26,7 @@ const NAV_COLUMNS = [
     links: [
       { href: "/about/", label: "About Us", icon: "users" },
       { href: "/providers/", label: "Providers", icon: "stethoscope" },
-      { href: "/about/careers/", label: "Careers", icon: "briefcase" },
+      ...(CAREERS_ENABLED ? [{ href: "/about/careers/", label: "Careers", icon: "briefcase" }] : []),
       { href: "/contact/", label: "Contact Us", icon: "mail" },
     ],
   },
