@@ -334,14 +334,14 @@ module.exports = [
   },
   {
     name: "Jinkle Mody",
-    title: "AGPCNP",
+    title: "NP",
     locations: ["Frederick"],
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/jinkle-mody.webp",
     imageAlt: "Jinkle Mody headshot",
     slug: "jinkle-mody",
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/6809966",
-    bio: "Jinkle Mody, AGPCNP, is a board-certified nurse practitioner at First Medical Associates. She earned her Bachelor of Science in Nursing from Denver College of Nursing in December 2018. Following her graduation, she began her nursing career as an inpatient rehabilitation nurse in Northern Virginia before transitioning to medical-surgical nursing in Maryland for 2 years.\n\nIn 2021, she returned to pursue her master’s in nursing while working as an outpatient preoperative/post-anesthesia care unit (PACU) nurse for three years. She became a board-certified nurse practitioner in 2024. Jinkle is dedicated to providing compassionate care to her patients and is committed to improving their health.\n\nOutside of work, she enjoys spending quality time with her husband and family. She loves to travel, cook, and explore new recipes, as well as discover new restaurants in the town and catch up with friends.",
+    bio: "Jinkle Mody, NP, is a board-certified nurse practitioner at First Medical Associates. She earned her Bachelor of Science in Nursing from Denver College of Nursing in December 2018. Following her graduation, she began her nursing career as an inpatient rehabilitation nurse in Northern Virginia before transitioning to medical-surgical nursing in Maryland for 2 years.\n\nIn 2021, she returned to pursue her master’s in nursing while working as an outpatient preoperative/post-anesthesia care unit (PACU) nurse for three years. She became a board-certified nurse practitioner in 2024. Jinkle is dedicated to providing compassionate care to her patients and is committed to improving their health.\n\nOutside of work, she enjoys spending quality time with her husband and family. She loves to travel, cook, and explore new recipes, as well as discover new restaurants in the town and catch up with friends.",
   },
   {
     name: "Lizy Thomas",

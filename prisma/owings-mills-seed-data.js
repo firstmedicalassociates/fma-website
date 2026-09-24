@@ -81,7 +81,7 @@ const provider = {
   slug: "jacob-scott",
   name: "Jacob Scott",
   title: "MD",
-  bio: "Jacob Scott, MD provides patient-centered primary care at First Medical Associates in Owings Mills, Maryland.",
+  bio: "Dr. Jacob Scott is a board-certified Family Medicine physician dedicated to helping patients achieve optimal health through personalized, comprehensive care.\n\nHe earned a Bachelor of Science in Exercise Science from Salisbury University before obtaining his Doctor of Medicine from Trinity School of Medicine. Dr. Scott completed residency training in Family Medicine at St. Francis Hospital in Wilmington, Delaware.\n\nDr. Scott offers full scope adult family medicine, centering on preventative medicine, chronic disease management, patient empowerment and lifestyle interventions.\n\nOutside the clinic, he enjoys time with his wife and daughter, outdoor activities, and is a passionate fan of the Baltimore Ravens and Orioles.",
   imageUrl: "",
   imageAlt: "Jacob Scott, MD",
   linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/7367823",
