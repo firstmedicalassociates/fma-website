@@ -17,6 +17,7 @@ const INITIAL_FORM_VALUES = {
   lastName: "",
   email: "",
   phone: "",
+  organization: "",
   message: "",
 };
 
@@ -50,7 +51,7 @@ function ActionLink({ href, className, children, external = false }) {
   );
 }
 
-export default function ContactPageShell() {
+export default function ContactPageShell({ partner = false }) {
   const [formValues, setFormValues] = useState(INITIAL_FORM_VALUES);
   const [formStatus, setFormStatus] = useState("idle");
   const [formMessage, setFormMessage] = useState("");
@@ -62,6 +63,7 @@ export default function ContactPageShell() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (formStatus === "sending") return;
     setFormStatus("sending");
     setFormMessage("");
     const submittedFirstName = formValues.firstName.trim();
@@ -73,8 +75,8 @@ export default function ContactPageShell() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formValues,
-          locationTitle: "Website Contact",
-          locationSlug: "/contact",
+          locationTitle: partner ? "Vendor & Partnership Inquiry" : "Website Contact",
+          locationSlug: partner ? "/contact-partner" : "/contact",
         }),
       });
 
@@ -102,18 +104,19 @@ export default function ContactPageShell() {
     <main className={styles.page}>
       <section className={styles.hero}>
         <div className={styles.heroInner}>
-          <HeroEyebrow>Contact First Medical Associates</HeroEyebrow>
-          <h1>Let&apos;s Get You Connected to Care</h1>
+          <HeroEyebrow>{partner ? "Partner With First Medical Associates" : "Contact First Medical Associates"}</HeroEyebrow>
+          <h1>{partner ? "Become a Partner" : "Let's Get You Connected to Care"}</h1>
           <p>
-            Whether you need help finding a location, booking an appointment, or reaching
-            your care team, send us a message and we&apos;ll point you to the right next step.
+            {partner
+              ? "Tell us about your organization and how you would like to work with First Medical Associates. We welcome vendor and partnership inquiries."
+              : "Whether you need help finding a location, booking an appointment, or reaching your care team, send us a message and we'll point you to the right next step."}
           </p>
         </div>
       </section>
 
       <section className={styles.body}>
-        <div className={styles.layout}>
-          <aside className={styles.infoColumn}>
+        <div className={partner ? styles.formOnlyLayout : styles.layout}>
+          {!partner && <aside className={styles.infoColumn}>
             <article className={styles.infoCard}>
               <h2>Call</h2>
               <p>Speak with our support team for appointment and clinic questions.</p>
@@ -153,24 +156,27 @@ export default function ContactPageShell() {
                 View Services
               </ActionLink>
             </article>
-          </aside>
+          </aside>}
 
           <section className={styles.formCard}>
             <div className={styles.formIntro}>
-              <h2>Send a Message</h2>
-              <p>We usually respond within one business day.</p>
+              <h2>{partner ? "Tell Us About Your Organization" : "Send a Message"}</h2>
+              <p>{partner ? "Share your contact details and proposed partnership below. All fields are required." : "We usually respond within one business day."}</p>
             </div>
 
             <div className={styles.privacyNotice}>
-              <strong>Please keep this message general.</strong>
-              <span>{NO_PHI_NOTICE}</span>
+              <strong>{partner ? "Please share business inquiries only." : "Please keep this message general."}</strong>
+              <span>{partner ? "Do not include patient information or medical details." : NO_PHI_NOTICE}</span>
             </div>
 
-            <form className={styles.form} onSubmit={handleSubmit}>
+            <form className={styles.form} onSubmit={handleSubmit} aria-busy={formStatus === "sending"}>
               <label className={styles.field}>
                 <span>First Name</span>
                 <input
                   type="text"
+                  name="firstName"
+                  autoComplete="given-name"
+                  maxLength={80}
                   required
                   value={formValues.firstName}
                   onChange={(event) =>
@@ -183,6 +189,9 @@ export default function ContactPageShell() {
                 <span>Last Name</span>
                 <input
                   type="text"
+                  name="lastName"
+                  autoComplete="family-name"
+                  maxLength={80}
                   required
                   value={formValues.lastName}
                   onChange={(event) =>
@@ -195,6 +204,9 @@ export default function ContactPageShell() {
                 <span>Email</span>
                 <input
                   type="email"
+                  name="email"
+                  autoComplete="email"
+                  maxLength={160}
                   required
                   value={formValues.email}
                   onChange={(event) =>
@@ -207,6 +219,9 @@ export default function ContactPageShell() {
                 <span>Phone</span>
                 <input
                   type="tel"
+                  name="phone"
+                  autoComplete="tel"
+                  maxLength={40}
                   required
                   value={formValues.phone}
                   onChange={(event) =>
@@ -215,20 +230,39 @@ export default function ContactPageShell() {
                 />
               </label>
 
+              {partner && (
+                <label className={`${styles.field} ${styles.fieldFull}`}>
+                  <span>Company / Organization</span>
+                  <input
+                    type="text"
+                    name="organization"
+                    autoComplete="organization"
+                    maxLength={160}
+                    required
+                    value={formValues.organization}
+                    onChange={(event) =>
+                      setFormValues((current) => ({ ...current, organization: event.target.value }))
+                    }
+                  />
+                </label>
+              )}
+
               <label className={`${styles.field} ${styles.fieldFull}`}>
-                <span>Message</span>
+                <span>{partner ? "Partnership Details" : "Message"}</span>
                 <textarea
+                  name="message"
+                  maxLength={1000}
                   rows={6}
                   required
                   aria-describedby="contactNoPhiHelp"
-                  placeholder="Example: I need help finding the right office or appointment path."
+                  placeholder={partner ? "Tell us about your services or proposed collaboration." : "Example: I need help finding the right office or appointment path."}
                   value={formValues.message}
                   onChange={(event) =>
                     setFormValues((current) => ({ ...current, message: event.target.value }))
                   }
                 />
                 <small id="contactNoPhiHelp">
-                  For symptoms, records, prescriptions, results, or urgent concerns, use the patient portal or call.
+                  {partner ? "Describe your services and how you would like to partner with our team." : "For symptoms, records, prescriptions, results, or urgent concerns, use the patient portal or call."}
                 </small>
               </label>
 
@@ -237,19 +271,20 @@ export default function ContactPageShell() {
                 type="submit"
                 disabled={formStatus === "sending"}
               >
-                {formStatus === "sending" ? "Sending..." : "Send Message"}
+                {formStatus === "sending" ? "Sending..." : partner ? "Send Partnership Inquiry" : "Send Message"}
               </button>
             </form>
 
-            {formMessage ? (
-              <p
-                className={`${styles.status} ${
-                  formStatus === "error" ? styles.statusError : styles.statusSuccess
-                }`}
-              >
-                {formMessage}
-              </p>
-            ) : null}
+            <div
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              className={`${styles.status} ${
+                formStatus === "error" ? styles.statusError : styles.statusSuccess
+              }`}
+            >
+              {formMessage}
+            </div>
           </section>
         </div>
       </section>

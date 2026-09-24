@@ -59,6 +59,11 @@
   gap: 20px;
 }
 
+.formOnlyLayout {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
 .infoColumn {
   display: grid;
   gap: 16px;
@@ -228,6 +233,11 @@
 .submit:disabled {
   opacity: 0.72;
   cursor: default;
+}
+
+.submit:focus-visible {
+  outline: 3px solid var(--contact-accent);
+  outline-offset: 4px;
 }
 
 .status {

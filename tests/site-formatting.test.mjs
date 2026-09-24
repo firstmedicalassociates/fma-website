@@ -11,7 +11,7 @@ import nextConfig from "../next.config.mjs";
 test("legacy address variants keep the suite and produce exactly two lines", () => {
   const examples = [
     ["12800 Middlebrook Road, Suite 400, Germantown, MD 20874, US", "12800 Middlebrook Road Ste 400\nGermantown, MD 20874"],
-    ["25 Crossroads Dr., Suite #412\nOwings Mills, MD 21117", "25 Crossroads Dr Ste 412\nOwings Mills, MD 21117"],
+    ["25 Crossroads Dr., Suite #412\nOwings Mills, MD 21117", "25 Crossroads Drive Ste 412\nOwings Mills, MD 21117"],
     ["806 W Diamond Ave #110,\nGaithersburg, MD 20878", "806 W Diamond Ave Ste 110\nGaithersburg, MD 20878"],
     ["700 Roeder Rd\nSuite 100 B\nSilver Spring, Maryland 20910\nUS", "700 Roeder Rd Ste 100 B\nSilver Spring, MD 20910"],
     ["9841 Broken Land Parkway, STE 115\nColumbia, MD 21046", "9841 Broken Land Parkway Ste 115\nColumbia, MD 21046"],
@@ -29,11 +29,18 @@ test("current structured values override legacy text while schema keeps the coun
     postalCode: "20770",
     addressCountry: "US",
   };
-  assert.equal(formatLocationAddress(location), "7500 Greenway Center Dr Ste 620\nGreenbelt, MD 20770");
+  assert.equal(formatLocationAddress(location), "7500 Greenway Center Drive Ste 620\nGreenbelt, MD 20770");
   const schema = buildPostalAddressSchema(location);
   assert.equal(schema.addressCountry, "US");
   assert.equal(schema.postalCode, "20770");
-  assert.equal(schema.streetAddress, "7500 Greenway Center Dr Ste 620");
+  assert.equal(schema.streetAddress, "7500 Greenway Center Drive Ste 620");
+});
+
+test("street suffixes expand without changing saint names, suites, or directions", () => {
+  assert.equal(normalizeStreetAddress("10 Main St., Suite 2"), "10 Main Street Ste 2");
+  assert.equal(normalizeStreetAddress("10 Main st NW #2"), "10 Main Street NW Ste 2");
+  assert.equal(normalizeStreetAddress("10 St. Charles Dr."), "10 St. Charles Drive");
+  assert.equal(normalizeStreetAddress("10 Driveway Street"), "10 Driveway Street");
 });
 
 test("provider saves remove periods from all credentials and preserve booking links", () => {

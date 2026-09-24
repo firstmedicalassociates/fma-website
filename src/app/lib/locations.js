@@ -77,6 +77,8 @@ export function normalizeStreetAddress(value = "") {
   return cleanText(value)
     .replace(/[,\s]*\b(?:suite|ste)\b\.?\s*#?\s*/gi, " Ste ")
     .replace(/[,\s]*#\s*(?=\d)/g, " Ste ")
+    .replace(/\b(Dr|St)\.?(?=\s*(?:(?:N[EW]?|S[EW]?|E|W)\b\s*)?(?:Ste\b|,|$))/gi,
+      (_match, suffix) => suffix.toLowerCase() === "dr" ? "Drive" : "Street")
     .replace(/\b(Dr|Rd|Ave|Ln|Blvd|Pkwy|Cir)\.(?=\s|$)/gi, "$1")
     .replace(/\s+/g, " ")
     .replace(/[,\s]+$/, "");

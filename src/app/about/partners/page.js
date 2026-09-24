@@ -228,8 +228,8 @@ export default function PartnersPage() {
             <p>Explore partnership opportunities and discover how we can achieve more together.</p>
           </div>
         </div>
-        <Link className="white-btn" href="/contact/">
-          Contact Our Team <ArrowRight size={16} />
+        <Link className="white-btn" href="/contact-partner/">
+          Become a Partner <ArrowRight size={16} aria-hidden="true" />
         </Link>
       </div>
 
@@ -311,5 +311,4 @@ function Briefcase({ size, ...props }) {
     </svg>
   );
 }
-
 

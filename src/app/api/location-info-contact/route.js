@@ -15,6 +15,7 @@ const MAX_FIELD_LENGTHS = {
   lastName: 80,
   email: 160,
   phone: 40,
+  organization: 160,
   message: 1000,
   locationTitle: 160,
   locationSlug: 220,
@@ -161,9 +162,11 @@ export async function POST(request) {
   const lastName = cleanSingleLine(payload?.lastName);
   const email = cleanEmail(payload?.email);
   const phone = cleanSingleLine(payload?.phone);
+  const organization = cleanSingleLine(payload?.organization);
   const message = cleanText(payload?.message);
   const locationTitle = cleanSingleLine(payload?.locationTitle);
   const locationSlug = cleanSingleLine(payload?.locationSlug);
+  const isPartnerInquiry = locationSlug.replace(/\/+$/, "") === "/contact-partner";
 
   if (!firstName || !lastName || !email || !phone || !message) {
     return NextResponse.json(
@@ -176,11 +179,19 @@ export async function POST(request) {
     return NextResponse.json({ ok: false, error: "Please provide a valid email address." }, { status: 400 });
   }
 
+  if (isPartnerInquiry && !organization) {
+    return NextResponse.json(
+      { ok: false, error: "Please provide your company or organization name." },
+      { status: 400 }
+    );
+  }
+
   if (
     firstName.length > MAX_FIELD_LENGTHS.firstName ||
     lastName.length > MAX_FIELD_LENGTHS.lastName ||
     email.length > MAX_FIELD_LENGTHS.email ||
     phone.length > MAX_FIELD_LENGTHS.phone ||
+    organization.length > MAX_FIELD_LENGTHS.organization ||
     message.length > MAX_FIELD_LENGTHS.message ||
     locationTitle.length > MAX_FIELD_LENGTHS.locationTitle ||
     locationSlug.length > MAX_FIELD_LENGTHS.locationSlug
@@ -229,15 +240,15 @@ export async function POST(request) {
   }
 
   const fullName = `${firstName} ${lastName}`;
-  const sourceTitle = locationTitle || "Website Contact";
+  const sourceTitle = isPartnerInquiry ? "Vendor & Partnership Inquiry" : locationTitle || "Website Contact";
   const safeMessage = escapeHtml(message).replace(/\n/g, "<br />");
   const teamHtmlContent = buildBrandedEmail({
     preheader: `New website message from ${fullName}`,
-    eyebrow: "Website Contact",
+    eyebrow: isPartnerInquiry ? "Partnership Inquiry" : "Website Contact",
     title: `New message from ${fullName}`,
     content: `
       <p style="margin:0 0 22px;color:#5a6880;font-size:15px;line-height:1.7;">
-        A new general inquiry was submitted through the First Medical Associates website.
+        ${isPartnerInquiry ? "A new vendor or partnership inquiry" : "A new general inquiry"} was submitted through the First Medical Associates website.
       </p>
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;border-collapse:separate;border-spacing:0 8px;">
         <tr><td style="width:120px;color:#6b7890;font-size:13px;font-weight:700;">Source</td><td style="color:#122038;font-size:14px;">${escapeHtml(sourceTitle)}</td></tr>
@@ -245,6 +256,7 @@ export async function POST(request) {
         <tr><td style="color:#6b7890;font-size:13px;font-weight:700;">Name</td><td style="color:#122038;font-size:14px;">${escapeHtml(fullName)}</td></tr>
         <tr><td style="color:#6b7890;font-size:13px;font-weight:700;">Email</td><td style="color:#122038;font-size:14px;"><a href="mailto:${escapeHtml(email)}" style="color:#0f7eaa;font-weight:700;">${escapeHtml(email)}</a></td></tr>
         <tr><td style="color:#6b7890;font-size:13px;font-weight:700;">Phone</td><td style="color:#122038;font-size:14px;">${escapeHtml(phone)}</td></tr>
+        ${organization ? `<tr><td style="color:#6b7890;font-size:13px;font-weight:700;">Organization</td><td style="color:#122038;font-size:14px;">${escapeHtml(organization)}</td></tr>` : ""}
       </table>
       <div style="padding:20px;border:1px solid #dbe5f1;border-radius:16px;background:#f8fbfe;">
         <p style="margin:0 0 8px;color:#001662;font-size:13px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">Message</p>
@@ -259,6 +271,7 @@ export async function POST(request) {
     `Name: ${fullName}`,
     `Email: ${email}`,
     `Phone: ${phone}`,
+    ...(organization ? [`Organization: ${organization}`] : []),
     "",
     "Message:",
     message,
@@ -266,7 +279,7 @@ export async function POST(request) {
   const confirmationHtmlContent = buildBrandedEmail({
     preheader: "We received your message and will follow up shortly.",
     eyebrow: "Message Received",
-    title: "Thank you for contacting us",
+    title: isPartnerInquiry ? "Thank you for your interest in partnering" : "Thank you for contacting us",
     content: `
       <p style="margin:0 0 18px;color:#34435d;font-size:16px;line-height:1.75;">
         Hi ${escapeHtml(firstName)},
@@ -274,7 +287,11 @@ export async function POST(request) {
       <p style="margin:0 0 22px;color:#34435d;font-size:16px;line-height:1.75;">
         We received your message and a member of the First Medical Associates team will review it. We typically respond within one business day.
       </p>
-      <div style="margin:0 0 24px;padding:20px;border-left:4px solid #11a5cf;border-radius:12px;background:#f4f8fc;">
+      ${isPartnerInquiry ? `
+      <p style="margin:0 0 24px;color:#34435d;font-size:16px;line-height:1.75;">
+        Thank you for introducing your organization. Our team will review your proposed partnership and follow up using the contact details you provided.
+      </p>
+      ` : `<div style="margin:0 0 24px;padding:20px;border-left:4px solid #11a5cf;border-radius:12px;background:#f4f8fc;">
         <p style="margin:0 0 6px;color:#001662;font-size:15px;font-weight:800;">Need help sooner?</p>
         <p style="margin:0;color:#5a6880;font-size:14px;line-height:1.65;">
           For appointment or clinic questions, call or text
@@ -284,7 +301,7 @@ export async function POST(request) {
       </div>
       <a href="https://drsfirst.com/locations/" style="display:inline-block;padding:13px 22px;border-radius:999px;background:#001662;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;">
         View FMA Locations
-      </a>
+      </a>`}
       <p style="margin:26px 0 0;color:#7a879d;font-size:12px;line-height:1.6;">
         This automated confirmation does not include the contents of your message for your privacy.
       </p>
@@ -295,7 +312,9 @@ export async function POST(request) {
     "",
     "We received your message. A member of the First Medical Associates team will review it, and we typically respond within one business day.",
     "",
-    "For appointment or clinic questions, call or text 301-284-3181. For medical records, prescriptions, results, or care-team messages, please use the patient portal.",
+    isPartnerInquiry
+      ? "Thank you for introducing your organization. Our team will review your proposed partnership and follow up using the contact details you provided."
+      : "For appointment or clinic questions, call or text 301-284-3181. For medical records, prescriptions, results, or care-team messages, please use the patient portal.",
     "",
     "First Medical Associates",
     "https://drsfirst.com/",

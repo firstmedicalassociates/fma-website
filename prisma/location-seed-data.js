@@ -35,7 +35,7 @@ const locations = [
   {
     name: "Bowie II, MD",
     cityStatePhone: "301-262-6797",
-    addressLines: ["14999 Health Center Dr Ste 201", "Bowie, MD 20716"],
+    addressLines: ["14999 Health Center Drive Ste 201", "Bowie, MD 20716"],
     img: "https://drsfirst.com/wp-content/uploads/2023/03/Bowie-1.webp",
     href: "/bowie-health-center-dr/",
   },
@@ -63,7 +63,7 @@ const locations = [
   {
     name: "Frederick, MD",
     cityStatePhone: "301-284-3181",
-    addressLines: ["196 Thomas Johnson Dr Ste 235", "Frederick, MD 21702"],
+    addressLines: ["196 Thomas Johnson Drive Ste 235", "Frederick, MD 21702"],
     img: "https://drsfirst.com/wp-content/uploads/2024/01/Frederick.jpg",
     href: "/location/frederick/",
   },
@@ -134,7 +134,7 @@ const locations = [
   {
     name: "Greenbelt, MD",
     cityStatePhone: "227-997-3903",
-    addressLines: ["7500 Greenway Center Dr Ste 620", "Greenbelt, MD 20770"],
+    addressLines: ["7500 Greenway Center Drive Ste 620", "Greenbelt, MD 20770"],
     img: "https://drsfirst.com/wp-content/uploads/2025/10/fma-greenbelt.webp",
     href: "/location/greenbelt",
   },

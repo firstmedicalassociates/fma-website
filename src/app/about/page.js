@@ -372,7 +372,7 @@ export default function AboutPage() {
               ensuring our patients receive innovative and personalized health care in a trusted
               environment within their community.
             </p>
-            <button className="tour-btn">Tour Our Facilities <ArrowRight size={18} /></button>
+            <Link className="tour-btn" href="/locations/">View Our Locations <ArrowRight size={18} aria-hidden="true" /></Link>
           </div>
         </div>
       </div>
@@ -498,4 +498,3 @@ function Handshake({ size, ...props }) {
     </svg>
   );
 }
-

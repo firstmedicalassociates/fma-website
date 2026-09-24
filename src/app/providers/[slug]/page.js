@@ -336,6 +336,7 @@ export default async function ProviderDetailPage({ params }) {
   const bookingSource = resolveProviderBookingHref(provider, primaryLocation);
   const bookingHref = bookingSource || primaryLocation?.href || "/locations/";
   const bookingExternal = isExternalUrl(bookingSource);
+  const showBookingAction = !["rakesh-malik", "ronald-thomas"].includes(provider.slug);
   const zocdocHref = getProviderZocdocUrl(provider);
   const locationsHref =
     locationLinks.length > 1
@@ -364,7 +365,7 @@ export default async function ProviderDetailPage({ params }) {
     provider.languages.length > 0
       ? `Languages offered include ${languagesText}.`
       : "Language support details can be confirmed with the clinic team.",
-    bookingSource
+    showBookingAction && bookingExternal
       ? "Appointment requests can be started online from this page."
       : primaryLocation?.href
         ? "Appointment details are available through the assigned clinic page."
@@ -456,14 +457,16 @@ export default async function ProviderDetailPage({ params }) {
                 </div>
 
                 <div className={styles.heroActions}>
-                  <ActionLink
-                    className={`${styles.actionButton} ${styles.actionPrimary}`}
-                    external={bookingExternal}
-                    href={bookingHref}
-                    icon={renderInlineIcon("calendar")}
-                  >
-                    {bookingActionLabel(bookingHref)}
-                  </ActionLink>
+                  {showBookingAction ? (
+                    <ActionLink
+                      className={`${styles.actionButton} ${styles.actionPrimary}`}
+                      external={bookingExternal}
+                      href={bookingHref}
+                      icon={renderInlineIcon("calendar")}
+                    >
+                      {bookingActionLabel(bookingHref)}
+                    </ActionLink>
+                  ) : null}
 
                   {zocdocHref ? (
                     <ActionLink

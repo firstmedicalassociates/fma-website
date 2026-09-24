@@ -184,7 +184,7 @@ export default function ServicesDirectory({ services = [], initialCategory = "" 
                     <p>{service.description}</p>
                   </Link>
                   <Link href={`/service/${service.slug}/`} className={styles.cardCta}>
-                    {telehealth ? "Launch Visit" : "Learn More"}
+                    Learn More
                     <span className="material-symbols-outlined">arrow_forward</span>
                   </Link>
                 </article>

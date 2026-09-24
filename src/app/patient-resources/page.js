@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { buildStaticMetadata } from "../lib/seo";
+import { GENERAL_BOOK_APPOINTMENT_URL } from "../lib/config/site";
+import { BOOKING_PHONE_HREF } from "../lib/booking";
 
 export const metadata = buildStaticMetadata({
   title: "Patient Resources | First Medical Associates",
@@ -25,7 +27,7 @@ export default function ResourcesOverview() {
   const sidebarActions = [
     { title: 'Find Location', sub: 'Maryland & Northern Virginia clinics', icon: MapPin, href: '/locations/' },
     { title: 'Patient Portal', sub: 'Access records and results', icon: Users, href: '/patient-resources/patients/' },
-    { title: 'Schedule Same-Day', sub: 'Same-Day appointment options', icon: Clock, href: '/services/' },
+    { title: 'Schedule Same-Day', sub: 'Same-Day appointment options', icon: Clock, href: GENERAL_BOOK_APPOINTMENT_URL },
   ];
 
   return (
@@ -187,12 +189,11 @@ export default function ResourcesOverview() {
         <div className="need-assistance">
           <h3>Need Assistance?</h3>
           <p>
-            Our patient care team is available 24/7 for 
-            urgent inquiries and navigation help.
+            Our patient care team is available for inquiries and navigation help.
           </p>
-          <Link href="/contact/" className="call-btn">
-            <Phone size={18} fill="currentColor" /> Call Support
-          </Link>
+          <a href={BOOKING_PHONE_HREF} className="call-btn">
+            <Phone size={18} fill="currentColor" aria-hidden="true" /> Call Support
+          </a>
           <div className="bg-pattern">
              <PlusSquare size={120} />
           </div>

@@ -35,7 +35,7 @@ LOCATIONS (19 locations across Maryland and Northern Virginia)
   2448 Holly Avenue Ste 102
   Annapolis, MD 21401
 - Bowie II:
-  14999 Health Center Dr Ste 201
+  14999 Health Center Drive Ste 201
   Bowie, MD 20716
 - Bowie:
   14300 Gallant Fox Ln Ste 110
@@ -50,7 +50,7 @@ LOCATIONS (19 locations across Maryland and Northern Virginia)
   2200 Defense Highway Ste 309
   Crofton, MD 21114
 - Frederick:
-  196 Thomas Johnson Dr Ste 235
+  196 Thomas Johnson Drive Ste 235
   Frederick, MD 21702
 - Gaithersburg:
   806 W Diamond Ave Ste 110
@@ -62,7 +62,7 @@ LOCATIONS (19 locations across Maryland and Northern Virginia)
   1600 Crain Highway Ste 202
   Glen Burnie, MD 21061
 - Greenbelt:
-  7500 Greenway Center Dr Ste 620
+  7500 Greenway Center Drive Ste 620
   Greenbelt, MD 20770
 - Laurel:
   14201 Laurel Park Drive Ste 111
@@ -74,7 +74,7 @@ LOCATIONS (19 locations across Maryland and Northern Virginia)
   8100 Sandpiper Cir Ste 308
   Nottingham, MD 21236
 - Owings Mills:
-  25 Crossroads Dr Ste 412
+  25 Crossroads Drive Ste 412
   Owings Mills, MD 21117
 - Rockville:
   9601 Blackwell Road Ste 210
