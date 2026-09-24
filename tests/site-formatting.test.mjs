@@ -12,8 +12,8 @@ test("legacy address variants keep the suite and produce exactly two lines", () 
   const examples = [
     ["12800 Middlebrook Road, Suite 400, Germantown, MD 20874, US", "12800 Middlebrook Road Ste 400\nGermantown, MD 20874"],
     ["25 Crossroads Dr., Suite #412\nOwings Mills, MD 21117", "25 Crossroads Drive Ste 412\nOwings Mills, MD 21117"],
-    ["806 W Diamond Ave #110,\nGaithersburg, MD 20878", "806 W Diamond Ave Ste 110\nGaithersburg, MD 20878"],
-    ["700 Roeder Rd\nSuite 100 B\nSilver Spring, Maryland 20910\nUS", "700 Roeder Rd Ste 100 B\nSilver Spring, MD 20910"],
+    ["806 W Diamond Ave #110,\nGaithersburg, MD 20878", "806 W Diamond Avenue Ste 110\nGaithersburg, MD 20878"],
+    ["700 Roeder Rd\nSuite 100 B\nSilver Spring, Maryland 20910\nUS", "700 Roeder Road Ste 100 B\nSilver Spring, MD 20910"],
     ["9841 Broken Land Parkway, STE 115\nColumbia, MD 21046", "9841 Broken Land Parkway Ste 115\nColumbia, MD 21046"],
   ];
   for (const [address, expected] of examples) {
@@ -41,6 +41,23 @@ test("street suffixes expand without changing saint names, suites, or directions
   assert.equal(normalizeStreetAddress("10 Main st NW #2"), "10 Main Street NW Ste 2");
   assert.equal(normalizeStreetAddress("10 St. Charles Dr."), "10 St. Charles Drive");
   assert.equal(normalizeStreetAddress("10 Driveway Street"), "10 Driveway Street");
+});
+
+test("location street types are spelled out in display and structured addresses", () => {
+  const examples = [
+    ["4660 Kenmore Ave Ste 1210", "4660 Kenmore Avenue Ste 1210"],
+    ["14300 Gallant Fox Ln Ste 110", "14300 Gallant Fox Lane Ste 110"],
+    ["8600 Snowden River Pkwy Ste 207", "8600 Snowden River Parkway Ste 207"],
+    ["8100 Sandpiper Cir Ste 308", "8100 Sandpiper Circle Ste 308"],
+    ["877 Baltimore Annapolis Blvd. Ste 112", "877 Baltimore Annapolis Boulevard Ste 112"],
+    ["2200 Defense HWY Ste 309", "2200 Defense Highway Ste 309"],
+  ];
+  for (const [streetAddress, expected] of examples) {
+    const location = { streetAddress, addressCity: "Example", addressState: "MD", postalCode: "20000" };
+    assert.equal(formatLocationAddress(location), `${expected}\nExample, MD 20000`);
+    assert.equal(buildPostalAddressSchema(location).streetAddress, expected);
+    assert.equal(normalizeStreetAddress(expected), expected);
+  }
 });
 
 test("provider saves remove periods from all credentials and preserve booking links", () => {

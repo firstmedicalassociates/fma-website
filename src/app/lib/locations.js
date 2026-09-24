@@ -73,13 +73,29 @@ function cleanText(value) {
   return String(value ?? "").trim();
 }
 
+const STREET_SUFFIXES = {
+  dr: "Drive",
+  st: "Street",
+  rd: "Road",
+  ave: "Avenue",
+  ln: "Lane",
+  blvd: "Boulevard",
+  pkwy: "Parkway",
+  cir: "Circle",
+  hwy: "Highway",
+  ct: "Court",
+  ter: "Terrace",
+  pl: "Place",
+};
+
 export function normalizeStreetAddress(value = "") {
   return cleanText(value)
     .replace(/[,\s]*\b(?:suite|ste)\b\.?\s*#?\s*/gi, " Ste ")
     .replace(/[,\s]*#\s*(?=\d)/g, " Ste ")
-    .replace(/\b(Dr|St)\.?(?=\s*(?:(?:N[EW]?|S[EW]?|E|W)\b\s*)?(?:Ste\b|,|$))/gi,
-      (_match, suffix) => suffix.toLowerCase() === "dr" ? "Drive" : "Street")
-    .replace(/\b(Dr|Rd|Ave|Ln|Blvd|Pkwy|Cir)\.(?=\s|$)/gi, "$1")
+    // Expand street types only at the end of the street name, before a
+    // direction or suite, so names such as St. Charles are preserved.
+    .replace(/\b(Dr|St|Rd|Ave|Ln|Blvd|Pkwy|Cir|Hwy|Ct|Ter|Pl)\.?(?=\s*(?:(?:N[EW]?|S[EW]?|E|W)\b\s*)?(?:Ste\b|,|$))/gi,
+      (_match, suffix) => STREET_SUFFIXES[suffix.toLowerCase()])
     .replace(/\s+/g, " ")
     .replace(/[,\s]+$/, "");
 }

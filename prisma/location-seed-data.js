@@ -14,7 +14,7 @@ const locations = [
   {
     name: "Alexandria, VA",
     cityStatePhone: "571-200-7128",
-    addressLines: ["4660 Kenmore Ave Ste 1210", "Alexandria, VA 22304"],
+    addressLines: ["4660 Kenmore Avenue Ste 1210", "Alexandria, VA 22304"],
     img: "/assets/locations/alexandria-kenmore.webp",
     href: "/location/alexandria/",
   },
@@ -28,7 +28,7 @@ const locations = [
   {
     name: "Bowie, MD",
     cityStatePhone: "301-262-6797",
-    addressLines: ["14300 Gallant Fox Ln Ste 110", "Bowie, MD 20715"],
+    addressLines: ["14300 Gallant Fox Lane Ste 110", "Bowie, MD 20715"],
     img: "https://drsfirst.com/wp-content/uploads/2023/03/Bowie-1.webp",
     href: "/location/bowie/",
   },
@@ -42,7 +42,7 @@ const locations = [
   {
     name: "Columbia, MD",
     cityStatePhone: "410-204-4921",
-    addressLines: ["8600 Snowden River Pkwy Ste 207", "Columbia, MD 21045"],
+    addressLines: ["8600 Snowden River Parkway Ste 207", "Columbia, MD 21045"],
     img: "https://drsfirst.com/wp-content/uploads/2023/03/Columbia-1.webp",
     href: "/location/columbia/",
   },
@@ -70,7 +70,7 @@ const locations = [
   {
     name: "Gaithersburg, MD",
     cityStatePhone: "301-515-2902",
-    addressLines: ["806 W Diamond Ave Ste 110", "Gaithersburg, MD 20878"],
+    addressLines: ["806 W Diamond Avenue Ste 110", "Gaithersburg, MD 20878"],
     img: "https://drsfirst.com/wp-content/uploads/2023/03/Gaithersburg-1.webp",
     href: "/location/gaithersburg/",
   },
@@ -91,7 +91,7 @@ const locations = [
   {
     name: "Nottingham, MD",
     cityStatePhone: "410-918-0777",
-    addressLines: ["8100 Sandpiper Cir Ste 308", "Nottingham, MD 21236"],
+    addressLines: ["8100 Sandpiper Circle Ste 308", "Nottingham, MD 21236"],
     img: "https://drsfirst.com/wp-content/uploads/2025/12/nottingham-new.png",
     href: "/location/nottingham/",
   },
@@ -112,7 +112,7 @@ const locations = [
   {
     name: "Silver Spring, MD",
     cityStatePhone: "301-593-7792",
-    addressLines: ["700 Roeder Rd Ste 100 B", "Silver Spring, MD 20910"],
+    addressLines: ["700 Roeder Road Ste 100 B", "Silver Spring, MD 20910"],
     img: "https://drsfirst.com/wp-content/uploads/2023/04/Silver-Spring.jpg",
     href: "/location/silver-spring/",
   },

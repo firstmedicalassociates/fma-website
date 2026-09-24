@@ -26,7 +26,7 @@ test("Alexandria seed data contains the approved launch details", () => {
   assert.equal(location.name, "Alexandria, VA");
   assert.equal(location.cityStatePhone, "571-200-7128");
   assert.deepEqual(location.addressLines, [
-    "4660 Kenmore Ave Ste 1210",
+    "4660 Kenmore Avenue Ste 1210",
     "Alexandria, VA 22304",
   ]);
   assert.equal(location.img, "/assets/locations/alexandria-kenmore.webp");
