@@ -1,0 +1,60 @@
+.infoColumn {
+  align-content: start;
+}
+
+.emailLink {
+  color: var(--contact-accent);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--contact-muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.consent input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  accent-color: var(--contact-strong);
+}
+
+.consent a {
+  color: var(--contact-accent);
+  text-decoration: underline;
+}
+
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.success {
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: 18px;
+  padding: 20px 0;
+  color: var(--contact-strong);
+}
+
+.success h2,
+.success p {
+  margin: 0;
+}
+
+.success p {
+  color: var(--contact-muted);
+  line-height: 1.8;
+}
