@@ -19,6 +19,7 @@ import {
   resolveProviderImageSrc,
 } from "../lib/providers";
 import { getLocationSeoContent } from "../lib/seo";
+import serviceAvailability from "../lib/service-availability.cjs";
 import LocationPageShell from "./location-page-shell";
 import ComingSoonLocation from "./coming-soon-location";
 
@@ -192,12 +193,14 @@ export default async function LocationLandingPage({ params }) {
   const openingHours = formatOfficeHoursForDisplay(location.officeHours);
   const openingHoursSpecification = buildOpeningHoursSpecification(location.officeHours);
   const serviceRecordsById = Object.fromEntries(serviceRecords.map((service) => [service.id, service]));
-  const locationServices =
+  const locationServices = serviceAvailability.filterServicesForLocation(
     selectedServiceIds.length > 0
       ? selectedServiceIds.map((serviceId) => serviceRecordsById[serviceId]).filter(Boolean)
       : Array.isArray(location.services)
         ? location.services
-        : [];
+        : [],
+    location.slug
+  );
   const seo = getLocationSeoContent(location);
   const publicPhone = location.hideOfficePhone
     ? location.callTextPhone || location.directPhone || ""

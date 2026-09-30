@@ -10,6 +10,13 @@
 const path = require('path');
 const fs = require('fs');
 const { pathToFileURL } = require('url');
+const { values: indexOptions } = require('node:util').parseArgs({
+  options: { 'service-slug': { type: 'string' } },
+});
+const serviceSlug = indexOptions['service-slug']?.trim() || '';
+if (indexOptions['service-slug'] !== undefined && !serviceSlug) {
+  throw new Error('--service-slug requires a non-empty service slug.');
+}
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
@@ -355,11 +362,14 @@ async function indexProviders() {
   return result;
 }
 
-async function indexServices() {
+async function indexServices(selectedServiceSlug = '') {
   const services = await prisma.service.findMany({
-    where: { isActive: true },
+    where: { isActive: true, ...(selectedServiceSlug ? { slug: selectedServiceSlug } : {}) },
     orderBy: [{ sortOrder: 'asc' }, { title: 'asc' }],
   });
+  if (selectedServiceSlug && services.length === 0) {
+    throw new Error(`No active service found for slug: ${selectedServiceSlug}`);
+  }
   const result = createResult(services.length);
 
   console.log(`Indexing ${services.length} active services...`);
@@ -582,15 +592,20 @@ async function main() {
   try {
     console.log('Starting AI search embedding indexing...');
 
-    results.locations = await indexLocations();
-    results.providers = await indexProviders();
-    results.services = await indexServices();
-    results.posts = await indexBlogPosts();
-    results.policies = await indexPolicyDocuments();
+    if (serviceSlug) {
+      // A targeted refresh must never prune embeddings belonging to other content.
+      results.services = await indexServices(serviceSlug);
+    } else {
+      results.locations = await indexLocations();
+      results.providers = await indexProviders();
+      results.services = await indexServices();
+      results.posts = await indexBlogPosts();
+      results.policies = await indexPolicyDocuments();
 
-    const expectedIds = Object.values(results).flatMap((result) => result.expectedIds);
-    const removed = await deleteStaleManagedEmbeddings(expectedIds);
-    console.log(`Removed ${removed} stale managed embeddings.`);
+      const expectedIds = Object.values(results).flatMap((result) => result.expectedIds);
+      const removed = await deleteStaleManagedEmbeddings(expectedIds);
+      console.log(`Removed ${removed} stale managed embeddings.`);
+    }
 
     const totalIndexed = Object.values(results).reduce((sum, result) => sum + result.count, 0);
     const totalReused = Object.values(results).reduce((sum, result) => sum + result.reused, 0);

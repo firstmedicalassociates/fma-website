@@ -1120,4 +1120,79 @@ module.exports = [
         "Access trusted care from home with secure telemedicine appointments.",
     },
   },
+  {
+    category: "Specialized Care",
+    title: "GLP-1 / Medical Weight Loss Management",
+    slug: "glp-1-medical-weight-loss-management",
+    description:
+      "First Medical Associates offers GLP-1 / Medical Weight Loss Management exclusively at our Severna Park, MD office.",
+    icon: "health_and_safety",
+    pageContent: {
+      eyebrow: "Specialized Care · Severna Park Only",
+      heroSubtitle: "Medical Weight Loss Management in Severna Park",
+      heroDescription:
+        "First Medical Associates offers GLP-1 / Medical Weight Loss Management at our Severna Park office. Speak with a provider about your health history, questions, and individual care needs.",
+      features: [
+        {
+          title: "Individual Health Context",
+          description:
+            "Medical weight-management discussions consider health history, current concerns, and individual circumstances.",
+        },
+        {
+          title: "Severna Park Only",
+          description:
+            "FMA offers this service exclusively at our Severna Park, Maryland office.",
+        },
+        {
+          title: "Questions and Goals",
+          description:
+            "A conversation with a provider is an opportunity to discuss your questions and personal health goals.",
+        },
+        {
+          title: "Request an Appointment",
+          description:
+            "Use our Severna Park online booking link to request an appointment and discuss this service.",
+        },
+      ],
+      infoParagraphs: [
+        "Medical weight-loss management considers weight in the context of a person's overall health. Health history, daily routines, and individual circumstances can be part of a discussion with a healthcare provider.",
+        "People have different questions and care needs. Speaking with a provider can help you understand how medical weight management relates to your own health and what questions to consider.",
+        "First Medical Associates offers GLP-1 / Medical Weight Loss Management only at our Severna Park office. Contact this office or use its online booking link to request an appointment.",
+      ],
+      commitmentTitle: "Topics for Your Conversation",
+      commitmentItems: [
+        "Your health history and current concerns",
+        "Your questions about weight management",
+        "Your individual care needs and preferences",
+        "Information about our Severna Park service",
+      ],
+      detailHeading: "What Is Medical Weight Loss Management?",
+      detailParagraphs: [
+        "Medical weight-loss management is a clinical approach to discussing weight-related concerns within a person's broader health context. Conversations may include health history, personal goals, and questions about ongoing care.",
+        "If you have questions about GLP-1 or medical weight-loss management, speak with a healthcare provider about your individual circumstances. FMA offers this service at our Severna Park office.",
+      ],
+      detailLinkLabel: "View Severna Park Office",
+      detailLinkHref: "/location/severna-park",
+      faqItems: [
+        {
+          question: "What does medical weight-loss management mean?",
+          answer:
+            "It means discussing weight-related concerns with a healthcare provider in the context of your overall health, health history, and individual care needs.",
+        },
+        {
+          question: "Where does FMA offer this service?",
+          answer:
+            "GLP-1 / Medical Weight Loss Management is offered only at First Medical Associates' Severna Park, Maryland office.",
+        },
+        {
+          question: "How do I request an appointment?",
+          answer:
+            "Use the Schedule an Appointment button to open online booking for our Severna Park office. You can also visit the Severna Park office page for contact information and scheduling options.",
+        },
+      ],
+      ctaTitle: "Discuss Medical Weight Loss Management",
+      ctaDescription:
+        "Request an appointment at our Severna Park office to discuss your questions and individual care needs.",
+    },
+  },
 ];

@@ -3,6 +3,8 @@ import SiteFooter from "../../components/site-footer";
 import SiteHeader from "../../components/site-header";
 import { SITE_NAME, pageUrl } from "../../lib/config/site";
 import { prisma } from "../../lib/prisma";
+import { buildPostalAddressSchema } from "../../lib/locations";
+import serviceAvailability from "../../lib/service-availability.cjs";
 import { getServiceSeoContent } from "../../lib/seo";
 import { SERVICE_SELECT } from "../../lib/services";
 import ServiceDetailTemplate from "../service-detail-template";
@@ -71,6 +73,28 @@ export default async function ServiceDetailPage({ params }) {
     notFound();
   }
 
+  const allowedLocationSlugs = serviceAvailability.getServiceLocationSlugs(service.slug);
+  const offeringLocation = allowedLocationSlugs
+    ? await prisma.location.findUnique({
+        where: { slug: allowedLocationSlugs[0] },
+        select: {
+          slug: true,
+          title: true,
+          bookingUrl: true,
+          address: true,
+          displayAddress: true,
+          streetAddress: true,
+          addressCity: true,
+          addressState: true,
+          postalCode: true,
+          addressCountry: true,
+        },
+      })
+    : null;
+  const locationContext = allowedLocationSlugs
+    ? offeringLocation || { slug: allowedLocationSlugs[0], title: "Severna Park, MD" }
+    : null;
+
   const seo = getServiceSeoContent(service);
   const canonicalUrl = pageUrl(`/service/${slug}`);
   const jsonLd = {
@@ -92,11 +116,12 @@ export default async function ServiceDetailPage({ params }) {
         "@id": `${canonicalUrl}#service`,
         name: service.title,
         description: service.description || seo.description,
-        areaServed: "Maryland",
+        areaServed: locationContext ? locationContext.title : "Maryland",
         provider: {
           "@type": "MedicalClinic",
-          name: SITE_NAME,
-          url: pageUrl("/locations"),
+          name: locationContext ? `${SITE_NAME} - ${locationContext.title}` : SITE_NAME,
+          url: pageUrl(locationContext ? locationContext.slug : "/locations"),
+          ...(offeringLocation ? { address: buildPostalAddressSchema(offeringLocation) } : {}),
         },
       },
       {
@@ -132,7 +157,7 @@ export default async function ServiceDetailPage({ params }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <SiteHeader />
-      <ServiceDetailTemplate service={service} />
+      <ServiceDetailTemplate service={service} locationContext={locationContext} />
       <SiteFooter />
     </>
   );

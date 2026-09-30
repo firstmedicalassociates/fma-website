@@ -1,4 +1,3 @@
-import { GENERAL_BOOK_APPOINTMENT_URL } from "../lib/config/site";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -17,6 +16,7 @@ import InternalLinkHub from "../components/internal-link-hub";
 import { normalizeInternalPageHref } from "../lib/config/site";
 import { getServiceSeoContent } from "../lib/seo";
 import { normalizeServicePageContent } from "../lib/services";
+import { getServiceDetailNavigation } from "../lib/service-detail-navigation";
 
 const FEATURE_ICONS = [Users, MapPin, Clock, PhoneCall];
 const FAQ_ICONS = [ShieldCheck, User, ClipboardList];
@@ -25,8 +25,9 @@ function formatTag(value = "") {
   return String(value || "").trim().toUpperCase();
 }
 
-export default function ServiceDetailTemplate({ service }) {
+export default function ServiceDetailTemplate({ service, locationContext = null }) {
   const content = normalizeServicePageContent(service?.pageContent || {});
+  const navigation = getServiceDetailNavigation(locationContext);
   const seo = getServiceSeoContent(service);
   const isSameDayCare = service?.slug === "same-day-care";
   const features = content.features;
@@ -57,8 +58,8 @@ export default function ServiceDetailTemplate({ service }) {
       {detailParagraphs.map((paragraph, index) => (
         <p key={`detail-${index}`}>{paragraph}</p>
       ))}
-      <Link href={normalizeInternalPageHref(content.detailLinkHref)} className="detail-link">
-        {content.detailLinkLabel} <ArrowRight size={17} />
+      <Link href={locationContext ? navigation.secondaryHref : normalizeInternalPageHref(content.detailLinkHref)} className="detail-link">
+        {locationContext ? navigation.ctaSecondaryLabel : content.detailLinkLabel} <ArrowRight size={17} />
       </Link>
     </article>
   );
@@ -767,11 +768,11 @@ export default function ServiceDetailTemplate({ service }) {
             <p className="hero-desc">{content.heroDescription}</p>
 
             <div className="hero-actions">
-              <Link href={GENERAL_BOOK_APPOINTMENT_URL} className="button-primary">
+              <Link href={navigation.appointmentHref} className="button-primary">
                 <Calendar size={18} /> Schedule an Appointment
               </Link>
-              <Link href="/providers/" className="button-outline">
-                <User size={18} /> Find a Primary Care Provider
+              <Link href={navigation.secondaryHref} className="button-outline">
+                {locationContext ? <MapPin size={18} /> : <User size={18} />} {navigation.heroSecondaryLabel}
               </Link>
             </div>
           </div>
@@ -829,28 +830,7 @@ export default function ServiceDetailTemplate({ service }) {
         <InternalLinkHub
           title="Explore related care paths"
           intro={`Continue from ${service.title} to the most relevant next-step pages on the site.`}
-          links={[
-            {
-              href: "/providers/",
-              label: "Find a Provider",
-              description: "Browse primary care providers who can help with this service.",
-            },
-            {
-              href: "/locations/",
-              label: "Find a Location",
-              description: "See clinic locations across Maryland and Northern Virginia where you can book care.",
-            },
-            {
-              href: "/services/",
-              label: "Browse All Services",
-              description: "Compare related treatment options, chronic care, specialized care, and telehealth.",
-            },
-            {
-              href: "/patient-resources/insurance/",
-              label: "Check Insurance",
-              description: "Review accepted insurance plans before scheduling your appointment.",
-            },
-          ]}
+          links={navigation.relatedLinks}
         />
 
         <section className="cta-banner">
@@ -860,11 +840,11 @@ export default function ServiceDetailTemplate({ service }) {
           </div>
 
           <div className="cta-actions">
-            <Link href={GENERAL_BOOK_APPOINTMENT_URL} className="cta-btn-primary">
+            <Link href={navigation.appointmentHref} className="cta-btn-primary">
               <Calendar size={18} /> Schedule an Appointment
             </Link>
-            <Link href="/providers/" className="cta-btn-outline">
-              Find a Provider <ArrowRight size={18} />
+            <Link href={navigation.secondaryHref} className="cta-btn-outline">
+              {navigation.ctaSecondaryLabel} <ArrowRight size={18} />
             </Link>
           </div>
         </section>

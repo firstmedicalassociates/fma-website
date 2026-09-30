@@ -9,6 +9,7 @@ const locationInfoSeedData = require("./location-info-seed-data");
 const providerSeedData = require("./provider-seed-data");
 const providerZocdocSeedData = require("./provider-zocdoc-seed-data.json");
 const serviceSeedData = require("./service-seed-data");
+const { filterServicesForLocation } = require("../src/app/lib/service-availability.cjs");
 
 const databaseUrl = process.env.DATABASE_URL || process.env.DIRECT_URL;
 if (!databaseUrl) {
@@ -404,19 +405,22 @@ async function main() {
   const allActiveServices = await prisma.service.findMany({
     where: { isActive: true },
     orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
-    select: { id: true },
+    select: { id: true, slug: true },
   });
-  const allActiveServiceIds = allActiveServices.map((service) => service.id);
 
   const sortedLocations = [...locationSeedData].sort((first, second) =>
     first.name.localeCompare(second.name, undefined, { sensitivity: "base" })
   );
 
   for (const entry of sortedLocations) {
+    const locationSlug = buildSeedLocation(entry).slug;
+    const locationServiceIds = entry.seedRecord?.isComingSoon
+      ? []
+      : filterServicesForLocation(allActiveServices, locationSlug).map((service) => service.id);
     const seededLocation = {
       ...buildSeedLocation(entry),
-      // Seed behavior mirrors selecting every service in the location editor.
-      serviceIds: entry.seedRecord?.isComingSoon ? [] : allActiveServiceIds,
+      // Select every service available at this office, respecting location restrictions.
+      serviceIds: locationServiceIds,
     };
     const shouldForceSeedAddressFields =
       seededLocation.slug === "/location/bowie" ||
@@ -428,7 +432,19 @@ async function main() {
     });
 
     if (existingLocation) {
-      if (entry.preserveExisting) continue;
+      if (entry.preserveExisting) {
+        // Preserve the office's CMS selections, removing only explicitly unavailable services.
+        const unavailableIds = new Set(
+          allActiveServices
+            .filter((service) => !filterServicesForLocation([service], seededLocation.slug).length)
+            .map((service) => service.id)
+        );
+        const serviceIds = (existingLocation.serviceIds || []).filter((id) => !unavailableIds.has(id));
+        if (serviceIds.length !== (existingLocation.serviceIds || []).length) {
+          await prisma.location.update({ where: { slug: seededLocation.slug }, data: { serviceIds } });
+        }
+        continue;
+      }
       const mergedLocation = mergeLocation(existingLocation, seededLocation);
       await prisma.location.update({
         where: { slug: seededLocation.slug },
@@ -448,7 +464,7 @@ async function main() {
               }
             : mergedLocation),
           ...(entry.clearExistingImage ? { mapImageUrl: null } : {}),
-          serviceIds: allActiveServiceIds,
+          serviceIds: locationServiceIds,
         },
       });
       continue;

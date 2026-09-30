@@ -1,5 +1,27 @@
 [
   {
+    "id": "medical_weight_loss_service_availability",
+    "query": "Does FMA offer GLP-1 / Medical Weight Loss Management?",
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedAiConfidence": "high",
+    "expectedModelVersion": "deterministic-fma-fact",
+    "expectedSourceUrl": "/service/glp-1-medical-weight-loss-management/",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": ["only at its Severna Park", "scheduling options"],
+    "forbiddenAnswerPhrases": ["prescription", "insurance", "guarantee", "all locations"]
+  },
+  {
+    "id": "medical_weight_loss_wrong_office",
+    "query": "Can I book GLP1 in Crofton?",
+    "expectedCode": "verified_fma_fact",
+    "expectedGrounded": true,
+    "expectedSourceUrl": "/location/severna-park/",
+    "expectedNoProviderCards": true,
+    "requiredAnswerPhrases": ["only at its Severna Park"],
+    "forbiddenAnswerPhrases": ["prescription", "insurance", "guarantee", "Crofton office offers"]
+  },
+  {
     "id": "provider_availability_anita",
     "query": "what times does anita kunwar have available",
     "expectedIntent": "appointment_availability",

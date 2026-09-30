@@ -1,4 +1,5 @@
 const seed = require("./owings-mills-seed-data");
+const { filterServicesForLocation } = require("../src/app/lib/service-availability.cjs");
 
 // Complete the Owings Mills launch fields while preserving CMS-managed contact and media details.
 module.exports = async function seedOwingsMills(prisma) {
@@ -6,9 +7,10 @@ module.exports = async function seedOwingsMills(prisma) {
     const activeServices = await tx.service.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
-      select: { id: true },
+      select: { id: true, slug: true },
     });
-    const serviceIds = activeServices.map((service) => service.id);
+    const serviceIds = filterServicesForLocation(activeServices, seed.location.slug)
+      .map((service) => service.id);
     const completedLocation = { ...seed.location, serviceIds };
 
     const location = await tx.location.upsert({
