@@ -16,6 +16,25 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## QR code analytics
+
+The admin **QR Codes** section (`/admin/qr-codes`) reads your organization's QR
+codes and analytics from the [Uniqode API](https://apidocs.uniqode.com/). Set
+`UNIQODE_API` and `UNIQODE_ORGANIZATION_ID` in the server environment, including
+the hosting environment when deploying. Neither value is sent to the browser.
+Full admins have access; sub-admins need the **QR Codes → View** permission.
+
+Expand a code to see total scans, distinct scanners, daily scans, devices, and
+top locations. The **Comparison** tab ranks all dynamic codes by scans and links
+back to their details. Both views use the same inclusive UTC date range (last
+30 days by default; custom ranges up to 366 days) and exclude anomalous scans.
+Static codes are listed as untracked. History and analytics access depend on
+the Uniqode plan. Requests are cached in server memory for up to one minute;
+failed metrics appear as unavailable rather than zero. The integration is
+read-only and requires no database migration.
+
+Run the QR integration and admin unit checks with `npm run check:admin`.
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

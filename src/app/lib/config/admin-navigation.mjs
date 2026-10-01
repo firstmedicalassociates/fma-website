@@ -42,6 +42,13 @@ export const ADMIN_PRIMARY_LINKS = [
     icon: "ai-search",
     smokeText: "AI Search",
   },
+  {
+    key: "qr-codes",
+    href: "/admin/qr-codes",
+    label: "QR Codes",
+    icon: "qr-codes",
+    smokeText: "QR Codes",
+  },
 ];
 
 ADMIN_PRIMARY_LINKS.push(

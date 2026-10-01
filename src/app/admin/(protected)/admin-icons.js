@@ -6,6 +6,17 @@ function IconBase({ children, ...props }) {
   );
 }
 
+export function QrCode(props) {
+  return (
+    <IconBase aria-hidden="true" {...props}>
+      <rect x="3" y="3" width="6" height="6" rx="1" />
+      <rect x="15" y="3" width="6" height="6" rx="1" />
+      <rect x="3" y="15" width="6" height="6" rx="1" />
+      <path d="M15 15h3v3h3v3h-6v-3m6-6v3M3 12h3m6-9v3m0 3v6H9m3 3v3" />
+    </IconBase>
+  );
+}
+
 export function Activity(props) {
   return (
     <IconBase {...props}>

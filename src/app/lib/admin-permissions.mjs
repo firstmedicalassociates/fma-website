@@ -7,6 +7,7 @@ export const PERMISSION_GROUPS = [
   })),
   { key: "ai-search", label: "AI Search", actions: ["view", "edit"] },
   { key: "spending", label: "API spending", actions: ["view"] },
+  { key: "qr-codes", label: "QR Codes", actions: ["view"] },
 ];
 export const PERMISSIONS = PERMISSION_GROUPS.flatMap(({ key, actions }) =>
   actions.map((action) => `${key}.${action}`),
@@ -51,6 +52,10 @@ export function permissionForRequest(pathname, method = "GET") {
     return "ai-search.view";
   if (pathname.startsWith("/api/admin/ai-search/spending"))
     return "spending.view";
+  if (
+    ["GET", "HEAD"].includes(method) &&
+    (pathname === "/api/admin/qr-codes" || pathname.startsWith("/api/admin/qr-codes/"))
+  ) return "qr-codes.view";
   for (const section of CONTENT_SECTIONS) {
     if (
       pathname === `/api/admin/${section}` ||
