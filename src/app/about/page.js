@@ -349,7 +349,7 @@ export default function AboutPage() {
           <h2>Our Legacy of Care</h2>
           <h3>Personalized Healthcare in a Trusted Environment</h3>
           <p>
-            Founded in 2004, First Medical Associates has grown from a single community clinic 
+            Founded in 2008, First Medical Associates has grown from a single community clinic 
             to a leading regional healthcare network with 18 locations across Maryland and Northern Virginia. Our
             expert team of physicians and advanced care practitioners specialize in providing
             prompt, accurate diagnosis and comprehensive, personalized treatment by developing a
