@@ -30,6 +30,7 @@ export default function ServiceDetailTemplate({ service, locationContext = null 
   const navigation = getServiceDetailNavigation(locationContext);
   const seo = getServiceSeoContent(service);
   const isSameDayCare = service?.slug === "same-day-care";
+  const isMedicalWeightLoss = service?.slug === "glp-1-medical-weight-loss-management";
   const features = content.features;
   const infoParagraphs = content.infoParagraphs;
   const commitmentItems = content.commitmentItems;
@@ -401,6 +402,44 @@ export default function ServiceDetailTemplate({ service, locationContext = null 
           font-size: 1.06rem;
         }
 
+        .coverage-panel {
+          padding: 28px;
+        }
+
+        .coverage-panel h2 {
+          margin: 0 0 16px;
+          color: var(--service-heading);
+          font-size: clamp(1.65rem, 3vw, 2rem);
+          letter-spacing: -0.03em;
+        }
+
+        .coverage-panel p {
+          margin: 0 0 14px;
+          max-width: 95ch;
+          color: #33466f;
+          line-height: 1.75;
+          font-size: 1.06rem;
+        }
+
+        .coverage-panel h3 {
+          margin: 22px 0 10px;
+          color: #253150;
+          font-size: 1.08rem;
+        }
+
+        .coverage-links {
+          margin: 0;
+          padding-left: 22px;
+          display: grid;
+          gap: 8px;
+        }
+
+        .coverage-links a {
+          color: var(--service-accent);
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+
         .commitment {
           border-radius: 12px;
           border: 1px solid #dde6fa;
@@ -729,7 +768,8 @@ export default function ServiceDetailTemplate({ service, locationContext = null 
 
           .info-copy,
           .commitment,
-          .detail-copy {
+          .detail-copy,
+          .coverage-panel {
             padding: 18px;
           }
 
@@ -819,6 +859,24 @@ export default function ServiceDetailTemplate({ service, locationContext = null 
               </div>
               {renderCommitmentPanel()}
             </section>
+
+            {isMedicalWeightLoss && (
+              <section className="coverage-panel surface-panel" aria-labelledby="glp1-coverage-heading">
+                <h2 id="glp1-coverage-heading">GLP-1 coverage and affordability</h2>
+                <p>
+                  Medicare, Medicaid, and most commercial insurance plans may provide coverage for GLP-1 treatments, depending on specific medical indications and plan criteria. For patients whose insurance does not cover this treatment, or those who are ineligible, these medications can be purchased at a significantly lower cost through approved discount retailers.
+                </p>
+                <p>
+                  If you are interested in exploring your options, please contact our office to schedule a consultation so we can verify your coverage eligibility or connect you with affordable retail programs.
+                </p>
+                <h3>Explore your options</h3>
+                <ul className="coverage-links">
+                  <li><a href="https://www.lilly.com/lillydirect/weight-management">LillyDirect weight management</a></li>
+                  <li><a href="https://www.novocare.com/pharmacy.html">NovoCare Pharmacy</a></li>
+                  <li><a href="https://www.medicare.gov/coverage/weight-loss-drugs">Medicare GLP-1 Bridge program and eligibility</a></li>
+                </ul>
+              </section>
+            )}
 
             <section className="details-grid">
               {renderDetailPanel()}
