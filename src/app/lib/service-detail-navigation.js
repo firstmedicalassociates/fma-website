@@ -1,4 +1,5 @@
 import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
+import serviceAvailability from "./service-availability.cjs";
 
 export function getServiceDetailNavigation(locationContext = null) {
   if (locationContext) {
@@ -13,8 +14,15 @@ export function getServiceDetailNavigation(locationContext = null) {
         {
           href: officeHref,
           label: `${officeName} Office`,
-          description: `This service is offered only at our ${officeName} office. View office details and scheduling options.`,
+          description: `This service is offered at our ${officeName} office. View office details and scheduling options.`,
         },
+        ...(locationContext.slug === serviceAvailability.SEVERNA_PARK_SLUG
+          ? serviceAvailability.MEDICAL_WEIGHT_LOSS_LOCATIONS.slice(1).map((office) => ({
+              href: normalizeInternalPageHref(office.slug),
+              label: `${office.title.split(",")[0]} Office`,
+              description: "GLP-1 / Medical Weight Loss Management is also available at this office. View office details and scheduling options.",
+            }))
+          : []),
         {
           href: "/services/",
           label: "Browse All Services",

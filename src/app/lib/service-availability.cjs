@@ -1,8 +1,15 @@
 const MEDICAL_WEIGHT_LOSS_SLUG = "glp-1-medical-weight-loss-management";
 const SEVERNA_PARK_SLUG = "/location/severna-park";
+// Keep Severna Park first as the promoted service page's primary booking office.
+const MEDICAL_WEIGHT_LOSS_LOCATIONS = Object.freeze([
+  Object.freeze({ slug: SEVERNA_PARK_SLUG, title: "Severna Park, MD" }),
+  Object.freeze({ slug: "/location/alexandria", title: "Alexandria, VA" }),
+  Object.freeze({ slug: "/location/annapolis", title: "Annapolis, MD" }),
+  Object.freeze({ slug: "/location/owings-mills", title: "Owings Mills, MD" }),
+]);
 
 const SERVICE_LOCATION_RESTRICTIONS = Object.freeze({
-  [MEDICAL_WEIGHT_LOSS_SLUG]: Object.freeze([SEVERNA_PARK_SLUG]),
+  [MEDICAL_WEIGHT_LOSS_SLUG]: Object.freeze(MEDICAL_WEIGHT_LOSS_LOCATIONS.map(({ slug }) => slug)),
 });
 
 function getServiceLocationSlugs(serviceSlug = "") {
@@ -38,6 +45,7 @@ function isMedicalWeightLossServiceQuery(query = "") {
 module.exports = {
   MEDICAL_WEIGHT_LOSS_SLUG,
   SEVERNA_PARK_SLUG,
+  MEDICAL_WEIGHT_LOSS_LOCATIONS,
   getServiceLocationSlugs,
   filterServicesForLocation,
   isMedicalWeightLossServiceQuery,

@@ -1,19 +1,21 @@
 const serviceSeedData = require("./service-seed-data");
 const {
   MEDICAL_WEIGHT_LOSS_SLUG,
-  SEVERNA_PARK_SLUG,
+  MEDICAL_WEIGHT_LOSS_LOCATIONS,
   filterServicesForLocation,
 } = require("../src/app/lib/service-availability.cjs");
 
 // Register just this service and reconcile its office assignments, preserving other CMS data.
 module.exports = async function seedMedicalWeightLoss(prisma) {
   return prisma.$transaction(async (tx) => {
-    const offeringLocation = await tx.location.findUnique({
-      where: { slug: SEVERNA_PARK_SLUG },
-      select: { id: true },
-    });
-    if (!offeringLocation) {
-      throw new Error("The Severna Park office must exist before registering this service.");
+    for (const office of MEDICAL_WEIGHT_LOSS_LOCATIONS) {
+      const offeringLocation = await tx.location.findUnique({
+        where: { slug: office.slug },
+        select: { id: true },
+      });
+      if (!offeringLocation) {
+        throw new Error(`The ${office.title} office must exist before registering this service.`);
+      }
     }
 
     const seedIndex = serviceSeedData.findIndex((entry) => entry.slug === MEDICAL_WEIGHT_LOSS_SLUG);
@@ -45,6 +47,6 @@ module.exports = async function seedMedicalWeightLoss(prisma) {
       updatedLocationCount += 1;
     }
 
-    return { service, offeringLocationSlug: SEVERNA_PARK_SLUG, updatedLocationCount };
+    return { service, offeringLocationSlugs: MEDICAL_WEIGHT_LOSS_LOCATIONS.map(({ slug }) => slug), updatedLocationCount };
   });
 };

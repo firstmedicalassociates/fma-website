@@ -13,7 +13,7 @@ import { normalizeServicePageContent } from "../../src/app/lib/services.js";
 import { getServiceDetailNavigation } from "../../src/app/lib/service-detail-navigation.js";
 import { GENERAL_BOOK_APPOINTMENT_URL } from "../../src/app/lib/config/site.js";
 
-const { MEDICAL_WEIGHT_LOSS_SLUG, SEVERNA_PARK_SLUG, filterServicesForLocation } = serviceAvailability;
+const { MEDICAL_WEIGHT_LOSS_SLUG, SEVERNA_PARK_SLUG, MEDICAL_WEIGHT_LOSS_LOCATIONS, filterServicesForLocation } = serviceAvailability;
 const seed = serviceSeedData.find((entry) => entry.slug === MEDICAL_WEIGHT_LOSS_SLUG);
 const bookingUrl = `${GENERAL_BOOK_APPOINTMENT_URL}search?location_name=Severna%20Park`;
 
@@ -29,20 +29,26 @@ test("new service provides every CMS section with neutral, location-specific con
   const seo = getServiceSeoContent(seed);
   assert.match(seo.title, /Severna Park/);
   assert.doesNotMatch(seo.title, /Treatment in Maryland/);
-  assert.match(seo.description, /exclusively.*Severna Park/);
+  for (const office of MEDICAL_WEIGHT_LOSS_LOCATIONS) {
+    assert.ok(seo.description.includes(office.title.split(",")[0]));
+  }
+  assert.doesNotMatch(content, /exclusively|only at|Severna Park Only/i);
 });
 
-test("availability filters global and legacy service entries only outside Severna Park", () => {
+test("availability filters global and legacy service entries outside the four offering offices", () => {
   const services = [{ id: "primary", slug: "primary-care" }, { id: "weight", ...seed }];
   for (const location of locationSeedData) {
     const slug = (location.seedRecord?.slug || location.href).replace(/\/+$/, "");
     const eligible = filterServicesForLocation(services, slug);
     assert.ok(eligible.some((service) => service.id === "primary"));
-    assert.equal(eligible.some((service) => service.id === "weight"), slug === SEVERNA_PARK_SLUG, slug);
+    assert.equal(eligible.some((service) => service.id === "weight"), MEDICAL_WEIGHT_LOSS_LOCATIONS.some((office) => office.slug === slug), slug);
   }
   assert.equal(filterServicesForLocation([{ title: seed.title }], "/location/crofton").length, 0);
   assert.equal(filterServicesForLocation(services, `${SEVERNA_PARK_SLUG}/`).length, 2);
   assert.equal(serviceAvailability.getServiceLocationSlugs("__proto__"), null);
+  for (const office of MEDICAL_WEIGHT_LOSS_LOCATIONS) {
+    assert.equal(filterServicesForLocation([{ title: seed.title }], `${office.slug}/`).length, 1);
+  }
 });
 
 test("service navigation uses the office booking link and falls back only to its office page", () => {
@@ -53,6 +59,10 @@ test("service navigation uses the office booking link and falls back only to its
   assert.equal(navigation.heroSecondaryLabel, "View Severna Park Office");
   assert.doesNotMatch(JSON.stringify(navigation.relatedLinks), /"\/providers\/"|"\/locations\/"|treatment|insurance/i);
   assert.equal(getServiceDetailNavigation({ ...office, bookingUrl: " " }).appointmentHref, `${SEVERNA_PARK_SLUG}/`);
+  for (const office of MEDICAL_WEIGHT_LOSS_LOCATIONS) {
+    assert.ok(navigation.relatedLinks.some((link) => link.href === `${office.slug}/`));
+  }
+  assert.doesNotMatch(JSON.stringify(navigation), /only at|exclusiv/i);
   const existing = getServiceDetailNavigation();
   assert.equal(existing.appointmentHref, GENERAL_BOOK_APPOINTMENT_URL);
   assert.equal(existing.secondaryHref, "/providers/");
@@ -73,6 +83,7 @@ function createRegistrationDatabase(includeOffice = true) {
   const services = [{ id: "unrelated", slug: "primary-care", title: "Existing CMS copy", isActive: true }];
   const locations = [
     ...(includeOffice ? [{ id: "severna", slug: SEVERNA_PARK_SLUG, title: "CMS office title", phone: "unchanged", serviceIds: ["unrelated", "unrelated"] }] : []),
+    ...MEDICAL_WEIGHT_LOSS_LOCATIONS.slice(1).map((office) => ({ id: office.slug, slug: office.slug, serviceIds: ["unrelated"] })),
     { id: "crofton", slug: "/location/crofton", title: "Other office", serviceIds: ["unrelated", "weight"] },
   ];
   const db = {
@@ -98,9 +109,13 @@ test("targeted registration is repeatable, repairs misplaced assignments, and pr
   const { db, services, locations } = createRegistrationDatabase();
   const unrelatedService = structuredClone(services[0]);
   const first = await seedMedicalWeightLoss(db);
-  assert.equal(first.updatedLocationCount, 2);
+  assert.equal(first.updatedLocationCount, 5);
+  assert.deepEqual(first.offeringLocationSlugs, MEDICAL_WEIGHT_LOSS_LOCATIONS.map(({ slug }) => slug));
   assert.deepEqual(locations[0].serviceIds, ["unrelated", "unrelated", "weight"]);
-  assert.deepEqual(locations[1].serviceIds, ["unrelated"]);
+  assert.deepEqual(locations.at(-1).serviceIds, ["unrelated"]);
+  for (const office of MEDICAL_WEIGHT_LOSS_LOCATIONS.slice(1)) {
+    assert.deepEqual(locations.find((location) => location.slug === office.slug).serviceIds, ["unrelated", "weight"]);
+  }
   assert.equal(locations[0].phone, "unchanged");
   assert.equal(locations[0].title, "CMS office title");
   const second = await seedMedicalWeightLoss(db);
@@ -108,11 +123,19 @@ test("targeted registration is repeatable, repairs misplaced assignments, and pr
   assert.equal(services.filter((entry) => entry.slug === MEDICAL_WEIGHT_LOSS_SLUG).length, 1);
   assert.deepEqual(services[0], unrelatedService);
   const missingOffice = createRegistrationDatabase(false);
-  await assert.rejects(seedMedicalWeightLoss(missingOffice.db), /Severna Park office must exist/);
+  await assert.rejects(seedMedicalWeightLoss(missingOffice.db), /Severna Park, MD office must exist/);
   assert.equal(missingOffice.services.length, 1);
+  for (const office of MEDICAL_WEIGHT_LOSS_LOCATIONS.slice(1)) {
+    const missing = createRegistrationDatabase();
+    missing.locations.splice(missing.locations.findIndex((location) => location.slug === office.slug), 1);
+    const before = structuredClone(missing.locations);
+    await assert.rejects(seedMedicalWeightLoss(missing.db), new RegExp(`${office.title} office must exist`));
+    assert.equal(missing.services.length, 1);
+    assert.deepEqual(missing.locations, before);
+  }
 });
 
-test("Owings Mills launch seed excludes the restricted service", async () => {
+test("Owings Mills launch seed includes medical weight loss", async () => {
   let savedLocation;
   const tx = {
     service: { findMany: async () => [{ id: "primary", slug: "primary-care" }, { id: "weight", slug: MEDICAL_WEIGHT_LOSS_SLUG }] },
@@ -120,7 +143,7 @@ test("Owings Mills launch seed excludes the restricted service", async () => {
     provider: { findUnique: async () => null, upsert: async ({ create }) => create },
   };
   await seedOwingsMills({ $transaction: async (run) => run(tx) });
-  assert.deepEqual(savedLocation.serviceIds, ["primary"]);
+  assert.deepEqual(savedLocation.serviceIds, ["primary", "weight"]);
 });
 
 test("general seed respects availability for both new and existing locations without a live database", async () => {
@@ -164,7 +187,7 @@ test("general seed respects availability for both new and existing locations wit
   const weightId = services.find((entry) => entry.slug === MEDICAL_WEIGHT_LOSS_SLUG).id;
   assert.ok(locations.get(SEVERNA_PARK_SLUG).serviceIds.includes(weightId));
   for (const [slug, location] of locations) {
-    if (slug !== SEVERNA_PARK_SLUG) assert.ok(!location.serviceIds.includes(weightId), slug);
+    assert.equal(location.serviceIds.includes(weightId), MEDICAL_WEIGHT_LOSS_LOCATIONS.some((office) => office.slug === slug), slug);
   }
   assert.equal(locations.get("/location/owings-mills").title, "Preserved CMS title");
   assert.ok(locations.get("/location/owings-mills").serviceIds.includes("cms-selection"));

@@ -74,9 +74,9 @@ export default async function ServiceDetailPage({ params }) {
   }
 
   const allowedLocationSlugs = serviceAvailability.getServiceLocationSlugs(service.slug);
-  const offeringLocation = allowedLocationSlugs
-    ? await prisma.location.findUnique({
-        where: { slug: allowedLocationSlugs[0] },
+  const offeringLocations = allowedLocationSlugs
+    ? await prisma.location.findMany({
+        where: { slug: { in: allowedLocationSlugs } },
         select: {
           slug: true,
           title: true,
@@ -90,7 +90,8 @@ export default async function ServiceDetailPage({ params }) {
           addressCountry: true,
         },
       })
-    : null;
+    : [];
+  const offeringLocation = offeringLocations.find((office) => office.slug === allowedLocationSlugs?.[0]);
   const locationContext = allowedLocationSlugs
     ? offeringLocation || { slug: allowedLocationSlugs[0], title: "Severna Park, MD" }
     : null;
@@ -116,8 +117,13 @@ export default async function ServiceDetailPage({ params }) {
         "@id": `${canonicalUrl}#service`,
         name: service.title,
         description: service.description || seo.description,
-        areaServed: locationContext ? locationContext.title : "Maryland",
-        provider: {
+        areaServed: offeringLocations.length ? offeringLocations.map((office) => office.title) : "Maryland",
+        provider: offeringLocations.length ? offeringLocations.map((office) => ({
+          "@type": "MedicalClinic",
+          name: `${SITE_NAME} - ${office.title}`,
+          url: pageUrl(office.slug),
+          address: buildPostalAddressSchema(office),
+        })) : {
           "@type": "MedicalClinic",
           name: locationContext ? `${SITE_NAME} - ${locationContext.title}` : SITE_NAME,
           url: pageUrl(locationContext ? locationContext.slug : "/locations"),

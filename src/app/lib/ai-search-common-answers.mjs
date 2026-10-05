@@ -7,7 +7,7 @@ import { compactSearchText } from "./ai-search-vocabulary.js";
 import { isPatientAgeQuestion, PATIENT_AGE_POLICY } from "./patient-age-policy.js";
 import serviceAvailability from "./service-availability.cjs";
 
-export const AI_SEARCH_COMMON_KNOWLEDGE_VERSION = "2026-09-30.1";
+export const AI_SEARCH_COMMON_KNOWLEDGE_VERSION = "2026-10-05.1";
 
 const MAIN_PHONE = "301-515-2901";
 const MAIN_FAX = "866-701-4905";
@@ -488,12 +488,14 @@ export async function buildDeterministicCommonAnswer(query = "") {
     });
     if (service) {
       return buildCommonResult(
-        "FMA offers GLP-1 / Medical Weight Loss Management only at its Severna Park, Maryland office. Visit the service page or the Severna Park office page for information and scheduling options.",
+        "FMA offers GLP-1 / Medical Weight Loss Management at its Severna Park, Annapolis, and Owings Mills offices in Maryland and its Alexandria office in Virginia. Visit the service page or your preferred office page for information and scheduling options.",
         [
           buildSource(service.title, `/service/${service.slug}/`, "service", service.category),
-          buildSource("Severna Park Office", "/location/severna-park/", "location"),
+          ...serviceAvailability.MEDICAL_WEIGHT_LOSS_LOCATIONS.map((office) =>
+            buildSource(`${office.title.split(",")[0]} Office`, `${office.slug}/`, "location")
+          ),
         ],
-        ["services.medical-weight-loss-severna-park-only"]
+        ["services.medical-weight-loss-locations"]
       );
     }
   }
