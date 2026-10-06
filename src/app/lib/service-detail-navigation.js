@@ -1,10 +1,35 @@
 import { GENERAL_BOOK_APPOINTMENT_URL, normalizeInternalPageHref } from "./config/site.js";
 import serviceAvailability from "./service-availability.cjs";
 
-export function getServiceDetailNavigation(locationContext = null) {
+export function getServiceDetailNavigation(locationContext = null, serviceSlug = "") {
+  if (serviceSlug === serviceAvailability.MEDICAL_WEIGHT_LOSS_SLUG) {
+    return {
+      appointmentHref: GENERAL_BOOK_APPOINTMENT_URL,
+      secondaryHref: "/locations/",
+      heroSecondaryLabel: "View Locations",
+      ctaSecondaryLabel: "View Locations",
+      relatedLinks: [
+        ...serviceAvailability.MEDICAL_WEIGHT_LOSS_LOCATIONS.map((office) => ({
+          href: normalizeInternalPageHref(office.slug),
+          label: `${office.title.split(",")[0]} Office`,
+          description: "GLP-1 / Medical Weight Loss Management is available at this office. View office details and scheduling options.",
+        })),
+        {
+          href: "/services/",
+          label: "Browse All Services",
+          description: "Explore other FMA services. Availability varies by service and location.",
+        },
+        {
+          href: "/patient-resources/education/",
+          label: "Patient Education",
+          description: "Explore general health information and patient resources.",
+        },
+      ],
+    };
+  }
   if (locationContext) {
     const officeHref = normalizeInternalPageHref(locationContext.slug);
-    const officeName = String(locationContext.title || "Severna Park").split(",")[0].trim();
+    const officeName = String(locationContext.title || "Local").split(",")[0].trim();
     return {
       appointmentHref: String(locationContext.bookingUrl || "").trim() || officeHref,
       secondaryHref: officeHref,
@@ -16,13 +41,6 @@ export function getServiceDetailNavigation(locationContext = null) {
           label: `${officeName} Office`,
           description: `This service is offered at our ${officeName} office. View office details and scheduling options.`,
         },
-        ...(locationContext.slug === serviceAvailability.SEVERNA_PARK_SLUG
-          ? serviceAvailability.MEDICAL_WEIGHT_LOSS_LOCATIONS.slice(1).map((office) => ({
-              href: normalizeInternalPageHref(office.slug),
-              label: `${office.title.split(",")[0]} Office`,
-              description: "GLP-1 / Medical Weight Loss Management is also available at this office. View office details and scheduling options.",
-            }))
-          : []),
         {
           href: "/services/",
           label: "Browse All Services",

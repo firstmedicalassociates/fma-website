@@ -1,11 +1,12 @@
 const MEDICAL_WEIGHT_LOSS_SLUG = "glp-1-medical-weight-loss-management";
 const SEVERNA_PARK_SLUG = "/location/severna-park";
-// Keep Severna Park first as the promoted service page's primary booking office.
+// Offering offices share the service page; no office is the default booking destination.
 const MEDICAL_WEIGHT_LOSS_LOCATIONS = Object.freeze([
   Object.freeze({ slug: SEVERNA_PARK_SLUG, title: "Severna Park, MD" }),
   Object.freeze({ slug: "/location/alexandria", title: "Alexandria, VA" }),
   Object.freeze({ slug: "/location/annapolis", title: "Annapolis, MD" }),
   Object.freeze({ slug: "/location/owings-mills", title: "Owings Mills, MD" }),
+  Object.freeze({ slug: "/location/laurel", title: "Laurel, MD" }),
 ]);
 
 const SERVICE_LOCATION_RESTRICTIONS = Object.freeze({

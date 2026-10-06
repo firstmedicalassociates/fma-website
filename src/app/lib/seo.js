@@ -120,7 +120,7 @@ const PROVIDER_SEO_OVERRIDES = {
 
 const SERVICE_SEO_TITLES_BY_SLUG = {
   "glp-1-medical-weight-loss-management":
-    "GLP-1 / Medical Weight Loss Management in Severna Park | First Medical Associates",
+    "GLP-1 / Medical Weight Loss Management | First Medical Associates",
   asthma: "Chronic Asthma Care Doctor in Maryland | Expert Treatment",
   depression: "Depression Care Doctor in Maryland | Compassionate Support",
   diabetes: "Diabetes Doctor in Maryland | Expert Care & Management",

@@ -1125,13 +1125,13 @@ module.exports = [
     title: "GLP-1 / Medical Weight Loss Management",
     slug: "glp-1-medical-weight-loss-management",
     description:
-      "First Medical Associates offers GLP-1 / Medical Weight Loss Management at our Severna Park, Alexandria, Annapolis, and Owings Mills offices.",
+      "First Medical Associates offers GLP-1 / Medical Weight Loss Management at our Severna Park, Alexandria, Annapolis, Owings Mills, and Laurel offices.",
     icon: "health_and_safety",
     pageContent: {
       eyebrow: "Specialized Care",
-      heroSubtitle: "Medical Weight Loss Management in Severna Park",
+      heroSubtitle: "Medical Weight Loss Management",
       heroDescription:
-        "First Medical Associates offers GLP-1 / Medical Weight Loss Management at our Severna Park, Alexandria, Annapolis, and Owings Mills offices. Speak with a provider about your health history, questions, and individual care needs.",
+        "First Medical Associates offers GLP-1 / Medical Weight Loss Management at our Severna Park, Alexandria, Annapolis, Owings Mills, and Laurel offices. Speak with a provider about your health history, questions, and individual care needs.",
       features: [
         {
           title: "Individual Health Context",
@@ -1139,9 +1139,9 @@ module.exports = [
             "Medical weight-management discussions consider health history, current concerns, and individual circumstances.",
         },
         {
-          title: "Available at Four Offices",
+          title: "Available at Five Offices",
           description:
-            "FMA offers this service at our Severna Park, Alexandria, Annapolis, and Owings Mills offices.",
+            "FMA offers this service at our Severna Park, Alexandria, Annapolis, Owings Mills, and Laurel offices.",
         },
         {
           title: "Questions and Goals",
@@ -1151,13 +1151,13 @@ module.exports = [
         {
           title: "Request an Appointment",
           description:
-            "Use our Severna Park online booking link to request an appointment and discuss this service.",
+            "Choose your preferred office in online booking to request an appointment and discuss this service.",
         },
       ],
       infoParagraphs: [
         "Medical weight-loss management considers weight in the context of a person's overall health. Health history, daily routines, and individual circumstances can be part of a discussion with a healthcare provider.",
         "People have different questions and care needs. Speaking with a provider can help you understand how medical weight management relates to your own health and what questions to consider.",
-        "First Medical Associates offers GLP-1 / Medical Weight Loss Management at our Severna Park, Alexandria, Annapolis, and Owings Mills offices. Contact your preferred office or use its online booking link to request an appointment.",
+        "First Medical Associates offers GLP-1 / Medical Weight Loss Management at our Severna Park, Alexandria, Annapolis, Owings Mills, and Laurel offices. Contact your preferred office or use its online booking link to request an appointment.",
       ],
       commitmentTitle: "Topics for Your Conversation",
       commitmentItems: [
@@ -1169,10 +1169,10 @@ module.exports = [
       detailHeading: "What Is Medical Weight Loss Management?",
       detailParagraphs: [
         "Medical weight-loss management is a clinical approach to discussing weight-related concerns within a person's broader health context. Conversations may include health history, personal goals, and questions about ongoing care.",
-        "If you have questions about GLP-1 or medical weight-loss management, speak with a healthcare provider about your individual circumstances. FMA offers this service at our Severna Park, Alexandria, Annapolis, and Owings Mills offices.",
+        "If you have questions about GLP-1 or medical weight-loss management, speak with a healthcare provider about your individual circumstances. FMA offers this service at our Severna Park, Alexandria, Annapolis, Owings Mills, and Laurel offices.",
       ],
-      detailLinkLabel: "View Severna Park Office",
-      detailLinkHref: "/location/severna-park",
+      detailLinkLabel: "View Locations",
+      detailLinkHref: "/locations/",
       faqItems: [
         {
           question: "What does medical weight-loss management mean?",
@@ -1182,17 +1182,17 @@ module.exports = [
         {
           question: "Where does FMA offer this service?",
           answer:
-            "GLP-1 / Medical Weight Loss Management is offered at First Medical Associates' Severna Park, Annapolis, and Owings Mills offices in Maryland and our Alexandria office in Virginia.",
+            "GLP-1 / Medical Weight Loss Management is offered at First Medical Associates' Severna Park, Annapolis, Owings Mills, and Laurel offices in Maryland and our Alexandria office in Virginia.",
         },
         {
           question: "How do I request an appointment?",
           answer:
-            "Use the Schedule an Appointment button to open online booking for our Severna Park office. For Alexandria, Annapolis, or Owings Mills, visit your preferred office page for contact information and scheduling options.",
+            "Use the Schedule an Appointment button to open online booking and choose your preferred office. You can also visit an offering office page for contact information and scheduling options.",
         },
       ],
       ctaTitle: "Discuss Medical Weight Loss Management",
       ctaDescription:
-        "Request an appointment at our Severna Park office to discuss your questions and individual care needs.",
+        "Request an appointment at your preferred offering office to discuss your questions and individual care needs.",
     },
   },
 ];

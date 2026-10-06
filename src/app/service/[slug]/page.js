@@ -80,7 +80,6 @@ export default async function ServiceDetailPage({ params }) {
         select: {
           slug: true,
           title: true,
-          bookingUrl: true,
           address: true,
           displayAddress: true,
           streetAddress: true,
@@ -91,11 +90,6 @@ export default async function ServiceDetailPage({ params }) {
         },
       })
     : [];
-  const offeringLocation = offeringLocations.find((office) => office.slug === allowedLocationSlugs?.[0]);
-  const locationContext = allowedLocationSlugs
-    ? offeringLocation || { slug: allowedLocationSlugs[0], title: "Severna Park, MD" }
-    : null;
-
   const seo = getServiceSeoContent(service);
   const canonicalUrl = pageUrl(`/service/${slug}`);
   const jsonLd = {
@@ -125,9 +119,8 @@ export default async function ServiceDetailPage({ params }) {
           address: buildPostalAddressSchema(office),
         })) : {
           "@type": "MedicalClinic",
-          name: locationContext ? `${SITE_NAME} - ${locationContext.title}` : SITE_NAME,
-          url: pageUrl(locationContext ? locationContext.slug : "/locations"),
-          ...(offeringLocation ? { address: buildPostalAddressSchema(offeringLocation) } : {}),
+          name: SITE_NAME,
+          url: pageUrl("/locations"),
         },
       },
       {
@@ -163,7 +156,7 @@ export default async function ServiceDetailPage({ params }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <SiteHeader />
-      <ServiceDetailTemplate service={service} locationContext={locationContext} />
+      <ServiceDetailTemplate service={service} />
       <SiteFooter />
     </>
   );

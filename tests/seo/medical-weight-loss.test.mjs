@@ -27,7 +27,10 @@ test("new service provides every CMS section with neutral, location-specific con
   assert.match(content, /Severna Park/);
   assert.doesNotMatch(content, /guarantee|promise|rapid|effective|proven|same.day|next.day|semaglutide|tirzepatide|wegovy|ozempic|zepbound|mounjaro|dosage|prescription|insurance|coverage|\bBMI\b|\b\d+%/i);
   const seo = getServiceSeoContent(seed);
-  assert.match(seo.title, /Severna Park/);
+  assert.doesNotMatch(seo.title, /Severna Park/);
+  assert.equal(seed.pageContent.heroSubtitle, "Medical Weight Loss Management");
+  assert.equal(seed.pageContent.detailLinkHref, "/locations/");
+  assert.doesNotMatch(content, /View Severna Park Office|at our Severna Park office|booking for our Severna Park office/);
   assert.doesNotMatch(seo.title, /Treatment in Maryland/);
   for (const office of MEDICAL_WEIGHT_LOSS_LOCATIONS) {
     assert.ok(seo.description.includes(office.title.split(",")[0]));
@@ -35,7 +38,7 @@ test("new service provides every CMS section with neutral, location-specific con
   assert.doesNotMatch(content, /exclusively|only at|Severna Park Only/i);
 });
 
-test("availability filters global and legacy service entries outside the four offering offices", () => {
+test("availability filters global and legacy service entries outside the five offering offices", () => {
   const services = [{ id: "primary", slug: "primary-care" }, { id: "weight", ...seed }];
   for (const location of locationSeedData) {
     const slug = (location.seedRecord?.slug || location.href).replace(/\/+$/, "");
@@ -59,15 +62,28 @@ test("service navigation uses the office booking link and falls back only to its
   assert.equal(navigation.heroSecondaryLabel, "View Severna Park Office");
   assert.doesNotMatch(JSON.stringify(navigation.relatedLinks), /"\/providers\/"|"\/locations\/"|treatment|insurance/i);
   assert.equal(getServiceDetailNavigation({ ...office, bookingUrl: " " }).appointmentHref, `${SEVERNA_PARK_SLUG}/`);
-  for (const office of MEDICAL_WEIGHT_LOSS_LOCATIONS) {
-    assert.ok(navigation.relatedLinks.some((link) => link.href === `${office.slug}/`));
-  }
+
   assert.doesNotMatch(JSON.stringify(navigation), /only at|exclusiv/i);
   const existing = getServiceDetailNavigation();
   assert.equal(existing.appointmentHref, GENERAL_BOOK_APPOINTMENT_URL);
   assert.equal(existing.secondaryHref, "/providers/");
   assert.equal(existing.heroSecondaryLabel, "Find a Primary Care Provider");
   assert.equal(existing.relatedLinks.length, 4);
+});
+
+test("medical weight loss navigation lets patients choose an office and includes Laurel", () => {
+  // Even a legacy single-office context must not preselect Severna Park.
+  const navigation = getServiceDetailNavigation({ slug: SEVERNA_PARK_SLUG, title: "Severna Park, MD", bookingUrl }, MEDICAL_WEIGHT_LOSS_SLUG);
+  assert.equal(navigation.appointmentHref, GENERAL_BOOK_APPOINTMENT_URL);
+  assert.equal(navigation.secondaryHref, "/locations/");
+  assert.equal(navigation.heroSecondaryLabel, "View Locations");
+  assert.equal(navigation.ctaSecondaryLabel, "View Locations");
+  assert.equal(MEDICAL_WEIGHT_LOSS_LOCATIONS.length, 5);
+  assert.ok(MEDICAL_WEIGHT_LOSS_LOCATIONS.some(({ slug }) => slug === "/location/laurel"));
+  for (const office of MEDICAL_WEIGHT_LOSS_LOCATIONS) {
+    assert.ok(navigation.relatedLinks.some((link) => link.href === `${office.slug}/`));
+  }
+  assert.doesNotMatch(JSON.stringify(navigation), /View Severna Park Office|location_name=/);
 });
 
 test("service discovery never overrides clinical or medication policy questions", () => {
@@ -109,7 +125,7 @@ test("targeted registration is repeatable, repairs misplaced assignments, and pr
   const { db, services, locations } = createRegistrationDatabase();
   const unrelatedService = structuredClone(services[0]);
   const first = await seedMedicalWeightLoss(db);
-  assert.equal(first.updatedLocationCount, 5);
+  assert.equal(first.updatedLocationCount, 6);
   assert.deepEqual(first.offeringLocationSlugs, MEDICAL_WEIGHT_LOSS_LOCATIONS.map(({ slug }) => slug));
   assert.deepEqual(locations[0].serviceIds, ["unrelated", "unrelated", "weight"]);
   assert.deepEqual(locations.at(-1).serviceIds, ["unrelated"]);

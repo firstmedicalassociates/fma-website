@@ -27,7 +27,7 @@ function formatTag(value = "") {
 
 export default function ServiceDetailTemplate({ service, locationContext = null }) {
   const content = normalizeServicePageContent(service?.pageContent || {});
-  const navigation = getServiceDetailNavigation(locationContext);
+  const navigation = getServiceDetailNavigation(locationContext, service?.slug);
   const seo = getServiceSeoContent(service);
   const isSameDayCare = service?.slug === "same-day-care";
   const isMedicalWeightLoss = service?.slug === "glp-1-medical-weight-loss-management";
@@ -812,7 +812,7 @@ export default function ServiceDetailTemplate({ service, locationContext = null 
                 <Calendar size={18} /> Schedule an Appointment
               </Link>
               <Link href={navigation.secondaryHref} className="button-outline">
-                {locationContext ? <MapPin size={18} /> : <User size={18} />} {navigation.heroSecondaryLabel}
+                {locationContext || isMedicalWeightLoss ? <MapPin size={18} /> : <User size={18} />} {navigation.heroSecondaryLabel}
               </Link>
             </div>
           </div>
