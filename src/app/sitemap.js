@@ -1,4 +1,4 @@
-import { CAREERS_ENABLED, pageUrl } from "./lib/config/site";
+import { pageUrl } from "./lib/config/site";
 import { VISIBLE_LOCATION_WHERE } from "./lib/locations";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
 
@@ -29,13 +29,13 @@ export default async function sitemap() {
     createStaticRoute("/services", "weekly", 0.8),
     createStaticRoute("/blog", "weekly", 0.7),
     createStaticRoute("/about", "monthly", 0.6),
-    ...(CAREERS_ENABLED ? [createStaticRoute("/about/careers", "monthly", 0.6)] : []),
     createStaticRoute("/about/mission", "monthly", 0.5),
     createStaticRoute("/about/partners", "monthly", 0.5),
     createStaticRoute("/partner-with-us", "monthly", 0.5),
     createStaticRoute("/contact", "monthly", 0.6),
     createStaticRoute("/sell-your-practice", "monthly", 0.6),
     createStaticRoute("/patient-resources", "monthly", 0.7),
+    createStaticRoute("/patient-resources/careers", "daily", 0.6),
     createStaticRoute("/patient-resources/education", "monthly", 0.5),
     createStaticRoute("/patient-resources/faq", "monthly", 0.5),
     createStaticRoute("/patient-resources/insurance", "monthly", 0.7),

@@ -531,7 +531,7 @@ ONLINE RESOURCES
 - Online Booking: ${GENERAL_BOOK_APPOINTMENT_URL}
 - ZocDoc Booking: Search "First Medical Associates"
 - Medical Records & HIPAA Forms: www.DrsFirst.com/Forms
-- Careers/Jobs: www.DrsFirst.com/jobs/
+- Careers/Jobs: www.DrsFirst.com/patient-resources/careers/
 - Blog / Health Resources: www.DrsFirst.com/resources/
 
 === END OF FMA KNOWLEDGE BASE ===

@@ -12,7 +12,7 @@ function joinClassNames(...values) {
 function renderIcon(Icon) {
   if (!Icon) return null;
   return (
-    <span className={styles.icon}>
+    <span className={styles.icon} aria-hidden="true">
       <Icon size={18} />
     </span>
   );
@@ -36,6 +36,23 @@ export function PillToggleNav({
     width: 100,
     left: 0,
   });
+
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return undefined;
+    function revealActiveLink() {
+      const active = bar.querySelector('[aria-current="page"]');
+      if (!active || bar.scrollWidth <= bar.clientWidth) return;
+      const bounds = bar.getBoundingClientRect();
+      const link = active.getBoundingClientRect();
+      if (link.left < bounds.left) bar.scrollLeft -= bounds.left - link.left + 24;
+      else if (link.right > bounds.right) bar.scrollLeft += link.right - bounds.right + 24;
+    }
+    revealActiveLink();
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(revealActiveLink) : null;
+    observer?.observe(bar);
+    return () => observer?.disconnect();
+  }, [activeHref, items.length]);
 
   useEffect(() => {
     const bar = barRef.current;
@@ -90,6 +107,7 @@ export function PillToggleNav({
             <Link
               key={item.href}
               href={normalizeInternalPageHref(item.href)}
+              aria-current={isActive ? "page" : undefined}
               className={joinClassNames(styles.item, isActive ? styles.itemActive : "")}
             >
               {renderIcon(item.icon)}

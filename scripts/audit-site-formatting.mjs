@@ -55,7 +55,7 @@ try {
   for (const path of ['/about/careers', '/about/careers/', '/jobs', '/jobs/']) {
     const response = await request(path, { redirect: 'manual' });
     const destination = response.headers.get('location');
-    if (response.status !== 307 || new URL(destination || '/', origin).pathname !== '/about/') issues.push({ kind: 'careers_redirect', path, status: response.status, destination });
+    if (response.status !== 308 || new URL(destination || '/', origin).pathname !== '/patient-resources/careers/') issues.push({ kind: 'careers_redirect', path, status: response.status, destination });
   }
   const summary = { at: new Date().toISOString(), origin, pages: results.length, locations: results.filter((r) => r.kind === 'location').length, providers: results.filter((r) => r.kind === 'provider').length, issues: issues.length };
   await fs.mkdir(new URL('../artifacts/site-audit/formatting-2026-09-23/', import.meta.url), { recursive: true });

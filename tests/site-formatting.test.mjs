@@ -81,11 +81,11 @@ test("degree formatting in biographies preserves other punctuation", () => {
   assert.equal(normalizeProviderCredentialText("M.D, D.O, Ph.D"), "MD, DO, PhD");
 });
 
-test("careers and its old jobs URL are temporarily redirected before legacy redirects", async () => {
+test("old careers URLs redirect directly to the Resources careers page", async () => {
   const redirects = await nextConfig.redirects();
-  for (const source of ["/about/careers/:path*", "/jobs/:path*"]) {
+  for (const source of ["/about/careers", "/about/careers/", "/jobs", "/jobs/"]) {
     const redirect = redirects.find((entry) => entry.source === source);
-    assert.equal(redirect.destination, "/about/");
-    assert.equal(redirect.permanent, false);
+    assert.equal(redirect.destination, "/patient-resources/careers/");
+    assert.equal(redirect.permanent, true);
   }
 });

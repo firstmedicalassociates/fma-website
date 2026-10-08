@@ -1,4 +1,3 @@
-import { CAREERS_ENABLED } from "../lib/config/site";
 import Link from "next/link";
 import { buildStaticMetadata } from "../lib/seo";
 import { 
@@ -379,16 +378,16 @@ export default function AboutPage() {
 
       {/* job & partner ctas */}
       <div className="cta-row">
-        {CAREERS_ENABLED && <div className="cta-card">
+        <div className="cta-card">
           <div className="num-box"><Users size={28} /></div>
           <div>
             <h4 style={{ fontWeight: 800, color: '#001c55', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Advance Your Career</h4>
             <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>Build your career with a network that values clinician autonomy and patient satisfaction above all else.</p>
-            <Link className="cta-link-btn" href="/about/careers/">
+            <Link className="cta-link-btn" href="/patient-resources/careers/">
               View Career Opportunities <ExternalLink size={14} />
             </Link>
           </div>
-        </div>}
+        </div>
         <div className="cta-card dark-cta">
            <div className="cta-icon"><Handshake size={32} /></div>
            <div>

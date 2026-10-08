@@ -31,6 +31,10 @@
   background: var(--white);
 }
 
+.detailNavigation {
+  padding-top: 2rem;
+}
+
 .heroTitle {
   font-size: 3.5rem;
   font-weight: 800;

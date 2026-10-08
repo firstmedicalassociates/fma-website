@@ -50,6 +50,11 @@
   box-shadow: 0 4px 10px rgba(0, 28, 85, 0.06);
 }
 
+.item:focus-visible {
+  outline: 3px solid #0070f3;
+  outline-offset: 3px;
+}
+
 .itemActive {
   background: #001c55;
   color: #ffffff;

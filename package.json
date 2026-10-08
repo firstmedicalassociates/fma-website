@@ -21,6 +21,8 @@
     "athena:audit-provider-departments": "node scripts/audit-athena-provider-departments.mjs",
     "athena:debug-open-slots": "node scripts/debug-athena-open-slots.mjs",
     "athena:provider-details": "node scripts/pull-athena-provider-details.js",
+    "adp:jobs": "node scripts/pull-adp-jobs.mjs",
+    "check:adp": "node --test tests/adp/*.test.mjs",
     "check:embedding-freshness": "node scripts/check-embedding-freshness.js",
     "index:embeddings": "node scripts/index-embeddings.js",
     "index:medical-weight-loss": "node scripts/index-embeddings.js --service-slug glp-1-medical-weight-loss-management",

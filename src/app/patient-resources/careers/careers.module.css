@@ -1,0 +1,68 @@
+.section { padding: 1.5rem 0 5rem; }
+.sectionHeading { display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem; }
+.sectionHeading h2 { color: var(--primary); font-size: 1.75rem; font-weight: 800; letter-spacing: -.03em; margin: 0 0 .5rem; }
+.sectionHeading p, .summary { color: var(--text-muted); line-height: 1.7; }
+.count { flex-shrink: 0; border: 1px solid #dbe5f1; background: var(--accent); color: var(--primary); border-radius: 999px; padding: .5rem 1rem; font-size: .875rem; font-weight: 700; }
+.jobList { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.jobCard { display: flex; align-items: flex-start; gap: 1.5rem; padding: 2rem; border: 1px solid #dbe5f1; border-radius: 24px; background: var(--white); text-decoration: none; transition: border-color 160ms, box-shadow 160ms, background-color 160ms; }
+.jobCard:hover { border-color: #8ba8d3; background: #fbfcff; box-shadow: 0 10px 30px rgba(0,28,85,.06); }
+.jobIcon { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; flex-shrink: 0; background: var(--secondary); color: var(--primary); }
+.jobContent { min-width: 0; flex: 1; }
+.jobContent h3 { margin: 0 0 .75rem; color: var(--primary); font-size: 1.375rem; line-height: 1.4; font-weight: 800; overflow-wrap: anywhere; }
+.meta { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; color: #4b5563; font-size: .875rem; }
+.meta span { display: inline-flex; align-items: center; gap: .5rem; }
+.meta svg { flex-shrink: 0; }
+.summary { margin: 1rem 0 0; max-width: 700px; font-size: .9375rem; }
+.viewJob { color: var(--primary); display: inline-flex; align-items: center; gap: .5rem; flex-shrink: 0; font-size: .875rem; font-weight: 800; padding: .5rem 0; }
+.aboutTeam { margin-top: 2rem; background: var(--accent); border-radius: 20px; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+.aboutTeam h3 { color: var(--primary); margin: 0 0 .5rem; font-size: 1.0625rem; font-weight: 800; }
+.aboutTeam p { color: var(--text-muted); font-size: .9375rem; margin: 0; }
+.aboutTeam a, .backLink { display: inline-flex; align-items: center; gap: .5rem; color: var(--primary); min-height: 44px; font-weight: 700; font-size: .9375rem; text-decoration: none; }
+.aboutTeam a { flex-shrink: 0; }
+.aboutTeam a:hover, .backLink:hover { text-decoration: underline; text-underline-offset: 4px; }
+.jobHeader { padding: 2rem 0 2.5rem; border-bottom: 1px solid #dbe5f1; margin-bottom: 2.5rem; }
+.eyebrow { color: #31588b; text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; font-weight: 800; margin: 0 0 1rem; }
+.jobHeader h1 { color: var(--primary); font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; line-height: 1.18; letter-spacing: -.035em; margin: 0 0 1.5rem; overflow-wrap: anywhere; max-width: 900px; text-wrap: balance; }
+.detailGrid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; align-items: start; gap: 4rem; }
+.description h2 { color: var(--primary); font-size: 1.5rem; font-weight: 800; margin: 0 0 1.5rem; }
+.prose { color: #39465a; font-size: 1rem; line-height: 1.8; overflow-wrap: anywhere; }
+.prose p { margin: 0 0 1rem; }
+.prose strong, .prose b { color: #172e50; font-weight: 750; }
+.prose ul, .prose ol { padding-left: 1.5rem; margin: 1rem 0 1.5rem; }
+.prose li { margin-bottom: .5rem; }
+.prose h2, .prose h3, .prose h4 { color: var(--primary); font-size: 1.125rem; margin: 1.75rem 0 .75rem; font-weight: 800; }
+.applyCard { background: var(--accent); border: 1px solid #e2e8f0; border-radius: 24px; padding: 1.75rem; }
+.applyCard h2 { color: var(--primary); font-size: 1.375rem; font-weight: 800; line-height: 1.35; margin: 1.25rem 0 .75rem; }
+.applyCard p { color: var(--text-muted); line-height: 1.7; font-size: .9375rem; margin: 0 0 1.5rem; }
+.primaryButton { display: inline-flex; align-items: center; justify-content: center; gap: .75rem; background: var(--primary); color: white; border-radius: 12px; min-height: 48px; padding: .875rem 1.5rem; text-decoration: none; font-size: .9375rem; font-weight: 800; transition: background-color 160ms; }
+.primaryButton:hover { background: var(--primary-hover); }
+.mobileApply { display: none; }
+.applyCard .primaryButton { width: 100%; }
+.applyNote { display: block; text-align: center; font-size: .75rem; color: var(--text-muted); margin-top: 1rem; line-height: 1.6; }
+.bottomApply { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; border-top: 1px solid #dbe5f1; padding-top: 2rem; margin-top: 3rem; }
+.state { border: 1px solid #dbe5f1; border-radius: 24px; background: var(--accent); text-align: center; padding: 3rem 1.5rem; margin: 1.5rem 0 4rem; }
+.state > svg { margin: 0 auto 1rem; color: var(--primary); }
+.state h1, .state h2, .state h3 { font-size: 1.5rem; color: var(--primary); margin: 0 0 1rem; font-weight: 800; }
+.state p { color: var(--text-muted); max-width: 520px; margin: 0 auto 1.5rem; line-height: 1.7; }
+.jobCard:focus-visible, .primaryButton:focus-visible, .backLink:focus-visible, .aboutTeam a:focus-visible { outline: 3px solid #0070f3; outline-offset: 5px; }
+@media (max-width: 900px) {
+  .detailGrid { grid-template-columns: 1fr; gap: 2rem; }
+  .applyCard { display: none; }
+  .mobileApply { display: inline-flex; margin-top: 1.5rem; }
+}
+@media (max-width: 640px) {
+  .sectionHeading { align-items: flex-start; }
+  .sectionHeading h2 { font-size: 1.5rem; }
+  .count { padding: .5rem .75rem; }
+  .jobCard { flex-wrap: wrap; gap: 1rem; padding: 1.5rem; }
+  .jobCard .jobIcon { width: 44px; height: 44px; border-radius: 12px; }
+  .jobContent { flex-basis: calc(100% - 60px); }
+  .jobContent h3 { font-size: 1.125rem; }
+  .summary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .viewJob { margin-left: 60px; }
+  .aboutTeam { flex-direction: column; align-items: flex-start; padding: 1.5rem; }
+  .jobHeader { padding-top: 1.5rem; }
+  .bottomApply { flex-wrap: wrap; }
+  .bottomApply .primaryButton { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .jobCard, .primaryButton { transition: none; } }

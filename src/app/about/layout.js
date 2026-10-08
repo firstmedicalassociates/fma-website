@@ -1,6 +1,5 @@
 "use client";
 
-import { CAREERS_ENABLED } from "../lib/config/site";
 import { Inter } from "next/font/google";
 import { usePathname } from "next/navigation";
 import { Briefcase, Handshake, Info, Target } from "lucide-react";
@@ -23,12 +22,6 @@ export default function AboutLayout({ children }) {
       subtitle:
         "Innovative Healthcare focused on Your Health Goals.",
     },
-    "/about/careers": {
-      tag: "Careers",
-      title: "A Career That Makes a Difference.",
-      subtitle:
-        "Join a team of compassionate professionals building healthier communities through patient-first care.",
-    },
     "/about/partners": {
       tag: "Partner With Us",
       title: "Stronger Together.\nBetter Care for All.",
@@ -47,7 +40,7 @@ export default function AboutLayout({ children }) {
   const tabs = [
     { name: "About", href: "/about/", icon: Info },
     { name: "Mission & Values", href: "/about/mission/", icon: Target },
-    ...(CAREERS_ENABLED ? [{ name: "Careers", href: "/about/careers/", icon: Briefcase }] : []),
+    { name: "Careers", href: "/patient-resources/careers/", icon: Briefcase },
     { name: "Partner With Us", href: "/about/partners/", icon: Handshake },
   ];
 

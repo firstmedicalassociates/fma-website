@@ -40,7 +40,6 @@ import {
 } from "./ai-search-domain-graph.js";
 import {
   BILL_PAY_URL,
-  CAREERS_ENABLED,
   GENERAL_BOOK_APPOINTMENT_URL,
   normalizeInternalPageHref,
 } from "./config/site.js";
@@ -106,7 +105,7 @@ RULES YOU MUST FOLLOW AT ALL TIMES:
 its fact IDs and exact source version over conflicting, undated, or generic context. Never add a
 policy requirement, definition, fee, or deadline that is not explicitly present in that section.
 11. Write all provider credentials and degrees without periods, including MD, DO, PhD, MBBS, and BS. Retain meaningful hyphens such as PA-C and FNP-BC. Display each office address on two lines: street and Ste unit, then City, ST ZIP. Use the current structured location address when available. Do not add a country line.
-${CAREERS_ENABLED ? "" : "12. The Careers page is temporarily hidden. Do not recommend or link to /about/careers/ or /jobs/. For employment questions, direct users to the Contact page (/contact/)."}
+12. For employment questions, direct users to Careers under Resources (/patient-resources/careers/) for current openings and applications. Do not invent current vacancies.
 
 If a question is not about First Medical Associates, respond with exactly in the answer field: "I can only help with questions about First Medical Associates. For other inquiries, please call us at 301-515-2901 or email info@DrsFirst.com."
 

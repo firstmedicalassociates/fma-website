@@ -1,6 +1,3 @@
-// Temporarily hidden; re-enable to restore the saved Careers content and links.
-export const CAREERS_ENABLED = false;
-
 export const SITE_NAME = "First Medical Associates";
 export const CANONICAL_ORIGIN = "https://drsfirst.com";
 export const DEFAULT_SITE_URL = CANONICAL_ORIGIN;
@@ -24,7 +21,8 @@ const CANONICAL_PAGE_ALIASES = new Map([
   ["/contact-us", "/contact"],
   ["/insurance", "/patient-resources/insurance"],
   ["/insurances", "/patient-resources/insurance"],
-  ["/jobs", CAREERS_ENABLED ? "/about/careers" : "/about"],
+  ["/jobs", "/patient-resources/careers"],
+  ["/about/careers", "/patient-resources/careers"],
   ["/location", "/locations"],
   ["/resources", "/patient-resources"],
   ["/service", "/services"],

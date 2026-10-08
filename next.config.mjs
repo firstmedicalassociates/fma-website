@@ -1,4 +1,3 @@
-import { CAREERS_ENABLED } from "./src/app/lib/config/site.js";
 import {
   WWW_TO_APEX_REDIRECT,
   WWW_TO_APEX_FALLBACK_REDIRECT,
@@ -67,10 +66,6 @@ const nextConfig = {
     return [
       WWW_TO_APEX_REDIRECT,
       WWW_TO_APEX_FALLBACK_REDIRECT,
-      ...(!CAREERS_ENABLED ? [
-        { source: "/about/careers/:path*", destination: "/about/", permanent: false },
-        { source: "/jobs/:path*", destination: "/about/", permanent: false },
-      ] : []),
       ...buildLegacyRedirects(),
     ];
   },

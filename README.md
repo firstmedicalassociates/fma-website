@@ -16,6 +16,18 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## ADP job requisitions
+
+The read-only ADP client can retrieve public company job openings with
+`npm run adp:jobs`. It requires a project client ID, client secret, and an
+ADP-issued mutual TLS certificate with its private key; `ADP_API_KEY` alone is
+insufficient. Follow [the ADP setup guide](docs/adp-job-requisitions.md) and the
+variables in `.env.example`. Run `npm run check:adp` for the integration's mocked
+checks. Live retrieval was verified on October 8, 2026. Resources → Careers
+(`/patient-resources/careers/`) displays live openings, job details, and ADP apply
+links. The server needs the ADP credentials and certificate/key pair; hosting can
+use `ADP_CERT_PEM` and `ADP_KEY_PEM` secrets instead of local file paths.
+
 ## QR code analytics
 
 The admin **QR Codes** section (`/admin/qr-codes`) reads your organization's QR
