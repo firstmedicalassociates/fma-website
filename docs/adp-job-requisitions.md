@@ -46,8 +46,7 @@ Comparison with the public ADP career center confirmed **five openings**:
 Medical Receptionist, Experienced Medical Receptionist, Experienced Medical
 Assistant, Physician Assistant-Certified, and Bilingual Spanish speaking Physician
 Assistan (ADP's title). All five have public/open/accepting-applications flags and
-an external `CC2` application destination. ADP hides the Medical Assistant's
-location, so that listing intentionally has no city/state.
+an external `CC2` application destination.
 
 The initial combined status/external/visible query returned only one of those
 five records despite all five meeting its conditions. The client now queries
@@ -109,9 +108,13 @@ employment type, and an **Apply now** link to the matching ADP external posting.
 The old `/jobs/` and `/about/careers/` URLs redirect to the new list.
 
 The server-only feed keeps credentials, tokens, and raw requisitions out of the
-browser. It excludes internal, closed, future, expired, and unlinked postings;
-location is displayed only when ADP explicitly marks it visible. Descriptions are
-rebuilt using a small HTML allowlist without attributes, scripts, or embedded content.
+browser. It excludes internal, closed, future, expired, and unlinked postings.
+As requested by FMA, city/state appears directly below job titles on both the list
+and detail pages whenever ADP supplies it, independent of `locationVisibleIndicator`.
+Street addresses and postal codes are not published. Jobs without city/state data
+show `N/A`; populate those fields in ADP to display them automatically.
+Descriptions are rebuilt using a small HTML allowlist without attributes, scripts,
+or embedded content.
 Hiring-manager and compensation records are not exposed.
 
 Results are cached on the server for up to 60 seconds, bounded by posting expiry.

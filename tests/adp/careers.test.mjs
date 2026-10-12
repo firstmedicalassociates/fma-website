@@ -22,7 +22,7 @@ function requisition(overrides = {}) {
   };
 }
 
-test("publishes only job fields, honors location privacy, and preserves public description formatting", () => {
+test("publishes city/state for public jobs even when ADP's board location display is disabled", () => {
   const source = requisition();
   const job = toPublicCareerJob(source, now);
   assert.equal(job.title, "Medical Assistant");
@@ -31,9 +31,19 @@ test("publishes only job fields, honors location privacy, and preserves public d
   assert.equal(job.postedAt, "2026-08-16T00:58:05.000Z");
   assert.match(job.descriptionHtml, /<strong>Qualifications<\/strong>/);
   assert.match(job.summary, /2–5 years/);
-  assert.deepEqual(job.locations, []);
+  assert.deepEqual(job.locations, ["Rockville, MD"]);
   assert.doesNotMatch(JSON.stringify(job), /hiringManager|private@example|compensation|12345/);
   assert.deepEqual(toPublicCareerJob({ ...source, locationVisibleIndicator: true }, now).locations, ["Rockville, MD"]);
+});
+
+test("locations omit private address fields, deduplicate cities, and leave missing locations empty", () => {
+  const address = { cityName: " Rockville ", countrySubdivisionLevel1: { codeValue: "MD", shortName: "Maryland" }, lineOne: "123 Private Street", postalCode: "20850" };
+  const job = toPublicCareerJob(requisition({ requisitionLocations: [{ address }, { address }, null, { address: { countryCode: "US" } }] }), now);
+  assert.deepEqual(job.locations, ["Rockville, MD"]);
+  assert.doesNotMatch(JSON.stringify(job), /Private Street|20850/);
+  for (const requisitionLocations of [undefined, [], [{ address: { countryCode: "US" } }]]) {
+    assert.deepEqual(toPublicCareerJob(requisition({ requisitionLocations }), now).locations, []);
+  }
 });
 
 test("excludes closed, internal, hidden, unlinked, future, and expired postings", () => {

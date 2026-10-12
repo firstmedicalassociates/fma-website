@@ -52,11 +52,11 @@ export function toPublicCareerJob(requisition, now = Date.now()) {
   const descriptionHtml = sanitizeJobDescription(posting?.nameCode?.longName);
   const plainDescription = cleanText(parse(descriptionHtml).structuredText);
   const summary = plainDescription.length > 210 ? `${plainDescription.slice(0, 207).trimEnd()}…` : plainDescription;
-  const locations = requisition.locationVisibleIndicator === true
-    ? (Array.isArray(requisition.requisitionLocations) ? requisition.requisitionLocations : [])
-      .map(({ address }) => [cleanText(address?.cityName), cleanText(address?.countrySubdivisionLevel1?.shortName) || cleanText(address?.countrySubdivisionLevel1?.codeValue)]
-        .filter(Boolean).join(", ")).filter(Boolean)
-    : [];
+  // FMA displays city/state for public openings, independent of ADP's board display flag.
+  // Keep the location projection limited to city/state; never expose street addresses.
+  const locations = (Array.isArray(requisition.requisitionLocations) ? requisition.requisitionLocations : [])
+    .map((location) => [cleanText(location?.address?.cityName), cleanText(location?.address?.countrySubdivisionLevel1?.codeValue) || cleanText(location?.address?.countrySubdivisionLevel1?.shortName)]
+      .filter(Boolean).join(", ")).filter(Boolean);
   return {
     id: requisition.itemID,
     title,

@@ -9,6 +9,9 @@
 .jobIcon { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; flex-shrink: 0; background: var(--secondary); color: var(--primary); }
 .jobContent { min-width: 0; flex: 1; }
 .jobContent h3 { margin: 0 0 .75rem; color: var(--primary); font-size: 1.375rem; line-height: 1.4; font-weight: 800; overflow-wrap: anywhere; }
+.location { display: flex; align-items: flex-start; gap: .5rem; margin: 0; color: #4b5563; font-size: 1rem; line-height: 1.5; overflow-wrap: anywhere; }
+.location svg { flex-shrink: 0; margin-top: .2rem; }
+.location + .meta { margin-top: .75rem; }
 .meta { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; color: #4b5563; font-size: .875rem; }
 .meta span { display: inline-flex; align-items: center; gap: .5rem; }
 .meta svg { flex-shrink: 0; }
@@ -22,7 +25,7 @@
 .aboutTeam a:hover, .backLink:hover { text-decoration: underline; text-underline-offset: 4px; }
 .jobHeader { padding: 2rem 0 2.5rem; border-bottom: 1px solid #dbe5f1; margin-bottom: 2.5rem; }
 .eyebrow { color: #31588b; text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; font-weight: 800; margin: 0 0 1rem; }
-.jobHeader h1 { color: var(--primary); font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; line-height: 1.18; letter-spacing: -.035em; margin: 0 0 1.5rem; overflow-wrap: anywhere; max-width: 900px; text-wrap: balance; }
+.jobHeader h1 { color: var(--primary); font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; line-height: 1.18; letter-spacing: -.035em; margin: 0 0 .75rem; overflow-wrap: anywhere; max-width: 900px; text-wrap: balance; }
 .detailGrid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; align-items: start; gap: 4rem; }
 .description h2 { color: var(--primary); font-size: 1.5rem; font-weight: 800; margin: 0 0 1.5rem; }
 .prose { color: #39465a; font-size: 1rem; line-height: 1.8; overflow-wrap: anywhere; }

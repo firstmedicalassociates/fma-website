@@ -33,9 +33,9 @@ export default async function JobPage({ params }) {
       <header className={styles.jobHeader}>
         <p className={styles.eyebrow}>First Medical Associates</p>
         <h1>{job.title}</h1>
+        <p className={styles.location}><MapPin size={17} aria-hidden="true" /><span>{job.locations.join(" · ") || "N/A"}</span></p>
         <div className={styles.meta}>
           {job.employmentType && <span><Briefcase size={17} aria-hidden="true" />{job.employmentType}</span>}
-          {job.locations.length > 0 && <span><MapPin size={17} aria-hidden="true" />{job.locations.join(" · ")}</span>}
           {job.postedAt && <span><CalendarDays size={17} aria-hidden="true" />Posted <time dateTime={job.postedAt}>{new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "America/New_York" }).format(new Date(job.postedAt))}</time></span>}
         </div>
         <a className={`${styles.primaryButton} ${styles.mobileApply}`} href={job.applyUrl}>Apply now <ArrowUpRight size={19} aria-hidden="true" /></a>

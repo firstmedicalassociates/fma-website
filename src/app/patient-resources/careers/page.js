@@ -33,10 +33,10 @@ export default async function CareersPage() {
                 <span className={styles.jobIcon} aria-hidden="true"><Briefcase size={26} /></span>
                 <div className={styles.jobContent}>
                   <h3>{job.title}</h3>
-                  <div className={styles.meta}>
-                    {job.employmentType && <span><Briefcase size={15} aria-hidden="true" />{job.employmentType}</span>}
-                    {job.locations.length > 0 && <span><MapPin size={15} aria-hidden="true" />{job.locations.join(" · ")}</span>}
-                  </div>
+                  <p className={styles.location}><MapPin size={17} aria-hidden="true" /><span>{job.locations.join(" · ") || "N/A"}</span></p>
+                  {job.employmentType && <div className={styles.meta}>
+                    <span><Briefcase size={15} aria-hidden="true" />{job.employmentType}</span>
+                  </div>}
                   {job.summary && <p className={styles.summary}>{job.summary}</p>}
                 </div>
                 <span className={styles.viewJob}>View job <ArrowUpRight size={19} aria-hidden="true" /></span>
