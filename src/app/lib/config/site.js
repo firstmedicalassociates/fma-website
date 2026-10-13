@@ -21,8 +21,9 @@ const CANONICAL_PAGE_ALIASES = new Map([
   ["/contact-us", "/contact"],
   ["/insurance", "/patient-resources/insurance"],
   ["/insurances", "/patient-resources/insurance"],
-  ["/jobs", "/patient-resources/careers"],
-  ["/about/careers", "/patient-resources/careers"],
+  ["/jobs", "/careers"],
+  ["/about/careers", "/careers"],
+  ["/patient-resources/careers", "/careers"],
   ["/location", "/locations"],
   ["/resources", "/patient-resources"],
   ["/service", "/services"],
@@ -101,7 +102,8 @@ export function normalizeInternalPageHref(href = "") {
 
   const { pathname, suffix } = splitPathSuffix(value);
   const comparablePath = pathname.replace(/\/+$/, "") || "/";
-  const canonicalPath = CANONICAL_PAGE_ALIASES.get(comparablePath) || comparablePath;
+  const canonicalPath = CANONICAL_PAGE_ALIASES.get(comparablePath) ||
+    comparablePath.replace(/^\/patient-resources\/careers\//, "/careers/");
   return normalizePagePath(`${canonicalPath}${suffix}`);
 }
 

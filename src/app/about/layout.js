@@ -2,7 +2,7 @@
 
 import { Inter } from "next/font/google";
 import { usePathname } from "next/navigation";
-import { Briefcase, Handshake, Info, Target } from "lucide-react";
+import { Handshake, Info, Target } from "lucide-react";
 import HeroEyebrow from "../components/hero-eyebrow";
 import { PillToggleNav } from "../components/pill-toggles";
 import styles from "../components/brandon-route-shell.module.css";
@@ -40,7 +40,6 @@ export default function AboutLayout({ children }) {
   const tabs = [
     { name: "About", href: "/about/", icon: Info },
     { name: "Mission & Values", href: "/about/mission/", icon: Target },
-    { name: "Careers", href: "/patient-resources/careers/", icon: Briefcase },
     { name: "Partner With Us", href: "/about/partners/", icon: Handshake },
   ];
 

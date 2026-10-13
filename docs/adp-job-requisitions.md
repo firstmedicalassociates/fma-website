@@ -102,10 +102,10 @@ URL's `source` parameter to that channel and accepts only HTTPS ADP-hosted links
 
 ## Careers pages
 
-Resources → Careers (`/patient-resources/careers/`) lists the current public jobs.
-Each listing links to `/patient-resources/careers/[id]/` with its public description,
+Careers in the website header (`/careers/`) lists the current public jobs.
+Each listing links to `/careers/[id]/` with its public description,
 employment type, and an **Apply now** link to the matching ADP external posting.
-The old `/jobs/` and `/about/careers/` URLs redirect to the new list.
+The old `/jobs/`, `/about/careers/`, and `/patient-resources/careers/` URLs redirect to the new list. Previous job detail URLs redirect to their matching `/careers/[id]/` pages.
 
 The server-only feed keeps credentials, tokens, and raw requisitions out of the
 browser. It excludes internal, closed, future, expired, and unlinked postings.

@@ -7,6 +7,7 @@ import {
 } from "../src/app/lib/locations.js";
 import { normalizeProviderPayload, normalizeProviderCredentialText } from "../src/app/lib/providers.js";
 import nextConfig from "../next.config.mjs";
+import { normalizeInternalPageHref } from "../src/app/lib/config/site.js";
 
 test("legacy address variants keep the suite and produce exactly two lines", () => {
   const examples = [
@@ -81,11 +82,23 @@ test("degree formatting in biographies preserves other punctuation", () => {
   assert.equal(normalizeProviderCredentialText("M.D, D.O, Ph.D"), "MD, DO, PhD");
 });
 
-test("old careers URLs redirect directly to the Resources careers page", async () => {
+test("old careers URLs redirect directly to the standalone careers page", async () => {
   const redirects = await nextConfig.redirects();
-  for (const source of ["/about/careers", "/about/careers/", "/jobs", "/jobs/"]) {
+  for (const source of ["/about/careers", "/about/careers/", "/jobs", "/jobs/", "/patient-resources/careers", "/patient-resources/careers/"]) {
     const redirect = redirects.find((entry) => entry.source === source);
-    assert.equal(redirect.destination, "/patient-resources/careers/");
+    assert.equal(redirect.destination, "/careers/");
     assert.equal(redirect.permanent, true);
   }
+});
+
+test("existing career detail links keep their job ID at the new destination", async () => {
+  const redirects = await nextConfig.redirects();
+  for (const source of ["/patient-resources/careers/:id", "/patient-resources/careers/:id/"]) {
+    const redirect = redirects.find((entry) => entry.source === source);
+    assert.equal(redirect.destination, "/careers/:id/");
+    assert.equal(redirect.permanent, true);
+  }
+  assert.equal(normalizeInternalPageHref("/patient-resources/careers/12345?source=search#apply"), "/careers/12345/?source=search#apply");
+  assert.equal(normalizeInternalPageHref("/about/careers/"), "/careers/");
+  assert.equal(normalizeInternalPageHref("/patient-resources/careers/"), "/careers/");
 });

@@ -25,7 +25,7 @@ const NAV_COLUMNS = [
     links: [
       { href: "/about/", label: "About Us", icon: "users" },
       { href: "/providers/", label: "Providers", icon: "stethoscope" },
-      { href: "/patient-resources/careers/", label: "Careers", icon: "briefcase" },
+      { href: "/careers/", label: "Careers", icon: "briefcase" },
       { href: "/contact/", label: "Contact Us", icon: "mail" },
     ],
   },

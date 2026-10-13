@@ -23,8 +23,8 @@ The read-only ADP client can retrieve public company job openings with
 ADP-issued mutual TLS certificate with its private key; `ADP_API_KEY` alone is
 insufficient. Follow [the ADP setup guide](docs/adp-job-requisitions.md) and the
 variables in `.env.example`. Run `npm run check:adp` for the integration's mocked
-checks. Live retrieval was verified on October 8, 2026. Resources → Careers
-(`/patient-resources/careers/`) displays live openings, job details, and ADP apply
+checks. Live retrieval was verified on October 8, 2026. Careers in the website header
+(`/careers/`) displays live openings, job details, and ADP apply
 links. The server needs the ADP credentials and certificate/key pair; hosting can
 use `ADP_CERT_PEM` and `ADP_KEY_PEM` secrets instead of local file paths.
 

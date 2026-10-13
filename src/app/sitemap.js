@@ -35,7 +35,7 @@ export default async function sitemap() {
     createStaticRoute("/contact", "monthly", 0.6),
     createStaticRoute("/sell-your-practice", "monthly", 0.6),
     createStaticRoute("/patient-resources", "monthly", 0.7),
-    createStaticRoute("/patient-resources/careers", "daily", 0.6),
+    createStaticRoute("/careers", "daily", 0.6),
     createStaticRoute("/patient-resources/education", "monthly", 0.5),
     createStaticRoute("/patient-resources/faq", "monthly", 0.5),
     createStaticRoute("/patient-resources/insurance", "monthly", 0.7),

@@ -3,7 +3,6 @@
 import { Inter } from "next/font/google";
 import { usePathname } from "next/navigation";
 import {
-  Briefcase,
   GraduationCap,
   LayoutDashboard,
   ShieldCheck,
@@ -20,8 +19,6 @@ const inter = Inter({ subsets: ["latin"] });
 export default function PatientResourceLayout({ children }) {
   const pathname = usePathname();
   const comparablePathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
-  const isCareers = comparablePathname === "/patient-resources/careers" || comparablePathname.startsWith("/patient-resources/careers/");
-  const isJobDetail = comparablePathname.startsWith("/patient-resources/careers/");
 
   const heroContent = {
     "/patient-resources/faq": {
@@ -43,10 +40,6 @@ export default function PatientResourceLayout({ children }) {
       subtitle:
         "Expert medical insights, clinical guides, and essential tools curated by our specialists to empower your health journey.",
     },
-    "/patient-resources/careers": {
-      title: "Careers",
-      subtitle: "Find your next opportunity at First Medical Associates. Join a team dedicated to compassionate, patient-centered care.",
-    },
     "/patient-resources/press": {
       title: "Press Releases",
       subtitle:
@@ -61,7 +54,6 @@ export default function PatientResourceLayout({ children }) {
     { name: "Insurance", href: "/patient-resources/insurance/", icon: ShieldCheck },
     { name: "Patients", href: "/patient-resources/patients/", icon: Users },
     { name: "Education", href: "/patient-resources/education/", icon: GraduationCap },
-    { name: "Careers", href: "/patient-resources/careers/", icon: Briefcase },
   ];
 
   return (
@@ -69,18 +61,18 @@ export default function PatientResourceLayout({ children }) {
       <SiteHeader />
       <main className={`${styles.routeRoot} ${inter.className}`}>
         <div className={styles.container}>
-          {!isJobDetail && <section className={styles.resourceHero}>
+          <section className={styles.resourceHero}>
             <div>
-              <HeroEyebrow>{isCareers ? "Join our team" : "Central Hub"}</HeroEyebrow>
+              <HeroEyebrow>Central Hub</HeroEyebrow>
               <h1 className={styles.heroTitle}>{currentHero.title || "Patient Resources"}</h1>
               <p className={styles.heroSubtitle}>{currentHero.subtitle}</p>
             </div>
-          </section>}
+          </section>
 
-          <div className={isJobDetail ? styles.detailNavigation : undefined}>
+          <div>
             <PillToggleNav
               items={tabs}
-              activeHref={isCareers ? "/patient-resources/careers/" : pathname}
+              activeHref={pathname}
               ariaLabel="Patient resources navigation"
               fullBleedMobile
               showScrollIndicator

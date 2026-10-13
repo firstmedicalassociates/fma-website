@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Briefcase, MapPin, ArrowUpRight, CalendarDays } from "lucide-react";
-import { getCareers } from "../../../lib/careers";
-import { buildStaticMetadata } from "../../../lib/seo";
+import { getCareers } from "../../lib/careers";
+import { buildStaticMetadata } from "../../lib/seo";
 import { CareersBackLink, CareersUnavailable } from "../states";
 import styles from "../careers.module.css";
 
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }) {
   return buildStaticMetadata({
     title: `${job.title} | First Medical Associates Careers`,
     description: job.summary.slice(0, 160) || `Learn about the ${job.title} position at First Medical Associates and apply online.`,
-    pathname: `/patient-resources/careers/${encodeURIComponent(job.id)}`,
+    pathname: `/careers/${encodeURIComponent(job.id)}`,
   });
 }
 

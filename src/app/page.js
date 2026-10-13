@@ -14,6 +14,7 @@ import { VISIBLE_LOCATION_WHERE } from "./lib/locations";
 import { buildStaticMetadata } from "./lib/seo";
 import styles from "./page.module.css";
 import { isDatabaseConfigured, prisma } from "./lib/prisma";
+import { getPracticeStats } from "./lib/practice-stats";
 import { normalizeInternalPageHref } from "./lib/config/site";
 
 const displayFont = Manrope({
@@ -221,8 +222,6 @@ async function getHomeData() {
   if (!isDatabaseConfigured) {
     return {
       featuredLocation: FALLBACK_LOCATION,
-      providerCount: 59,
-      locationCount: 18,
       articleCount: 12,
       services: FALLBACK_SERVICES,
       heroSearchLocations: [
@@ -237,7 +236,7 @@ async function getHomeData() {
   }
 
   try {
-    const [featuredLocation, providerCount, locationCount, articleCount, services, heroSearchLocations, heroSearchProviders] =
+    const [featuredLocation, articleCount, services, heroSearchLocations, heroSearchProviders] =
       await Promise.all([
         prisma.location.findFirst({
           where: VISIBLE_LOCATION_WHERE,
@@ -256,10 +255,6 @@ async function getHomeData() {
             bookingUrl: true,
           },
         }),
-        prisma.provider.count({
-          where: { isActive: true },
-        }),
-        prisma.location.count({ where: VISIBLE_LOCATION_WHERE }),
         prisma.blogPost.count({
           where: { status: "PUBLISHED" },
         }),
@@ -295,8 +290,6 @@ async function getHomeData() {
 
     return {
       featuredLocation: featuredLocation || FALLBACK_LOCATION,
-      providerCount,
-      locationCount,
       articleCount,
       services: services.length > 0 ? services : FALLBACK_SERVICES,
       heroSearchLocations,
@@ -307,8 +300,6 @@ async function getHomeData() {
 
     return {
       featuredLocation: FALLBACK_LOCATION,
-      providerCount: 59,
-      locationCount: 18,
       articleCount: 12,
       services: FALLBACK_SERVICES,
       heroSearchLocations: [
@@ -495,8 +486,11 @@ function StarRow() {
 }
 
 export default async function Home() {
-  const { featuredLocation, providerCount, locationCount, heroSearchLocations, heroSearchProviders } =
-    await getHomeData();
+  const [homeData, { providerCount, locationCount }] = await Promise.all([
+    getHomeData(),
+    getPracticeStats(),
+  ]);
+  const { featuredLocation, heroSearchLocations, heroSearchProviders } = homeData;
 
   const contactBookingHref = resolveLocationBookingHref(featuredLocation);
 

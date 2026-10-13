@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { buildStaticMetadata } from "../lib/seo";
+import { getPracticeStats } from "../lib/practice-stats";
 import { 
   Building2, 
   ArrowRight, 
@@ -13,6 +14,9 @@ import {
   CircleCheck
 } from 'lucide-react';
 
+export const runtime = "nodejs";
+export const revalidate = 60;
+
 export const metadata = buildStaticMetadata({
   title: "About First Medical Associates | Maryland & Northern Virginia",
   description:
@@ -20,7 +24,8 @@ export const metadata = buildStaticMetadata({
   pathname: "/about",
 });
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { providerCount, locationCount, yearsOfService } = await getPracticeStats();
   const values = [
     { 
       title: 'PATIENT FOCUS', 
@@ -349,15 +354,15 @@ export default function AboutPage() {
           <h3>Personalized Healthcare in a Trusted Environment</h3>
           <p>
             Founded in 2008, First Medical Associates has grown from a single community clinic 
-            to a leading regional healthcare network with 18 locations across Maryland and Northern Virginia. Our
+            to a leading regional healthcare network with {locationCount} locations across Maryland and Northern Virginia. Our
             expert team of physicians and advanced care practitioners specialize in providing
             prompt, accurate diagnosis and comprehensive, personalized treatment by developing a
             trusting relationship with their patients.
           </p>
           <div className="stats-row">
-            <div className="stat-item"><h4>20+</h4><p>Years of Service</p></div>
-            <div className="stat-item"><h4>18</h4><p>Premium Locations</p></div>
-            <div className="stat-item"><h4>75+</h4><p>Clinical Providers</p></div>
+            <div className="stat-item"><h4>{yearsOfService}+</h4><p>Years of Service</p></div>
+            <div className="stat-item"><h4>{locationCount}</h4><p>Premium Locations</p></div>
+            <div className="stat-item"><h4>{providerCount}</h4><p>Clinical Providers</p></div>
           </div>
         </div>
         <div className="dark-card">
@@ -383,7 +388,7 @@ export default function AboutPage() {
           <div>
             <h4 style={{ fontWeight: 800, color: '#001c55', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Advance Your Career</h4>
             <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>Build your career with a network that values clinician autonomy and patient satisfaction above all else.</p>
-            <Link className="cta-link-btn" href="/patient-resources/careers/">
+            <Link className="cta-link-btn" href="/careers/">
               View Career Opportunities <ExternalLink size={14} />
             </Link>
           </div>

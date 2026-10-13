@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { ArrowUpRight, Briefcase, MapPin, ArrowRight } from "lucide-react";
-import { getCareers } from "../../lib/careers";
-import { buildStaticMetadata } from "../../lib/seo";
+import { getCareers } from "../lib/careers";
+import { buildStaticMetadata } from "../lib/seo";
+import HeroEyebrow from "../components/hero-eyebrow";
+import shellStyles from "../components/brandon-route-shell.module.css";
 import { CareersUnavailable } from "./states";
 import styles from "./careers.module.css";
 
@@ -10,11 +12,26 @@ export const dynamic = "force-dynamic";
 export const metadata = buildStaticMetadata({
   title: "Careers & Open Jobs | First Medical Associates",
   description: "Explore current job openings at First Medical Associates. View job responsibilities, qualifications, and apply online.",
-  pathname: "/patient-resources/careers",
+  pathname: "/careers",
 });
 
 export default async function CareersPage() {
   const feed = await getCareers();
+  return (
+    <>
+      <section className={shellStyles.resourceHero}>
+        <HeroEyebrow>Join our team</HeroEyebrow>
+        <h1 className={shellStyles.heroTitle}>Careers</h1>
+        <p className={shellStyles.heroSubtitle}>
+          Find your next opportunity at First Medical Associates. Join a team dedicated to compassionate, patient-centered care.
+        </p>
+      </section>
+      <CareerOpenings feed={feed} />
+    </>
+  );
+}
+
+function CareerOpenings({ feed }) {
   if (feed.status !== "ready") return <CareersUnavailable />;
   return (
     <section className={styles.section} aria-labelledby="available-jobs">
@@ -29,7 +46,7 @@ export default async function CareersPage() {
         <ul className={styles.jobList}>
           {feed.jobs.map((job) => (
             <li key={job.id}>
-              <Link className={styles.jobCard} href={`/patient-resources/careers/${encodeURIComponent(job.id)}/`}>
+              <Link className={styles.jobCard} href={`/careers/${encodeURIComponent(job.id)}/`}>
                 <span className={styles.jobIcon} aria-hidden="true"><Briefcase size={26} /></span>
                 <div className={styles.jobContent}>
                   <h3>{job.title}</h3>
