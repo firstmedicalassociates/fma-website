@@ -67,6 +67,7 @@ export default async function AboutPage() {
     { year: '2023', event: 'Nottingham and Silver Spring locations opened' },
     { year: '2024', event: 'Frederick location opened' },
     { year: '2025', event: 'Annapolis, Severna Park, and Glen Burnie locations opened' },
+    { year: '2026', event: 'New locations opened in Laurel, Alexandria, and Owings Mills.' },
   ];
 
   return (
