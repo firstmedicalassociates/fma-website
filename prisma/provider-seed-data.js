@@ -141,7 +141,7 @@ module.exports = [
     languages: ["English"],
     imageUrl: "https://baxcyq9ou7fa56sc.private.blob.vercel-storage.com/providers/jason-lowry.webp",
     imageAlt: "Jason Lowery headshot",
-    slug: "jason-lowry",
+    slug: "jason-lowery",
     linkUrl: "https://pmc-firstmedicalassociates.provider-match.com/book/6803161",
     bio: "Jason Lowery, MD, is a board-certified family medicine physician who has been serving residents of the Washington, DC, Metropolitan area since 2011. He is very excited to start seeing patients out of the Germantown location.\nDr. Lowery received his medical degree from East Carolina University in Greenville, NC, and completed a residency in Family Medicine at McLeod Regional Medical Center in Florence, SC.\nDr. Lowery was keenly interested in family medicine from the very beginning of medical school and enjoys family medicine’s holistic approach to the patient. During his time in medicine, he has found he enjoys preventive medicine, diabetes management and care, and making sure patients feel comfortable coming to see their physician.\nIn his spare time, Dr. Lowery enjoys reading comics, cooking, painting, and collecting just about anything imaginable. He also enjoys doting on his two cats and travelling when possible.",
   },

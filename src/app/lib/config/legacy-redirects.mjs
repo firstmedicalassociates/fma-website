@@ -125,6 +125,7 @@ function fileRedirect(source, destination) {
 }
 
 export const LEGACY_REDIRECTS = [
+  { source: "/providers/jason-lowry", destination: "/providers/jason-lowery", permanent: true },
   pageRedirect("/service", "/services"),
   pageRedirect("/location", "/locations"),
   pageRedirect("/about-us", "/about"),

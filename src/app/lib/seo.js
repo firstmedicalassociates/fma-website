@@ -99,8 +99,8 @@ const PROVIDER_SEO_OVERRIDES = {
     description:
       "Khai-El Johnson, MD, sees patients at First Medical Associates in Alexandria, VA. View location details and request an appointment.",
   },
-  "jason-lowry": {
-    titleName: "Jason Lowry",
+  "jason-lowery": {
+    titleName: "Jason Lowery",
   },
   "maria-munoz-md": {
     h1: "Maria Munoz-Ritterbusch",
