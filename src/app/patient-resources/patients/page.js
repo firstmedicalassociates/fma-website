@@ -90,6 +90,20 @@ export default function PatientsPage() {
       action: 'Open PDF',
       external: true,
     },
+    {
+      title: 'MSSP ACO Beneficiary Notification (English)',
+      desc: 'Read the Medicare Shared Savings Program Accountable Care Organization beneficiary notification.',
+      href: '/wp-content/uploads/2026/10/MSSP-ACO-Beneficiary-Notification-English.pdf',
+      action: 'Open PDF',
+      external: true,
+    },
+    {
+      title: 'MSSP ACO Beneficiary Notification (Spanish)',
+      desc: 'Lea la notificación para beneficiarios de la Organización de Atención Responsable del Programa de Ahorros Compartidos de Medicare.',
+      href: '/wp-content/uploads/2026/10/MSSP-ACO-Beneficiary-Notification-Spanish.pdf',
+      action: 'Open PDF',
+      external: true,
+    },
   ];
 
   return (
