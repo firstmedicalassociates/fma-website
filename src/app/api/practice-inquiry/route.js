@@ -1,3 +1,4 @@
+import { sendFormEmail } from "../../lib/ses-email.mjs";
 import { checkRateLimit, getRateLimitHeaders, getRateLimitIdentity } from "../../lib/rate-limit";
 import { hasPotentialPhi } from "../../lib/no-phi-guard";
 import { createPracticeInquiryHandler } from "../../lib/practice-inquiry-handler.mjs";
@@ -11,19 +12,5 @@ export const POST = createPracticeInquiryHandler({
     if (limit.ok) return null;
     return Response.json({ ok: false, error: limit.unavailable ? "The inquiry form is temporarily unavailable. Please call our team." : "Too many inquiries. Please wait a minute and try again." }, { status: limit.unavailable ? 503 : 429, headers: getRateLimitHeaders(limit) });
   },
-  async send(apiKey, message) {
-    const response = await fetch("https://console.sendlayer.com/api/v1/email", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify(message),
-      signal: AbortSignal.timeout(15000),
-    });
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok || !result?.MessageID) {
-      const error = new Error("SendLayer rejected the email request.");
-      error.status = response.status;
-      throw error;
-    }
-    return result.MessageID;
-  },
+  send: sendFormEmail,
 });

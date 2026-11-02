@@ -1,4 +1,4 @@
-import { isValidEmail } from "./practice-inquiry.mjs";
+import { emailDeliveryConfigured, getEmailConfig } from "./email-config.mjs";
 import { buildPartnershipEmails, PARTNERSHIP_RECIPIENTS, validatePartnershipInquiry } from "./partnership-inquiry.mjs";
 
 // Inject delivery so the complete flow can be tested without sending live email.
@@ -21,16 +21,15 @@ export function createPartnershipInquiryHandler({ checkLimit, hasPotentialPhi, s
       return Response.json({ ok: false, error: "Please share business goals only. Remove patient information, medical details, and sensitive identifiers from your message." }, { status: 400 });
     }
 
-    const fromEmail = (env.SENDLAYER_FROM_EMAIL || "").trim().toLowerCase();
-    const fromName = (env.SENDLAYER_FROM_NAME || "First Medical Associates").replace(/[\r\n]/g, " ");
-    if (!env.SENDLAYER_API_KEY || !isValidEmail(fromEmail) || (env.NODE_ENV === "production" && env.CONTACT_FORM_VENDOR_REVIEWED !== "true")) {
+    const { fromEmail, fromName } = getEmailConfig(env);
+    if (!emailDeliveryConfigured(env) || (env.NODE_ENV === "production" && env.CONTACT_FORM_VENDOR_REVIEWED !== "true")) {
       return Response.json({ ok: false, error: "The inquiry form is temporarily unavailable. Please email Partnerships@drsfirst.com." }, { status: 503 });
     }
     const { team, welcome } = buildPartnershipEmails(data);
     const fullName = `${data.firstName} ${data.lastName}`;
     const base = { From: { email: fromEmail, name: fromName }, ContentType: "HTML" };
     try {
-      await send(env.SENDLAYER_API_KEY, {
+      await send({
         ...base, To: PARTNERSHIP_RECIPIENTS.map(email => ({ email, name: "FMA Partnerships" })),
         Subject: team.subject, HTMLContent: team.html, PlainContent: team.text,
         ReplyTo: [{ email: data.email, name: fullName }], Tags: ["partnership-inquiry", "team-notification"],
@@ -41,7 +40,7 @@ export function createPartnershipInquiryHandler({ checkLimit, hasPotentialPhi, s
     }
     let confirmationSent = true;
     try {
-      await send(env.SENDLAYER_API_KEY, {
+      await send({
         ...base, To: [{ email: data.email, name: fullName }],
         Subject: welcome.subject, HTMLContent: welcome.html, PlainContent: welcome.text,
         ReplyTo: [{ email: PARTNERSHIP_RECIPIENTS[0], name: "FMA Partnerships" }], Tags: ["partnership-inquiry", "visitor-welcome"],

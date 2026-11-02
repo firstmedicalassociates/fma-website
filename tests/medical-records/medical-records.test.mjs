@@ -5,16 +5,16 @@ import { PDFDocument, PDFName, PDFDict } from "pdf-lib";
 import { MEDICAL_RECORDS_RECIPIENT, ELECTRONIC_SIGNATURE_TEXT, medicalRecordsDate, medicalRecordsDeliveryReady, validateMedicalRecordsRelease } from "../../src/app/lib/medical-records-release.mjs";
 import { createMedicalRecordsHandler } from "../../src/app/lib/medical-records-handler.mjs";
 import { buildCompletedMedicalRecordsPdf } from "../../src/app/lib/medical-records-pdf.mjs";
-import { sendMedicalRecordsEmail } from "../../src/app/lib/medical-records-email.mjs";
+import { createSesEmailSender } from "../../src/app/lib/ses-email.mjs";
 
 const now = new Date("2026-10-24T01:30:00Z");
 const reference = "0b9d1b5e-7eaf-4e77-9a9f-5138ab628219";
-const env = { NODE_ENV: "production", SENDLAYER_API_KEY: "test-key", SENDLAYER_FROM_EMAIL: "forms@example.com", MEDICAL_RECORDS_VENDOR_REVIEWED: "true", SENDLAYER_TO_EMAILS: "general@example.com,unrelated@example.com" };
+const env = { NODE_ENV: "production", SES_REGION: "us-east-1", SES_FROM_EMAIL: "forms@example.com", MEDICAL_RECORDS_VENDOR_REVIEWED: "true", CONTACT_TO_EMAILS: "general@example.com,unrelated@example.com" };
 const sample = { patientName: "Jordan López", dateOfBirth: "1986-06-10", recipientName: "Example Family Practice", recipientPhone: "301-555-0100", recipientFax: "301-555-0101", recipientAddress: "123 Example Street", recipientCity: "Rockville", recipientState: "MD", recipientZip: "20850", releaseAll: true, releaseSpecific: false, releaseOther: false, releaseStdHiv: false, releaseMentalHealth: false, signerName: "Jordan López", signerRole: "patient", signatureConsent: true };
 const request = (payload = sample, headers = {}) => new Request("https://drsfirst.com/api/medical-records-release", { method: "POST", headers: { origin: "https://drsfirst.com", "content-type": "application/json", ...headers }, body: JSON.stringify(payload) });
 function setup(overrides = {}) {
   const sent = [], logs = [];
-  const handler = createMedicalRecordsHandler({ env, checkLimit: async () => null, buildPdf: async () => Buffer.from("%PDF-1.7 test"), send: async (key, message) => { assert.equal(key, "test-key"); sent.push(message); }, now: () => now, uuid: () => reference, logError: (...args) => logs.push(args), ...overrides });
+  const handler = createMedicalRecordsHandler({ env, checkLimit: async () => null, buildPdf: async () => Buffer.from("%PDF-1.7 test"), send: async (message) => { sent.push(message); }, now: () => now, uuid: () => reference, logError: (...args) => logs.push(args), ...overrides });
   return { handler, sent, logs };
 }
 
@@ -70,7 +70,7 @@ test("rejects impossible/future birthdates and requires a guardian until the pat
 
 test("contact-form approval alone never enables patient-information delivery; disabled handler does not read the body", async () => {
   assert.equal(medicalRecordsDeliveryReady({ ...env, MEDICAL_RECORDS_VENDOR_REVIEWED: "false", CONTACT_FORM_VENDOR_REVIEWED: "true" }), false);
-  for (const config of [{ ...env, MEDICAL_RECORDS_VENDOR_REVIEWED: "false" }, { ...env, SENDLAYER_API_KEY: "" }, { ...env, SENDLAYER_FROM_EMAIL: "bad" }]) {
+  for (const config of [{ ...env, MEDICAL_RECORDS_VENDOR_REVIEWED: "false" }, { ...env, SES_REGION: "" }, { ...env, SES_FROM_EMAIL: "bad" }]) {
     const { handler, sent } = setup({ env: config });
     const req = request();
     assert.equal((await handler(req)).status, 503);
@@ -130,17 +130,20 @@ test("PDF/delivery failures never claim success, return a patient copy, or log P
   }
 });
 
-test("SendLayer transport accepts only an acknowledged message ID and uses the documented attachment schema", async () => {
+test("SES receives the exact PDF bytes and only the designated medical-records recipient", async () => {
   const { handler, sent } = setup(); await handler(request());
-  await sendMedicalRecordsEmail("test-key", sent[0], async (url, options) => {
-    assert.equal(url, "https://console.sendlayer.com/api/v1/email");
-    assert.equal(options.method, "POST");
-    assert.equal(options.headers.Authorization, "Bearer test-key");
-    assert.equal(options.cache, "no-store");
-    assert.deepEqual(Object.keys(JSON.parse(options.body).Attachments[0]).sort(), ["Content", "Filename", "Type"]);
-    return Response.json({ MessageID: "accepted-message-id" });
-  });
-  for (const response of [Response.json({}, { status: 200 }), Response.json({ MessageID: "" }), Response.json({ MessageID: "id" }, { status: 500 }), new Response("invalid", { status: 502 })]) await assert.rejects(sendMedicalRecordsEmail("test", sent[0], async () => response));
+  const send = createSesEmailSender({ env, client: { async send(command, options) {
+    const input = command.input;
+    assert.deepEqual(input.Destination.ToAddresses, ['"FMA Medical Records" <MedicalRecords@drsfirst.com>']);
+    const attachment = input.Content.Simple.Attachments[0];
+    assert.equal(attachment.RawContent.toString(), "%PDF-1.7 test");
+    assert.equal(attachment.ContentType, "application/pdf");
+    assert.equal(attachment.FileName, "medical-records-release.pdf");
+    assert.equal(attachment.ContentTransferEncoding, "BASE64");
+    assert.ok(options.abortSignal instanceof AbortSignal);
+    return { MessageId: "accepted-message-id" };
+  } } });
+  assert.equal(await send(sent[0]), "accepted-message-id");
 });
 
 test("blank PDF keeps all canonical fields and page widgets; completed PDF is static with a full signature audit record", async () => {
