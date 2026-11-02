@@ -47,6 +47,16 @@ read-only and requires no database migration.
 
 Run the QR integration and admin unit checks with `npm run check:admin`.
 
+## Medical records release
+
+Patient Resources now links to an online medical records release authorization with
+electronic signature and a fillable PDF download. Delivery reuses SendLayer and sends
+the completed PDF only to MedicalRecords@drsfirst.com. See the
+[delivery setup and verification guide](docs/medical-records-release.md) before
+enabling `MEDICAL_RECORDS_VENDOR_REVIEWED`; the contact-form review flag does not
+enable patient-information submissions. Run `npm run check:medical-records` for the
+form and delivery checks.
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

@@ -268,10 +268,11 @@ export default function ResourcesOverview() {
                  <Share2 size={24} />
               </div>
               <h3>Medical Records Release</h3>
-              <p>HIPAA-compliant authorization to transfer your health history safely.</p>
-              <Link href="/hipaa-notice/" className="lite-link">
-                 Request Access <span>Docusign</span>
-              </Link>
+              <p>Authorize the release of your records to another practice or physician.</p>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Reload to unload marketing scripts before collecting patient information. */}
+              <a href="/patient-resources/medical-records-release/" className="lite-link">
+                 Complete Form <span>Online / PDF</span>
+              </a>
            </div>
         </section>
 

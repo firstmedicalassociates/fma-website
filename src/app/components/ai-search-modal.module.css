@@ -1,4 +1,5 @@
-:root {
+.trigger,
+.modal {
   --fma-navy: #08237d;
   --ai-cyan: #16f1d4;
   --ai-blue: #2097ff;

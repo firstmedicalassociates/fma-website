@@ -36,8 +36,19 @@ const noStoreHeaders = [
   { key: "Cache-Control", value: "no-store, max-age=0" },
 ];
 
+// Keep the medical authorization page isolated from marketing/chat scripts and connections.
+const medicalRecordsHeaders = [
+  ...securityHeaders.filter(header => header.key !== "Content-Security-Policy"),
+  { key: "Cache-Control", value: "private, no-store, max-age=0" },
+  { key: "X-DNS-Prefetch-Control", value: "off" },
+  { key: "Content-Security-Policy", value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-src 'none'" },
+];
+
 const nextConfig = {
   skipTrailingSlashRedirect: true,
+  outputFileTracingIncludes: {
+    "/api/medical-records-release": ["./public/wp-content/uploads/2023/04/FMA-MR-release-4.18.23.pdf", "./src/assets/medical-records/NotoSans-Regular.ttf"],
+  },
   async headers() {
     return [
       {
@@ -59,6 +70,14 @@ const nextConfig = {
       {
         source: "/api/ai-search/:path*",
         headers: noStoreHeaders,
+      },
+      {
+        source: "/patient-resources/medical-records-release/:path*",
+        headers: medicalRecordsHeaders,
+      },
+      {
+        source: "/api/medical-records-release",
+        headers: medicalRecordsHeaders,
       },
     ];
   },

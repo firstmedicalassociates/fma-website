@@ -33,11 +33,14 @@
     "check:admin": "node --test tests/admin/core.test.mjs tests/admin/diagnostics.test.mjs tests/admin/uniqode.test.mjs",
     "check:admin:integration": "node --env-file=.env.admin-test --test tests/admin/integration.test.mjs",
     "check:booking": "node --test tests/booking/*.test.mjs",
+    "check:medical-records": "node --test tests/medical-records/*.test.mjs",
+    "pdf:medical-records": "node scripts/build-medical-records-pdf.mjs",
     "sync:booking-links": "node scripts/sync-booking-links.mjs"
   },
   "dependencies": {
     "@fontsource/material-symbols-outlined": "^5.2.42",
     "@neondatabase/serverless": "^1.1.0",
+    "@pdf-lib/fontkit": "^1.1.1",
     "@prisma/adapter-neon": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@vercel/blob": "^2.5.0",
@@ -48,6 +51,7 @@
     "next": "16.2.10",
     "node-html-parser": "^7.1.0",
     "openai": "^6.38.0",
+    "pdf-lib": "^1.17.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "ws": "^8.21.3"

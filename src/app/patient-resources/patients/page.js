@@ -29,10 +29,9 @@ export default function PatientsPage() {
     },
     {
       title: 'Release Medical Records',
-      desc: 'Authorize the release of your medical records to a third party.',
-      href: '/wp-content/uploads/2023/04/FMA-MR-release-4.18.23.pdf',
-      action: 'Open PDF',
-      external: true,
+      desc: 'Complete and sign your medical records release authorization online, or download a fillable PDF.',
+      href: '/patient-resources/medical-records-release/',
+      action: 'Complete Form',
     },
     {
       title: 'Physical vs. Office Visit',

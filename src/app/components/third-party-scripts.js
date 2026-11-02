@@ -22,7 +22,7 @@ function initializeEmitrrWidget() {
 
 export default function ThirdPartyScripts() {
   const pathname = usePathname();
-  if (pathname === "/admin" || pathname?.startsWith("/admin/")) return null;
+  if (pathname === "/admin" || pathname?.startsWith("/admin/") || pathname?.replace(/\/+$/, "") === "/patient-resources/medical-records-release") return null;
   return (
     <>
       <Script
