@@ -80,21 +80,26 @@ The approved role was created and its saved inline permission policy verified:
 `arn:aws:iam::589158200178:role/fma-website-ses-production`.
 The team OIDC provider is `oidc.vercel.com/firstmedicalassociates-projects`.
 Vercel production now has `AWS_ROLE_ARN`, `SES_REGION`, `SES_FROM_EMAIL`,
-`SES_FROM_NAME`, and `SES_TEST_TO_EMAIL` configured. Existing recipient secrets
-are preserved through the compatibility fallbacks above.
+`SES_FROM_NAME`, and `SES_TEST_TO_EMAIL` configured. The owner also confirmed
+provider approval, and `MEDICAL_RECORDS_VENDOR_REVIEWED=true` is saved for
+production. Existing recipient secrets are preserved through the compatibility
+fallbacks above. These settings take effect on the next production deployment.
 
 ## Cutover status
 
 The migration is not deployed yet. The SES account remains in the sandbox, so
 the existing external team/archive addresses and arbitrary visitor confirmations
-cannot all be delivered. A transactional production-access request for
-`https://drsfirst.com` is prepared in the console but has not been submitted;
-AWS's required terms and bounce/complaint-process acknowledgement await the
-account owner's confirmation. Email feedback forwarding is enabled on the domain.
+cannot all be delivered. With the owner's approval, the transactional
+production-access request for `https://drsfirst.com` was submitted on November 2,
+2026. AWS confirmed submission and displays **Under review**, with an estimate
+of up to 96 hours. Email feedback forwarding is enabled on the domain; the owner
+confirmed their team handles bounce and complaint notices.
 
-Vercel currently has no `MEDICAL_RECORDS_VENDOR_REVIEWED` setting. The medical
-form stays disabled until the owner confirms the provider arrangement is
-approved. Keep that setting separate from the general contact-form review.
+Once AWS approves production access, deploy this migration and run a synthetic
+production form test to verify the Vercel OIDC exchange and resulting emails.
+The medical form's provider approval is configured, but its live activation
+still requires this deployment. Keep that setting separate from the general
+contact-form review.
 
 ## Verification
 
