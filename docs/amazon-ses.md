@@ -52,6 +52,12 @@ were saved in GoDaddy and confirmed on its authoritative nameserver on November
 and found in the inbox at `ghough@citryn.com`. This verifies the sender and
 recipient, not the application's Vercel OIDC credential exchange.
 
+Rechecked November 5, 2026: both identities remain **Verified**, DKIM is
+**Successful** with signatures enabled, and all three DNS CNAMEs resolve.
+A fresh console test, `FMA SES verification test - November 5, 2026`, was sent
+from `info@drsfirst.com` and confirmed in `ghough@citryn.com`'s inbox at
+11:53 AM Pacific. No patient data was used.
+
 The domain uses GoDaddy nameservers. These records are already saved; do not add
 duplicates. GoDaddy appends `drsfirst.com` to the Name.
 
@@ -83,22 +89,31 @@ Vercel production now has `AWS_ROLE_ARN`, `SES_REGION`, `SES_FROM_EMAIL`,
 `SES_FROM_NAME`, and `SES_TEST_TO_EMAIL` configured. The owner also confirmed
 provider approval, and `MEDICAL_RECORDS_VENDOR_REVIEWED=true` is saved for
 production. Existing recipient secrets are preserved through the compatibility
-fallbacks above. These settings take effect on the next production deployment.
+fallbacks above. Environment changes apply to subsequent production deployments.
 
 ## Cutover status
 
-The migration is not deployed yet. The SES account remains in the sandbox, so
+As of November 5, 2026, the SES migration is not deployed. The current production
+commit `4c38deee914450ecd633af096ea94dc7cfd0a45b` still uses SendLayer. The SES
+account remains in the sandbox (200 recipients/day, 1 email/second), so
 the existing external team/archive addresses and arbitrary visitor confirmations
 cannot all be delivered. With the owner's approval, the transactional
 production-access request for `https://drsfirst.com` was submitted on November 2,
-2026. AWS confirmed submission and displays **Under review**, with an estimate
-of up to 96 hours. Email feedback forwarding is enabled on the domain; the owner
-confirmed their team handles bounce and complaint notices.
+2026. AWS subsequently requested additional information in support case
+`179366278800121`. On November 5, the owner provided an expected volume of
+100–500 emails/day, and a complete follow-up was submitted covering the website,
+transactional form flows, recipient source, bounce/complaint handling, and a
+sample confirmation. The saved case status is **Customer action completed**;
+production access has not yet been approved.
+
+Email feedback forwarding is enabled on the domain, and account-level
+suppression is enabled for both bounces and complaints. The owner confirmed
+their team handles delivery notices.
 
 Once AWS approves production access, deploy this migration and run a synthetic
 production form test to verify the Vercel OIDC exchange and resulting emails.
-The medical form's provider approval is configured, but its live activation
-still requires this deployment. Keep that setting separate from the general
+The medical form's provider approval is configured; its SES transport still
+requires this deployment. Keep that setting separate from the general
 contact-form review.
 
 ## Verification
