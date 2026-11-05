@@ -27,8 +27,7 @@ const bodyFont = Inter({
   variable: "--font-home-body",
 });
 
-const heroBackgroundImage = "/uploads/Header-bcgn-1-scaled.jpg";
-const heroBackgroundImageMobile = "/uploads/Header-bcgn-2-mobile.jpg";
+const heroBackgroundImage = "/images/home/primary-care-header.png";
 const welcomeVideoPoster = "/uploads/FMA%20Video%20Thumnail.png";
 const welcomeVideoSource =
   process.env.NEXT_PUBLIC_WELCOME_VIDEO_URL || "/uploads/FMA_Promo_full.mp4";
@@ -543,12 +542,13 @@ export default async function Home() {
 
                 <div className={styles.heroMobileFigure} aria-hidden="true">
                   <Image
-                    src={heroBackgroundImageMobile}
+                    src={heroBackgroundImage}
                     alt=""
                     className={styles.heroMobileFigureImage}
-                    width={1113}
-                    height={1113}
-                    sizes="(max-width: 780px) 100vw, 0px"
+                    width={1916}
+                    height={821}
+                    loading="eager"
+                    sizes="(max-width: 780px) 234vw, 0px"
                   />
                 </div>
               </div>
