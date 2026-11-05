@@ -10,7 +10,7 @@ The form collects first and last name, email, phone, organization, optional role
 
 After the internal send succeeds, a separate branded welcome email goes to the visitor. Replies go to `Partnerships@drsfirst.com`. The welcome explains the next step, links to the partners landing page, and does not repeat the submitted organization details or message. Both messages include HTML and plain-text versions. The existing practice inquiry email frame supplies the branding; its default content is unchanged.
 
-The route uses the existing SendLayer settings (`SENDLAYER_API_KEY`, `SENDLAYER_FROM_EMAIL`, and optional `SENDLAYER_FROM_NAME`). Production retains the existing `CONTACT_FORM_VENDOR_REVIEWED=true` requirement and shared rate limiter requirements (`UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`). No new recipient environment variable is needed.
+The route uses the shared Amazon SES adapter (`SES_REGION`, `SES_FROM_EMAIL`, optional `SES_FROM_NAME`, and server AWS credentials). Production retains `CONTACT_FORM_VENDOR_REVIEWED=true` and the shared rate limiter requirements (`UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`). Its two designated recipient addresses remain fixed. See [SES setup](amazon-ses.md).
 
 Validation, length bounds, contact consent, a honeypot, the existing message PHI guard, and a five-request-per-minute rate limit run before delivery. A team-send failure returns an error and preserves the form. A welcome-only failure returns a successful inquiry and tells the visitor not to resubmit. Provider acceptance does not confirm inbox delivery; this follows the existing form's immediate-send model without a durable mail queue.
 
@@ -24,4 +24,4 @@ Validation, length bounds, contact consent, a honeypot, the existing message PHI
 - Browser verification covered landing-page CTA targets, navigation to the form, successful submission and both recipient lists, preserved fields after team-send failure, welcome-only failure, and focus on the result. Desktop and 390px mobile layouts were inspected. The mobile page and email have no horizontal overflow, and the email logo loads.
 - The actual Next.js API returned HTTP 400 for an incomplete inquiry. Browser success/failure delivery checks used the real handler with a mocked sender.
 
-During local verification, the checkout had no SendLayer or shared rate-limit credentials. No real emails were sent and production inbox delivery was not verified. The existing third-party widget logs a local site-ID configuration error; no uncaught browser errors were reported for the new form.
+During local verification, the checkout had no Amazon SES or shared rate-limit credentials. No real emails were sent and production inbox delivery was not verified. The existing third-party widget logs a local site-ID configuration error; no uncaught browser errors were reported for the new form.

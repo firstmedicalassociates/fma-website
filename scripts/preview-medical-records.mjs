@@ -1,24 +1,21 @@
-// Local QA only. Never forwards submissions to SendLayer or another real service.
-// Start Next on port 3001 with fake SendLayer credentials and
+// Local QA only. Never forwards submissions to Amazon SES or another real service.
+// Start Next on port 3001 with SES_REGION=us-east-1 and SES_FROM_EMAIL=forms@example.com and
 // MEDICAL_RECORDS_VENDOR_REVIEWED=true; visit this proxy on port 3003.
 import http from "node:http";
 import net from "node:net";
 import { createMedicalRecordsHandler } from "../src/app/lib/medical-records-handler.mjs";
 import { buildCompletedMedicalRecordsPdf } from "../src/app/lib/medical-records-pdf.mjs";
-import { sendMedicalRecordsEmail } from "../src/app/lib/medical-records-email.mjs";
+import { createSesEmailSender } from "../src/app/lib/ses-email.mjs";
 
 let lastDelivery = null;
-const fakeEnv = { SENDLAYER_API_KEY: "local-qa-only", SENDLAYER_FROM_EMAIL: "forms@example.com", MEDICAL_RECORDS_VENDOR_REVIEWED: "true" };
+const fakeEnv = { SES_REGION: "us-east-1", SES_FROM_EMAIL: "forms@example.com", MEDICAL_RECORDS_VENDOR_REVIEWED: "true" };
 const handler = createMedicalRecordsHandler({
   env: fakeEnv, checkLimit: async () => null, buildPdf: buildCompletedMedicalRecordsPdf, logError: () => {},
-  async send(key, message) {
-    await sendMedicalRecordsEmail(key, message, async (url, options) => {
-      if (url !== "https://console.sendlayer.com/api/v1/email") throw new Error("Unexpected transport URL");
-      if (lastDelivery?.simulateFailure) { lastDelivery = null; throw new Error("Simulated delivery failure"); }
-      lastDelivery = JSON.parse(options.body);
-      return Response.json({ MessageID: "mock-accepted-id" });
-    });
-  },
+  send: createSesEmailSender({ env: fakeEnv, client: { async send(command) {
+    if (lastDelivery?.simulateFailure) { lastDelivery = null; throw new Error("Simulated delivery failure"); }
+    lastDelivery = command.input;
+    return { MessageId: "mock-accepted-id" };
+  } } }),
 });
 
 const server = http.createServer(async (req, res) => {

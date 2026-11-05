@@ -1,0 +1,14 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": { "Federated": "arn:aws:iam::589158200178:oidc-provider/oidc.vercel.com/firstmedicalassociates-projects" },
+    "Action": "sts:AssumeRoleWithWebIdentity",
+    "Condition": {
+      "StringEquals": {
+        "oidc.vercel.com/firstmedicalassociates-projects:aud": "https://vercel.com/firstmedicalassociates-projects",
+        "oidc.vercel.com/firstmedicalassociates-projects:sub": "owner:firstmedicalassociates-projects:project:fma-website:environment:production"
+      }
+    }
+  }]
+}

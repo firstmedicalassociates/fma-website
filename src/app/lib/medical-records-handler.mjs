@@ -1,3 +1,4 @@
+import { getEmailConfig } from "./email-config.mjs";
 import { randomUUID } from "node:crypto";
 import { FORM_VERSION, MEDICAL_RECORDS_RECIPIENT, medicalRecordsDate, medicalRecordsDeliveryReady, validateMedicalRecordsRelease } from "./medical-records-release.mjs";
 
@@ -55,7 +56,7 @@ export function createMedicalRecordsHandler({ checkLimit, buildPdf, send, env = 
       const pdf = await buildPdf(data, { reference, submittedAt, signatureDate });
       const content = pdf.toString("base64");
       const message = {
-        From: { email: env.SENDLAYER_FROM_EMAIL.trim(), name: "First Medical Associates" },
+        From: { email: getEmailConfig(env).fromEmail, name: "First Medical Associates" },
         To: [{ email: MEDICAL_RECORDS_RECIPIENT, name: "FMA Medical Records" }],
         Subject: `Medical records release authorization | ${reference}`,
         ContentType: "HTML",
@@ -64,7 +65,7 @@ export function createMedicalRecordsHandler({ checkLimit, buildPdf, send, env = 
         Attachments: [{ Content: content, Type: "application/pdf", Filename: "medical-records-release.pdf" }],
         Tags: ["medical-records-release"],
       };
-      await send(env.SENDLAYER_API_KEY, message);
+      await send(message);
       return json({ ok: true, reference, pdf: content });
     } catch {
       // Provider errors may contain the complete message or patient data. Never log them.

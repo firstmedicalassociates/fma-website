@@ -5,11 +5,11 @@ import { createPracticeInquiryHandler } from "../../src/app/lib/practice-inquiry
 import { hasPotentialPhi } from "../../src/app/lib/no-phi-guard.js";
 
 export const sampleInquiry = { firstName: "Alex", lastName: "Morgan", email: "alex@example.com", phone: "301-555-0123", practiceName: "Example Primary Care", role: "Practice owner / physician owner", city: "Rockville", state: "Maryland", specialty: "Family medicine", providerCount: "2–5", goal: "Explore selling my practice", timeline: "6–12 months", preferredContact: "Email", message: "I would like to continue practicing while planning a transition.", consent: true, attribution: { utm_source: "facebook", utm_campaign: "practice-transition" } };
-const env = { NODE_ENV: "test", SENDLAYER_API_KEY: "test-key", SENDLAYER_FROM_EMAIL: "from@example.com", SENDLAYER_TO_EMAILS: "team@example.com,archive@example.com" };
+const env = { NODE_ENV: "test", SES_REGION: "us-east-1", SES_FROM_EMAIL: "from@example.com", CONTACT_TO_EMAILS: "team@example.com,archive@example.com" };
 const request = (payload = sampleInquiry) => new Request("http://localhost/api/practice-inquiry", { method: "POST", body: JSON.stringify(payload) });
 function setup(overrides = {}) {
   const sent = [];
-  return { sent, handler: createPracticeInquiryHandler({ checkLimit: async () => null, hasPotentialPhi, env, send: async (key, message) => { assert.equal(key, "test-key"); sent.push(message); }, logError: () => {}, ...overrides }) };
+  return { sent, handler: createPracticeInquiryHandler({ checkLimit: async () => null, hasPotentialPhi, env, send: async (message) => { sent.push(message); }, logError: () => {}, ...overrides }) };
 }
 
 test("delivers the full inquiry to the existing recipients, then welcomes the visitor", async () => {
@@ -27,10 +27,15 @@ test("delivers the full inquiry to the existing recipients, then welcomes the vi
   assert.ok(!sent[1].PlainContent.includes(sampleInquiry.message));
 });
 test("supports a dedicated practice inbox without notifying the default recipients", async () => {
-  const { sent, handler } = setup({ env: { ...env, SENDLAYER_PRACTICE_TO_EMAILS: "acquisitions@example.com" } });
+  const { sent, handler } = setup({ env: { ...env, PRACTICE_TO_EMAILS: "acquisitions@example.com" } });
   await handler(request());
   assert.deepEqual(sent[0].To.map(x => x.email), ["acquisitions@example.com"]);
   assert.equal(sent[1].ReplyTo[0].email, "acquisitions@example.com");
+});
+test("preserves a legacy practice recipient override without requiring the old email provider", async () => {
+  const { handler, sent } = setup({ env: { ...env, SENDLAYER_PRACTICE_TO_EMAILS: "legacy-practice@example.com" } });
+  assert.equal((await handler(request())).status, 200);
+  assert.deepEqual(sent[0].To.map(x => x.email), ["legacy-practice@example.com"]);
 });
 test("does not send a welcome or claim success when team delivery fails", async () => {
   let attempts = 0;
@@ -66,7 +71,7 @@ test("retains the existing PHI guard for free text", async () => {
   assert.equal(sent.length, 0);
 });
 test("fails closed when production mail configuration is not reviewed or is missing", async () => {
-  for (const settings of [{ ...env, NODE_ENV: "production" }, { ...env, SENDLAYER_API_KEY: "" }, { ...env, SENDLAYER_PRACTICE_TO_EMAILS: "invalid" }]) {
+  for (const settings of [{ ...env, NODE_ENV: "production" }, { ...env, SES_REGION: "" }, { ...env, PRACTICE_TO_EMAILS: "invalid" }]) {
     const { handler, sent } = setup({ env: settings });
     assert.equal((await handler(request())).status, 503);
     assert.equal(sent.length, 0);

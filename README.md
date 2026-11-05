@@ -47,10 +47,17 @@ read-only and requires no database migration.
 
 Run the QR integration and admin unit checks with `npm run check:admin`.
 
+## Form email delivery
+
+All general/location contact, partnership, practice-sale, and medical-records forms
+use the shared Amazon SES v2 transport. See [SES setup](docs/amazon-ses.md) for sender
+verification, server credentials, recipients, and the synthetic test command. Run
+`npm run check:forms` to verify every flow without sending real mail.
+
 ## Medical records release
 
 Patient Resources now links to an online medical records release authorization with
-electronic signature and a fillable PDF download. Delivery reuses SendLayer and sends
+electronic signature and a fillable PDF download. Delivery uses Amazon SES and sends
 the completed PDF only to MedicalRecords@drsfirst.com. See the
 [delivery setup and verification guide](docs/medical-records-release.md) before
 enabling `MEDICAL_RECORDS_VENDOR_REVIEWED`; the contact-form review flag does not

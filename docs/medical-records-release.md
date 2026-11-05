@@ -14,14 +14,15 @@ through the web form, not a PDF email button.
 
 ## Delivery setup
 
-The form reuses the contact forms' `SENDLAYER_API_KEY` and `SENDLAYER_FROM_EMAIL`.
+The form uses the shared Amazon SES v2 adapter, `SES_REGION`, `SES_FROM_EMAIL`, and
+server-side AWS credentials. See [SES setup](amazon-ses.md).
 It sends **one email only to MedicalRecords@drsfirst.com**. It never uses the contact
 recipient list, adds a personal inbox as a CC, or sends a patient confirmation email.
 The subject and message body contain a reference and timestamp; patient information
-is in the PDF attachment. The visitor can download the same PDF after SendLayer
+is in the PDF attachment. The visitor can download the same PDF after Amazon SES
 acknowledges acceptance. This acknowledgement is not proof of inbox delivery.
 
-Before enabling real submissions, confirm that the hosting, SendLayer account,
+Before enabling real submissions, confirm that the hosting, Amazon SES account,
 mailbox access, and retention arrangements are appropriate for this patient-information
 workflow, including any required business associate agreements. Generic contact-form
 approval alone does not establish this. Set `MEDICAL_RECORDS_VENDOR_REVIEWED=true`
@@ -38,8 +39,9 @@ the request before reading the patient information.
 
 [HHS transmission-security guidance](https://www.hhs.gov/hipaa/for-professionals/faq/does-the-security-rule-allow-for-sending-electronic-phi-in-an-email/index.html)
 explains the need to select and document appropriate protections for emailed patient
-information. [SendLayer's attachment documentation](https://developers.sendlayer.com/guides/send-email-with-attachments)
-documents the base64 PDF attachment schema used by the adapter.
+information. [SES attachment documentation](https://docs.aws.amazon.com/ses/latest/dg/attachments.html)
+documents the API v2 attachment schema. The adapter passes PDF bytes to the SDK,
+which handles base64 encoding for transport.
 
 ## Authorization and privacy behavior
 
@@ -75,9 +77,10 @@ says “See submission details.” The Noto Sans font is bundled with its OFL li
   disabled-delivery behavior, failure/log privacy, email acknowledgement and schema,
   canonical PDF fields/widgets, and static completed attachments.
 - Run targeted ESLint and `npm run build` before release.
-- For browser QA, use fake email credentials in a local Next process on port 3001
+- For browser QA, set `SES_REGION=us-east-1`, `SES_FROM_EMAIL=forms@example.com`, and
+  `MEDICAL_RECORDS_VENDOR_REVIEWED=true` in a local Next process on port 3001
   and run `node scripts/preview-medical-records.mjs`. Open the proxy on port 3003.
-  The proxy runs the real validation/PDF/transport flow with a fake SendLayer response
+  The proxy runs the real validation/PDF/transport flow with a fake Amazon SES response
   and blocks other mutations. `/__qa/delivery` exposes synthetic test data locally;
   never deploy this preview script or enter real patient information there.
 - Render the blank and synthetic completed PDFs with Poppler and independently check
