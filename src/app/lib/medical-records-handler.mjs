@@ -52,6 +52,7 @@ export function createMedicalRecordsHandler({ checkLimit, buildPdf, send, env = 
     const reference = uuid();
     const submittedAt = received.toISOString();
     const signatureDate = medicalRecordsDate(received);
+    let stage = "pdf";
     try {
       const pdf = await buildPdf(data, { reference, submittedAt, signatureDate });
       const content = pdf.toString("base64");
@@ -65,11 +66,13 @@ export function createMedicalRecordsHandler({ checkLimit, buildPdf, send, env = 
         Attachments: [{ Content: content, Type: "application/pdf", Filename: "medical-records-release.pdf" }],
         Tags: ["medical-records-release"],
       };
+      stage = "delivery";
       await send(message);
       return json({ ok: true, reference, pdf: content });
-    } catch {
+    } catch (error) {
       // Provider errors may contain the complete message or patient data. Never log them.
-      logError("Medical records submission failed", { reference });
+      const reason = error?.name === "TimeoutError" ? "timeout" : "failed";
+      logError("Medical records submission failed", { reference, stage, reason });
       return json({ ok: false, error: "We could not confirm submission. Please contact our team before submitting again.", reference }, 502);
     }
   };
