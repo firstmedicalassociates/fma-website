@@ -93,8 +93,8 @@ fallbacks above. Environment changes apply to subsequent production deployments.
 
 ## Cutover status
 
-As of November 5, 2026, the SES migration is not deployed. The current production
-commit `4c38deee914450ecd633af096ea94dc7cfd0a45b` still uses SendLayer. The SES
+As of November 9, 2026, the SES migration is not deployed. The current production
+commit `eaf7594b734ee252229b61752bf27825356c1986` still uses SendLayer. The SES
 account remains in the sandbox (200 recipients/day, 1 email/second), so
 the existing external team/archive addresses and arbitrary visitor confirmations
 cannot all be delivered. With the owner's approval, the transactional
@@ -105,6 +105,31 @@ production-access request for `https://drsfirst.com` was submitted on November 2
 transactional form flows, recipient source, bounce/complaint handling, and a
 sample confirmation. The saved case status is **Customer action completed**;
 production access has not yet been approved.
+
+On November 9, both identities were rechecked as **Verified**. AWS had not added
+a response to the November 5 details. A follow-up was submitted at 9:32 AM Pacific
+asking for a decision, the exact outstanding requirement, and the next update.
+The persisted case still shows **Customer action completed**; this is not approval.
+
+Live synthetic delivery checks on November 9:
+
+- General/location, practice-sale, and partnership submissions returned HTTP 200
+  with `ok: true` and `confirmationSent: true`. All three visitor confirmations
+  were seen in `ghough@citryn.com`'s inbox at 9:33 AM Pacific.
+- The first medical-records test failed. Vercel traced the SendLayer attachment
+  request timing out at 15.00 seconds. PR #2 increased only that transport's
+  deadline to 45 seconds, set a 60-second function limit, and added fixed
+  failure-stage diagnostics without logging submitted data or provider messages.
+  Its 13 medical tests and Vercel preview/production builds passed.
+- After the repair deployed, a fresh medical test returned HTTP 200 in 11.93
+  seconds with `ok: true`, reference `d37a3a5d-8db4-4f2c-9ae1-c491a9d49574`, and
+  a valid static two-page PDF (171,620 bytes). This confirms SendLayer acceptance
+  for `MedicalRecords@drsfirst.com`; that mailbox's receipt was not independently
+  inspected. All medical test data was explicitly synthetic and marked not to
+  process. No patient submissions were copied to the test mailbox.
+
+These live tests validate the existing SendLayer delivery, not the pending SES
+cutover. A successful retest does not establish that provider delays cannot recur.
 
 Email feedback forwarding is enabled on the domain, and account-level
 suppression is enabled for both bounces and complaints. The owner confirmed
