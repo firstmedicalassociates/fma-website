@@ -127,7 +127,23 @@ test("PDF/delivery failures never claim success, return a patient copy, or log P
     assert.equal(result.reference, reference);
     assert.ok(!JSON.stringify(logs).includes(sample.patientName));
     assert.ok(!JSON.stringify(logs).includes(sample.dateOfBirth));
+    assert.deepEqual(logs, [["Medical records submission failed", {
+      reference, stage: failedDependency === "send" ? "delivery" : "pdf", reason: "failed",
+    }]]);
   }
+});
+
+test("a delivery timeout is reported without retrying or logging provider details", async () => {
+  let attempts = 0;
+  const { handler, logs } = setup({ send: async () => {
+    attempts += 1;
+    throw new DOMException(JSON.stringify(sample), "TimeoutError");
+  } });
+  const response = await handler(request());
+  assert.equal(response.status, 502);
+  assert.equal((await response.json()).pdf, undefined);
+  assert.equal(attempts, 1);
+  assert.deepEqual(logs, [["Medical records submission failed", { reference, stage: "delivery", reason: "timeout" }]]);
 });
 
 test("SendLayer transport accepts only an acknowledged message ID and uses the documented attachment schema", async () => {
