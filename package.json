@@ -35,6 +35,7 @@
     "check:booking": "node --test tests/booking/*.test.mjs",
     "check:medical-records": "node --test tests/medical-records/*.test.mjs",
     "pdf:medical-records": "node scripts/build-medical-records-pdf.mjs",
+    "pdf:medical-records-request": "node scripts/build-medical-records-pdf.mjs --request",
     "sync:booking-links": "node scripts/sync-booking-links.mjs",
     "check:forms": "node --test tests/email/*.test.mjs tests/contact/*.test.mjs tests/practice-inquiry/*.test.mjs tests/partnership-inquiry/*.test.mjs tests/medical-records/*.test.mjs",
     "ses:test": "node --env-file=.env scripts/test-ses.mjs"

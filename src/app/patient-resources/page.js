@@ -274,6 +274,17 @@ export default function ResourcesOverview() {
                  Complete Form <span>Online / PDF</span>
               </a>
            </div>
+           <div className="form-lite-card">
+              <div style={{ background: '#e8f0fe', width: '48px', height: '48px', borderRadius: '12px', display: 'grid', placeItems: 'center', color: '#001c55' }}>
+                 <FileText size={24} />
+              </div>
+              <h3>Request Medical Records</h3>
+              <p>Authorize another practice to send your records to First Medical Associates.</p>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Reload to unload marketing scripts before collecting patient information. */}
+              <a href="/patient-resources/medical-records-request/" className="lite-link">
+                 Complete Form <span>Online / PDF</span>
+              </a>
+           </div>
         </section>
 
         <section className="rights-banner">

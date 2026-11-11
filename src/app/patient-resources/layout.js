@@ -21,6 +21,10 @@ export default function PatientResourceLayout({ children }) {
   const comparablePathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
 
   const heroContent = {
+    "/patient-resources/medical-records-request": {
+      title: "Request Medical Records",
+      subtitle: "Authorize another practice to send your medical records to First Medical Associates.",
+    },
     "/patient-resources/medical-records-release": {
       title: "Medical Records Release",
       subtitle: "Complete your authorization and send it to our medical records team.",

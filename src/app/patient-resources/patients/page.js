@@ -49,10 +49,9 @@ export default function PatientsPage() {
     },
     {
       title: 'Request Medical Records',
-      desc: 'Use this form to request your medical records from First Medical Associates.',
-      href: '/wp-content/uploads/2023/04/FMA-MR-request-4.18.23.pdf',
-      action: 'Open PDF',
-      external: true,
+      desc: 'Authorize another practice to send your records to FMA. Complete and sign online, or download a fillable PDF.',
+      href: '/patient-resources/medical-records-request/',
+      action: 'Complete Form',
     },
     {
       title: 'HIPAA Privacy Notice',

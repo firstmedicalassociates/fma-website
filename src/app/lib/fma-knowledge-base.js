@@ -440,7 +440,7 @@ Fees for medical records:
 - Records exceeding 80 pages: must be picked up from the office or mailed, at $0.75 per page.
 
 Available forms:
-- Medical Records Request Form: www.drsfirst.com/wp-content/uploads/2023/04/FMA-MR-request-4.18.23.pdf
+- Request records from another practice to FMA (online authorization and fillable PDF): www.drsfirst.com/patient-resources/medical-records-request/
 - HIPAA Right of Access Form: www.drsfirst.com/wp-content/uploads/2023/04/FMA-HIPPA-for-family-member-4.18.23.pdf
 - Release of Medical Records Form: www.drsfirst.com/wp-content/uploads/2023/04/FMA-MR-release-4.18.23.pdf
 

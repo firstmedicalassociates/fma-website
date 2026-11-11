@@ -41,6 +41,7 @@ export default async function sitemap() {
     createStaticRoute("/patient-resources/insurance", "monthly", 0.7),
     createStaticRoute("/patient-resources/patients", "monthly", 0.5),
     createStaticRoute("/patient-resources/medical-records-release", "monthly", 0.5),
+    createStaticRoute("/patient-resources/medical-records-request", "monthly", 0.5),
     createStaticRoute("/patient-resources/press", "monthly", 0.5),
     createStaticRoute("/privacy-policy", "yearly", 0.3),
     createStaticRoute("/hipaa-notice", "yearly", 0.3),
