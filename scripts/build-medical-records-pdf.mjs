@@ -1,11 +1,13 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { buildFillableMedicalRecordsPdf } from "../src/app/lib/medical-records-pdf.mjs";
-import { MEDICAL_RECORDS_PDF_PATH } from "../src/app/lib/medical-records-release.mjs";
+import { getMedicalRecordsForm } from "../src/app/lib/medical-records-forms.mjs";
 
-const source = await readFile("src/assets/medical-records/original-release.pdf");
-const pdf = await buildFillableMedicalRecordsPdf(source);
+const formType = process.argv.includes("--request") ? "request" : "release";
+const definition = getMedicalRecordsForm(formType);
+const source = await readFile(`src/assets/medical-records/original-${formType}.pdf`);
+const pdf = await buildFillableMedicalRecordsPdf(source, { formType });
 await mkdir("output/pdf", { recursive: true });
-await writeFile("output/pdf/medical-records-release-fillable.pdf", pdf);
-await writeFile(path.join("public", MEDICAL_RECORDS_PDF_PATH), pdf);
-console.log("Built fillable medical records release PDF (original preserved in src/assets/medical-records).");
+await writeFile(`output/pdf/${definition.id}-fillable.pdf`, pdf);
+await writeFile(path.join("public", definition.pdfPath), pdf);
+console.log(`Built fillable medical records ${formType} PDF (original preserved in src/assets/medical-records).`);

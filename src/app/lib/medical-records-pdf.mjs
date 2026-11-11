@@ -2,7 +2,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { PDFDict, PDFDocument, PDFName, PDFString, StandardFonts, rgb } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
-import { ELECTRONIC_SIGNATURE_TEXT, EXPIRATION_TEXT, FORM_VERSION, MEDICAL_RECORDS_PDF_PATH, SENSITIVE_AUTHORIZATIONS } from "./medical-records-release.mjs";
+import { ELECTRONIC_SIGNATURE_TEXT, EXPIRATION_TEXT, SENSITIVE_AUTHORIZATIONS } from "./medical-records-release.mjs";
+import { getMedicalRecordsForm } from "./medical-records-forms.mjs";
 
 const textFields = {
   patientName: [136, 622, 224, 18, 80], dateOfBirth: [401, 622, 97, 18, 10],
@@ -13,12 +14,15 @@ const textFields = {
 };
 const checkboxes = { releaseAll: [45, 430.7], releaseSpecific: [45, 405.9], releaseOther: [46.5, 361], releaseStdHiv: [46.5, 334.5], releaseMentalHealth: [46.5, 290.7] };
 
-export async function buildFillableMedicalRecordsPdf(originalBytes) {
+export async function buildFillableMedicalRecordsPdf(originalBytes, { formType = "release" } = {}) {
+  const definition = getMedicalRecordsForm(formType);
   const doc = await PDFDocument.load(originalBytes);
   const page = doc.getPages()[0];
   const form = doc.getForm();
   const font = await doc.embedFont(StandardFonts.Helvetica);
-  for (const [name, [x, y, width, height, maxLength]] of Object.entries(textFields)) {
+  for (const [name, [x, sourceY, width, height, maxLength]] of Object.entries(textFields)) {
+    // The request PDF's two-line authorization shifts the remaining fields down.
+    const y = sourceY - (formType === "request" && !["patientName", "dateOfBirth"].includes(name) ? 18.4 : 0);
     page.drawRectangle({ x: x - 2, y, width: width + 5, height, color: rgb(1, 1, 1) });
     const field = form.createTextField(name);
     field.setMaxLength(maxLength);
@@ -26,20 +30,22 @@ export async function buildFillableMedicalRecordsPdf(originalBytes) {
     field.addToPage(page, { x, y, width, height, borderWidth: 0, backgroundColor: rgb(0.96, 0.98, 1), font });
     field.setFontSize(0);
   }
-  for (const [name, [x, y]] of Object.entries(checkboxes)) {
+  for (const [name, [x, sourceY]] of Object.entries(checkboxes)) {
+    const y = sourceY - (formType === "request" ? 18.4 : 0);
     page.drawRectangle({ x: x - 1, y: y - 1, width: 20, height: 18, color: rgb(1, 1, 1) });
     form.createCheckBox(name).addToPage(page, { x, y, width: 18, height: 15.5, borderWidth: 0.8, borderColor: rgb(0, 0, 0), backgroundColor: rgb(1, 1, 1) });
   }
-  doc.setTitle("Authorization to Release Healthcare Information - Fillable");
+  doc.setTitle(`${definition.title} Authorization - Fillable`);
   doc.setAuthor("First Medical Associates");
   form.updateFieldAppearances(font);
   return doc.save();
 }
 
 // The attachment is generated in memory. No completed form is written to disk or public storage.
-export async function buildCompletedMedicalRecordsPdf(data, { reference, submittedAt, signatureDate }) {
+export async function buildCompletedMedicalRecordsPdf(data, { reference, submittedAt, signatureDate, formType = "release" }) {
+  const definition = getMedicalRecordsForm(formType);
   const [template, fontBytes] = await Promise.all([
-    readFile(path.join(process.cwd(), "public", MEDICAL_RECORDS_PDF_PATH)),
+    readFile(path.join(process.cwd(), "public", definition.pdfPath)),
     readFile(path.join(process.cwd(), "src/assets/medical-records/NotoSans-Regular.ttf")),
   ]);
   const doc = await PDFDocument.load(template);
@@ -81,7 +87,7 @@ export async function buildCompletedMedicalRecordsPdf(data, { reference, submitt
   function newPage() {
     page = doc.addPage([612, 792]);
     y = 737;
-    page.drawText("Medical Records Release | Submission Details", { x: 44, y, font, size: 15, color: rgb(0, 0.11, 0.33) });
+    page.drawText(`${definition.title} | Submission Details`, { x: 44, y, font, size: 15, color: rgb(0, 0.11, 0.33) });
     y -= 28;
   }
   function write(label, value) {
@@ -108,8 +114,9 @@ export async function buildCompletedMedicalRecordsPdf(data, { reference, submitt
   }
   newPage();
   const details = [
-    ["Reference", reference], ["Received (UTC)", submittedAt], ["Form version", FORM_VERSION],
-    ["Patient name", data.patientName], ["Date of birth", data.dateOfBirth], ["Receiving practice/physician", data.recipientName],
+    ["Reference", reference], ["Received (UTC)", submittedAt], ["Form version", definition.version],
+    ...(formType === "request" ? [["Authorization", definition.authorizationText]] : []),
+    ["Patient name", data.patientName], ["Date of birth", data.dateOfBirth], [definition.practiceLabel, data.recipientName],
     ["Practice phone", data.recipientPhone || "Not provided"], ["Practice fax", data.recipientFax || "Not provided"],
     ["Practice address", `${data.recipientAddress}, ${data.recipientCity}, ${data.recipientState} ${data.recipientZip}`],
     ["All healthcare information", data.releaseAll ? "Selected" : "Not selected"],
@@ -122,7 +129,7 @@ export async function buildCompletedMedicalRecordsPdf(data, { reference, submitt
     ["Review", "This form records the submitter's stated identity and authorization. The medical records team must verify identity and authority before releasing records."],
   ];
   for (const [label, value] of details) write(label, value);
-  doc.setTitle("Completed Medical Records Release Authorization");
+  doc.setTitle(`Completed ${definition.title} Authorization`);
   doc.setCreationDate(new Date(submittedAt));
   return Buffer.from(await doc.save());
 }

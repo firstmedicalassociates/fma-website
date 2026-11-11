@@ -6,6 +6,7 @@ import { MEDICAL_RECORDS_RECIPIENT, ELECTRONIC_SIGNATURE_TEXT, medicalRecordsDat
 import { createMedicalRecordsHandler } from "../../src/app/lib/medical-records-handler.mjs";
 import { buildCompletedMedicalRecordsPdf } from "../../src/app/lib/medical-records-pdf.mjs";
 import { createSesEmailSender } from "../../src/app/lib/ses-email.mjs";
+import { getMedicalRecordsForm } from "../../src/app/lib/medical-records-forms.mjs";
 
 const now = new Date("2026-10-24T01:30:00Z");
 const reference = "0b9d1b5e-7eaf-4e77-9a9f-5138ab628219";
@@ -183,4 +184,68 @@ test("blank PDF keeps all canonical fields and page widgets; completed PDF is st
   await writeFile("output/playwright/medical-records-completed-test.pdf", pdf);
   // Used by the independent pypdf extraction/rendering check.
   await writeFile("output/playwright/medical-records-expected-test.json", JSON.stringify({ patientName: sample.patientName, treatmentDetails: data.treatmentDetails, consent: ELECTRONIC_SIGNATURE_TEXT, reference }));
+});
+
+test("request route fixes the incoming-records direction, template and destination on the server", async () => {
+  let metadata;
+  const { handler, sent } = setup({ formType: "request", buildPdf: async (data, value) => { metadata = value; return Buffer.from("%PDF-request-test"); } });
+  const response = await handler(request({ ...sample, formType: "release", pdfPath: "/forged.pdf", To: ["attacker@example.com"], recipients: ["attacker@example.com"] }));
+  const result = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(metadata.formType, "request");
+  assert.equal(sent.length, 1);
+  assert.deepEqual(sent[0].To.map(item => item.email), [MEDICAL_RECORDS_RECIPIENT]);
+  assert.equal(sent[0].Subject, `Medical records request authorization | ${reference}`);
+  assert.match(sent[0].PlainContent, /physician\/practice below to release my healthcare information to First Medical Associates/);
+  assert.match(sent[0].PlainContent, /FMA-MR-request-4\.18\.23-web-v1/);
+  assert.equal(sent[0].Attachments[0].Filename, "medical-records-request.pdf");
+  assert.equal(sent[0].Attachments[0].Content, result.pdf);
+  assert.equal(sent[0].Cc, undefined);
+  assert.equal(sent[0].Bcc, undefined);
+  assert.ok(!sent[0].PlainContent.includes(sample.patientName));
+});
+
+test("request submission enforces review, origin, scope, signature and guardian checks before sending", async () => {
+  const { handler, sent } = setup({ formType: "request" });
+  assert.equal((await handler(request(sample, { origin: "https://evil.example" }))).status, 403);
+  for (const payload of [{ ...sample, signatureConsent: false }, { ...sample, releaseAll: false }, { ...sample, dateOfBirth: "2015-01-01" }]) {
+    assert.equal((await handler(request(payload))).status, 400);
+  }
+  assert.equal(sent.length, 0);
+  const disabled = setup({ formType: "request", env: { ...env, MEDICAL_RECORDS_VENDOR_REVIEWED: "false" } });
+  const req = request();
+  assert.equal((await disabled.handler(req)).status, 503);
+  assert.equal(req.bodyUsed, false);
+  assert.equal((await handler(request({ ...sample, dateOfBirth: "2015-01-01", signerRole: "parent-guardian" }))).status, 200);
+});
+
+test("request delivery failures do not expose a download, patient information, or a success response", async () => {
+  const { handler, logs } = setup({ formType: "request", send: async () => { throw new Error(JSON.stringify(sample)); } });
+  const response = await handler(request());
+  const result = await response.json();
+  assert.equal(response.status, 502);
+  assert.equal(result.ok, false);
+  assert.equal(result.pdf, undefined);
+  assert.ok(!JSON.stringify(logs).includes(sample.patientName));
+});
+
+test("request PDF retains an interactive blank and generates a static signed request with its own version", async () => {
+  const definition = getMedicalRecordsForm("request");
+  const template = await readFile(`public${definition.pdfPath}`);
+  const blank = await PDFDocument.load(template);
+  assert.equal(blank.getForm().getFields().length, 18);
+  assert.equal(blank.getPages()[0].node.Annots().size(), 18);
+  for (const name of ["releaseAll", "releaseSpecific", "releaseOther", "releaseStdHiv", "releaseMentalHealth"]) assert.equal(blank.getForm().getCheckBox(name).isChecked(), false);
+  const data = validateMedicalRecordsRelease({ ...sample, patientName: "SYNTHETIC REQUEST TEST - DO NOT PROCESS", recipientName: "TEST PRACTICE - DO NOT SEND REAL RECORDS", releaseOther: true, otherDetails: "Synthetic request only. No real patient exists. Do not process. ".repeat(5) }, now).data;
+  const pdf = await buildCompletedMedicalRecordsPdf(data, { formType: "request", reference, submittedAt: now.toISOString(), signatureDate: "2026-10-23" });
+  const completed = await PDFDocument.load(pdf);
+  assert.equal(completed.catalog.has(PDFName.of("AcroForm")), false);
+  assert.equal(completed.getTitle(), "Completed Medical Records Request Authorization");
+  assert.ok(completed.getPageCount() >= 2);
+  for (const page of completed.getPages()) {
+    for (const ref of page.node.Annots()?.asArray() || []) assert.notEqual(completed.context.lookup(ref, PDFDict).get(PDFName.of("Subtype"))?.toString(), "/Widget");
+  }
+  await mkdir("output/playwright", { recursive: true });
+  await writeFile("output/playwright/medical-records-request-test.pdf", pdf);
+  await writeFile("output/playwright/medical-records-request-expected.json", JSON.stringify({ ...data, reference, version: definition.version, authorization: definition.authorizationText }));
 });

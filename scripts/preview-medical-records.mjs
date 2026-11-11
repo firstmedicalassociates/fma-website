@@ -9,14 +9,15 @@ import { createSesEmailSender } from "../src/app/lib/ses-email.mjs";
 
 let lastDelivery = null;
 const fakeEnv = { SES_REGION: "us-east-1", SES_FROM_EMAIL: "forms@example.com", MEDICAL_RECORDS_VENDOR_REVIEWED: "true" };
-const handler = createMedicalRecordsHandler({
+const handlers = Object.fromEntries(["release", "request"].map(formType => [`/api/medical-records-${formType}`, createMedicalRecordsHandler({
+  formType,
   env: fakeEnv, checkLimit: async () => null, buildPdf: buildCompletedMedicalRecordsPdf, logError: () => {},
   send: createSesEmailSender({ env: fakeEnv, client: { async send(command) {
     if (lastDelivery?.simulateFailure) { lastDelivery = null; throw new Error("Simulated delivery failure"); }
     lastDelivery = command.input;
     return { MessageId: "mock-accepted-id" };
   } } }),
-});
+})]));
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -29,11 +30,11 @@ const server = http.createServer(async (req, res) => {
       lastDelivery = { simulateFailure: true };
       res.writeHead(204); res.end(); return;
     }
-    if (req.url === "/api/medical-records-release" && req.method === "POST") {
+    if (handlers[req.url] && req.method === "POST") {
       const chunks = [];
       let length = 0;
       for await (const chunk of req) { length += chunk.length; if (length > 21000) { res.writeHead(413); res.end(); return; } chunks.push(chunk); }
-      const response = await handler(new Request(`http://127.0.0.1:3003${req.url}`, { method: "POST", headers: req.headers, body: Buffer.concat(chunks) }));
+      const response = await handlers[req.url](new Request(`http://127.0.0.1:3003${req.url}`, { method: "POST", headers: req.headers, body: Buffer.concat(chunks) }));
       res.writeHead(response.status, Object.fromEntries(response.headers));
       res.end(await response.text()); return;
     }

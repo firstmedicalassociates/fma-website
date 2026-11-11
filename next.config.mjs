@@ -48,6 +48,7 @@ const nextConfig = {
   skipTrailingSlashRedirect: true,
   outputFileTracingIncludes: {
     "/api/medical-records-release": ["./public/wp-content/uploads/2023/04/FMA-MR-release-4.18.23.pdf", "./src/assets/medical-records/NotoSans-Regular.ttf"],
+    "/api/medical-records-request": ["./public/wp-content/uploads/2023/04/FMA-MR-request-4.18.23.pdf", "./src/assets/medical-records/NotoSans-Regular.ttf"],
   },
   async headers() {
     return [
@@ -77,6 +78,14 @@ const nextConfig = {
       },
       {
         source: "/api/medical-records-release",
+        headers: medicalRecordsHeaders,
+      },
+      {
+        source: "/patient-resources/medical-records-request/:path*",
+        headers: medicalRecordsHeaders,
+      },
+      {
+        source: "/api/medical-records-request",
         headers: medicalRecordsHeaders,
       },
     ];

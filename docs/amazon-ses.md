@@ -1,6 +1,6 @@
 # Amazon SES form delivery
 
-All four email endpoints use `src/app/lib/ses-email.mjs` and the AWS SDK's SES v2
+All five email endpoints use `src/app/lib/ses-email.mjs` and the AWS SDK's SES v2
 `SendEmail` API. HTML, plain text, reply-to addresses, and the signed records PDF
 are preserved. A successful API response means SES accepted the message, not that
 the recipient's inbox received it. Team-delivery failures return an error; a failed
@@ -12,6 +12,7 @@ visitor confirmation does not ask the visitor to submit the inquiry again.
 | Practice-sale inquiry | `PRACTICE_TO_EMAILS`, falling back to `CONTACT_TO_EMAILS` | Welcome |
 | Partnership inquiry | Partnerships@drsfirst.com and citryn.contactforms@gmail.com | Welcome |
 | Medical-records release | MedicalRecords@drsfirst.com only | No email; browser downloads the accepted PDF |
+| Medical-records request (another practice to FMA) | MedicalRecords@drsfirst.com only | No email; browser downloads the accepted PDF |
 
 `SES_TEST_TO_EMAIL=ghough@citryn.com` is used only by the explicit synthetic test
 script. It never adds a copy or redirects submissions from any live form.

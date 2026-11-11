@@ -1,5 +1,9 @@
 # Medical records release
 
+The separate [medical records request](medical-records-request.md) workflow reuses
+the reviewed delivery and validation infrastructure for records coming from
+another practice to FMA.
+
 The Patient Forms & Policies **Release Medical Records** card and the Patient Resources
 overview now link to `/patient-resources/medical-records-release/`. Both use a full
 document navigation so scripts from a previous marketing page cannot remain active
@@ -68,7 +72,7 @@ remain part of the deployment review.
 The blank website PDF remains interactive. The email attachment is static, with an
 additional submission-details page retaining complete long values and signature
 attestation. When a value would be too small to read on the source page, that field
-says “See submission details.” The Noto Sans font is bundled with its OFL license.
+says “See details.” The Noto Sans font is bundled with its OFL license.
 
 ## Verification
 

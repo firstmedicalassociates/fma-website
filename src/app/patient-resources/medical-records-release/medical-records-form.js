@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CircleCheck, Download, Send } from "lucide-react";
-import { AUTHORIZATION_TEXT, ELECTRONIC_SIGNATURE_TEXT, EXPIRATION_TEXT, MEDICAL_RECORDS_PDF_PATH, MEDICAL_RECORDS_RECIPIENT, SENSITIVE_AUTHORIZATIONS, STD_DEFINITION } from "../../lib/medical-records-release.mjs";
+import { ELECTRONIC_SIGNATURE_TEXT, EXPIRATION_TEXT, MEDICAL_RECORDS_RECIPIENT, SENSITIVE_AUTHORIZATIONS, STD_DEFINITION } from "../../lib/medical-records-release.mjs";
+import { getMedicalRecordsForm } from "../../lib/medical-records-forms.mjs";
 import { SITE_CALL_HREF, SITE_CALL_LABEL } from "../../lib/config/site";
 import styles from "./medical-records.module.css";
 
@@ -15,7 +16,9 @@ function Field({ name, label, errors, type = "text", required = true, maxLength 
   </label>;
 }
 
-export default function MedicalRecordsForm({ available, signatureDate }) {
+export default function MedicalRecordsForm({ available, signatureDate, formType = "release" }) {
+  const definition = getMedicalRecordsForm(formType);
+  const apiPath = `/api/${definition.id}`;
   const [selected, setSelected] = useState({ releaseSpecific: false, releaseOther: false });
   const [status, setStatus] = useState("idle");
   const [errors, setErrors] = useState({});
@@ -38,7 +41,7 @@ export default function MedicalRecordsForm({ available, signatureDate }) {
     setMessage("");
     setErrors({});
     try {
-      const response = await fetch("/api/medical-records-release", {
+      const response = await fetch(apiPath, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values), cache: "no-store",
       });
       const result = await response.json();
@@ -68,20 +71,21 @@ export default function MedicalRecordsForm({ available, signatureDate }) {
     <CircleCheck size={42} aria-hidden="true" /><h3>Your authorization has been submitted.</h3>
     <p>Our medical records team will review your authorization and may contact you to verify your identity or request additional information.</p>
     <p className={styles.reference}>Submission reference: {reference}</p>
-    {downloadUrl && <a className={styles.primaryButton} href={downloadUrl} download="medical-records-release.pdf"><Download size={18} aria-hidden="true" /> Download your completed form</a>}
+    {downloadUrl && <a className={styles.primaryButton} href={downloadUrl} download={`${definition.id}.pdf`}><Download size={18} aria-hidden="true" /> Download your completed form</a>}
     <p>Questions? Call <a href={SITE_CALL_HREF}>{SITE_CALL_LABEL}</a>.</p>
   </div>;
 
   const checkbox = (name, label) => <label className={styles.choice} key={name}>
-    <input type="checkbox" name={name} onChange={name in selected ? event => setSelected(current => ({ ...current, [name]: event.target.checked })) : undefined} />
+    <input id={`mr-${name}`} type="checkbox" name={name} aria-invalid={Boolean(errors[name] || (errors.recordsScope && ["releaseAll", "releaseSpecific", "releaseOther"].includes(name)))} aria-describedby={errors.recordsScope && ["releaseAll", "releaseSpecific", "releaseOther"].includes(name) ? "mr-recordsScope-error" : undefined} onChange={name in selected ? event => setSelected(current => ({ ...current, [name]: event.target.checked })) : undefined} />
     <span>{label}</span>
   </label>;
 
   return <>
-    {!available && <div className={styles.notice} role="status"><strong>Online submission is currently unavailable.</strong><p>You can <a href={MEDICAL_RECORDS_PDF_PATH} download>download the fillable PDF</a> and call <a href={SITE_CALL_HREF}>{SITE_CALL_LABEL}</a> for return instructions.</p></div>}
+    {!available && <div className={styles.notice} role="status"><strong>Online submission is currently unavailable.</strong><p>You can <a href={definition.pdfPath} download>download the fillable PDF</a> and call <a href={SITE_CALL_HREF}>{SITE_CALL_LABEL}</a> for return instructions.</p></div>}
     <noscript><p className={styles.notice}>Enable JavaScript to submit online, or download the fillable PDF and contact our team.</p></noscript>
-    <form ref={formRef} className={styles.form} method="post" action="/api/medical-records-release" onSubmit={handleSubmit} autoComplete="off" aria-busy={status === "sending"}>
+    <form ref={formRef} className={styles.form} method="post" action={apiPath} onSubmit={handleSubmit} autoComplete="off" aria-busy={status === "sending"}>
       <p className={styles.help}>Fields marked * are required. Completed authorizations are sent to {MEDICAL_RECORDS_RECIPIENT}.</p>
+      {status === "error" && <div className={styles.error} tabIndex={-1} ref={resultRef} role="alert"><p>{message}</p>{Object.keys(errors).length > 0 && <ul>{Object.entries(errors).map(([name, error]) => <li key={name}><a href={name === "recordsScope" ? "#mr-releaseAll" : `#mr-${name}`}>{error}</a></li>)}</ul>}{reference && <p>Submission reference: {reference}</p>}<a href={SITE_CALL_HREF}>Call {SITE_CALL_LABEL}</a></div>}
       <fieldset disabled={!available || status === "sending"} className={styles.section}>
         <legend>1. Patient information</legend>
         <div className={styles.grid}>
@@ -90,8 +94,8 @@ export default function MedicalRecordsForm({ available, signatureDate }) {
         </div>
       </fieldset>
       <fieldset disabled={!available || status === "sending"} className={styles.section}>
-        <legend>2. Where should we send your records?</legend>
-        <p>{AUTHORIZATION_TEXT}</p>
+        <legend>2. {definition.practiceHeading}</legend>
+        <p>{definition.authorizationText}</p>
         <div className={styles.grid}>
           <div className={styles.full}><Field name="recipientName" label="Practice / physician's name" errors={errors} maxLength={120} /></div>
           <Field name="recipientPhone" label="Practice phone" errors={errors} type="tel" required={false} maxLength={40} />
@@ -102,9 +106,9 @@ export default function MedicalRecordsForm({ available, signatureDate }) {
         </div>
       </fieldset>
       <fieldset disabled={!available || status === "sending"} className={styles.section} aria-describedby="mr-scope-help">
-        <legend>3. Information to release</legend>
+        <legend>3. Information to {formType === "request" ? "request" : "release"}</legend>
         <p id="mr-scope-help">This request and authorization applies to the following. Select at least one option. *</p>
-        {errors.recordsScope && <p className={styles.fieldError}>{errors.recordsScope}</p>}
+        {errors.recordsScope && <p className={styles.fieldError} id="mr-recordsScope-error">{errors.recordsScope}</p>}
         {checkbox("releaseAll", "All healthcare information")}
         {checkbox("releaseSpecific", "Healthcare information relating to a specific treatment, condition or dates")}
         {selected.releaseSpecific && <label className={styles.field} htmlFor="mr-treatmentDetails"><span>Treatment, condition or dates *</span><textarea id="mr-treatmentDetails" name="treatmentDetails" required maxLength={600} rows={3} aria-invalid={Boolean(errors.treatmentDetails)} aria-describedby={errors.treatmentDetails ? "mr-treatmentDetails-error" : undefined} />{errors.treatmentDetails && <span className={styles.fieldError} id="mr-treatmentDetails-error">{errors.treatmentDetails}</span>}</label>}
@@ -127,9 +131,8 @@ export default function MedicalRecordsForm({ available, signatureDate }) {
         {errors.signatureConsent && <p className={styles.fieldError} id="mr-signatureConsent-error">{errors.signatureConsent}</p>}
       </fieldset>
       <div className={styles.honeypot} aria-hidden="true"><label htmlFor="mr-website">Leave this field empty</label><input id="mr-website" name="website" tabIndex={-1} autoComplete="off" /></div>
-      {status === "error" && <div className={styles.error} tabIndex={-1} ref={resultRef} role="alert"><p>{message}</p>{Object.keys(errors).length > 0 && <ul>{Object.entries(errors).map(([name, error]) => <li key={name}><a href={name === "recordsScope" ? "#mr-scope-help" : `#mr-${name}`}>{error}</a></li>)}</ul>}{reference && <p>Submission reference: {reference}</p>}<a href={SITE_CALL_HREF}>Call {SITE_CALL_LABEL}</a></div>}
       <button className={styles.primaryButton} type="submit" disabled={!available || status === "sending"}><Send size={18} aria-hidden="true" />{status === "sending" ? "Submitting your authorization…" : "Submit authorization"}</button>
-      <p className={styles.help}>Please review your entries before submitting. Our records team reviews the authorization before releasing records. <Link href="/privacy-policy/">Privacy Policy</Link></p>
+      <p className={styles.help}>Please review your entries before submitting. Our records team reviews the authorization before {formType === "request" ? "requesting your records from the practice you listed" : "releasing records"}. <Link href="/privacy-policy/">Privacy Policy</Link></p>
     </form>
   </>;
 }

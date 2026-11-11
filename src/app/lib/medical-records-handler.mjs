@@ -1,6 +1,7 @@
 import { getEmailConfig } from "./email-config.mjs";
 import { randomUUID } from "node:crypto";
-import { FORM_VERSION, MEDICAL_RECORDS_RECIPIENT, medicalRecordsDate, medicalRecordsDeliveryReady, validateMedicalRecordsRelease } from "./medical-records-release.mjs";
+import { MEDICAL_RECORDS_RECIPIENT, medicalRecordsDate, medicalRecordsDeliveryReady, validateMedicalRecordsRelease } from "./medical-records-release.mjs";
+import { getMedicalRecordsForm } from "./medical-records-forms.mjs";
 
 const responseHeaders = { "Cache-Control": "private, no-store, max-age=0", "Referrer-Policy": "no-referrer" };
 const unavailable = "Online submission is temporarily unavailable. Please download the fillable PDF or call our team for help.";
@@ -34,7 +35,8 @@ async function readPayload(request) {
   } finally { reader.releaseLock(); }
 }
 
-export function createMedicalRecordsHandler({ checkLimit, buildPdf, send, env = process.env, now = () => new Date(), uuid = randomUUID, logError = console.error }) {
+export function createMedicalRecordsHandler({ checkLimit, buildPdf, send, formType = "release", env = process.env, now = () => new Date(), uuid = randomUUID, logError = console.error }) {
+  const form = getMedicalRecordsForm(formType);
   return async function POST(request) {
     if (!isSameOrigin(request) || request.headers.get("sec-fetch-site") === "cross-site") return json({ ok: false, error: "Please submit the form from this website." }, 403);
     if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) return json({ ok: false, error: "Please submit a valid form." }, 415);
@@ -54,17 +56,17 @@ export function createMedicalRecordsHandler({ checkLimit, buildPdf, send, env = 
     const signatureDate = medicalRecordsDate(received);
     let stage = "pdf";
     try {
-      const pdf = await buildPdf(data, { reference, submittedAt, signatureDate });
+      const pdf = await buildPdf(data, { reference, submittedAt, signatureDate, formType });
       const content = pdf.toString("base64");
       const message = {
         From: { email: getEmailConfig(env).fromEmail, name: "First Medical Associates" },
         To: [{ email: MEDICAL_RECORDS_RECIPIENT, name: "FMA Medical Records" }],
-        Subject: `Medical records release authorization | ${reference}`,
+        Subject: `${form.subject} | ${reference}`,
         ContentType: "HTML",
-        HTMLContent: `<p>A medical records release authorization has been submitted through the FMA website.</p><p>Reference: ${reference}<br>Received (UTC): ${submittedAt}<br>Form version: ${FORM_VERSION}</p><p>The completed authorization and electronic signature attestation are attached as a PDF. Verify the submitter's identity and authority before releasing records.</p>`,
-        PlainContent: `A medical records release authorization has been submitted through the FMA website.\nReference: ${reference}\nReceived (UTC): ${submittedAt}\nForm version: ${FORM_VERSION}\nThe completed authorization and electronic signature attestation are attached as a PDF. Verify the submitter's identity and authority before releasing records.`,
-        Attachments: [{ Content: content, Type: "application/pdf", Filename: "medical-records-release.pdf" }],
-        Tags: ["medical-records-release"],
+        HTMLContent: `<p>A ${form.subject.toLowerCase()} has been submitted through the FMA website.</p><p>Reference: ${reference}<br>Received (UTC): ${submittedAt}<br>Form version: ${form.version}</p><p>${form.authorizationText}</p><p>The completed authorization and electronic signature attestation are attached as a PDF. Verify the submitter's identity and authority before processing this authorization.</p>`,
+        PlainContent: `A ${form.subject.toLowerCase()} has been submitted through the FMA website.\nReference: ${reference}\nReceived (UTC): ${submittedAt}\nForm version: ${form.version}\n${form.authorizationText}\nThe completed authorization and electronic signature attestation are attached as a PDF. Verify the submitter's identity and authority before processing this authorization.`,
+        Attachments: [{ Content: content, Type: "application/pdf", Filename: `${form.id}.pdf` }],
+        Tags: [form.id],
       };
       stage = "delivery";
       await send(message);

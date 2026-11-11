@@ -2,6 +2,7 @@
 
 import Script from "next/script";
 import { usePathname } from "next/navigation";
+import { isMedicalRecordsPage } from "../lib/medical-records-forms.mjs";
 
 const EMITRR_WEBCHAT_ID = "5c737ff6-8cdb-4c21-89b7-e38adce4f442";
 const GOOGLE_ANALYTICS_ID = "G-2FEBLJP9NJ";
@@ -22,7 +23,7 @@ function initializeEmitrrWidget() {
 
 export default function ThirdPartyScripts() {
   const pathname = usePathname();
-  if (pathname === "/admin" || pathname?.startsWith("/admin/") || pathname?.replace(/\/+$/, "") === "/patient-resources/medical-records-release") return null;
+  if (pathname === "/admin" || pathname?.startsWith("/admin/") || isMedicalRecordsPage(pathname || "")) return null;
   return (
     <>
       <Script
