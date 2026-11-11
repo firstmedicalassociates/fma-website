@@ -51,7 +51,13 @@ export async function buildCompletedMedicalRecordsPdf(data, { reference, submitt
   for (const [name, [, , width]] of Object.entries(textFields)) {
     const value = values[name] || "";
     // Keep the source page readable; the following pages retain every complete value.
-    form.getTextField(name).setText(font.widthOfTextAtSize(value, 7) > width - 4 ? "See submission details" : value);
+    const fitsAtMinimumSize = font.widthOfTextAtSize(value, 7) <= width - 4;
+    const displayValue = fitsAtMinimumSize ? value : "See details";
+    const fontSize = Math.min(10, (width - 4) / (font.widthOfTextAtSize(displayValue, 1) || 1));
+    const field = form.getTextField(name);
+    field.setText(displayValue);
+    // The template's saved size does not automatically follow the fit calculation.
+    field.setFontSize(fontSize);
   }
   for (const name of Object.keys(checkboxes)) if (data[name]) form.getCheckBox(name).check();
   form.updateFieldAppearances(font);
