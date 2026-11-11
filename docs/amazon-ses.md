@@ -67,10 +67,9 @@ duplicates. GoDaddy appends `drsfirst.com` to the Name.
 | CNAME | `iakbm3qv5oaqht7y74wkha6rkbzoexgb._domainkey` | `iakbm3qv5oaqht7y74wkha6rkbzoexgb.dkim.amazonses.com` |
 | CNAME | `ugbsihazzgonyr6m4yk5eatognc2qa42._domainkey` | `ugbsihazzgonyr6m4yk5eatognc2qa42.dkim.amazonses.com` |
 
-While the account is in the SES sandbox, every recipient must also be
-verified. Request production access before expecting visitor confirmations to
-reach arbitrary addresses. Verify `citryn.contactforms@gmail.com` separately if
-testing the existing contact/partnership routing while still in the sandbox.
+Production access was confirmed on November 11, 2026. The account is out of the
+sandbox; recipients do not need separate SES verification. Both `drsfirst.com`
+and `ghough@citryn.com` remain verified.
 
 ## Vercel authentication
 
@@ -93,52 +92,48 @@ fallbacks above. Environment changes apply to subsequent production deployments.
 
 ## Cutover status
 
-As of November 9, 2026, the SES migration is not deployed. The current production
-commit `eaf7594b734ee252229b61752bf27825356c1986` still uses SendLayer. The SES
-account remains in the sandbox (200 recipients/day, 1 email/second), so
-the existing external team/archive addresses and arbitrary visitor confirmations
-cannot all be delivered. With the owner's approval, the transactional
-production-access request for `https://drsfirst.com` was submitted on November 2,
-2026. AWS subsequently requested additional information in support case
-`179366278800121`. On November 5, the owner provided an expected volume of
-100–500 emails/day, and a complete follow-up was submitted covering the website,
-transactional form flows, recipient source, bounce/complaint handling, and a
-sample confirmation. The saved case status is **Customer action completed**;
-production access has not yet been approved.
+The SES migration is **live as of November 11, 2026**. The AWS console confirmed
+production access with a quota of **50,000 emails per 24 hours**, a maximum rate
+of **14 emails per second**, and **Healthy** account status in `us-east-1`.
+Both identities were rechecked as **Verified**. The original production-access
+request and review correspondence are in support case `179366278800121`.
 
-On November 9, both identities were rechecked as **Verified**. AWS had not added
-a response to the November 5 details. A follow-up was submitted at 9:32 AM Pacific
-asking for a decision, the exact outstanding requirement, and the next update.
-The persisted case still shows **Customer action completed**; this is not approval.
+PR #1 was merged as `998ac77a4f47a5874c17a54d17b66289961b7832`. Vercel production
+deployment `dpl_Ap816igGn9eBrixsufKpCNnXXsVw` completed successfully at
+10:49 AM Pacific, and the public `drsfirst.com` page served that deployment.
+The migration's 41 form/transport tests and preview build passed before merging.
 
-Live synthetic delivery checks on November 9:
+Live synthetic delivery checks at 10:49 AM Pacific on November 11:
 
-- General/location, practice-sale, and partnership submissions returned HTTP 200
-  with `ok: true` and `confirmationSent: true`. All three visitor confirmations
-  were seen in `ghough@citryn.com`'s inbox at 9:33 AM Pacific.
-- The first medical-records test failed. Vercel traced the SendLayer attachment
-  request timing out at 15.00 seconds. PR #2 increased only that transport's
-  deadline to 45 seconds, set a 60-second function limit, and added fixed
-  failure-stage diagnostics without logging submitted data or provider messages.
-  Its 13 medical tests and Vercel preview/production builds passed.
-- After the repair deployed, a fresh medical test returned HTTP 200 in 11.93
-  seconds with `ok: true`, reference `d37a3a5d-8db4-4f2c-9ae1-c491a9d49574`, and
-  a valid static two-page PDF (171,620 bytes). This confirms SendLayer acceptance
-  for `MedicalRecords@drsfirst.com`; that mailbox's receipt was not independently
-  inspected. All medical test data was explicitly synthetic and marked not to
-  process. No patient submissions were copied to the test mailbox.
+| Form endpoint | Result | Duration |
+| --- | --- | --- |
+| `/api/location-info-contact` | HTTP 200, `ok: true`, `confirmationSent: true` | 1.06 s |
+| `/api/practice-inquiry` | HTTP 200, `ok: true`, `confirmationSent: true` | 0.74 s |
+| `/api/partnership-inquiry` | HTTP 200, `ok: true`, `confirmationSent: true` | 0.75 s |
+| `/api/medical-records-release` | HTTP 200, `ok: true`, completed PDF | 2.29 s |
 
-These live tests validate the existing SendLayer delivery, not the pending SES
-cutover. A successful retest does not establish that provider delays cannot recur.
+All three visitor confirmations were independently seen in `ghough@citryn.com`'s
+inbox, timestamped 10:49 AM Pacific. These production requests exercised the
+Vercel OIDC credential exchange and SES sender successfully.
+
+The medical test returned reference `7966b27d-0b5d-4eb1-8dd1-3123afc6029d`
+and a valid two-page PDF (171,629 bytes, no editable fields). SES acknowledged
+the message addressed only to `MedicalRecords@drsfirst.com`; receipt inside that
+mailbox was not independently inspected. All test data was fictional and clearly
+marked **SYNTHETIC TEST / DO NOT PROCESS**. Medical submissions are never copied
+to the test mailbox.
+
+The previous SendLayer production baseline is
+`eaf7594b734ee252229b61752bf27825356c1986` (PR #2). Existing SendLayer environment
+settings remain available for an explicit rollback; the SES implementation has
+no automatic fallback that could duplicate a submission after an ambiguous send.
 
 Email feedback forwarding is enabled on the domain, and account-level
 suppression is enabled for both bounces and complaints. The owner confirmed
 their team handles delivery notices.
 
-Once AWS approves production access, deploy this migration and run a synthetic
-production form test to verify the Vercel OIDC exchange and resulting emails.
-The medical form's provider approval is configured; its SES transport still
-requires this deployment. Keep that setting separate from the general
+The medical form's provider approval is configured and its SES transport is
+enabled in production. That approval remains separate from the general
 contact-form review.
 
 ## Verification
@@ -149,7 +144,10 @@ contact-form review.
    With a verified sender and valid server credentials, run
    `npm run ses:test -- --send`. It sends one clearly labeled synthetic email with
    a completed test PDF to that mailbox only. Without `--send`, it sends nothing.
-4. Confirm receipt and that the PDF opens before switching production traffic.
+4. For a future deployment or configuration change, verify the affected live
+   form with synthetic data, check provider acceptance, and independently inspect
+   receipt where mailbox access is available. Validate the returned medical PDF
+   without copying submissions to unrelated recipients.
 
 Sources: [SES v2 attachments](https://docs.aws.amazon.com/ses/latest/dg/attachments.html),
 [SES sandbox](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html),
