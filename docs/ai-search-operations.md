@@ -49,9 +49,10 @@ Add them in Vercel Project Settings -> Environment Variables for the Production 
 Required before enabling the email contact form in production:
 
 - `CONTACT_FORM_VENDOR_REVIEWED=true`
-- `SENDLAYER_API_KEY`
-- `SENDLAYER_FROM_EMAIL`
-- `SENDLAYER_TO_EMAIL`
+- `SES_REGION`
+- `SES_FROM_EMAIL`
+- `CONTACT_TO_EMAILS`
+- Server-side AWS credentials with `ses:SendEmail` permission (see [SES setup](amazon-ses.md))
 
 Set `CONTACT_FORM_VENDOR_REVIEWED=true` only after confirming the email vendor, retention settings, and business/compliance requirements are acceptable for health-adjacent contact submissions.
 

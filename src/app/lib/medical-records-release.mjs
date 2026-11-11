@@ -1,3 +1,5 @@
+import { emailDeliveryConfigured } from "./email-config.mjs";
+
 export const MEDICAL_RECORDS_RECIPIENT = "MedicalRecords@drsfirst.com";
 export const MEDICAL_RECORDS_FORM_PATH = "/patient-resources/medical-records-release/";
 export const MEDICAL_RECORDS_PDF_PATH = "/wp-content/uploads/2023/04/FMA-MR-release-4.18.23.pdf";
@@ -17,8 +19,7 @@ export function medicalRecordsDate(now = new Date()) {
 
 export function medicalRecordsDeliveryReady(env = process.env) {
   return env.MEDICAL_RECORDS_VENDOR_REVIEWED === "true"
-    && Boolean(env.SENDLAYER_API_KEY?.trim())
-    && /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(env.SENDLAYER_FROM_EMAIL?.trim() || "");
+    && emailDeliveryConfigured(env);
 }
 
 const textFields = {

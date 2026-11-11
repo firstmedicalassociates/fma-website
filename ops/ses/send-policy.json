@@ -1,0 +1,10 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "SendFmaFormEmails",
+    "Effect": "Allow",
+    "Action": "ses:SendEmail",
+    "Resource": "arn:aws:ses:us-east-1:589158200178:identity/drsfirst.com",
+    "Condition": { "StringEquals": { "ses:FromAddress": "info@drsfirst.com" } }
+  }]
+}

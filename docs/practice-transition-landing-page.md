@@ -6,15 +6,15 @@ The page reuses SiteHeader, SiteFooter, HeroEyebrow, Lucide icons, FMA colors, r
 
 ## Inquiry delivery
 
-`POST /api/practice-inquiry` validates contact/practice details, explicit inquiry contact consent, option values, field lengths, and the existing free-text PHI guard. The route uses the existing rate limiter (shared Redis required in production), a honeypot, and SendLayer's existing message format.
+`POST /api/practice-inquiry` validates contact/practice details, explicit inquiry contact consent, option values, field lengths, and the existing free-text PHI guard. The route uses the existing rate limiter (shared Redis required in production), a honeypot, and the shared Amazon SES transport.
 
-Required environment variables are the same as the current contact form: `SENDLAYER_API_KEY`, `SENDLAYER_FROM_EMAIL`, and `SENDLAYER_TO_EMAILS` (or legacy `SENDLAYER_TO_EMAIL`). The optional `SENDLAYER_PRACTICE_TO_EMAILS` overrides the recipient list for practice inquiries. `SENDLAYER_FROM_NAME` defaults to First Medical Associates. Production retains `CONTACT_FORM_VENDOR_REVIEWED=true` and the existing `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` requirements.
+Required settings are `SES_REGION`, `SES_FROM_EMAIL`, server AWS credentials, and `CONTACT_TO_EMAILS`. Optional `PRACTICE_TO_EMAILS` overrides the practice recipient list; `SES_FROM_NAME` defaults to First Medical Associates. Production retains `CONTACT_FORM_VENDOR_REVIEWED=true` and the existing shared rate limiter settings. See [SES setup](amazon-ses.md).
 
 The internal notification contains the practice profile, goals, contact preference, message, consent, and allowlisted campaign tags. Its reply-to is the visitor. After that send succeeds, a separate professional welcome email goes to the visitor, with a reply-to pointing to the first configured practice recipient. The welcome does not repeat the practice details or message. Both templates have HTML and plain-text versions; the wordmark uses text so branding remains readable when images are blocked.
 
-If internal delivery fails, the form preserves the fields and offers retry/call options. If only the welcome send fails, the inquiry remains successful and the visitor is explicitly told not to resubmit. Like the existing contact form, acceptance by SendLayer is not a guarantee of inbox delivery; this flow has no durable email queue or bounce monitoring.
+If internal delivery fails, the form preserves the fields and offers retry/call options. If only the welcome send fails, the inquiry remains successful and the visitor is explicitly told not to resubmit. Like the existing contact form, acceptance by Amazon SES is not a guarantee of inbox delivery; this flow has no durable email queue or bounce monitoring.
 
-This local checkout did not have SendLayer or shared Redis configuration at implementation time. No live emails were sent. Verify the deployment environment's existing configuration before sending ad traffic.
+This local checkout did not have Amazon SES or shared Redis configuration at implementation time. No live emails were sent. Verify the deployment environment's existing configuration before sending ad traffic.
 
 ## Preview and verification
 

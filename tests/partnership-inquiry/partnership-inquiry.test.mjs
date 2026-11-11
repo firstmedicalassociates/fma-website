@@ -6,11 +6,11 @@ import { createPartnershipInquiryHandler } from "../../src/app/lib/partnership-i
 import { hasPotentialPhi } from "../../src/app/lib/no-phi-guard.js";
 
 const sample = { firstName: "Jordan", lastName: "Morgan", email: "jordan@example.com", phone: "301-555-0123", organization: "Example Community Organization", role: "Director", partnershipType: "Community Organizations", message: "We would like to explore expanding access to primary care in our community.", consent: true };
-const env = { NODE_ENV: "test", SENDLAYER_API_KEY: "test-key", SENDLAYER_FROM_EMAIL: "from@example.com", SENDLAYER_TO_EMAILS: "patients@example.com", SENDLAYER_PRACTICE_TO_EMAILS: "practices@example.com" };
+const env = { NODE_ENV: "test", SES_REGION: "us-east-1", SES_FROM_EMAIL: "from@example.com", CONTACT_TO_EMAILS: "patients@example.com", PRACTICE_TO_EMAILS: "practices@example.com" };
 const request = (payload = sample) => new Request("http://localhost/api/partnership-inquiry", { method: "POST", body: JSON.stringify(payload) });
 function setup(overrides = {}) {
   const sent = [];
-  return { sent, handler: createPartnershipInquiryHandler({ checkLimit: async () => null, hasPotentialPhi, env, send: async (key, message) => { assert.equal(key, "test-key"); sent.push(message); }, logError: () => {}, ...overrides }) };
+  return { sent, handler: createPartnershipInquiryHandler({ checkLimit: async () => null, hasPotentialPhi, env, send: async (message) => { sent.push(message); }, logError: () => {}, ...overrides }) };
 }
 
 test("notifies both designated inboxes before welcoming the visitor, with separate reply-to addresses", async () => {
@@ -78,7 +78,7 @@ test("rejects malformed JSON, oversized bodies, and potential patient informatio
 });
 
 test("requires sender credentials and the existing production vendor review flag", async () => {
-  for (const settings of [{ ...env, NODE_ENV: "production" }, { ...env, SENDLAYER_API_KEY: "" }, { ...env, SENDLAYER_FROM_EMAIL: "invalid" }]) {
+  for (const settings of [{ ...env, NODE_ENV: "production" }, { ...env, SES_REGION: "" }, { ...env, SES_FROM_EMAIL: "invalid" }]) {
     const { handler, sent } = setup({ env: settings });
     assert.equal((await handler(request())).status, 503);
     assert.equal(sent.length, 0);
