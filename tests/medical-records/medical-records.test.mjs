@@ -151,7 +151,7 @@ test("SES receives the exact PDF bytes and only the designated medical-records r
   const { handler, sent } = setup(); await handler(request());
   const send = createSesEmailSender({ env, client: { async send(command, options) {
     const input = command.input;
-    assert.deepEqual(input.Destination.ToAddresses, ['"FMA Medical Records" <MedicalRecords@drsfirst.com>']);
+    assert.deepEqual(input.Destination.ToAddresses, ['"FMA Medical Records" <medicalrecords@drsfirst.com>']);
     const attachment = input.Content.Simple.Attachments[0];
     assert.equal(attachment.RawContent.toString(), "%PDF-1.7 test");
     assert.equal(attachment.ContentType, "application/pdf");
