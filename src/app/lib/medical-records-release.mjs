@@ -1,6 +1,6 @@
 import { emailDeliveryConfigured } from "./email-config.mjs";
 
-export const MEDICAL_RECORDS_RECIPIENT = "MedicalRecords@drsfirst.com";
+export const MEDICAL_RECORDS_RECIPIENT = "medicalrecords@drsfirst.com";
 export const MEDICAL_RECORDS_FORM_PATH = "/patient-resources/medical-records-release/";
 export const MEDICAL_RECORDS_PDF_PATH = "/wp-content/uploads/2023/04/FMA-MR-release-4.18.23.pdf";
 export const AUTHORIZATION_TEXT = "I request and authorize FIRST MEDICAL ASSOCIATES to release my healthcare information to the person/practice listed above.";
